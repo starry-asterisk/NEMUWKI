@@ -1,5 +1,5 @@
 'use strict';
-const worker = new Worker('./LiZARD/worker.js');
+const worker = new Worker('./LIZARD/worker.js');
 var touchHistory = {};
 
 const onloadEvent = () => {

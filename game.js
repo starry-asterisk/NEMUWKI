@@ -54,7 +54,7 @@ class Mob {
     };
 
 }
-
+/*
 let canvas = document.getElementById('canvas');
 let context = canvas.getContext('2d');
 let x = 25, y = 25, r = 25;
@@ -81,7 +81,7 @@ let render = () => {
   requestAnimationFrame(render);
 };
 
-render();
+render();*/
 
 
 
