@@ -7,6 +7,7 @@ class Loader {
         this._topMenu__auto = document.querySelector('.topMenu__auto');
     }
     load(mode) {
+        onunloadEvent();
         let _this = this;
         this._mode = mode;
         this._container.setAttribute('mode', '');
@@ -24,10 +25,7 @@ class Loader {
                     vn.load(script);
                     break;
                 case 'game':
-                    /*
-                    let game = new Game();
-                    game.init();
-                    game.start();*/
+                    onloadEvent();
                     break;
                 case 'talk':
                     break;

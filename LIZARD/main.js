@@ -1,13 +1,11 @@
 'use strict';
-const worker = new Worker('./LIZARD/worker.js');
+let worker;
 var touchHistory = {};
 
 const onloadEvent = () => {
+    worker = new Worker('./LIZARD/worker.js');
     let body = document.body;
     let canvas = document.querySelector('canvas');
-    canvas.width = body.clientWidth;
-    canvas.height = Math.min(body.clientWidth * 1.5, body.clientHeight);
-    canvas.style.backgroundColor = '#000000';
 
     document.addEventListener('keydown', onKeyEvent('keydown'), false);
     document.addEventListener('keyup', onKeyEvent('keyup'), false);
@@ -53,7 +51,7 @@ const onKeyEvent = eventName => event => {
 };
 
 const onunloadEvent = () => {
-    worker.terminate();
+    if(worker.terminate) worker.terminate();
 };
 
 
