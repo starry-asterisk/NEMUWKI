@@ -39,6 +39,7 @@ const onTouchEvent = eventName => event => {
 };
 
 const onKeyEvent = eventName => event => {
+    event.preventDefault();
     if(event.key == "Right" || event.key == "ArrowRight") {
         worker.postMessage({ type : 'keyDirect', eventName : eventName, key : 'right' });
     } else if(event.key == "Left" || event.key == "ArrowLeft") {
@@ -51,17 +52,5 @@ const onKeyEvent = eventName => event => {
 };
 
 const onunloadEvent = () => {
-    if(worker != null & worker.terminate) worker.terminate();
+    if(typeof worker == 'object') worker.terminate();
 };
-
-
-document.addEventListener("DOMContentLoaded", (event) => {
-    let body = document.body;
-    body.addEventListener('unload', onunloadEvent)/*
-    body.style.width = '100%';
-    body.style.height = '100%';
-    body.style.margin = '0';
-    body.style.padding = '0';
-
-    onloadEvent();*/
-});
