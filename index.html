@@ -1,0 +1,116 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./index.css">
+    <link rel="stylesheet" type="text/css" href="./cursor.css">
+    <link rel="stylesheet" type="text/css" href="./game.css">
+    <script src="./index.js"></script>
+    <script src="./cursor.js"></script>
+    <script src="./script.js"></script>
+    <script src="./game.js"></script>
+    <script src="./LIZARD/main.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <canvas class="gameContainer" mode="shooting" width="400" height="600"></canvas>
+        <div class="loading">
+            <span class="triangle"></span>
+            <span class="triangle" index="1"></span>
+            <span class="triangle" index="2"></span>
+            <span class="triangle" index="3"></span>
+            <span class="logo">
+                <img src="shitim.png">
+            </span>
+        </div>
+        <div class="momoTalk">
+            <div class="momoTalk__top">
+                <span class="momoTalk__top__logo"><svg viewBox="0 0 512 512" xml:space="preserve">
+                    <g>
+                        <path class="st0" d="M399.5,370.196c36.297-31.094,58.75-74.031,58.75-121.469c0-65.578-49.078-121.422-105.656-151.469   c-84.094-42.484-80.359-67.422-94.875-67.422s-10.781,24.938-94.859,67.422c-56.578,30.047-105.641,85.891-105.641,151.469   c0,47.438,22.438,90.375,58.719,121.469c33.906,29.047,160.328,56.359,148.781-66c-2.688-28.563,35.594-30.719,16.719,47.984   c-8.344,34.844-24.797,42.578-29.094,44.734c-4.313,2.156-4.313,5.375,5.375,6.453C317.281,409.992,366.094,398.821,399.5,370.196z   "></path>
+                        <path class="st0" d="M87.875,372.43c0,0-73.859,25.453-87.875,86.531c111.078,56.828,215.625-5.484,233.563-30.594   C120.813,423.32,87.875,372.43,87.875,372.43z"></path>
+                        <path class="st0" d="M424.125,372.43c0,0-34.875,58.437-145.672,55.937c17.922,25.109,122.469,87.422,233.547,30.594   C497.984,397.883,424.125,372.43,424.125,372.43z"></path>
+                    </g>
+                    </svg></span>
+                <span class="momoTalk__top__title">MomoTalk</span>
+                <button class="momoTalk__top__close" onclick="app.load('main');">✕</button>
+            </div>
+            <div>
+                <div class="momoTalk__side">
+                    <button class="momoTalk__side__friends"><svg xmlns="http://www.w3.org/2000/svg" width="56%" height="56%" class="bi bi-person-fill" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                      </svg></button>
+                    <button class="momoTalk__side__fmessages" data-count="0"><svg xmlns="http://www.w3.org/2000/svg" width="40%" height="40%" class="bi bi-chat-left-dots-fill" viewBox="0 0 16 16">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4.414a1 1 0 0 0-.707.293L.854 15.146A.5.5 0 0 1 0 14.793zm5 4a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                      </svg></button>
+                </div>
+                <div class="momoTalk__list"></div>
+                <div class="momoTalk__detail"></div>
+            </div>
+        </div>
+        <div class="container__choice"></div>
+        <div class="dialog" style="display: none;" mode="opening">
+            <p class="dialog__title">
+                <span class="dialog__title__name"></span>
+                <span class="dialog__title__team"></span>
+            </p>
+            <div class="dialog__contents"></div>
+        </div>
+        <div class="container__object"></div>
+        <div class="topMenu">
+            <span class="topMenu__score" icon="😎">13</span>
+            <span class="topMenu__time" icon="❤️">03:13</span>
+            <button class="topMenu__stop square">ll</button>
+            <button class="topMenu__auto">
+                AUTO
+                <svg class="glowing" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" rx="0.5rem"></rect>
+                </svg>
+            </button>
+            <button class="topMenu__menu" onclick="app.load('main');">MENU</button>
+        </div>
+        <div class="mainMenu">
+            <div>
+                <button data-mode="game"><span>임무</span></button>
+                <button data-mode="story"><span>스토리</span></button>
+            </div>
+            <div>
+                <div>
+                    <button data-mode="talk"><span>모모톡</span></button>
+                    <button data-mode="setting"><span>설정</span></button>
+                </div>
+                <button data-link="https://twitter.com/STARRY_ASTERISK"><span>트위터</span></button>
+                <button data-link="http://www.naver.com"><span>소스코드</span></button>
+            </div>
+        </div>
+        <div class="gameMenu">
+            <div class="gameMenu__skillSet">
+                <button class="gameMenu__skillSet__skill" cost="5"></button>
+                <button class="gameMenu__skillSet__skill" cost="2" state="disable"></button>
+                <button class="gameMenu__skillSet__skill" cost="6" state="empty"></button>
+            </div>
+            <div class="gameMenu__costGauge">
+                <span class="gameMenu_costGauge__count">0</span>
+                <span class="gameMenu_costGauge__bar">
+                    <span class="gameMenu_costGauge__bar__slot" style="background: var(--theme);"></span>
+                    <span class="gameMenu_costGauge__bar__slot" style="background: var(--theme);"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__cursor" style="left: 19%"></span>
+                </span>
+            </div>
+            <div class="gameMenu__control">
+                <button>AUTO</button>
+                <button>▶</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

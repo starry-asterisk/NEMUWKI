@@ -1,0 +1,33 @@
+[mode="shooting"] {
+    display: block;
+    position: absolute;
+    height: 0;
+    width: 34%;
+    margin: 0 auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    transition: height 300ms;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+[mode="game"] [mode="shooting"]{
+    height: 100%;
+    pointer-events: auto;
+}
+
+.hitBox .object {
+    position: absolute;
+    transform: translateX(-50%);
+}
+.hitBox .object::after {
+    content: '';
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    outline: 1px solid red;
+}
