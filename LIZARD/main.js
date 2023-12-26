@@ -51,7 +51,7 @@ const onKeyEvent = eventName => event => {
 };
 
 const onunloadEvent = () => {
-    if(worker.terminate) worker.terminate();
+    if(worker & worker.terminate) worker.terminate();
 };
 
 
