@@ -57,7 +57,7 @@ const onunloadEvent = () => {
 };
 
 
-(function(){
+document.addEventListener("DOMContentLoaded", (event) => {
     let body = document.body;
     body.addEventListener('unload', onunloadEvent)/*
     body.style.width = '100%';
@@ -66,9 +66,4 @@ const onunloadEvent = () => {
     body.style.padding = '0';
 
     onloadEvent();*/
-})();
-
-
-
-
-
+});
