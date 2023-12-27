@@ -2,12 +2,16 @@ class Loader {
     _container;
     _topMenu__auto;
     _mode = 'main';
+    _gameInstance;
     constructor() {
         this._container = document.querySelector('.container');
         this._topMenu__auto = document.querySelector('.topMenu__auto');
     }
     load(mode) {
-        onunloadEvent();
+        if(this._gameInstance) {
+            this._gameInstance.break();
+            this._gameInstance = null;
+        }
         let _this = this;
         this._mode = mode;
         this._container.setAttribute('mode', '');
@@ -25,7 +29,7 @@ class Loader {
                     vn.load(script);
                     break;
                 case 'game':
-                    onloadEvent();
+                    this._gameInstance = new ShootingGame();
                     break;
                 case 'talk':
                     break;
@@ -311,7 +315,8 @@ const 회상 = 2;
 const 나레이션 = 1;
 const 대사 = 0;
 
-const URL_PREFIX_ = 'https://starry-asterisk.github.io/exam';
+//const URL_PREFIX_ = 'https://starry-asterisk.github.io/exam';
+const URL_PREFIX_ = '';
 
 let app;
 

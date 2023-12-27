@@ -51,7 +51,7 @@ const __events = {
     keyInput : event => {
         let { eventName, key } = event.data;
         if (key == 'enter' && viewer.status != ViewerStatus.playing) {
-            __events.nextEvent(viewer);
+            if(eventName == 'keyup') __events.nextEvent(viewer);
         } else {
             (viewer.onKeyInputEvent || function(){})(eventName, key);
         }

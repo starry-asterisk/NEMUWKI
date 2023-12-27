@@ -3,7 +3,7 @@ let worker;
 var touchHistory = {};
 
 const onloadEvent = () => {
-    worker = new Worker('./shooting/worker.js');
+    worker = new Worker('./shooting/worker.js?'+Math.random());
     let body = document.body;
     let canvas = document.querySelector('canvas');
 
@@ -48,6 +48,7 @@ const onKeyEvent = eventName => event => {
     } else if(event.key == 'W' || event.key == 'w') {
         worker.postMessage({ type : 'keyInput', eventName : eventName, key : 'w' });
     } else if(event.key == 'Enter') {
+        console.log(eventName);
         worker.postMessage({ type : 'keyInput', eventName : eventName, key : 'enter' });
     }
 };

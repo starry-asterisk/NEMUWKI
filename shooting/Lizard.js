@@ -3,13 +3,12 @@ class Lizard {
         this.canvas = canvas;
         this.image = image;
         this.context = getContext(canvas);
-        this.s = 3;
-        this.r = 28;
+        this.s = 3;//move step
+        this.r = 28;//size of character radius
         this.x = rWidth / 2;
         this.y = rHeight - this.r - 5;
         this.isDirectKeyPress = false;
         this.directKey = undefined;
-        this.moveX = undefined;
         this.isInputKeyPress = false;
         this.inputKey = undefined;
         this.bulletItemList = [ new BasicBullet(canvas) ];
@@ -30,25 +29,6 @@ class Lizard {
         this.inputKey = this.isInputKeyPress ? key : undefined;
     };
 
-    onTouchEvent = (eventName, x) => {
-        switch (eventName) {
-            case 'touchstart' :
-                this.isInputKeyPress = true;
-                this.inputKey = 'w';
-                break;
-            case 'touchmove' :
-                this.isDirectKeyPress = true;
-                this.moveX = x;
-                break;
-            default :
-                this.isInputKeyPress = false;
-                this.inputKey = undefined;
-                this.isDirectKeyPress = false;
-                this.moveX = undefined;
-                break;
-        }
-    };
-
     calPosition = () => {
         this.moveBody();
         this.fireBullet();
@@ -63,8 +43,6 @@ class Lizard {
         let { x, s, r } = this;
         if (this.directKey) {
             this.x = (this.directKey == 'left' ? Math.max(x-s, r) : Math.min(x+s, rWidth - r));
-        } else if (this.moveX) {
-            this.x = Math.max(r, Math.min(rWidth - r, x + this.moveX));
         }
     };
 
