@@ -3,7 +3,6 @@
 class PlayManager {
     constructor(canvas, story) {
         this.timer = undefined;
-        this.canvas = canvas;
         this.status = PlayStatus.opening;
         this.story = story;
         this.waveList = (this.story.waveList || []).map(waveData => this.createWave(waveData));
@@ -23,7 +22,7 @@ class PlayManager {
             }
             let { clazz } = enemyData;
             let opt = Object.assign({}, enemyData, { x : x + (i * 80) });
-            wave.enemyList[wave.enemyList.length] = new clazz(this.canvas, opt);
+            wave.enemyList[wave.enemyList.length] = new clazz(canvas, opt);
         }
         return wave;
     };
@@ -40,7 +39,7 @@ class PlayManager {
     };
 
     [PlayStatus.opening] = () => {
-        //renderTxtView(this.canvas, this.story.opening);
+        //renderTxtView(canvas, this.story.opening);
         postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} start</h1>`, time: 1500});
         this.doSleep(1500, () => this.status = PlayStatus.playing);
     };
@@ -59,7 +58,7 @@ class PlayManager {
     };
 
     [PlayStatus.ending] = () => {
-        //renderTxtView(this.canvas, this.story.ending);
+        //renderTxtView(canvas, this.story.ending);
         postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} clear!</h1>`, time: 1500});
         this.doSleep(1500, () => this.status = PlayStatus.exit);
     };

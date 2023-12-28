@@ -17,8 +17,6 @@ class Bullet {
 
 class BasicBullet {
     constructor(canvas) {
-        this.canvas = canvas;
-        this.context = canvas.getContext('2d');
         this.seq = 0;
         this.s = 6.5;
         this.r = 5;
@@ -102,30 +100,30 @@ class BasicBullet {
     };
 
     renderBulletInfo = () => {
-        this.context.beginPath();
-        this.context.font = "15px Sans MS";
-        this.context.fillStyle = '#FFFFFF';
-        this.context.textAlign = "left";
-        this.context.fillText(`${this.iconTxt} : ${this.nolimit ? '-' : this.limit}`, rWidth - 55, 20);
-        this.context.closePath();
+        context.beginPath();
+        context.font = "15px Sans MS";
+        context.fillStyle = '#FFFFFF';
+        context.textAlign = "left";
+        context.fillText(`${this.iconTxt} : ${this.nolimit ? '-' : this.limit}`, rWidth - 55, 20);
+        context.closePath();
     };
 
     renderFire = ({ x, y, r, fireColor, fireStrokeColor }) => {
-        this.context.beginPath();
-        this.context.arc(x, y, r, 0, Math.PI * 2, false);
-        this.context.fillStyle = fireColor;
-        this.context.fill();
-        this.context.strokeStyle = fireStrokeColor;
-        this.context.lineWidth = 3;
-        this.context.stroke();
-        this.context.closePath();
+        context.beginPath();
+        context.arc(x, y, r, 0, Math.PI * 2, false);
+        context.fillStyle = fireColor;
+        context.fill();
+        context.strokeStyle = fireStrokeColor;
+        context.lineWidth = 3;
+        context.stroke();
+        context.closePath();
     };
 
     renderCollision = (bullet) => {
         let { x, y, r } = bullet;
-        renderBoom(this.context, '#fc7f84', x, y, r * 1.2);
-        renderBoom(this.context, '#c89e65', x, y, r * 0.8);
-        renderBoom(this.context, '#c8c476', x, y, r * 0.4);
+        renderBoom(context, '#fc7f84', x, y, r * 1.2);
+        renderBoom(context, '#c89e65', x, y, r * 0.8);
+        renderBoom(context, '#c8c476', x, y, r * 0.4);
         if (bullet.collisionTime-- <= 0) {
             bullet.status = BulletStatus.destroy;
         }
@@ -239,7 +237,7 @@ class WaveBullet extends BasicBullet {
 
     postConstructBullet = (bullet, fireSeq) => {
         let range = 28 * (fireSeq == 0 ? -1 : 1);
-        bullet.moveFun = Animation.wave(this.canvas.height, 3.7, range, bullet.x);
+        bullet.moveFun = Animation.wave(canvas.height, 3.7, range, bullet.x);
         bullet.y += range/4;
     };
 

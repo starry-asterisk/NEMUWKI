@@ -1,6 +1,5 @@
 class ItemManager {
     constructor(canvas) {
-        this.canvas = canvas;
         this.itemRule = { step : -1, itemList : [] };
         this.itemList = [];
     };
@@ -13,7 +12,7 @@ class ItemManager {
 
         if (bScore % step > aScore % step) {
             let bulletClazz = itemList[randomInt(0, itemList.length - 1)];
-            this.addItem(new bulletClazz(this.canvas));
+            this.addItem(new bulletClazz(canvas));
         }
     };
 
@@ -44,8 +43,6 @@ class Item {
     };
 
     constructor({ item, x, s = 3, canvas, animation=Animation.wave }) {
-        this.canvas = canvas;
-        this.context = canvas.getContext('2d');
         this.item = item;
         this.iconTxt = item.iconTxt || 'B';
         this.fireColor = item.fireColor || '#dffca4';
@@ -69,17 +66,17 @@ class Item {
     };
 
     renderItem = () => {
-        this.context.beginPath();
-        this.context.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
-        this.context.fillStyle = this.fireColor;
-        this.context.fill();
-        this.context.strokeStyle = this.fireStrokeColor;
-        this.context.lineWidth = 3;
-        this.context.stroke();
-        this.context.fillStyle = '#000000';
-        this.context.textAlign = "center";
-        this.context.font = `${this.fontSize}px Sans MS`;
-        this.context.fillText(this.iconTxt, this.x, this.y + (this.fontSize - this.r + 1));
-        this.context.closePath();
+        context.beginPath();
+        context.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+        context.fillStyle = this.fireColor;
+        context.fill();
+        context.strokeStyle = this.fireStrokeColor;
+        context.lineWidth = 3;
+        context.stroke();
+        context.fillStyle = '#000000';
+        context.textAlign = "center";
+        context.font = `${this.fontSize}px Sans MS`;
+        context.fillText(this.iconTxt, this.x, this.y + (this.fontSize - this.r + 1));
+        context.closePath();
     };
 }

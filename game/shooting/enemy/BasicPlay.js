@@ -1,6 +1,5 @@
 class BasicPlay {
     constructor(canvas, enemy) {
-        this.canvas = canvas;
         this.enemy = enemy;
         this.waitY = enemy.r + 25;
         this.initWait = (enemy.wait || 180);

@@ -77,8 +77,6 @@ const clear = (context) => {
 
 class Player {
     constructor(canvas) {
-        this.canvas = canvas;
-        this.context = getContext(canvas);
         this.s = 4;//move step
         this.r = 28;//size of character radius
         this.x = rWidth / 2;
@@ -159,7 +157,7 @@ class Player {
     };
 
     drawBody = async () => {
-        this.context.drawImage(imageSet.player, this.x - (imageSet.player.width / 2), this.y - (imageSet.player.height / 2));
+        context.drawImage(imageSet.player, this.x - (imageSet.player.width / 2), this.y - (imageSet.player.height / 2));
     };
 }
 
@@ -167,17 +165,15 @@ class Player {
 class Viewer {
     initialize = (canvas) => {
         this.status = ViewerStatus.opening;
-        this.canvas = canvas;
-        this.context = getContext(this.canvas);
-        //this.background = new BgCosmos(this.canvas, this.context);
-        this.itemManager = new ItemManager(this.canvas);
+        //this.background = new BgCosmos(canvas, context);
+        this.itemManager = new ItemManager(canvas);
     };
 
     playing = () => {
         this.score = 0;
         this.story = storyBoard.story.concat();
         this.status = ViewerStatus.playing;
-        this.player = new Player(this.canvas);
+        this.player = new Player(canvas);
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
 
@@ -185,20 +181,20 @@ class Viewer {
     };
 
     opening = () => {
-        clear(this.context);
+        clear(context);
         //this.background.render();
     };
 
     guide = () => {
         this.status = ViewerStatus.guide;
-        clear(this.context);
+        clear(context);
     };
 
     ending = () => {
     };
 
     render = () => {
-        clear(this.context);
+        clear(context);
         this.playManager.render();
         this.player.render();
         this.itemManager.render();
@@ -222,7 +218,7 @@ class Viewer {
                 this.status = ViewerStatus.ending;
                 return;
             }
-            this.playManager = new PlayManager(this.canvas, story);
+            this.playManager = new PlayManager(canvas, story);
             this.itemManager.itemRule = story.itemRule;
         };
     
