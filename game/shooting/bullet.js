@@ -16,7 +16,7 @@ class Bullet {
 }
 
 class BasicBullet {
-    constructor(canvas) {
+    constructor() {
         this.seq = 0;
         this.s = 6.5;
         this.r = 5;
@@ -140,8 +140,8 @@ class BasicBullet {
 }
 
 class FastBullet extends BasicBullet {
-    constructor(canvas) {
-        super(canvas);
+    constructor() {
+        super();
         this.seq = 0;
         this.s = 9;
         this.r = 5.5;
@@ -171,8 +171,8 @@ class FastBullet extends BasicBullet {
 }
 
 class QuintupleBullet extends BasicBullet {
-    constructor(canvas) {
-        super(canvas);
+    constructor() {
+        super();
         this.seq = 0;
         this.s = 7.5;
         this.r = 5;
@@ -198,8 +198,8 @@ class QuintupleBullet extends BasicBullet {
 }
 
 class StrongBullet extends BasicBullet {
-    constructor(canvas) {
-        super(canvas);
+    constructor() {
+        super();
         this.seq = 0;
         this.s = 6.5;
         this.r = 9;
@@ -217,8 +217,8 @@ class StrongBullet extends BasicBullet {
 }
 
 class WaveBullet extends BasicBullet {
-    constructor(canvas) {
-        super(canvas);
+    constructor() {
+        super();
         this.seq = 0;
         this.s = 7.5;
         this.r = 4;

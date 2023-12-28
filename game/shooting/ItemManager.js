@@ -1,5 +1,5 @@
 class ItemManager {
-    constructor(canvas) {
+    constructor() {
         this.itemRule = { step : -1, itemList : [] };
         this.itemList = [];
     };
@@ -12,13 +12,12 @@ class ItemManager {
 
         if (bScore % step > aScore % step) {
             let bulletClazz = itemList[randomInt(0, itemList.length - 1)];
-            this.addItem(new bulletClazz(canvas));
+            this.addItem(new bulletClazz());
         }
     };
 
     addItem = (item) => {
         let x = randomInt(50, rWidth - 50), s = 3;
-        let { canvas } = this;
         this.itemList.push(Item.create(item)({x, s})({canvas}));
     };
 
@@ -27,22 +26,22 @@ class ItemManager {
         this.itemList.forEach(item => item.render());
     };
 
-    judgeCollision = lizard => {
+    judgeCollision = player => {
         this.itemList.forEach(item => {
-            if (isCollisionArc(lizard, item)) {
+            if (isCollisionArc(player, item)) {
                 item.outOfView = true;
-                lizard.addBulletItem(item.item);
+                player.addBulletItem(item.item);
             }
         });
     };
 }
 
 class Item {
-    static create = (item) => ({ x, s }) => ({ canvas, animation }) => {
-        return new Item({ item, x, s, canvas, animation });
+    static create = (item) => ({ x, s }) => ({ animation }) => {
+        return new Item({ item, x, s, animation });
     };
 
-    constructor({ item, x, s = 3, canvas, animation=Animation.wave }) {
+    constructor({ item, x, s = 3, animation=Animation.wave }) {
         this.item = item;
         this.iconTxt = item.iconTxt || 'B';
         this.fireColor = item.fireColor || '#dffca4';

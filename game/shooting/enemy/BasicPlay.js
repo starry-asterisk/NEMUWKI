@@ -1,12 +1,12 @@
 class BasicPlay {
-    constructor(canvas, enemy) {
+    constructor(enemy) {
         this.enemy = enemy;
         this.waitY = enemy.r + 25;
         this.initWait = (enemy.wait || 180);
         this.wait = this.initWait;
     }
 
-    calPosition = (lizard) => {
+    calPosition = (player) => {
         this.enemy.outOfView = rHeight <= this.enemy.y - this.enemy.r;
         if (this.wait > 0) {
             let pi = Math.PI / this.initWait * 2;

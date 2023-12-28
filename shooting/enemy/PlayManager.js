@@ -7,7 +7,7 @@ const PlayStatus = {
 };
 
 class PlayManager {
-    constructor(canvas, story) {
+    constructor(story) {
         this.timer = undefined;
         this.canvas = canvas;
         this.status = PlayStatus.opening;

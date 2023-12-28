@@ -61,13 +61,13 @@ const renderBoom = (context, fillStyle, x, y, r) => {
     context.closePath();
 };
 
-const contextScale = (canvas) => {
+const contextScale = () => {
     let ratioX = canvas.width / rWidth;
     let ratioY = canvas.height / rHeight;
     context.scale(ratioX, ratioY);
 };
 
-const getContext = (canvas) => canvas.getContext('2d');
+const getContext = () => canvas.getContext('2d');
 
 const clear = (context) => {
     context.clearRect(0, 0, rWidth, rHeight);
@@ -76,7 +76,7 @@ const clear = (context) => {
 
 
 class Player {
-    constructor(canvas) {
+    constructor() {
         this.s = 4;//move step
         this.r = 28;//size of character radius
         this.x = rWidth / 2;
@@ -89,7 +89,7 @@ class Player {
         };
         this.isInputKeyPress = false;
         this.inputKey = undefined;
-        this.bulletItemList = [new BasicBullet(canvas)];
+        this.bulletItemList = [new BasicBullet()];
         this.fireTerm = 0;
         this.isLive = true;
     };
@@ -163,17 +163,17 @@ class Player {
 
 
 class Viewer {
-    initialize = (canvas) => {
+    initialize = () => {
         this.status = ViewerStatus.opening;
-        //this.background = new BgCosmos(canvas, context);
-        this.itemManager = new ItemManager(canvas);
+        //this.background = new BgCosmos();
+        this.itemManager = new ItemManager();
     };
 
     playing = () => {
         this.score = 0;
         this.story = storyBoard.story.concat();
         this.status = ViewerStatus.playing;
-        this.player = new Player(canvas);
+        this.player = new Player();
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
 
@@ -218,7 +218,7 @@ class Viewer {
                 this.status = ViewerStatus.ending;
                 return;
             }
-            this.playManager = new PlayManager(canvas, story);
+            this.playManager = new PlayManager(story);
             this.itemManager.itemRule = story.itemRule;
         };
     
@@ -279,11 +279,11 @@ const __events = {
     init: async event => {
         canvas = event.data.canvas;
         context = canvas.getContext('2d');
-        contextScale(canvas);
+        contextScale();
 
         imageSet.player = await getImageBitmap('./imageSet/67x63_airplane.png');
 
-        viewer.initialize(canvas);
+        viewer.initialize();
         requestAnimationFrame(render);
     },
     keyDirect: event => {
