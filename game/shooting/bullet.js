@@ -121,9 +121,9 @@ class BasicBullet {
 
     renderCollision = (bullet) => {
         let { x, y, r } = bullet;
-        renderBoom(context, '#fc7f84', x, y, r * 1.2);
-        renderBoom(context, '#c89e65', x, y, r * 0.8);
-        renderBoom(context, '#c8c476', x, y, r * 0.4);
+        renderBoom('#fc7f84', x, y, r * 1.2);
+        renderBoom('#c89e65', x, y, r * 0.8);
+        renderBoom('#c8c476', x, y, r * 0.4);
         if (bullet.collisionTime-- <= 0) {
             bullet.status = BulletStatus.destroy;
         }

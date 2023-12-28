@@ -43,7 +43,7 @@ const isCollisionArc = (arc1, arc2) => {
     return Math.sqrt(x + y) <= arc1.r + arc2.r;
 };
 
-const renderBoom = (context, fillStyle, x, y, r) => {
+const renderBoom = (fillStyle, x, y, r) => {
     let h = r / 2;
     context.beginPath();
     context.moveTo(x - r, y);
@@ -67,9 +67,7 @@ const contextScale = () => {
     context.scale(ratioX, ratioY);
 };
 
-const getContext = () => canvas.getContext('2d');
-
-const clear = (context) => {
+const clear = () => {
     context.clearRect(0, 0, rWidth, rHeight);
 };
 
@@ -181,20 +179,20 @@ class Viewer {
     };
 
     opening = () => {
-        clear(context);
+        clear();
         //this.background.render();
     };
 
     guide = () => {
         this.status = ViewerStatus.guide;
-        clear(context);
+        clear();
     };
 
     ending = () => {
     };
 
     render = () => {
-        clear(context);
+        clear();
         this.playManager.render();
         this.player.render();
         this.itemManager.render();
