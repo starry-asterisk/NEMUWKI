@@ -10,6 +10,8 @@ class ShootingGame{
     
         this.worker = new Worker(`${this.rootPath}/worker.js?${Math.random()}`);
         this.worker.postMessage({ type: 'init', canvas: offscreen, rootPath: this.rootPath }, [offscreen]);
+
+        this.worker.onmessage = console.log;
     
         document.addEventListener('keydown', this.onKeyEvent('keydown'), false);
         document.addEventListener('keyup', this.onKeyEvent('keyup'), false);

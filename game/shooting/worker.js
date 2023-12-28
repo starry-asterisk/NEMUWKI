@@ -1,5 +1,24 @@
-const rWidth = 400;
-const rHeight = 400 * 1.5;
+let _random = '?'+Math.random();
+
+
+importScripts('./util/Variables.js'+_random);
+importScripts('./util/Animation.js'+_random);
+importScripts('./ItemManager.js'+_random);
+importScripts('./enemy/BasicEnemy.js'+_random);
+importScripts('./enemy/BasicPlay.js'+_random);
+importScripts('./enemy/NoWaitPlay.js'+_random);
+importScripts('./enemy/FollowPlay.js'+_random);
+importScripts('./enemy/PlayManager.js'+_random);
+
+
+
+
+
+
+importScripts('./bullet.js');
+
+importScripts('./storyBoard.js');
+
 
 const randomInt = (min, max) => {
     min = Math.ceil(min);
@@ -24,65 +43,6 @@ const isCollisionArc = (arc1, arc2) => {
     return Math.sqrt(x + y) <= arc1.r + arc2.r;
 };
 
-const renderTxtView = (canvas, txtData) => {
-    let context = getContext(canvas);
-    let data = Object.assign({
-        bg : { rgb : '256,256,256', alpha : 1 },
-        font : { rgb : '0,0,0', alpha : 1 },
-        message : '',
-        bottomMessage : undefined,
-        usePressKey : false,
-        pressMessage : 'press enter key to restart'
-    }, txtData);
-
-    let x = rWidth/2, y = rHeight/2;
-    context.beginPath();
-    context.fillStyle = data.bgStyle || `rgba(${data.bg.rgb},${data.bg.alpha})`;
-    context.fillRect(0, 0, rWidth, rHeight);
-    context.fillStyle = data.fontStyle || `rgba(${data.font.rgb},${data.font.alpha})`;
-    context.textAlign = "center";
-    context.font = "38px Sans MS";
-    context.fillText(data.message, x, y - (data.usePressKey ? 30 : 0));
-    if (data.usePressKey) {
-        context.font = "20px Sans MS";
-        context.fillText(data.pressMessage, x, y + 30);
-    }
-    if (data.bottomMessage) {
-        context.textAlign = "right";
-        context.font = "15px Sans MS";
-        context.fillText(data.bottomMessage, rWidth - 30, rHeight - 20);
-    }
-    context.closePath();
-};
-
-const renderMultiTxtView = (canvas, txtData) => {
-    let context = getContext(canvas);
-    let data = Object.assign({
-        bg : { rgb : '256,256,256', alpha : 1 },
-        font : { rgb : '0,0,0', alpha : 1, size : 20 },
-        messageList : [''],
-        usePressKey : false,
-        pressMessage : 'press enter key or touch to start'
-    }, txtData);
-
-    let lineSize = data.font.size + 10, x = rWidth/2, y = (rHeight/2) - (lineSize * data.messageList.length / 2);
-    context.beginPath();
-    context.fillStyle = data.bgStyle || `rgba(${data.bg.rgb},${data.bg.alpha})`;
-    context.fillRect(0, 0, rWidth, rHeight);
-    context.fillStyle = data.fontStyle || `rgba(${data.font.rgb},${data.font.alpha})`;
-    context.textAlign = "center";
-    context.font = `${data.font.size}px Sans MS`;
-    for (let msg of data.messageList) {
-        context.fillText(msg, x, y);
-        y += lineSize;
-    }
-
-    if (data.usePressKey) {
-        context.fillText(data.pressMessage, x, y);
-    }
-    context.closePath();
-};
-
 const renderBoom = (context, fillStyle, x, y, r) => {
     let h = r / 2;
     context.beginPath();
@@ -102,7 +62,6 @@ const renderBoom = (context, fillStyle, x, y, r) => {
 };
 
 const contextScale = (canvas) => {
-    let context = canvas.getContext('2d');
     let ratioX = canvas.width / rWidth;
     let ratioY = canvas.height / rHeight;
     context.scale(ratioX, ratioY);
@@ -114,28 +73,31 @@ const clear = (context) => {
     context.clearRect(0, 0, rWidth, rHeight);
 };
 
-const imageSet = {};
+
 
 class Player {
     constructor(canvas) {
         this.canvas = canvas;
         this.context = getContext(canvas);
-        this.s = 3;//move step
+        this.s = 4;//move step
         this.r = 28;//size of character radius
         this.x = rWidth / 2;
         this.y = rHeight - this.r - 5;
-        this.isDirectKeyPress = false;
-        this.directKey = undefined;
+        this.directKey = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
         this.isInputKeyPress = false;
         this.inputKey = undefined;
-        //this.bulletItemList = [ new BasicBullet(canvas) ];
-        //this.fireTerm = 0;
+        this.bulletItemList = [new BasicBullet(canvas)];
+        this.fireTerm = 0;
         this.isLive = true;
     };
 
     onKeyDirectEvent = (eventName, key) => {
-        this.isDirectKeyPress = eventName == 'keydown';
-        this.directKey = this.isDirectKeyPress ? key : undefined;
+        this.directKey[key] = eventName == 'keydown';
     };
 
     onKeyInputEvent = (eventName, key) => {
@@ -148,21 +110,18 @@ class Player {
 
     calPosition = () => {
         this.moveBody();
-        //this.fireBullet();
-        //this.bulletItemList.forEach(bulletItem => bulletItem.calPosition());
+        this.fireBullet();
+        this.bulletItemList.forEach(bulletItem => bulletItem.calPosition());
     };
 
     moveBody = () => {
-        if (!this.isDirectKeyPress) {
-            return;
-        }
-
-        let { x, s, r } = this;
-        if (this.directKey) {
-            this.x = (this.directKey == 'left' ? Math.max(x-s, r) : Math.min(x+s, rWidth - r));
-        }
+        let { x, y, s, r } = this;
+        if (this.directKey.up) this.y = Math.max(y - s, r);
+        if (this.directKey.down) this.y = Math.min(y + s, rHeight - r);
+        if (this.directKey.left) this.x = Math.max(x - s, r);
+        if (this.directKey.right) this.x = Math.min(x + s, rWidth - r);
     };
-/*
+
     fireBullet = () => {
         if (this.fireTerm > 0) {
             this.fireTerm--;
@@ -188,15 +147,15 @@ class Player {
     };
 
     judgeCollision = (wave) => {
-        this.isLive = !(wave.enemyList||[]).filter(e => e.isLive).some(e => isCollisionArc(e, this));
-    };*/
+        this.isLive = !(wave.enemyList || []).filter(e => e.isLive).some(e => isCollisionArc(e, this));
+    };
 
     render = () => {
-        //this.bulletItemList.forEach(bulletItem => bulletItem.render());
+        this.bulletItemList.forEach(bulletItem => bulletItem.render());
         this.drawBody();
 
-        //this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
-        //this.bulletItemList.filter(item => !item.isEmpty())[0].renderBulletInfo();
+        this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
+        this.bulletItemList.filter(item => !item.isEmpty())[0].renderBulletInfo();
     };
 
     drawBody = async () => {
@@ -204,13 +163,6 @@ class Player {
     };
 }
 
-const ViewerStatus = {
-    opening : Symbol('opening'),
-    guide : Symbol('guide'),
-    playing : Symbol('playing'),
-    ending : Symbol('ending'),
-    dead : Symbol('dead')
-};
 
 class Viewer {
     initialize = (canvas) => {
@@ -218,121 +170,108 @@ class Viewer {
         this.canvas = canvas;
         this.context = getContext(this.canvas);
         //this.background = new BgCosmos(this.canvas, this.context);
-        //this.itemManager = new ItemManager(this.canvas);
+        this.itemManager = new ItemManager(this.canvas);
     };
 
     playing = () => {
         this.score = 0;
-        //this.story = storyBoard.story.concat();
+        this.story = storyBoard.story.concat();
         this.status = ViewerStatus.playing;
         this.player = new Player(this.canvas);
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
 
-        //this.toNextStory();
+        this.toNextStory();
     };
 
     opening = () => {
         clear(this.context);
         //this.background.render();
-        //renderTxtView(this.canvas, storyBoard.txt.opening);
     };
 
     guide = () => {
         this.status = ViewerStatus.guide;
         clear(this.context);
-        //this.background.render();
-        //renderMultiTxtView(this.canvas, storyBoard.txt.guide);
     };
 
     ending = () => {
-        //renderTxtView(this.canvas, storyBoard.txt.ending);
     };
 
     render = () => {
         clear(this.context);
-        //this.background.render();
-        //this.playManager.render();
+        this.playManager.render();
         this.player.render();
-        //this.itemManager.render();
-        //this.renderScore();
+        this.itemManager.render();
 
         this.calPosition();
-        //this.judgeCollisionWithBullet();
-        //this.judgeCollisionWithPlayer();
-        //this.itemManager.judgeCollision(this.player);
-        //this.judgeToNext();
+        this.judgeCollisionWithBullet();
+        this.judgeCollisionWithPlayer();
+        this.itemManager.judgeCollision(this.player);
+        this.judgeToNext();
     };
-/*
-    renderScore = () => {
-        this.context.beginPath();
-        this.context.font = "15px Sans MS";
-        this.context.fillStyle = '#FFFFFF';
-        this.context.textAlign = "left";
-        this.context.fillText(`SCORE : ${this.score}`, 15, 20);
-        this.context.closePath();
-    };*/
+    
 
     calPosition = () => {
         this.player.calPosition();
-        //this.playManager.calPosition(this.player);
+        this.playManager.calPosition(this.player);
     };
-/*
-    toNextStory = () => {
-        let story = this.story.shift();
-        if (!story) {
-            this.status = ViewerStatus.ending;
-            return;
-        }
-        this.playManager = new PlayManager(this.canvas, story);
-        this.itemManager.itemRule = story.itemRule;
-    };
-
-    judgeToNext = () => {
-        if (this.playManager.status == PlayStatus.exit) {
-            this.toNextStory();
-        }
-    };
-
-    judgeCollisionWithPlayer = () => {
-        if (!this.playManager.currentWave) {
-            return;
-        }
-
-        this.player.judgeCollision(this.playManager.currentWave);
-        if (!this.player.isLive) {
-            this.status = ViewerStatus.dead;
-            renderTxtView(this.canvas, storyBoard.txt.dead);
-        }
-    };
-
-    judgeCollisionWithBullet = () => {
-        this.player.bulletItemList.forEach(bulletItem => {
-            let result = this.playManager.judgeCollision(bulletItem.bulletList.filter(b => b.status == BulletStatus.fire));
-            if (result && result.seqList && result.seqList.length > 0) {
-                bulletItem.setupCollision(result.seqList);
-                this.addScore(result.score);
+    
+        toNextStory = () => {
+            let story = this.story.shift();
+            if (!story) {
+                this.status = ViewerStatus.ending;
+                return;
             }
-        });
-    };
-
-    addScore = score => {
-        let bScore = this.score, aScore = this.score + score;
-        this.score = aScore;
-        this.itemManager.changeScore(bScore, aScore);
-    }*/
+            this.playManager = new PlayManager(this.canvas, story);
+            this.itemManager.itemRule = story.itemRule;
+        };
+    
+        judgeToNext = () => {
+            if (this.playManager.status == PlayStatus.exit) {
+                this.toNextStory();
+            }
+        };
+    
+        judgeCollisionWithPlayer = () => {
+            if (!this.playManager.currentWave) {
+                return;
+            }
+    
+            this.player.judgeCollision(this.playManager.currentWave);
+            if (!this.player.isLive) {
+                this.status = ViewerStatus.dead;
+            }
+        };
+    
+        judgeCollisionWithBullet = () => {
+            this.player.bulletItemList.forEach(bulletItem => {
+                let result = this.playManager.judgeCollision(bulletItem.bulletList.filter(b => b.status == BulletStatus.fire));
+                if (result && result.seqList && result.seqList.length > 0) {
+                    bulletItem.setupCollision(result.seqList);
+                    this.addScore(result.score);
+                }
+            });
+        };
+    
+        addScore = score => {
+            let bScore = this.score, aScore = this.score + score;
+            this.score = aScore;
+            this.itemManager.changeScore(bScore, aScore);
+            
+            postMessage({type: 'score', score: this.score});
+        }
 }
 
 const viewer = new Viewer();
 const render = time => {
     switch (viewer.status) {
-        case ViewerStatus.playing :
+        case ViewerStatus.playing:
             viewer.render(); break;
-        case ViewerStatus.opening :
+        case ViewerStatus.opening:
             viewer.opening(); break;
-        case ViewerStatus.guide :
+        case ViewerStatus.guide:
             viewer.guide(); break;
-        case ViewerStatus.ending :
+        case ViewerStatus.ending:
             viewer.ending(); break;
     }
     requestAnimationFrame(render);
@@ -341,8 +280,9 @@ const render = time => {
 const getImageBitmap = async url => await createImageBitmap(await (await fetch(url)).blob());
 
 const __events = {
-    init : async event => {
-        let canvas = event.data.canvas;
+    init: async event => {
+        canvas = event.data.canvas;
+        context = canvas.getContext('2d');
         contextScale(canvas);
 
         imageSet.player = await getImageBitmap('./imageSet/67x63_airplane.png');
@@ -350,22 +290,24 @@ const __events = {
         viewer.initialize(canvas);
         requestAnimationFrame(render);
     },
-    keyDirect : event => {
+    keyDirect: event => {
         let { eventName, key } = event.data;
-        (viewer.onKeyDirectEvent||function(){})(eventName, key);
+        (viewer.onKeyDirectEvent || function () { })(eventName, key);
     },
-    keyInput : event => {
+    keyInput: event => {
         let { eventName, key } = event.data;
-        if (key == 'enter' && viewer.status != ViewerStatus.playing) {
-            if(eventName == 'keyup') __events.nextEvent(viewer);
+        if (key == 'enter') {
+            if (eventName == 'keydown') return
+            __events.nextEvent(viewer);
         } else {
-            (viewer.onKeyInputEvent || function(){})(eventName, key);
+            (viewer.onKeyInputEvent || function () { })(eventName, key);
         }
     },
-    nextEvent : (viewer) => {
+    nextEvent: (viewer) => {
         switch (viewer.status) {
-            case ViewerStatus.opening : viewer.guide(); break;
-            case ViewerStatus.guide : viewer.playing(); break;
+            case ViewerStatus.opening: viewer.playing(); break;
+            case ViewerStatus.playing: viewer.status = ViewerStatus.pause; break;
+            case ViewerStatus.pause: viewer.status = ViewerStatus.playing; break;
         }
     }
 };
