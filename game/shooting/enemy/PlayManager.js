@@ -27,21 +27,22 @@ class PlayManager {
         return wave;
     };
 
-    doSleep = (time, callback) => {
-        if (this.timer) {
-            return;
-        }
+    doSleep = (time, post, pre) => {
+        if (this.timer) return;
+
+        if (pre) pre();
 
         this.timer = setTimeout(() => {
             this.timer = undefined;
-            callback();
+            post();
         }, time);
     };
 
     [PlayStatus.opening] = () => {
-        //renderTxtView(this.story.opening);
-        postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} start</h1>`, time: 1500});
-        this.doSleep(1500, () => this.status = PlayStatus.playing);
+        this.doSleep(1500, 
+            () => this.status = PlayStatus.playing, 
+            () => postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} start</h1>`, time: 1500})
+        );
     };
 
     [PlayStatus.playing] = () => {
@@ -59,8 +60,10 @@ class PlayManager {
 
     [PlayStatus.ending] = () => {
         //renderTxtView(this.story.ending);
-        postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} clear!</h1>`, time: 1500});
-        this.doSleep(1500, () => this.status = PlayStatus.exit);
+        this.doSleep(1500, 
+            () => this.status = PlayStatus.exit, 
+            () => postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} clear!</h1>`, time: 1500})
+        );
     };
 
     render = () => {

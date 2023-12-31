@@ -1,3 +1,43 @@
+const imageOptions = [
+    {
+        namespace: 'player_1',
+        url: './imageSet/67x63_airplane.png'
+    },
+    {
+        namespace: 'player_2',
+        url: './imageSet/player_2.png'
+    },
+    {
+        namespace: 'enemy_1',
+        url: './imageSet/enemy_1.png',
+        flip: true
+    },
+    {
+        namespace: 'enemy_2',
+        url: './imageSet/enemy_2.png',
+        flip: true
+    },
+]
+
+const skillSet = [
+    {
+        name: 'killAll',
+        image_url: '',
+        cost: 2,
+        draw: ()=>{},
+        judgeCollision: ()=>true,
+    },
+    {
+        name: 'kamehamepa',
+        image_url: '',
+        cost: 2,
+        draw: ()=>{},
+        judgeCollision: (player, enemy)=>{
+            player.x;
+        },
+    },
+];
+
 const enemyAbility = {
     EMPTY : {},
     GRAYS : {
@@ -8,8 +48,7 @@ const enemyAbility = {
             hp : 100,
             score : 10,
             wait : 180,
-            bodyStyle : '#d0cccf',
-            bodyStrokeStyle : '#f7f6ff'
+            imageNamespace : 'enemy_1'
         },
         GRAY : {
             clazz : BasicEnemy,
@@ -18,8 +57,7 @@ const enemyAbility = {
             hp : 270,
             score : 20,
             wait : 180,
-            bodyStyle : '#727272',
-            bodyStrokeStyle : '#a8a4a8'
+            imageNamespace : 'enemy_1'
         },
         DARKGRAY : {
             clazz : BasicEnemy,
@@ -28,8 +66,7 @@ const enemyAbility = {
             hp : 400,
             score : 40,
             wait : 180,
-            bodyStyle : '#3f3d40',
-            bodyStrokeStyle : '#818085'
+            imageNamespace : 'enemy_1'
         }
     },
     YELLOWS : {
@@ -40,8 +77,7 @@ const enemyAbility = {
             hp : 230,
             score : 15,
             wait : 200,
-            bodyStyle : '#faff6a',
-            bodyStrokeStyle : '#cccca2'
+            imageNamespace : 'enemy_1'
         },
         YELLOW : {
             clazz : BasicEnemy,
@@ -50,8 +86,7 @@ const enemyAbility = {
             hp : 480,
             score : 40,
             wait : 200,
-            bodyStyle : '#bdbb07',
-            bodyStrokeStyle : '#ccccb8'
+            imageNamespace : 'enemy_1'
         },
         DARKYELLOW : {
             clazz : BasicEnemy,
@@ -60,8 +95,7 @@ const enemyAbility = {
             hp : 1050,
             score : 80,
             wait : 200,
-            bodyStyle : '#5b5803',
-            bodyStrokeStyle : '#ccc6ac'
+            imageNamespace : 'enemy_1'
         }
     },
     REDS : {
@@ -72,8 +106,7 @@ const enemyAbility = {
             hp : 300,
             score : 25,
             wait : 180,
-            bodyStyle : '#fb570d',
-            bodyStrokeStyle : '#ffb37d'
+            imageNamespace : 'enemy_2'
         },
         RED : {
             clazz : BasicEnemy,
@@ -82,8 +115,7 @@ const enemyAbility = {
             hp : 400,
             score : 50,
             wait : 180,
-            bodyStyle : '#a30d01',
-            bodyStrokeStyle : '#ee876d'
+            imageNamespace : 'enemy_2'
         },
         DARKRED : {
             clazz : BasicEnemy,
@@ -92,8 +124,7 @@ const enemyAbility = {
             hp : 800,
             score : 80,
             wait : 180,
-            bodyStyle : '#550e05',
-            bodyStrokeStyle : '#935344'
+            imageNamespace : 'enemy_2'
         }
     },
     BLUES : {
@@ -103,8 +134,7 @@ const enemyAbility = {
             s : 6.5,
             hp : 150,
             score : 20,
-            bodyStyle : '#1d78c3',
-            bodyStrokeStyle : '#95c9ce'
+            imageNamespace : 'enemy_2'
         },
         BLUE : {
             clazz : BasicEnemy,
@@ -112,8 +142,7 @@ const enemyAbility = {
             s : 7.3,
             hp : 350,
             score : 50,
-            bodyStyle : '#383dfb',
-            bodyStrokeStyle : '#7a98ff'
+            imageNamespace : 'enemy_2'
         },
         DARKBLUE : {
             clazz : BasicEnemy,
@@ -121,8 +150,7 @@ const enemyAbility = {
             s : 7.8,
             hp : 600,
             score : 100,
-            bodyStyle : '#15175d',
-            bodyStrokeStyle : '#3d4c80'
+            imageNamespace : 'enemy_2'
         }
     }
 };

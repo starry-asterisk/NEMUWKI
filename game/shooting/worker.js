@@ -1,14 +1,14 @@
-let _random = '?'+Math.random();
+let _random = '?' + Math.random();
 
 
-importScripts('./util/Variables.js'+_random);
-importScripts('./util/Animation.js'+_random);
-importScripts('./ItemManager.js'+_random);
-importScripts('./enemy/BasicEnemy.js'+_random);
-importScripts('./enemy/BasicPlay.js'+_random);
-importScripts('./enemy/NoWaitPlay.js'+_random);
-importScripts('./enemy/FollowPlay.js'+_random);
-importScripts('./enemy/PlayManager.js'+_random);
+importScripts('./util/Variables.js' + _random);
+importScripts('./util/Animation.js' + _random);
+importScripts('./ItemManager.js' + _random);
+importScripts('./enemy/BasicEnemy.js' + _random);
+importScripts('./enemy/BasicPlay.js' + _random);
+importScripts('./enemy/NoWaitPlay.js' + _random);
+importScripts('./enemy/FollowPlay.js' + _random);
+importScripts('./enemy/PlayManager.js' + _random);
 
 
 
@@ -71,10 +71,18 @@ const clear = () => {
     context.clearRect(0, 0, rWidth, rHeight);
 };
 
+const drawObject = (namespace, { x, y, r, isDemaged }) => {
+    if(isDemaged) context.filter = filters.demaged; 
+    let aspect_ratio = imageSet[namespace].height / imageSet[namespace].width;
+    context.drawImage(imageSet[namespace], x - r, y - (r * aspect_ratio), 2 * r, 2 * r * aspect_ratio);
+    if(isDemaged) context.filter = "none"; 
+
+}
+
 
 
 class Player {
-    constructor() {
+    constructor(imageNamespace = 'player_1') {
         this.s = 4;//move step
         this.r = 28;//size of character radius
         this.x = rWidth / 2;
@@ -85,11 +93,13 @@ class Player {
             left: false,
             right: false
         };
+        this.imageNamespace = imageNamespace;
         this.isInputKeyPress = false;
         this.inputKey = undefined;
         this.bulletItemList = [new BasicBullet()];
         this.fireTerm = 0;
         this.isLive = true;
+        this.isDemaged = false;
     };
 
     onKeyDirectEvent = (eventName, key) => {
@@ -148,30 +158,172 @@ class Player {
 
     render = () => {
         this.bulletItemList.forEach(bulletItem => bulletItem.render());
-        this.drawBody();
+        drawObject(this.imageNamespace, this);
 
         this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
         this.bulletItemList.filter(item => !item.isEmpty())[0].renderBulletInfo();
     };
+}
 
-    drawBody = async () => {
-        context.drawImage(imageSet.player, this.x - (imageSet.player.width / 2), this.y - (imageSet.player.height / 2));
+class BgCosmos {
+    constructor() {
+        this.frameIndex = 0;
+        this.starList = [];
+        this.cloudList = [
+            [0.76, 0.82, 0.10],
+            [0.60, 0.88, 0.10],
+            [0.38, 0.80, 0.10],
+            [0.25, 0.87, 0.10],
+            [0.8, 0.98, 0.10],
+            [-0.11, 0.95, 0.14],
+            [0.11, 0.95, 0.10],
+            [0.43, 0.91, 0.10],
+            [0.43, 0.95, 0.20],
+            [0.48, 0.88, 0.10],
+            [0.89, 0.69, 0.10],
+            [1.04, 0.55, 0.12],
+            [0.97, 0.63, 0.10],
+            [0.89, 0.88, 0.16]
+        ];
+        for (let i = 0; i < 50; i++) {
+            this.addStar(randomInt(0, rHeight));
+        }
     };
+
+    addStar = (y = 0) => {
+        this.starList[this.starList.length] = {
+            x: randomInt(5, rWidth - 5), y: y, r: randomInt(1, 4) / 2
+        };
+    };
+
+    calStar = () => {
+        if (this.starList.length < 50 && randomInt(0, 100) > 75) {
+            this.addStar();
+        }
+
+        this.starList = this.starList.map(star => {
+            star.y += star.r;
+            return star;
+        })
+            .filter(star => star.y - star.r < rHeight);
+    };
+
+    drawStar = (x, y, r) => {
+        context.moveTo(x - r, y);
+        context.arcTo(x, y, x, y + r, r);
+        context.arcTo(x, y, x + r, y, r);
+        context.arcTo(x, y, x, y - r, r);
+        context.arcTo(x, y, x - r, y, r);
+    };
+
+    render = () => {
+        this.calStar();
+        if (this.starList.length <= 0) {
+            return;
+        }
+
+        context.beginPath();
+        context.lineWidth = 0.7;
+        this.starList.forEach(star => {
+            this.drawStar(star.x, star.y, star.r);
+        });
+        context.strokeStyle = '#fff';
+        context.fillStyle = '#fff';
+        context.stroke();
+        context.fill();
+        context.closePath();
+
+        let wave_offset = Math.cos(Math.PI * this.frameIndex / 300) * 5;
+        this.frameIndex++;
+        context.beginPath();
+        this.cloudList.forEach(cloud => {
+            context.arc(cloud[0] * rWidth + wave_offset, cloud[1] * rHeight, cloud[2] * rHeight, 0, 2 * Math.PI);
+        });
+        context.fillStyle = '#ffffff33';
+        context.fill();
+        context.closePath();
+        this.skill();
+        
+    }
+
+    skill = () =>
+    {
+
+        context.fillStyle = '#ffffff33';
+        context.beginPath();
+        context.rect(rWidth / 2, 0, 40, rHeight);
+        context.fill();
+        context.closePath();
+        context.beginPath();
+        context.rect(rWidth / 2 + 18, 0, 4, rHeight);
+        context.fillStyle = '#ffffff';
+        context.fill();
+        context.fillStyle = '#ffffff33';
+        context.closePath();
+
+        
+        context.filter = 'blur(5px)';
+        context.beginPath();
+        context.rect(rWidth /2 - 20, 0, 80, rHeight);
+        context.fill();
+        context.beginPath();
+        context.closePath();
+        context.rect(rWidth / 2, 0, 40, rHeight);
+        context.fill();
+        context.beginPath();
+        context.closePath();
+        context.rect(rWidth / 2 + 19, 0, 2, rHeight);
+        context.fill();
+        context.closePath();
+        context.filter = 'none';
+
+        
+        context.fillStyle = '#000000';
+        context.strokeStyle = '#000000';
+        context.beginPath();
+        context.lineWidth = 4;
+        let h= rHeight / 2;
+        let i = -40
+        context.moveTo(rWidth / 2 + i, h);
+        for(; i <= 80; i += randomInt(1, 10)){
+            h += randomInt(0, 8) - 2;
+            context.lineTo(rWidth / 2 + i, h);
+        }
+        for(; i > -60; i -= randomInt(1, 10)){
+            h += randomInt(0, 8) - 2;
+            context.lineTo(rWidth / 2 + i, h);
+        }
+        for(; i <= 100; i += randomInt(1, 10)){
+            h += randomInt(0, 8) - 2;
+            context.lineTo(rWidth / 2 + i, h);
+        }
+        for(; i > -50; i -= randomInt(1, 10)){
+            h += randomInt(0, 8) - 2;
+            context.lineTo(rWidth / 2 + i, h);
+        }
+        for(; i <= 90; i += randomInt(1, 10)){
+            h += randomInt(0, 8) - 2;
+            context.lineTo(rWidth / 2 + i, h);
+        }
+        context.stroke();
+        context.closePath();
+        context.fillStyle = '#ffffff33';
+    }
 }
 
 
 class Viewer {
     initialize = () => {
         this.status = ViewerStatus.opening;
-        //this.background = new BgCosmos();
         this.itemManager = new ItemManager();
+        this.background = new BgCosmos();
     };
 
     playing = () => {
         this.score = 0;
         this.story = storyBoard.story.concat();
         this.status = ViewerStatus.playing;
-        this.player = new Player();
+        this.player = new Player('player_2');
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
 
@@ -193,6 +345,7 @@ class Viewer {
 
     render = () => {
         clear();
+        this.background.render();
         this.playManager.render();
         this.player.render();
         this.itemManager.render();
@@ -203,57 +356,58 @@ class Viewer {
         this.itemManager.judgeCollision(this.player);
         this.judgeToNext();
     };
-    
+
 
     calPosition = () => {
         this.player.calPosition();
         this.playManager.calPosition(this.player);
     };
-    
-        toNextStory = () => {
-            let story = this.story.shift();
-            if (!story) {
-                this.status = ViewerStatus.ending;
-                return;
-            }
-            this.playManager = new PlayManager(story);
-            this.itemManager.itemRule = story.itemRule;
-        };
-    
-        judgeToNext = () => {
-            if (this.playManager.status == PlayStatus.exit) {
-                this.toNextStory();
-            }
-        };
-    
-        judgeCollisionWithPlayer = () => {
-            if (!this.playManager.currentWave) {
-                return;
-            }
-    
-            this.player.judgeCollision(this.playManager.currentWave);
-            if (!this.player.isLive) {
-                this.status = ViewerStatus.dead;
-            }
-        };
-    
-        judgeCollisionWithBullet = () => {
-            this.player.bulletItemList.forEach(bulletItem => {
-                let result = this.playManager.judgeCollision(bulletItem.bulletList.filter(b => b.status == BulletStatus.fire));
-                if (result && result.seqList && result.seqList.length > 0) {
-                    bulletItem.setupCollision(result.seqList);
-                    this.addScore(result.score);
-                }
-            });
-        };
-    
-        addScore = score => {
-            let bScore = this.score, aScore = this.score + score;
-            this.score = aScore;
-            this.itemManager.changeScore(bScore, aScore);
-            
-            postMessage({type: 'score', score: this.score});
+
+    toNextStory = () => {
+        let story = this.story.shift();
+        if (!story) {
+            this.status = ViewerStatus.ending;
+            return;
         }
+        this.playManager = new PlayManager(story);
+        this.itemManager.itemRule = story.itemRule;
+    };
+
+    judgeToNext = () => {
+        if (this.playManager.status == PlayStatus.exit) {
+            this.toNextStory();
+        }
+    };
+
+    judgeCollisionWithPlayer = () => {
+        if (!this.playManager.currentWave) {
+            return;
+        }
+
+        this.player.judgeCollision(this.playManager.currentWave);
+        if (!this.player.isLive) {
+            this.status = ViewerStatus.dead;
+            postMessage({ type: 'message', position: 'main', html: `<h1 style='color: red;'>You Dead</h1>`, time: 1500 })
+        }
+    };
+
+    judgeCollisionWithBullet = () => {
+        this.player.bulletItemList.forEach(bulletItem => {
+            let result = this.playManager.judgeCollision(bulletItem.bulletList.filter(b => b.status == BulletStatus.fire));
+            if (result && result.seqList && result.seqList.length > 0) {
+                bulletItem.setupCollision(result.seqList);
+                this.addScore(result.score);
+            }
+        });
+    };
+
+    addScore = score => {
+        let bScore = this.score, aScore = this.score + score;
+        this.score = aScore;
+        this.itemManager.changeScore(bScore, aScore);
+
+        postMessage({ type: 'score', score: this.score });
+    }
 }
 
 const viewer = new Viewer();
@@ -271,7 +425,7 @@ const render = time => {
     requestAnimationFrame(render);
 };
 
-const getImageBitmap = async url => await createImageBitmap(await (await fetch(url)).blob());
+const getImageBitmap = async (url, flip = false) => await createImageBitmap(await (await fetch(url)).blob(), { imageOrientation: flip ? 'flipY' : 'none' });
 
 const __events = {
     init: async event => {
@@ -279,7 +433,11 @@ const __events = {
         context = canvas.getContext('2d');
         contextScale();
 
-        imageSet.player = await getImageBitmap('./imageSet/67x63_airplane.png');
+        imageOptions.forEach(
+            async option => {
+                imageSet[option.namespace] = await getImageBitmap(option.url, option.flip == true);
+            }
+        )
 
         viewer.initialize();
         requestAnimationFrame(render);
@@ -316,3 +474,5 @@ self.onmessage = event => {
 
     __events[type](event);
 };
+
+postMessage({ type: 'ready' });

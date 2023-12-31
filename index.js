@@ -2,6 +2,7 @@ class Loader {
     _container;
     _topMenu__auto;
     _mode = 'main';
+    _offScreen;
     _gameInstance;
     constructor() {
         this._container = document.querySelector('.container');
@@ -29,7 +30,7 @@ class Loader {
                     vn.load(script);
                     break;
                 case 'game':
-                    this._gameInstance = new ShootingGame();
+                    this._gameInstance = new ShootingGame(document.querySelector('.gameContainer'));
                     break;
                 case 'talk':
                     break;

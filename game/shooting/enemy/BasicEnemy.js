@@ -1,39 +1,34 @@
 class BasicEnemy {
-    constructor({ play, x, s = 4, y = -28, r = 28, hp, score, bodyStyle, bodyStrokeStyle, wait }) {
+    constructor({ play, x, s = 4, y = -28, r = 28, hp, score, wait, imageNamespace = 'enemy_1' }) {
         this.x = x;
         this.y = y;
         this.r = r;
         this.s = s;
         this.hp = hp;
         this.score = score;
-        this.bodyStyle = bodyStyle;
-        this.bodyStrokeStyle = bodyStrokeStyle;
         this.wait = wait;
         this.isLive = true;
+        this.isDemaged = false;
         this.outOfView = false;
         this.play = new play(this);
         this.calPosition = this.play.calPosition;
+        this.imageNamespace = imageNamespace;
+        this.timer = undefined;
     }
 
     damaged = ({ damage }) => {
         this.hp -= damage;
         this.isLive = this.hp > 0;
-    };
-
-    drawBody = ({x, y, r, bodyStyle, bodyStrokeStyle}) => {
-        context.beginPath();
-        context.arc(x, y, r, 0, Math.PI * 2, false);
-        context.fillStyle = bodyStyle;
-        context.fill();
-
-        context.strokeStyle = bodyStrokeStyle;
-        context.stroke();
-        context.closePath();
+        if (this.timer) clearTimeout(this.timer);
+        else this.isDemaged = true;
+        this.timer = setTimeout(() => {
+            this.isDemaged = false;
+            this.timer = undefined;
+        }, times.demage_animation_duration);
     };
 
     render = () => {
-        // body
-        this.drawBody(this);
+        drawObject(this.imageNamespace, this);
     };
 
     judgeCollision = (bullet) => {

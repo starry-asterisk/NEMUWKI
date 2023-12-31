@@ -13,7 +13,8 @@
 
 <body>
     <div class="container">
-        <canvas class="gameContainer" mode="shooting" width="400" height="600"></canvas>
+        <div class="gameContainer" mode="shooting">
+        </div>
         <div class="loading">
             <span class="triangle"></span>
             <span class="triangle" index="1"></span>
@@ -58,8 +59,8 @@
         </div>
         <div class="container__object"></div>
         <div class="topMenu">
-            <span class="topMenu__score" icon="😎">13</span>
-            <span class="topMenu__time" icon="❤️">03:13</span>
+            <span class="topMenu__score" icon="😎">0</span>
+            <span class="topMenu__time" icon="❤️">00:00</span>
             <button class="topMenu__stop square">ll</button>
             <button class="topMenu__auto">
                 AUTO
@@ -86,14 +87,12 @@
         <div class="gameMenu">
             <div class="gameMenu__skillSet">
                 <button class="gameMenu__skillSet__skill" cost="5"></button>
-                <button class="gameMenu__skillSet__skill" cost="2" state="disable"></button>
+                <button class="gameMenu__skillSet__skill" cost="2" state="charging"></button>
                 <button class="gameMenu__skillSet__skill" cost="6" state="empty"></button>
             </div>
             <div class="gameMenu__costGauge">
                 <span class="gameMenu_costGauge__count">0</span>
-                <span class="gameMenu_costGauge__bar">
-                    <span class="gameMenu_costGauge__bar__slot" style="background: var(--theme);"></span>
-                    <span class="gameMenu_costGauge__bar__slot" style="background: var(--theme);"></span>
+                <span class="gameMenu_costGauge__bar" style="--progress: 0.3">
                     <span class="gameMenu_costGauge__bar__slot"></span>
                     <span class="gameMenu_costGauge__bar__slot"></span>
                     <span class="gameMenu_costGauge__bar__slot"></span>
@@ -102,7 +101,9 @@
                     <span class="gameMenu_costGauge__bar__slot"></span>
                     <span class="gameMenu_costGauge__bar__slot"></span>
                     <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__cursor" style="left: 19%"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__slot"></span>
+                    <span class="gameMenu_costGauge__bar__cursor"></span>
                 </span>
             </div>
             <div class="gameMenu__control">

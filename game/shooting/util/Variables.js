@@ -27,3 +27,11 @@ const PlayStatus = {
     ending : Symbol('ending'),
     exit : Symbol('exit')
 };
+
+const filters = {
+    demaged: "invert(13%) sepia(88%) saturate(7379%) hue-rotate(360deg) brightness(100%) contrast(107%)"
+}
+
+const times = {
+    demage_animation_duration: 100 
+}

@@ -21,7 +21,6 @@
     color: var(--dark);
     font-family: blue_archive;
 }
-
 body {
     display: flex;
     background-color: black;
@@ -112,7 +111,7 @@ body {
     flex: 1;
     position: relative;
     aspect-ratio: 2;
-    margin: auto 0;
+    margin: auto;
     background-color: white;
     background-image: url("./resource/bg/lobby.png");
     background-repeat: no-repeat;
@@ -120,6 +119,16 @@ body {
     background-position-y: center;
     background-position-x: center;
     overflow: hidden;
+}
+@media (min-aspect-ratio: 2/1) {
+    body {
+        flex-direction: column;
+    }
+
+    .container {
+        flex: unset;
+        height: 100%;
+    }
 }
 
 .container__object,
@@ -388,7 +397,40 @@ body {
     height: 2rem;
     gap: 0.3rem;
     overflow: hidden;
+    --progress: 0;
 }
+
+.gameMenu_costGauge__bar__slot:nth-child(1) {
+    --offset: 0;
+}
+.gameMenu_costGauge__bar__slot:nth-child(2) {
+    --offset: 0.1;
+}
+.gameMenu_costGauge__bar__slot:nth-child(3) {
+    --offset: 0.2;
+}
+.gameMenu_costGauge__bar__slot:nth-child(4) {
+    --offset: 0.3;
+}
+.gameMenu_costGauge__bar__slot:nth-child(5) {
+    --offset: 0.4;
+}
+.gameMenu_costGauge__bar__slot:nth-child(6) {
+    --offset: 0.5;
+}
+.gameMenu_costGauge__bar__slot:nth-child(7) {
+    --offset: 0.6;
+}
+.gameMenu_costGauge__bar__slot:nth-child(8) {
+    --offset: 0.7;
+}
+.gameMenu_costGauge__bar__slot:nth-child(9) {
+    --offset: 0.8;
+}
+.gameMenu_costGauge__bar__slot:nth-child(10) {
+    --offset: 0.9;
+}
+
 
 .gameMenu_costGauge__bar__slot {
     display: block;
@@ -398,13 +440,18 @@ body {
     flex: 1;
     border: 0.1rem solid var(--dark);
     opacity: 0.9;
+    --progress: inherit;
+    --inner-progress: calc((var(--progress) - var(--offset)) * 1000%);
+    background: linear-gradient(to right, var(--theme) var(--inner-progress), var(--dark) var(--inner-progress));
 }
 
 .gameMenu_costGauge__bar__cursor {
+    --progress: inherit;
     position: absolute;
     display: block;
     height: 1.8rem;
     top: 0.1rem;
+    left: calc(var(--progress) * 100%);
     width: 0.2rem;
     background-color: var(--light);
     box-shadow: 0 0 1rem 0.6rem var(--bright-blue);
@@ -485,9 +532,20 @@ button.square {
     min-width: unset;
 }
 
-.gameMenu__skillSet__skill[state="disable"] {
-    opacity: 0.5;
+.gameMenu__skillSet__skill[state="charging"] {
+    filter: grayscale(1);
+    --progress: 0%;
 }
+.gameMenu__skillSet__skill[state="charging"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: conic-gradient(transparent var(--progress), #00000033 var(--progress));
+}
+
 
 .gameMenu__skillSet__skill[state="empty"] {
     border: none;

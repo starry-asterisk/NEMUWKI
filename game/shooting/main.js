@@ -1,20 +1,49 @@
 'use strict';
-class ShootingGame{
+class ShootingGame {
     rootPath;
     worker;
-    canvas;
-    constructor(selector = 'canvas', rootPath = '/game/shooting'){
+    offscreen;
+    container;
+    constructor(container, rootPath = '/game/shooting') {
+        this.container = container;
         this.rootPath = rootPath;
-        this.canvas = document.querySelector(selector);
-        const offscreen = this.canvas.transferControlToOffscreen();
-    
-        this.worker = new Worker(`${this.rootPath}/worker.js?${Math.random()}`);
-        this.worker.postMessage({ type: 'init', canvas: offscreen, rootPath: this.rootPath }, [offscreen]);
 
-        this.worker.onmessage = console.log;
-    
+        let canvas = document.createElement('canvas');
+        canvas.setAttribute('height', 600);
+        canvas.setAttribute('width', 400);
+
+        this.container.appendChild(canvas);
+
+        this.offscreen = canvas.transferControlToOffscreen();
+
+        this.worker = new Worker(`${this.rootPath}/worker.js?${Math.random()}`);
+
+        this.worker.onmessage = this.onmessage;
+
         document.addEventListener('keydown', this.onKeyEvent('keydown'), false);
         document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
+    }
+
+    onmessage = event => {
+        switch (event.data.type) {
+            case 'ready':
+                this.worker.postMessage({ type: 'init', canvas: this.offscreen, rootPath: this.rootPath }, [this.offscreen]);
+                break;
+            case 'score':
+                document.querySelector('.topMenu__score').innerHTML = event.data.score;
+                break;
+            case 'message':
+                let message_container = document.createElement('div');
+                message_container.classList.add(`gameContainer__message_${event.data.position}`);
+                message_container.innerHTML = event.data.html;
+                this.container.appendChild(message_container);
+                setTimeout(() => {
+                    message_container.remove();
+                }, event.data.time);
+            default:
+                console.log(event.data);
+                break;
+        }
     }
 
     onKeyEvent = eventName => event => {
@@ -61,5 +90,6 @@ class ShootingGame{
             this.worker.terminate();
             this.worker = null;
         }
+        for (child of this.container.children) child.remove();
     }
 }
