@@ -15,16 +15,30 @@ importScripts('./enemy/PlayManager.js' + _random);
 
 
 
-importScripts('./bullet.js');
+importScripts('./bullet.js' + _random);
 
-importScripts('./storyBoard.js');
+importScripts('./storyBoard.js' + _random);
 
 
-const randomInt = (min, max) => {
+const randomInt = (min, max, random_float = Math.random()) => {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min; //최댓값도 포함, 최솟값도 포함
+    return Math.floor(random_float * (max - min + 1)) + min; //최댓값도 포함, 최솟값도 포함
 };
+
+const randomInt2 = (min, max, num = frameIndex) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(random(num) * (max - min + 1)) + min; //최댓값도 포함, 최솟값도 포함
+
+    function random(num) {
+        return (cos(num, 1, 1) + cos(num, 2, 7) + cos(num, 3, 2) + cos(num, 4, 8) + cos(num, 5, 9)) / 15;
+    }
+
+    function cos(x, max_height = 1, step = 1) {
+        return Math.cos(Math.PI * 2 * x / step) * max_height;
+    }
+}
 
 const isCollisionWithBullet = (arc, bullet) => {
     let top = bullet.y - bullet.r - arc.r;
@@ -42,6 +56,18 @@ const isCollisionArc = (arc1, arc2) => {
     let y = Math.pow(Math.abs(arc1.y - arc2.y), 2);
     return Math.sqrt(x + y) <= arc1.r + arc2.r;
 };
+
+const isCollisionSector = (sector, point) => {
+    let y = sector.y - point.y;
+    let x = point.x - sector.x;
+    let angle = Math.atan2(y, x);
+    let r = x / Math.cos(angle);
+    angle = angle / Math.PI;
+    if(angle < 0) angle *= -1;
+    else angle = 2 - angle;
+    if(r < sector.inner_r | r > sector.outer_r | angle < sector.s_angle | angle > sector.e_angle) return false;
+    return true;
+}
 
 const renderBoom = (fillStyle, x, y, r) => {
     let h = r / 2;
@@ -72,11 +98,47 @@ const clear = () => {
 };
 
 const drawObject = (namespace, { x, y, r, isDemaged }) => {
-    if(isDemaged) context.filter = filters.demaged; 
+    r += 5;
+    if (isDemaged) context.filter = filters.demaged;
     let aspect_ratio = imageSet[namespace].height / imageSet[namespace].width;
     context.drawImage(imageSet[namespace], x - r, y - (r * aspect_ratio), 2 * r, 2 * r * aspect_ratio);
-    if(isDemaged) context.filter = "none"; 
+    if (isDemaged) context.filter = "none";
 
+}
+
+const drawHpGauge = ({x, y, r}, hp_ratio, color = '#64E9F8') => {
+    y -= r;
+    let hp_width = Math.floor(hp_ratio * 48);
+    context.beginPath();
+    context.moveTo(x - 24, y - 17);
+    context.lineTo(x + 26, y - 17);
+    context.lineTo(x + 24, y - 7);
+    context.lineTo(x - 26, y - 7);
+    context.lineTo(x - 23, y - 19);
+    context.strokeStyle = '#ffffff';
+    context.lineWidth = 3;
+    context.fillStyle = '#51516B';
+    context.stroke();
+    context.fill();
+    context.beginPath();
+    context.moveTo(x - 23, y - 16);
+    context.lineTo(x - 23 + hp_width, y - 16);
+    context.lineTo(x - 25 + hp_width, y - 8);
+    context.lineTo(x - 25, y - 8);
+    context.lineTo(x - 23, y - 16);
+    context.fillStyle = color;
+    context.fill();
+    context.beginPath();
+    context.moveTo(x+1, y - 16);
+    context.lineTo(x-1, y - 8);
+    context.moveTo(x+13, y - 16);
+    context.lineTo(x+11, y - 8);
+    context.moveTo(x-11, y - 16);
+    context.lineTo(x-13, y - 8);
+    context.strokeStyle = '#51516B';
+    context.lineWidth = 1;
+    context.stroke();
+    context.closePath();
 }
 
 
@@ -84,7 +146,7 @@ const drawObject = (namespace, { x, y, r, isDemaged }) => {
 class Player {
     constructor(imageNamespace = 'player_1') {
         this.s = 4;//move step
-        this.r = 28;//size of character radius
+        this.r = 23;//size of character radius
         this.x = rWidth / 2;
         this.y = rHeight - this.r - 5;
         this.directKey = {
@@ -96,22 +158,44 @@ class Player {
         this.imageNamespace = imageNamespace;
         this.isInputKeyPress = false;
         this.inputKey = undefined;
+        this.inputSkill = undefined;
         this.bulletItemList = [new BasicBullet()];
+        this.skillList = [
+            new hikari_yo(),
+            new sector_skill1(),
+            new sector_skill2()
+        ];
+        this.skillList.forEach(this.postSkill);
+        this.shuffleSkill(3);
         this.fireTerm = 0;
         this.isLive = true;
         this.isDemaged = false;
+        this.hp = this.max_hp = 400;
     };
+
+    shuffleSkill = (cnt = 1) => {
+        let first_skill = this.skillList.shift();
+        this.skillList[this.skillList.length] = first_skill;
+        if(cnt > 1) this.shuffleSkill(cnt - 1);
+    }
+
+    postSkill = skill => postMessage({type: 'skill_set',info: {
+        name: skill.name,
+        cost: skill.cost,
+        image_url: skill.image_url
+    }});
 
     onKeyDirectEvent = (eventName, key) => {
         this.directKey[key] = eventName == 'keydown';
     };
 
-    onKeyInputEvent = (eventName, key) => {
-        if (key != 'w') {
+    onKeyInputEvent = (eventName, key, skillName) => {
+        if (['w', '1','2','3'].indexOf(key) == -1) {
             return;
         }
         this.isInputKeyPress = eventName == 'keydown';
         this.inputKey = this.isInputKeyPress ? key : undefined;
+        this.inputSkill = skillName;
     };
 
     calPosition = () => {
@@ -138,6 +222,19 @@ class Player {
             this.currentBulletItem().registOne(this.x, this.y - this.r - 0.5);
             this.fireTerm = this.currentBulletItem().fireTerm;
         }
+
+        if (['1','2','3'].indexOf(this.inputKey) > -1) {
+            if (this.isInputKeyPress) {
+                this.skillList.find(skill => skill.name == this.inputSkill).regist(this);
+                console.log(this.skillList[0].name);
+                if(this.skillList[0].name == this.inputSkill) this.shuffleSkill();
+                console.log(this.skillList[0].name);
+                this.postSkill(this.skillList[0]);
+                this.isInputKeyPress = false;
+                this.inputKey = undefined;
+                this.inputSkill = undefined;
+            }
+        }
     };
 
     currentBulletItem = () => this.bulletItemList.filter(item => !item.isEmpty())[0];
@@ -153,12 +250,20 @@ class Player {
     };
 
     judgeCollision = (wave) => {
-        this.isLive = !(wave.enemyList || []).filter(e => e.isLive).some(e => isCollisionArc(e, this));
+        let collisionList;
+        if(this.isLive && (collisionList = (wave.enemyList || []).filter(e => e.isLive).filter(e => isCollisionArc(e, this))).length > 0){
+            for(let e of collisionList){
+                this.hp -= e.demage;
+            }
+            this.isLive = this.hp > 0;
+        }
     };
 
     render = () => {
         this.bulletItemList.forEach(bulletItem => bulletItem.render());
         drawObject(this.imageNamespace, this);
+        drawHpGauge(this, Math.max(this.hp / this.max_hp, 0),'#BAF649');
+        this.skillList.forEach(skill => skill.draw(this));
 
         this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
         this.bulletItemList.filter(item => !item.isEmpty())[0].renderBulletInfo();
@@ -167,7 +272,6 @@ class Player {
 
 class BgCosmos {
     constructor() {
-        this.frameIndex = 0;
         this.starList = [];
         this.cloudList = [
             [0.76, 0.82, 0.10],
@@ -233,8 +337,7 @@ class BgCosmos {
         context.fill();
         context.closePath();
 
-        let wave_offset = Math.cos(Math.PI * this.frameIndex / 300) * 5;
-        this.frameIndex++;
+        let wave_offset = Math.cos(Math.PI * frameIndex / 300) * 5;
         context.beginPath();
         this.cloudList.forEach(cloud => {
             context.arc(cloud[0] * rWidth + wave_offset, cloud[1] * rHeight, cloud[2] * rHeight, 0, 2 * Math.PI);
@@ -242,72 +345,7 @@ class BgCosmos {
         context.fillStyle = '#ffffff33';
         context.fill();
         context.closePath();
-        this.skill();
-        
-    }
 
-    skill = () =>
-    {
-
-        context.fillStyle = '#ffffff33';
-        context.beginPath();
-        context.rect(rWidth / 2, 0, 40, rHeight);
-        context.fill();
-        context.closePath();
-        context.beginPath();
-        context.rect(rWidth / 2 + 18, 0, 4, rHeight);
-        context.fillStyle = '#ffffff';
-        context.fill();
-        context.fillStyle = '#ffffff33';
-        context.closePath();
-
-        
-        context.filter = 'blur(5px)';
-        context.beginPath();
-        context.rect(rWidth /2 - 20, 0, 80, rHeight);
-        context.fill();
-        context.beginPath();
-        context.closePath();
-        context.rect(rWidth / 2, 0, 40, rHeight);
-        context.fill();
-        context.beginPath();
-        context.closePath();
-        context.rect(rWidth / 2 + 19, 0, 2, rHeight);
-        context.fill();
-        context.closePath();
-        context.filter = 'none';
-
-        
-        context.fillStyle = '#000000';
-        context.strokeStyle = '#000000';
-        context.beginPath();
-        context.lineWidth = 4;
-        let h= rHeight / 2;
-        let i = -40
-        context.moveTo(rWidth / 2 + i, h);
-        for(; i <= 80; i += randomInt(1, 10)){
-            h += randomInt(0, 8) - 2;
-            context.lineTo(rWidth / 2 + i, h);
-        }
-        for(; i > -60; i -= randomInt(1, 10)){
-            h += randomInt(0, 8) - 2;
-            context.lineTo(rWidth / 2 + i, h);
-        }
-        for(; i <= 100; i += randomInt(1, 10)){
-            h += randomInt(0, 8) - 2;
-            context.lineTo(rWidth / 2 + i, h);
-        }
-        for(; i > -50; i -= randomInt(1, 10)){
-            h += randomInt(0, 8) - 2;
-            context.lineTo(rWidth / 2 + i, h);
-        }
-        for(; i <= 90; i += randomInt(1, 10)){
-            h += randomInt(0, 8) - 2;
-            context.lineTo(rWidth / 2 + i, h);
-        }
-        context.stroke();
-        context.closePath();
-        context.fillStyle = '#ffffff33';
     }
 }
 
@@ -326,7 +364,7 @@ class Viewer {
         this.player = new Player('player_2');
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
-
+        postMessage({type: 'start'});
         this.toNextStory();
     };
 
@@ -344,6 +382,7 @@ class Viewer {
     };
 
     render = () => {
+        frameIndex++;
         clear();
         this.background.render();
         this.playManager.render();
@@ -351,6 +390,7 @@ class Viewer {
         this.itemManager.render();
 
         this.calPosition();
+        this.judgeCollisionWithSkill();
         this.judgeCollisionWithBullet();
         this.judgeCollisionWithPlayer();
         this.itemManager.judgeCollision(this.player);
@@ -401,6 +441,11 @@ class Viewer {
         });
     };
 
+    judgeCollisionWithSkill = () => {
+        let result = this.playManager.judgeCollisionWithSkill(this.player.skillList.filter(skill => skill.isFire));
+        if (result && result.score && result.score > 0) this.addScore(result.score);
+    };
+
     addScore = score => {
         let bScore = this.score, aScore = this.score + score;
         this.score = aScore;
@@ -447,19 +492,19 @@ const __events = {
         (viewer.onKeyDirectEvent || function () { })(eventName, key);
     },
     keyInput: event => {
-        let { eventName, key } = event.data;
+        let { eventName, key, skillName } = event.data;
         if (key == 'enter') {
             if (eventName == 'keydown') return
             __events.nextEvent(viewer);
         } else {
-            (viewer.onKeyInputEvent || function () { })(eventName, key);
+            (viewer.onKeyInputEvent || function () { })(eventName, key, skillName);
         }
     },
     nextEvent: (viewer) => {
         switch (viewer.status) {
             case ViewerStatus.opening: viewer.playing(); break;
-            case ViewerStatus.playing: viewer.status = ViewerStatus.pause; break;
-            case ViewerStatus.pause: viewer.status = ViewerStatus.playing; break;
+            case ViewerStatus.playing: viewer.status = ViewerStatus.pause;postMessage({type: 'pause'}); break;
+            case ViewerStatus.pause: viewer.status = ViewerStatus.playing;postMessage({type: 'start'}); break;
         }
     }
 };
@@ -467,6 +512,7 @@ const __events = {
 
 self.onmessage = event => {
     let type = event.data.type;
+    if(type == 'keyInput') console.log(event.data);
 
     if (!type || !__events[type]) {
         return;

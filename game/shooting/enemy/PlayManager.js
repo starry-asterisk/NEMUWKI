@@ -81,7 +81,6 @@ class PlayManager {
         if (!this.currentWave || !this.currentWave.enemyList || this.currentWave.enemyList.length < 1) {
             return {};
         }
-
         let res = { score : 0, seqList : [] };
         (bulletList||[]).forEach(b => {
             let enemy = this.currentWave.enemyList
@@ -93,6 +92,27 @@ class PlayManager {
                 if (!enemy.isLive) {
                     res.score += enemy.score;
                 }
+            }
+        });
+
+        this.flatCurrentWave();
+        return res;
+    };
+
+    judgeCollisionWithSkill = (skillList) => {
+        if (!this.currentWave || !this.currentWave.enemyList || this.currentWave.enemyList.length < 1) {
+            return {};
+        }
+
+        let res = { score : 0};
+        (skillList||[]).forEach(s => {
+            let enemyList = this.currentWave.enemyList
+                    .filter(e => e.isLive)
+                    .filter(e => !e.outOfView)
+                    .filter(e => e.judgeCollisionWithSkill(s))
+                    .filter(e => !e.isLive)
+            if (enemyList.length > 0) {
+                for(let enemy of enemyList) res.score += enemy.score;
             }
         });
 
