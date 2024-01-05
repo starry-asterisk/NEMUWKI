@@ -192,7 +192,6 @@ class QuintupleBullet extends BasicBullet {
     calPositionBullet = (bullet) => {
         bullet.y -= this.s;
         bullet.x += (bullet.fireSeq - 3) * 1.5;
-        console.log(bullet.x);
         bullet.outOfView = bullet.y - bullet.r <= 0;
     };
 }

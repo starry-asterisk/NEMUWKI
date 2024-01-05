@@ -20,6 +20,114 @@ importScripts('./bullet.js' + _random);
 importScripts('./storyBoard.js' + _random);
 
 
+
+
+
+// 3D 좌표를 2D 좌표로 변환하는 함수
+function project3Dto2D(x, y, z) {
+    const focalLength = 500; // 초점 거리
+    const scale = focalLength / (focalLength + z);
+    const canvasCenterX = rWidth / 2;
+    const canvasCenterY = rHeight / 2;
+
+
+    // 원근법을 적용한 2D 좌표 계산
+    const projectedX = x * scale + canvasCenterX;
+    const projectedY = y * scale + canvasCenterY;
+
+    return { x: projectedX, y: projectedY };
+}
+
+// 삼각 평면을 그리는 함수
+function drawTriangle(vertices, color) {
+    context.beginPath();
+    context.moveTo(vertices[0].x, vertices[0].y);
+
+    for (let i = 1; i < vertices.length; i++) {
+        context.lineTo(vertices[i].x, vertices[i].y);
+    }
+
+    context.closePath();
+    context.fillStyle = color;
+    context.fill();
+}
+
+function get2DtrianglePattern(x1, x2, y1, y2, h_unit_cnt, margin = 5) {
+    let arr = [];
+
+    let w = x2 - x1;
+
+    let trim_w = w - h_unit_cnt * margin + margin;
+    let unit_w = trim_w / h_unit_cnt;
+    let unit_h = 1.4 * unit_w;
+
+    let x = x1;
+    let y = y1 ;
+
+    let cnt = 0;
+
+    while (x <= x2) {
+        y = y1 - unit_h * 0.5 - margin * cnt * 5;
+        while (y <= y2) {
+            arr.push(new_tri(x, x, x + unit_w, y, y + unit_h, y + unit_h * 0.5));
+            arr.push(new_tri(x + unit_w, x + unit_w, x, y + unit_h * 0.5 + margin, y + unit_h * 1.5 + margin, y + unit_h + margin));
+            y += unit_h + margin * 2;
+        }
+        x += unit_w + margin;
+    }
+
+    return arr;
+
+    function new_tri(x1, x2, x3, y1, y2, y3) {
+        return [
+            { x: x1, y: y1, z: get_z(x1, y1) },
+            { x: x2, y: y2, z: get_z(x2, y2) },
+            { x: x3, y: y3, z: get_z(x3, y3) }
+        ]
+    }
+    
+    function get_z(x, y){
+        let d1 = 0.25;
+        let d2 = -0.25;
+        return x * d1 + y * d2;
+    }
+}
+
+let ratio = 0.7;
+vectors_3D_tri_pattern = get2DtrianglePattern(-rWidth * ratio, rWidth * ratio, -rHeight * ratio, rHeight * ratio, 7, 8);
+
+function test() {
+    let t_length = vectors_3D_tri_pattern.length;
+    let t_w = 7;
+    let w_center = Math.ceil(t_w / 2);
+    let t_h = Math.ceil(t_length / t_w);
+    let h_center = Math.ceil(t_h / 2);
+    let t_distance = Math.max(t_w, t_h) / 2;
+
+    for (let idx in vectors_3D_tri_pattern) {
+
+        let shape = vectors_3D_tri_pattern[idx];
+
+        let cnt = parseInt(idx) + 1;
+        
+        let w = Math.ceil(cnt / t_h);
+        let h = cnt % t_h;
+        
+        let w_diff = Math.abs(w - w_center);
+        let h_diff = Math.abs(h - h_center);
+
+        let distance = Math.max(w_diff, h_diff);
+
+        drawTriangle([
+            project3Dto2D(shape[0].x, shape[0].y, shape[0].z),
+            project3Dto2D(shape[1].x, shape[1].y, shape[1].z),
+            project3Dto2D(shape[2].x, shape[2].y, shape[2].z)
+        ], `rgba(255, 255, 255, ${distance/t_distance})`);
+    }
+    
+} 
+
+
 const randomInt = (min, max, random_float = Math.random()) => {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -63,9 +171,9 @@ const isCollisionSector = (sector, point) => {
     let angle = Math.atan2(y, x);
     let r = x / Math.cos(angle);
     angle = angle / Math.PI;
-    if(angle < 0) angle *= -1;
+    if (angle < 0) angle *= -1;
     else angle = 2 - angle;
-    if(r < sector.inner_r | r > sector.outer_r | angle < sector.s_angle | angle > sector.e_angle) return false;
+    if (r < sector.inner_r | r > sector.outer_r | angle < sector.s_angle | angle > sector.e_angle) return false;
     return true;
 }
 
@@ -97,16 +205,13 @@ const clear = () => {
     context.clearRect(0, 0, rWidth, rHeight);
 };
 
-const drawObject = (namespace, { x, y, r, isDemaged }) => {
+const drawObject = (namespace, { x, y, r }) => {
     r += 5;
-    if (isDemaged) context.filter = filters.demaged;
     let aspect_ratio = imageSet[namespace].height / imageSet[namespace].width;
     context.drawImage(imageSet[namespace], x - r, y - (r * aspect_ratio), 2 * r, 2 * r * aspect_ratio);
-    if (isDemaged) context.filter = "none";
-
 }
 
-const drawHpGauge = ({x, y, r}, hp_ratio, color = '#64E9F8') => {
+const drawHpGauge = ({ x, y, r }, hp_ratio, color = '#64E9F8') => {
     y -= r;
     let hp_width = Math.floor(hp_ratio * 48);
     context.beginPath();
@@ -129,19 +234,204 @@ const drawHpGauge = ({x, y, r}, hp_ratio, color = '#64E9F8') => {
     context.fillStyle = color;
     context.fill();
     context.beginPath();
-    context.moveTo(x+1, y - 16);
-    context.lineTo(x-1, y - 8);
-    context.moveTo(x+13, y - 16);
-    context.lineTo(x+11, y - 8);
-    context.moveTo(x-11, y - 16);
-    context.lineTo(x-13, y - 8);
+    context.moveTo(x + 1, y - 16);
+    context.lineTo(x - 1, y - 8);
+    context.moveTo(x + 13, y - 16);
+    context.lineTo(x + 11, y - 8);
+    context.moveTo(x - 11, y - 16);
+    context.lineTo(x - 13, y - 8);
     context.strokeStyle = '#51516B';
     context.lineWidth = 1;
     context.stroke();
     context.closePath();
 }
 
+const drawPixelParticle = (x, y, p) => {
+    let w = 2;
+    let p2;
+    context.beginPath();
+    if (p < 0.5) {
+        p2 = p * 2;
+        context.rect(x - w, y - w, w * 2, w * 2);
+        context.rect(x - w * 5, y - w, w * 2, w * 2);
+        context.rect(x + w * 3, y - w, w * 2, w * 2);
+        context.rect(x - w, y - w * 5, w * 2, w * 2);
+        context.rect(x - w, y + w * 3, w * 2, w * 2);
+    } else {
+        p2 = (1 - p) * 2
+        context.rect(x - w * 3, y - w, w * 6, w * 2);
+        context.rect(x - w, y - w * 3, w * 2, w * 6);
 
+    }
+    context.fillStyle = `rgba(255, 255, 255, ${p2})`;
+    context.fill();
+    context.closePath();
+}
+
+const drawDemage = (x, y, num, p) => {
+    context.fillStyle = '#FFDC20';
+    context.strokeStyle = '#7D3A00';
+    context.lineWidth = 2;
+
+    context.globalAlpha = p * 3;
+    context.font = `italic bold 20px main`;
+    context.strokeText(num, x + 5 - 5 * p, y - 5 + 5 * p);
+    context.fillText(num, x + 5 - 5 * p, y - 5 + 5 * p);
+    context.globalAlpha = 1;
+}
+
+let pixelCircleStock = {};
+const createPixelArtCircle = (r) => {
+    if (pixelCircleStock[r]) return pixelCircleStock[r];
+    // 캔버스 엘리먼트 가져오기
+
+    let pixels = [];
+
+    function new_pixel(x, y) {
+        pixels.find(pixel => pixel.x == x && pixel.y == y) ? null : pixels.push({ x, y });
+    }
+
+    // 반지름에 따른 픽셀아트 원 그리기
+    for (var angle = 0; angle < 90; angle++) {
+        // 라디안으로 변환
+        var radians = angle * (Math.PI / 180);
+        new_pixel(Math.round(r * Math.cos(radians)), Math.round(r * Math.sin(radians)));
+    }
+
+    pixelCircleStock[r] = (cx, cy) => {
+        cx -= pixelSize / 2;
+        cy -= pixelSize / 2;
+        for (let pixel of pixels) {
+            let x = pixel.x * pixelSize;
+            let y = pixel.y * pixelSize;
+            context.rect(cx + x, cy + y, pixelSize, pixelSize);
+            context.rect(cx + x, cy - y, pixelSize, pixelSize);
+            context.rect(cx - x, cy - y, pixelSize, pixelSize);
+            context.rect(cx - x, cy + y, pixelSize, pixelSize);
+        }
+    }
+
+    return pixelCircleStock[r];
+}
+
+const drawPixelArtCircle = (r, width, x, y, color = '#ff00ff', color2 = '#ffffffaa') => {
+    let r2 = r;
+    context.beginPath();
+    while (r2 > r - width) {
+        createPixelArtCircle(r2)(x, y);
+        r2--;
+    }
+    context.fillStyle = color2;
+    context.fill();
+    context.filter = 'blur(3px)';
+    context.fillStyle = color;
+    context.fill();
+    context.filter = 'none';
+    context.closePath();
+}
+
+const drawPixelFont = (x, y, text = '2P', color = '#88ED5B', fontSize = 22) => {
+    context.beginPath()
+    context.textAlign = "center";
+    context.font = `${fontSize}px pixel`;
+    context.lineWidth = 10;
+    context.strokeStyle = '#415041';
+    context.strokeText(text, x, y);
+    context.lineWidth = 5;
+    context.strokeStyle = '#000000';
+    context.strokeText(text, x, y);
+    context.lineWidth = 3;
+    context.strokeStyle = '#ffffff';
+    context.strokeText(text, x, y);
+    context.fillStyle = color;
+    context.fillText(text, x, y);
+    context.closePath();
+}
+const drawBoom = (x, y, p) => {
+    if (p < 0.75) drawBoomSmoke(x, y, p / 3 * 4);
+    if (p > 0.5) drawBoomLight(x, y, (p - 0.5) * 2);
+
+    context.beginPath();
+    context.arc(x, y, 35, 0, Math.PI * 2);
+    context.globalCompositeOperation = "lighter";
+    context.fillStyle = '#FB000055';
+    context.filter = `blur(6px)`;
+    if (p < 0.25) context.globalAlpha = p * 4;
+    context.fill();
+    context.closePath();
+    context.globalAlpha = 1;
+    context.filter = `none`;
+    context.globalCompositeOperation = 'source-over';
+
+    if (p < 0.5) {
+        let p2 = 1 - p;
+        let r = [];
+        while (r.length < 6) r.push(random[Math.floor(x + y + 1 + 7 * r.length) % random.length]);
+        drawPixelParticle(x + randomInt(r[0]) * p2, y + randomInt(r[1]) * p2, p * 2);
+        drawPixelParticle(x + randomInt(r[2]) * p2, y + randomInt(r[3]) * p2, p * 2);
+        drawPixelParticle(x + randomInt(r[4]) * p2, y + randomInt(r[5]) * p2, p * 2);
+
+        function randomInt(seed) {
+            let v = Math.floor(30 * seed);
+            let margin = 20;
+            if (seed < 0.5) v = - margin - v;
+            else v = margin + v - 15;
+            return v;
+        }
+    }
+}
+const drawBoomLight = (x, y, p) => {
+    context.beginPath();
+    if (p < 0.5) {
+        p *= 2;
+        let r1 = 30;
+        let r2 = r1 * (1 - p);
+        let offset = r2 * -p / sqrt_2;
+        context.arc(x, y, 30, 0, 2 * Math.PI);
+        context.arc(x + offset, y + offset, r2, 0, 2 * Math.PI, true);
+    } else {
+        p -= 0.5;
+        context.arc(x, y, 30 * (0.5 - p) * 2, 0, 2 * Math.PI);
+    }
+    context.fillStyle = '#FFFFFA';
+    context.fill();
+
+}
+const drawBoomSmoke = (x, y, p) => {
+    let p2 = 1 - p;
+    x = x - 3 * p2;
+    y = y - 3 * p2;
+    context.beginPath();
+    let arr = [
+        { x: -3, y: -7, r: 15 },
+        { x: -1, y: 5, r: 15 },
+        { x: 12, y: 2, r: 15 },
+        { x: -12, y: 17, r: 11 },
+        { x: 18, y: 14, r: 11 },
+        { x: 9, y: 17, r: 11 },
+        { x: 0, y: 19, r: 11 }
+    ];
+    for (let c of arr) {
+        context.arc(x + c.x, y + c.y, c.r, 0, 2 * Math.PI);
+    }
+    context.fillStyle = '#393939';
+    if (p < 0.5) context.globalAlpha = p * 2;
+    context.fill();
+    context.beginPath();
+    for (let c of arr) {
+        let r2 = c.r * (0.5 + p / 2);
+        let r3 = c.r * p2 / 2;
+        let x2 = x + c.x - r3;
+        let y2 = y + c.y - r3;
+        context.moveTo(x2, y2);
+        context.arc(x2, y2, r2, 0, 2 * Math.PI);
+    }
+    context.fillStyle = '#FBFBAB';
+    context.filter = `blur(${Math.floor(3 * p2)}px)`;
+    context.fill();
+    context.closePath();
+    context.globalAlpha = 1;
+}
 
 class Player {
     constructor(imageNamespace = 'player_1') {
@@ -176,21 +466,23 @@ class Player {
     shuffleSkill = (cnt = 1) => {
         let first_skill = this.skillList.shift();
         this.skillList[this.skillList.length] = first_skill;
-        if(cnt > 1) this.shuffleSkill(cnt - 1);
+        if (cnt > 1) this.shuffleSkill(cnt - 1);
     }
 
-    postSkill = skill => postMessage({type: 'skill_set',info: {
-        name: skill.name,
-        cost: skill.cost,
-        image_url: skill.image_url
-    }});
+    postSkill = skill => postMessage({
+        type: 'skill_set', info: {
+            name: skill.name,
+            cost: skill.cost,
+            image_url: skill.image_url
+        }
+    });
 
     onKeyDirectEvent = (eventName, key) => {
         this.directKey[key] = eventName == 'keydown';
     };
 
     onKeyInputEvent = (eventName, key, skillName) => {
-        if (['w', '1','2','3'].indexOf(key) == -1) {
+        if (['w', '1', '2', '3'].indexOf(key) == -1) {
             return;
         }
         this.isInputKeyPress = eventName == 'keydown';
@@ -223,12 +515,10 @@ class Player {
             this.fireTerm = this.currentBulletItem().fireTerm;
         }
 
-        if (['1','2','3'].indexOf(this.inputKey) > -1) {
+        if (['1', '2', '3'].indexOf(this.inputKey) > -1) {
             if (this.isInputKeyPress) {
                 this.skillList.find(skill => skill.name == this.inputSkill).regist(this);
-                console.log(this.skillList[0].name);
-                if(this.skillList[0].name == this.inputSkill) this.shuffleSkill();
-                console.log(this.skillList[0].name);
+                if (this.skillList[0].name == this.inputSkill) this.shuffleSkill();
                 this.postSkill(this.skillList[0]);
                 this.isInputKeyPress = false;
                 this.inputKey = undefined;
@@ -251,8 +541,8 @@ class Player {
 
     judgeCollision = (wave) => {
         let collisionList;
-        if(this.isLive && (collisionList = (wave.enemyList || []).filter(e => e.isLive).filter(e => isCollisionArc(e, this))).length > 0){
-            for(let e of collisionList){
+        if (this.isLive && (collisionList = (wave.enemyList || []).filter(e => e.isLive).filter(e => isCollisionArc(e, this))).length > 0) {
+            for (let e of collisionList) {
                 this.hp -= e.demage;
             }
             this.isLive = this.hp > 0;
@@ -262,7 +552,7 @@ class Player {
     render = () => {
         this.bulletItemList.forEach(bulletItem => bulletItem.render());
         drawObject(this.imageNamespace, this);
-        drawHpGauge(this, Math.max(this.hp / this.max_hp, 0),'#BAF649');
+        drawHpGauge(this, Math.max(this.hp / this.max_hp, 0), '#BAF649');
         this.skillList.forEach(skill => skill.draw(this));
 
         this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
@@ -355,6 +645,7 @@ class Viewer {
         this.status = ViewerStatus.opening;
         this.itemManager = new ItemManager();
         this.background = new BgCosmos();
+        this.deadDuration = this.deadRemain = 30;
     };
 
     playing = () => {
@@ -364,13 +655,15 @@ class Viewer {
         this.player = new Player('player_2');
         this.onKeyDirectEvent = this.player.onKeyDirectEvent;
         this.onKeyInputEvent = this.player.onKeyInputEvent;
-        postMessage({type: 'start'});
+        postMessage({ type: 'start' });
         this.toNextStory();
     };
 
     opening = () => {
+        frameIndex++;
         clear();
-        //this.background.render();
+        this.background.render();
+        test();
     };
 
     guide = () => {
@@ -397,6 +690,20 @@ class Viewer {
         this.judgeToNext();
     };
 
+    dead = () => {
+        this.deadRemain--;
+        clear();
+        this.background.render();
+        this.playManager.render();
+        this.itemManager.render();
+
+        drawBoom(this.player.x, this.player.y, this.deadRemain / this.deadDuration);
+        if (this.deadRemain < 1) {
+            this.status = ViewerStatus.closed;
+            postMessage({ type: 'message', position: 'main', html: `<h1 style='color: red;'>You Dead</h1>`, time: 1500 });
+        }
+    }
+
 
     calPosition = () => {
         this.player.calPosition();
@@ -415,6 +722,7 @@ class Viewer {
 
     judgeToNext = () => {
         if (this.playManager.status == PlayStatus.exit) {
+            this.status = ViewerStatus.pause;
             this.toNextStory();
         }
     };
@@ -427,7 +735,6 @@ class Viewer {
         this.player.judgeCollision(this.playManager.currentWave);
         if (!this.player.isLive) {
             this.status = ViewerStatus.dead;
-            postMessage({ type: 'message', position: 'main', html: `<h1 style='color: red;'>You Dead</h1>`, time: 1500 })
         }
     };
 
@@ -466,6 +773,8 @@ const render = time => {
             viewer.guide(); break;
         case ViewerStatus.ending:
             viewer.ending(); break;
+        case ViewerStatus.dead:
+            viewer.dead(); break;
     }
     requestAnimationFrame(render);
 };
@@ -477,7 +786,6 @@ const __events = {
         canvas = event.data.canvas;
         context = canvas.getContext('2d');
         contextScale();
-
         imageOptions.forEach(
             async option => {
                 imageSet[option.namespace] = await getImageBitmap(option.url, option.flip == true);
@@ -503,8 +811,8 @@ const __events = {
     nextEvent: (viewer) => {
         switch (viewer.status) {
             case ViewerStatus.opening: viewer.playing(); break;
-            case ViewerStatus.playing: viewer.status = ViewerStatus.pause;postMessage({type: 'pause'}); break;
-            case ViewerStatus.pause: viewer.status = ViewerStatus.playing;postMessage({type: 'start'}); break;
+            case ViewerStatus.playing: viewer.status = ViewerStatus.pause; postMessage({ type: 'pause' }); break;
+            case ViewerStatus.pause: viewer.status = ViewerStatus.playing; postMessage({ type: 'start' }); break;
         }
     }
 };
@@ -512,7 +820,6 @@ const __events = {
 
 self.onmessage = event => {
     let type = event.data.type;
-    if(type == 'keyInput') console.log(event.data);
 
     if (!type || !__events[type]) {
         return;

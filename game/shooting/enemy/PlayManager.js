@@ -12,7 +12,8 @@ class PlayManager {
     createWave = (waveData) => {
         let wave = {
             outOfView : false,
-            enemyList : []
+            enemyList : [],
+            deadEList : [],
         };
         let x = 40;
         for (let i=0 ; i < 5 ; i++) {
@@ -54,7 +55,8 @@ class PlayManager {
                 }
             });
         } else {
-            this.currentWave.enemyList.forEach(e => e.render());
+            this.currentWave.enemyList.forEach(e => e.renderLive());
+            this.currentWave.deadEList.forEach(e => e.renderDead());
         }
     };
 
@@ -90,6 +92,7 @@ class PlayManager {
             if (enemy) {
                 res.seqList.push(b.seq);
                 if (!enemy.isLive) {
+                    this.putDeadEList(enemy);
                     res.score += enemy.score;
                 }
             }
@@ -112,7 +115,10 @@ class PlayManager {
                     .filter(e => e.judgeCollisionWithSkill(s))
                     .filter(e => !e.isLive)
             if (enemyList.length > 0) {
-                for(let enemy of enemyList) res.score += enemy.score;
+                for(let enemy of enemyList) {
+                    this.putDeadEList(enemy);
+                    res.score += enemy.score;
+                }
             }
         });
 
@@ -120,8 +126,14 @@ class PlayManager {
         return res;
     };
 
+    putDeadEList = (enemy) => {
+        enemy.deadDuration = times.dead_duration;
+        this.currentWave.deadEList.push(enemy);
+    }
+
     flatCurrentWave = () => {
         this.currentWave.enemyList = this.currentWave.enemyList.filter(e => e.isLive).filter(e => !e.outOfView);
+        this.currentWave.deadEList = this.currentWave.deadEList.filter(e => e.deadDuration > 0);
         this.currentWave.outOfView = this.currentWave.enemyList.length <= 0;
     };
 }

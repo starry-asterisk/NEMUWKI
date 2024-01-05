@@ -21,7 +21,7 @@ const imageOptions = [
 
 class hikari_yo {
     name = 'hikari_yo';
-    image_url = '/game/shooting/imageSet/skill1.jpg';
+    image_url = '/game/shooting/imageSet/skill2.jpg';
     cost = 5;
     speed = 10.0;
     duration = 150;
@@ -32,8 +32,11 @@ class hikari_yo {
     x = 0;
     y = 0;
     r = 10;
-    damage = 200;
+    damage = 1000;
     isFire = false;
+    collisionEnemy = [];
+    demageAnimation = Animation.demageAnimation;
+    demagedDuration =  times.demage_animation_duration;
     regist = ({ x, y }) => {
         if (this.remain > 0) return;
         this.r = 10;
@@ -41,6 +44,7 @@ class hikari_yo {
         this.y = this.fire_y = y;
         this.remain = this.duration + this.delay;
         this.isFire = true;
+        this.collisionEnemy = [];
     };
     draw = ({ x, y }) => {
         if (this.remain < 1) return;
@@ -229,14 +233,18 @@ class hikari_yo {
 
     };
     judgeCollision = (enemy) => {
-        if(!this.isFire) return false;
-        return isCollisionArc({x: this.x, y: this.r > 5 ? this.y + 50 : this.y, r: this.r}, enemy);
+        if(this.collisionEnemy[enemy._id]) return false;
+        if(this.isFire && isCollisionArc({x: this.x, y: this.r > 5 ? this.y + 50 : this.y, r: this.r}, enemy)){
+            this.collisionEnemy[enemy._id] = true;
+            return true;
+        }
+        return false;
     };
 };
 
 class sector_skill1 {
     name = 'sector_skill1';
-    image_url = '/game/shooting/imageSet/skill2.jpg';
+    image_url = '/game/shooting/imageSet/skill1.jpg';
     cost = 2;
     speed = 0.2;
     speed2 = 60;
@@ -252,7 +260,18 @@ class sector_skill1 {
     damage = 10;
     isFire = false;
     bulletList = [];
-    color = '#DE52AA55';
+    bulletSize = 3;
+    color = '#DE52AA';
+    text = '1P';
+    demageAnimation = ({x, y, r, imageNamespace, randomSeed}, time) => {
+        drawObject(imageNamespace, {x, y, r});
+        let p = time / this.demagedDuration;
+        let alpha = (Math.floor(p * 154)+16).toString(16);
+        drawPixelArtCircle(Math.ceil((1 - p) * 3 ) * 2 + 4, Math.ceil(p * 2), x + randomInt(-r, r, randomSeed), y, this.color + alpha , '#ffffff' + alpha);
+        drawDemage(x + randomInt(0, 10, randomSeed), y, this.damage, p);
+    };
+    demagedDuration = 16;
+    demageInterval = 10;
     regist = ({x, y}) => {
         if (this.remain > 0) return;
         this.r = 10;
@@ -294,15 +313,19 @@ class sector_skill1 {
         this.bulletList = this.bulletList.filter(bullet =>  bullet.r1 < this.outer_r);
 
         context.strokeStyle = '#ffffff';
-        context.lineWidth = 3;
+        context.lineWidth = this.bulletSize;
         context.stroke();
-        context.strokeStyle = this.color;
-        context.lineWidth = 7;
+        context.strokeStyle = this.color + '55';
+        context.lineWidth = this.bulletSize + 4;
         context.filter = 'blur(3px)';
         context.stroke();
         context.closePath();
-        
+
         context.filter = 'none';
+
+        let seq = [0,1,2,3,4,4,3,2,1,0]
+
+        drawPixelFont(x,y - 45 - seq[Math.floor(this.remain / 10) % 10], this.text , this.color);
     };
     addBullet = (num = 0) => {
         this.bulletList.push({
@@ -316,6 +339,7 @@ class sector_skill1 {
         });
     };
     judgeCollision = (enemy) => {
+        if(this.remain % (this.demagedDuration + this.demageInterval) != 0) return false;
         if(!this.isFire) return false;
         return isCollisionSector(this, enemy);
     }
@@ -324,14 +348,46 @@ class sector_skill1 {
 class sector_skill2 extends sector_skill1 {
     name = 'sector_skill2';
     image_url = '/game/shooting/imageSet/skill3.jpg';
-    color = '#88ED5B55';
+    color = '#88ED5B';
+    text = '2P';
+    speed = 0.05;
+    bulletSize = 6;
+    damage = 1000;
 
+    addBullet = (num = 0) => {
+        let wave = viewer.playManager.currentWave;
+        if(wave.outOfView) return;
+        let list = wave.enemyList.filter(e => e.isLive && e.y < this.y);
+        if(list.length < 1) return;
+        let target = list[randomInt(0, list.length - 1)];
+        let angle =  Math.atan2(this.y - target.y , this.x - target.x) / Math.PI;
+        if(angle < 0) angle *= -1;
+        else angle = 1 + angle;
+        
+        this.bulletList.push({
+            _id: target._id,
+            angle: angle,
+            demaged: false,
+            r1: 0,
+            r2: 0,
+            fired: {
+                x: this.x,
+                y: this.y
+            }
+        });
+    };
+    judgeCollision = (enemy) => {
+        if(!this.isFire) return false;
+        let bullet = this.bulletList.find(b => b._id == enemy._id);
+        if(bullet == undefined || bullet.demaged ||  bullet.r1 < this.outer_r * 0.8) return false;
+        return bullet.demaged = true;
+    }
 }
 
 const skillSet = [
     hikari_yo,
     sector_skill1,
-    sector_skill2,
+    sector_skill2
 ];
 
 const enemyAbility = {

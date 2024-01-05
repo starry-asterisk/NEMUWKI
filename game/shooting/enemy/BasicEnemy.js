@@ -1,5 +1,6 @@
 class BasicEnemy {
     constructor({ play, x, s = 4, y = -28, r = 23, hp, score, wait, imageNamespace = 'enemy_1' }) {
+        this._id = Math.random();
         this.x = x;
         this.y = y;
         this.r = r;
@@ -8,31 +9,50 @@ class BasicEnemy {
         this.score = score;
         this.wait = wait;
         this.isLive = true;
-        this.isDemaged = false;
+        this.demagedDuration = 0;
         this.demage = 10;
         this.outOfView = false;
         this.play = new play(this);
         this.calPosition = this.play.calPosition;
         this.imageNamespace = imageNamespace;
-        this.timer = undefined;
+        this.deadDuration = 0;
+        this.demageAnimation;
+        this.randomSeed;
     }
 
-    damaged = ({ damage }) => {
-        if(this.hp <= 0) return;
+    damaged = ({ damage, demageAnimation = Animation.demageDefault(damage), demagedDuration = times.demage_animation_duration}) => {
+        if(!this.isLive) return;
         this.hp -= damage;
-        if (this.timer) clearTimeout(this.timer);
-        else this.isDemaged = true;
-        this.timer = setTimeout(() => {
-            this.isLive = this.hp > 0;
-            this.isDemaged = false;
-            this.timer = undefined;
-        }, times.demage_animation_duration);
+        this.isLive = this.hp > 0;
+        this.demagedDuration = demagedDuration;
+        this.demageAnimation = demageAnimation;
+        this.randomSeed = Math.random();
     };
 
-    render = () => {
+    renderLive = () => {
+        if(this.demagedDuration) {
+            this.demagedDuration--;
+            this.demageAnimation(this, this.demagedDuration);
+        } else {
+            drawObject(this.imageNamespace, this);
+        }
+        
         drawHpGauge(this, Math.max(this.hp / this.max_hp, 0));
-        drawObject(this.imageNamespace, this);
     };
+
+    renderDead = () => {
+        if(this.demagedDuration) {
+            this.demagedDuration--;
+            this.demageAnimation(this, this.demagedDuration);
+        } else {
+            this.deadDuration--;
+            let p = this.deadDuration / times.dead_duration;
+            context.globalAlpha = p;
+            drawObject(this.imageNamespace, this);
+            context.globalAlpha = 1;
+            drawBoom(this.x, this.y, p);
+        }
+    }
 
     judgeCollision = (bullet) => {
         if (this.isLive && isCollisionWithBullet(this, bullet)) {

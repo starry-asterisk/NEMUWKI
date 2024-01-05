@@ -3,6 +3,13 @@
     src: url("MainFont.ttf");
 }
 
+/*https://github.com/eifetx/Pixelify-Sans OFL license*/
+@font-face {
+    font-family: pixel;
+    src: url("PixelFont.ttf");
+}
+
+
 :root {
     --dark: #46495A;
     --theme: #35D3FD;
