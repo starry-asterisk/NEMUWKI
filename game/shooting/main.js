@@ -70,10 +70,25 @@ class ShootingGame {
                 break;
             case 'message':
                 let message_container = document.createElement('div');
-                message_container.classList.add(`gameContainer__message_${event.data.position}`);
+                message_container.classList.add(`gameContainer__message`);
+                message_container.classList.add(`${event.data.position}`);
                 message_container.innerHTML = event.data.html;
                 this.container.appendChild(message_container);
-                setTimeout(() => {
+                let frames = {};
+                let option = {duration: event.data.time,fill: 'forwards'};
+                switch (event.data.position) {
+                    case 'start':
+                        frames.transform = ['translate(-5%, -50%)', 'translate(5%, -50%)'];
+                        break;
+                    case 'clear':
+                        frames.transform = ['translateY(-50%) scale(1.15)','translateY(-50%) scale(1.0)','translateY(-50%) scale(1.02)','translateY(-50%) scale(1.0)'];
+                        break;
+                    case 'dead':
+                        frames.transform = ['translateY(-50%) scale(1.15)','translateY(-50%) scale(1.0)','translateY(-50%) scale(1.02)','translateY(-50%) scale(1.0)'];
+                        break;
+                }
+                message_container.animate(frames, option);
+                if(event.data.position != 'dead') setTimeout(() => {
                     message_container.remove();
                 }, event.data.time);
                 break;
@@ -116,7 +131,7 @@ class ShootingGame {
             case "1":
             case "2":
             case "3":
-                if(eventName == 'keyup') return;
+                if (eventName == 'keyup') return;
                 let skill = this.skill[event.key - 1];
                 if (skill.state == SkillState.SET) {
                     this.skill[event.key - 1].state = SkillState.EMPTY;
@@ -143,9 +158,9 @@ class ShootingGame {
     }
 
     setSkill = (skill) => {
-        for(let index in this.skill){
-            if(this.skill[index].state == SkillState.EMPTY){
-                this.skill[index] = {...this.skill[index],...(skill || {})};
+        for (let index in this.skill) {
+            if (this.skill[index].state == SkillState.EMPTY) {
+                this.skill[index] = { ...this.skill[index], ...(skill || {}) };
                 this.skill[index].state = SkillState.CHARGING;
                 this.skill[index].container.setAttribute('state', SkillState.CHARGING);
                 this.skill[index].container.setAttribute('cost', this.skill[index].cost);
@@ -156,11 +171,11 @@ class ShootingGame {
     }
 
     isUseableSkill = (skill, index) => {
-        if([SkillState.CHARGING, SkillState.SET].indexOf(skill.state) < 0) return;
-        if(skill.cost > this.remain_cost){
+        if ([SkillState.CHARGING, SkillState.SET].indexOf(skill.state) < 0) return;
+        if (skill.cost > this.remain_cost) {
             this.skill[index].state = SkillState.CHARGING;
-            skill.container.style.setProperty('--progress', `${Math.min(Math.floor(this.remain_cost / skill.cost * 100),100)}%`);
-        }else{
+            skill.container.style.setProperty('--progress', `${Math.min(Math.floor(this.remain_cost / skill.cost * 100), 100)}%`);
+        } else {
             this.skill[index].state = SkillState.SET;
             skill.container.style.removeProperty('--progress');
 

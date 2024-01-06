@@ -24,12 +24,11 @@ importScripts('./storyBoard.js' + _random);
 
 
 // 3D 좌표를 2D 좌표로 변환하는 함수
-function project3Dto2D(x, y, z) {
+const project3Dto2D = (x, y, z) => {
     const focalLength = 500; // 초점 거리
     const scale = focalLength / (focalLength + z);
     const canvasCenterX = rWidth / 2;
     const canvasCenterY = rHeight / 2;
-
 
     // 원근법을 적용한 2D 좌표 계산
     const projectedX = x * scale + canvasCenterX;
@@ -39,7 +38,7 @@ function project3Dto2D(x, y, z) {
 }
 
 // 삼각 평면을 그리는 함수
-function drawTriangle(vertices, color) {
+const drawTriangle = (vertices, color) => {
     context.beginPath();
     context.moveTo(vertices[0].x, vertices[0].y);
 
@@ -52,7 +51,7 @@ function drawTriangle(vertices, color) {
     context.fill();
 }
 
-function get2DtrianglePattern(x1, x2, y1, y2, h_unit_cnt, margin = 5) {
+const get2DtrianglePattern = (x1, x2, y1, y2, h_unit_cnt, margin = 5) => {
     let arr = [];
 
     let w = x2 - x1;
@@ -62,13 +61,13 @@ function get2DtrianglePattern(x1, x2, y1, y2, h_unit_cnt, margin = 5) {
     let unit_h = 1.4 * unit_w;
 
     let x = x1;
-    let y = y1 ;
+    let y = y1;
 
     let cnt = 0;
 
-    while (x <= x2) {
-        y = y1 - unit_h * 0.5 - margin * cnt * 5;
-        while (y <= y2) {
+    while (x < x2) {
+        y = y1 - unit_h * 0.5 - 5 * cnt * margin;
+        while (y < y2) {
             arr.push(new_tri(x, x, x + unit_w, y, y + unit_h, y + unit_h * 0.5));
             arr.push(new_tri(x + unit_w, x + unit_w, x, y + unit_h * 0.5 + margin, y + unit_h * 1.5 + margin, y + unit_h + margin));
             y += unit_h + margin * 2;
@@ -85,47 +84,119 @@ function get2DtrianglePattern(x1, x2, y1, y2, h_unit_cnt, margin = 5) {
             { x: x3, y: y3, z: get_z(x3, y3) }
         ]
     }
-    
-    function get_z(x, y){
-        let d1 = 0.25;
-        let d2 = -0.25;
+
+    function get_z(x, y) {
+        let d1 = 0.45;
+        let d2 = -0.35;
         return x * d1 + y * d2;
     }
 }
 
-let ratio = 0.7;
-vectors_3D_tri_pattern = get2DtrianglePattern(-rWidth * ratio, rWidth * ratio, -rHeight * ratio, rHeight * ratio, 7, 8);
+let ratio = 0.8;
+vectors_3D_tri_pattern = get2DtrianglePattern(-rWidth * ratio, rWidth * ratio, -rHeight * ratio, rHeight * ratio, 7, 0);
 
-function test() {
+for (let idx in vectors_3D_tri_pattern) {
+
+    let shape = vectors_3D_tri_pattern[idx];
+
+    let c = {
+        x: (shape[0].x + shape[1].x + shape[2].x) / 3,
+        y: (shape[0].y + shape[1].y + shape[2].y) / 3,
+        z: (shape[0].z + shape[1].z + shape[2].z) / 3,
+    }
+
+    let new_shape = [];
+
+    for(point of shape){
+        new_shape.push(
+            {
+                ...c,
+                x_r: (c.x - point.x),
+                y_r: (c.y - point.y),
+                z_r: (c.z - point.z),
+            }
+        );
+    }
+
+    vectors_3D_tri_pattern[idx] = new_shape;
+
+}
+const test = () => {
     let t_length = vectors_3D_tri_pattern.length;
     let t_w = 7;
     let w_center = Math.ceil(t_w / 2);
     let t_h = Math.ceil(t_length / t_w);
     let h_center = Math.ceil(t_h / 2);
-    let t_distance = Math.max(t_w, t_h) / 2;
+
+    let colors = [
+        '#BCFFFF',
+        '#F7FFFF',
+        '#EEFFFF',
+        '#1587F722',
+        '#BCFFFF',
+        '#F7FFFF',
+        '#F7FFFF99',
+        '#BCFFFF',
+        '#BCFFFF99',
+        '#1587F777',
+        '#1587F755',
+        '#1587F700',
+    ]
+
+    let offset = openingIndex / max_openingIndex;
+
+    let str = [];
 
     for (let idx in vectors_3D_tri_pattern) {
 
         let shape = vectors_3D_tri_pattern[idx];
 
         let cnt = parseInt(idx) + 1;
-        
+
         let w = Math.ceil(cnt / t_h);
         let h = cnt % t_h;
-        
+        if(h == 0) h = t_h;
+
         let w_diff = Math.abs(w - w_center);
         let h_diff = Math.abs(h - h_center);
 
         let distance = Math.max(w_diff, h_diff);
 
+        str[h - 1] = str[h - 1] == null ? [distance]:[...str[h - 1], distance];
+
+        let color_index = Math.min(Math.max(Math.floor(25 * offset) - distance, 0), colors.length - 1);
+        let p = 1 - Math.max(offset - 0.1, 0) * 0.4;
+
+        context.globalAlpha = 0.8;
+
         drawTriangle([
-            project3Dto2D(shape[0].x, shape[0].y, shape[0].z),
-            project3Dto2D(shape[1].x, shape[1].y, shape[1].z),
-            project3Dto2D(shape[2].x, shape[2].y, shape[2].z)
-        ], `rgba(255, 255, 255, ${distance/t_distance})`);
+            project3Dto2D(shape[0].x - shape[0].x_r * p, shape[0].y - shape[0].y_r * p, shape[0].z - shape[0].z_r * p),
+            project3Dto2D(shape[1].x - shape[1].x_r * p, shape[1].y - shape[1].y_r * p, shape[1].z - shape[1].z_r * p),
+            project3Dto2D(shape[2].x - shape[2].x_r * p, shape[2].y - shape[2].y_r * p, shape[2].z - shape[2].z_r * p)
+        ], colors[color_index]);
+
+        if (color_index < colors.length - 1) {
+            context.globalAlpha = 0.5;
+            context.filter = 'blur(7px)';
+            context.globalCompositeOperation = "lighter";
+
+            drawTriangle([
+                project3Dto2D(shape[0].x, shape[0].y, shape[0].z),
+                project3Dto2D(shape[1].x, shape[1].y, shape[1].z),
+                project3Dto2D(shape[2].x, shape[2].y, shape[2].z)
+            ], '#1587F7aa');
+        }
+
+        context.globalAlpha = 1;
+        context.filter = `none`;
+        context.globalCompositeOperation = 'source-over';
     }
-    
-} 
+    let r = '';
+    for(let line of str) {
+        r += line.join(' ')+'\n';
+    }
+
+}
 
 
 const randomInt = (min, max, random_float = Math.random()) => {
@@ -463,6 +534,12 @@ class Player {
         this.hp = this.max_hp = 400;
     };
 
+    init = () => {
+        this.hp = this.max_hp;
+        this.x = rWidth / 2;
+        this.y = rHeight - this.r - 5;
+    }
+
     shuffleSkill = (cnt = 1) => {
         let first_skill = this.skillList.shift();
         this.skillList[this.skillList.length] = first_skill;
@@ -659,11 +736,15 @@ class Viewer {
         this.toNextStory();
     };
 
+    pause = () => {
+        this.status = ViewerStatus.pause; 
+        postMessage({ type: 'pause' });
+    }
+
     opening = () => {
         frameIndex++;
         clear();
         this.background.render();
-        test();
     };
 
     guide = () => {
@@ -675,9 +756,14 @@ class Viewer {
     };
 
     render = () => {
-        frameIndex++;
         clear();
         this.background.render();
+        if(openingIndex < max_openingIndex){
+            openingIndex++;
+            test();
+            return;
+        }
+        frameIndex++;
         this.playManager.render();
         this.player.render();
         this.itemManager.render();
@@ -700,7 +786,7 @@ class Viewer {
         drawBoom(this.player.x, this.player.y, this.deadRemain / this.deadDuration);
         if (this.deadRemain < 1) {
             this.status = ViewerStatus.closed;
-            postMessage({ type: 'message', position: 'main', html: `<h1 style='color: red;'>You Dead</h1>`, time: 1500 });
+            postMessage({ type: 'message', position: 'dead', html: `<h1 content="DEFEAT"></h1>`, time: 600 });
         }
     }
 
@@ -715,6 +801,9 @@ class Viewer {
         if (!story) {
             this.status = ViewerStatus.ending;
             return;
+        }else{
+            openingIndex = 0;
+            this.player.init();
         }
         this.playManager = new PlayManager(story);
         this.itemManager.itemRule = story.itemRule;
@@ -722,7 +811,6 @@ class Viewer {
 
     judgeToNext = () => {
         if (this.playManager.status == PlayStatus.exit) {
-            this.status = ViewerStatus.pause;
             this.toNextStory();
         }
     };
@@ -811,7 +899,7 @@ const __events = {
     nextEvent: (viewer) => {
         switch (viewer.status) {
             case ViewerStatus.opening: viewer.playing(); break;
-            case ViewerStatus.playing: viewer.status = ViewerStatus.pause; postMessage({ type: 'pause' }); break;
+            case ViewerStatus.playing: viewer.pause(); break;
             case ViewerStatus.pause: viewer.status = ViewerStatus.playing; postMessage({ type: 'start' }); break;
         }
     }

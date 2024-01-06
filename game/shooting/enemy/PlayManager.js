@@ -42,7 +42,7 @@ class PlayManager {
     [PlayStatus.opening] = () => {
         this.doSleep(1500, 
             () => this.status = PlayStatus.playing, 
-            () => postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} start</h1>`, time: 1500})
+            () => postMessage({type: 'message', position: 'start', html: `<h1 content="#${this.story.level} START"></h1>`, time: 1000})
         );
     };
 
@@ -64,7 +64,7 @@ class PlayManager {
         //renderTxtView(this.story.ending);
         this.doSleep(1500, 
             () => this.status = PlayStatus.exit, 
-            () => postMessage({type: 'message', position: 'main', html: `<h1>stage ${this.story.level} clear!</h1>`, time: 1500})
+            () => postMessage({type: 'message', position: 'clear', html: `<h1 content="#${this.story.level} VICTORY"></h1>`, time: 600})
         );
     };
 
@@ -134,6 +134,6 @@ class PlayManager {
     flatCurrentWave = () => {
         this.currentWave.enemyList = this.currentWave.enemyList.filter(e => e.isLive).filter(e => !e.outOfView);
         this.currentWave.deadEList = this.currentWave.deadEList.filter(e => e.deadDuration > 0);
-        this.currentWave.outOfView = this.currentWave.enemyList.length <= 0;
+        this.currentWave.outOfView = this.currentWave.enemyList.length <= 0 &&  this.currentWave.deadEList.length <= 0;
     };
 }

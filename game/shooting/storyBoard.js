@@ -257,7 +257,7 @@ class sector_skill1 {
     outer_r = 600;
     s_angle = 1.35;
     e_angle = 1.65;
-    damage = 10;
+    damage = 100;
     isFire = false;
     bulletList = [];
     bulletSize = 3;

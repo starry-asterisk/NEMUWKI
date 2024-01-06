@@ -22,25 +22,60 @@
     width: 100%;
 }
 
-.gameContainer__message_main {
+.gameContainer__message {
     position: absolute;
     top: 50%;
     left: 0;
     right: 0;
-    transform: translateY(-50%);
-}
-.gameContainer__message_main > h1 {
-    font-size: 7rem;
-    text-align: center;
-    opacity: 0.4;
-    color: white;
+    height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.bg__star {
+.gameContainer__message > h1 {
+    position: relative;
+    font-size: 10rem;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    transform: skew(-6deg);
+}
+
+.gameContainer__message > h1::after {
+    content: attr(content);
     position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: 50%;
-    width: 5px;
-    height: 5px;
+    left:0;
+}
+
+.gameContainer__message.start > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px var(--blue);
+}
+.gameContainer__message.start > h1::after {
+    background: linear-gradient(to right bottom, var(--bright-blue), var(--theme));
+    background-clip:text;
+    -webkit-background-clip: text;
+}
+
+.gameContainer__message.clear > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px #dbb621;
+    filter: drop-shadow(1px 1px 0 #00000055) drop-shadow(7px 7px 8px #FEEB50AA);
+}
+.gameContainer__message.clear > h1::after {
+    background: linear-gradient(to bottom, #FEEB50, #FFD52D);
+    background-clip:text;
+    -webkit-background-clip: text;
+}
+
+
+.gameContainer__message.dead > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px #83252F;
+}
+.gameContainer__message.dead > h1::after {
+    background: linear-gradient(to bottom, #FBB1AC, #E87C7E);
+    background-clip:text;
+    -webkit-background-clip: text;
 }

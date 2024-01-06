@@ -19,7 +19,7 @@
     --light: #9AF8FF;
     --grey: #D5DDE9;
     --dialog: #0D1A25DD;
-    font-size: 7px;
+    font-size: 0.5vw;
 }
 
 * {
@@ -128,6 +128,10 @@ body {
     overflow: hidden;
 }
 @media (min-aspect-ratio: 2/1) {
+    :root {
+        font-size: 1vh;
+    }
+
     body {
         flex-direction: column;
     }
