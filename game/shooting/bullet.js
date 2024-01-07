@@ -99,15 +99,6 @@ class BasicBullet {
         });
     };
 
-    renderBulletInfo = () => {
-        context.beginPath();
-        context.font = "15px Sans MS";
-        context.fillStyle = '#FFFFFF';
-        context.textAlign = "left";
-        context.fillText(`${this.iconTxt} : ${this.nolimit ? '-' : this.limit}`, rWidth - 55, 20);
-        context.closePath();
-    };
-
     renderFire = ({ x, y, r, fireColor, fireStrokeColor }) => {
         context.beginPath();
         context.arc(x, y, r, 0, Math.PI * 2, false);

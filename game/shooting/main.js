@@ -4,11 +4,21 @@ const SkillState = {
     CHARGING: 'charging',
     SET: 'set'
 }
+const GameState = {
+    BEFORE_INIT: 'beforeInit',
+    LOBBY: 'lobby',
+    PAUSE: 'pause',
+    PLAYING: 'playing',
+    DEAD: 'dead',
+    ENDING: 'ending',
+    CLOSED: 'closed',
+}
 class ShootingGame {
     rootPath;
     worker;
     offscreen;
     container;
+    status = GameState.BEFORE_INIT;
     remain_cost = 0;
     max_cost = 10;
     offset_cost = 0.025;
@@ -16,12 +26,11 @@ class ShootingGame {
     skill = [
 
     ]
-    last_used = {
-
-    };
     constructor(container, rootPath = '/game/shooting') {
         this.container = container;
         this.rootPath = rootPath;
+
+        this.chageStatus(this.status);
 
         this.costGauge__bar = document.querySelector('.gameMenu_costGauge__bar');
         this.costGauge__count = document.querySelector('.gameMenu_costGauge__count');
@@ -48,19 +57,28 @@ class ShootingGame {
         document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
     }
 
+    chageStatus = state => {
+        //if(GameState.indexOf(state) < 0) return console.error(`State '${state}' is not Exist`);
+        this.status = state;
+        this.container.setAttribute('status', state);
+    }
+
     onmessage = event => {
         switch (event.data.type) {
             case 'ready':
                 this.worker.postMessage({ type: 'init', canvas: this.offscreen, rootPath: this.rootPath }, [this.offscreen]);
+                this.chageStatus(GameState.LOBBY);
                 break;
             case 'start':
                 this.timer = setInterval(() => this.increaseCost(), 25);
+                this.chageStatus(GameState.PLAYING);
                 break;
             case 'pause':
                 if (this.timer) {
                     clearInterval(this.timer);
                     this.timer = null;
                 }
+                this.chageStatus(GameState.PAUSE);
                 break;
             case 'score':
                 this.score_board.innerHTML = event.data.score;
@@ -74,21 +92,33 @@ class ShootingGame {
                 message_container.classList.add(`${event.data.position}`);
                 message_container.innerHTML = event.data.html;
                 this.container.appendChild(message_container);
-                let frames = {};
-                let option = {duration: event.data.time,fill: 'forwards'};
+                let frames = {
+                    transform: {
+                        'start': ['translateX(-3%)', 'translateX(3%)'],
+                        'clear': ['scale(1.15)', 'scale(1.0)', 'scale(1.02)', 'scale(1.0)'],
+                        'dead': ['scale(1.15)', 'scale(1.0)', 'scale(1.02)', 'scale(1.0)'],
+                        'ending': ['scale(1.15)', 'scale(1.0)', 'scale(1.02)', 'scale(1.0)'],
+                    }[event.data.position]
+                };
+                let option = { duration: event.data.time, fill: 'forwards' };
                 switch (event.data.position) {
-                    case 'start':
-                        frames.transform = ['translate(-5%, -50%)', 'translate(5%, -50%)'];
-                        break;
-                    case 'clear':
-                        frames.transform = ['translateY(-50%) scale(1.15)','translateY(-50%) scale(1.0)','translateY(-50%) scale(1.02)','translateY(-50%) scale(1.0)'];
-                        break;
                     case 'dead':
-                        frames.transform = ['translateY(-50%) scale(1.15)','translateY(-50%) scale(1.0)','translateY(-50%) scale(1.02)','translateY(-50%) scale(1.0)'];
+                        if (this.timer) {
+                            clearInterval(this.timer);
+                            this.timer = null;
+                        }
+                        this.chageStatus(GameState.DEAD);
+                        break;
+                    case 'ending':
+                        if (this.timer) {
+                            clearInterval(this.timer);
+                            this.timer = null;
+                        }
+                        this.chageStatus(GameState.ENDING);
                         break;
                 }
                 message_container.animate(frames, option);
-                if(event.data.position != 'dead') setTimeout(() => {
+                if (event.data.position != 'dead') setTimeout(() => {
                     message_container.remove();
                 }, event.data.time);
                 break;
@@ -190,6 +220,7 @@ class ShootingGame {
             document.removeEventListener('keydown', this.onKeyEvent('keydown'), false);
             document.removeEventListener('keyup', this.onKeyEvent('keyup'), false);
         }
-        for (child of this.container.children) child.remove();
+        for (let child of this.container.querySelectorAll('*')) child.remove();
+        this.chageStatus(GameState.CLOSED );
     }
 }

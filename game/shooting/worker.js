@@ -633,7 +633,6 @@ class Player {
         this.skillList.forEach(skill => skill.draw(this));
 
         this.bulletItemList = this.bulletItemList.filter(bulletItem => !bulletItem.outOfView || !bulletItem.isEmpty());
-        this.bulletItemList.filter(item => !item.isEmpty())[0].renderBulletInfo();
     };
 }
 
