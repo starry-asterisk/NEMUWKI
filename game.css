@@ -21,6 +21,37 @@
     height: 100%;
     width: 100%;
 }
+[mode="game"] [status="lobby"]::after {
+    content: 'Zelda';
+    position: absolute;
+    width: 70%;
+    top: 18%;
+    left: 15%;
+    font-size: 9rem;
+    text-align: center;
+    font-family: pixel;
+    text-shadow: -5px -5px white, -5px 5px white, 5px 5px white, 5px -5px white, -5px 0 white, 5px 0 white;
+    z-index: 2;
+}
+[mode="game"] [status="lobby"]::before {
+    content: '';
+    background: 
+    url("/resource/logo/closed.png") 0 0/100% 50% no-repeat;
+    position: absolute;
+    width: 70%;
+    top: 20%;
+    left: 15%;
+    aspect-ratio: 1206 / 1250;
+    z-index: 1;
+}
+
+[mode="game"] [status="lobby"]:hover::before {
+    background: 
+    url("/resource/logo/leed.png") 21% 19%/63.59% 8.93% no-repeat,
+    url("/resource/logo/gamePack.png") 24.5% 39%/49.75% 38.18% no-repeat,
+    url("/resource/logo/opened-no_leed.png") 0 0/100% 50% no-repeat;
+}
+
 
 .gameContainer__message {
     position: absolute;
