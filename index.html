@@ -13,36 +13,29 @@
 
 <body>
     <div class="container">
-        <div class="gameContainer" mode="shooting"><img class="logo_img" src="/resource/logo/closed.png"><span class="logo"><font style="color:#2892F9">Blue</font><span style="left:3rem;"><font class="front">A</font>Archive</span></span></div>
-        <div class="loading">
-            <span class="triangle"></span>
-            <span class="triangle" index="1"></span>
-            <span class="triangle" index="2"></span>
-            <span class="triangle" index="3"></span>
+        <div class="gameContainer" mode="shooting"><img class="logo_img" src="/resource/logo/closed.png">
             <span class="logo">
-                <img src="shitim.png">
+                <font style="color:#2892F9">Blue</font><span style="left:3rem;">
+                    <font class="front">A</font>Archive
+                </span>
             </span>
         </div>
         <div class="momoTalk">
             <div class="momoTalk__top">
-                <span class="momoTalk__top__logo"><svg viewBox="0 0 512 512" xml:space="preserve">
-                    <g>
-                        <path class="st0" d="M399.5,370.196c36.297-31.094,58.75-74.031,58.75-121.469c0-65.578-49.078-121.422-105.656-151.469   c-84.094-42.484-80.359-67.422-94.875-67.422s-10.781,24.938-94.859,67.422c-56.578,30.047-105.641,85.891-105.641,151.469   c0,47.438,22.438,90.375,58.719,121.469c33.906,29.047,160.328,56.359,148.781-66c-2.688-28.563,35.594-30.719,16.719,47.984   c-8.344,34.844-24.797,42.578-29.094,44.734c-4.313,2.156-4.313,5.375,5.375,6.453C317.281,409.992,366.094,398.821,399.5,370.196z   "></path>
-                        <path class="st0" d="M87.875,372.43c0,0-73.859,25.453-87.875,86.531c111.078,56.828,215.625-5.484,233.563-30.594   C120.813,423.32,87.875,372.43,87.875,372.43z"></path>
-                        <path class="st0" d="M424.125,372.43c0,0-34.875,58.437-145.672,55.937c17.922,25.109,122.469,87.422,233.547,30.594   C497.984,397.883,424.125,372.43,424.125,372.43z"></path>
-                    </g>
-                    </svg></span>
+                <span class="momoTalk__top__logo">
+                    <span class="icon peach"></span>
+                </span>
                 <span class="momoTalk__top__title">MomoTalk</span>
                 <button class="momoTalk__top__close" onclick="app.load('main');">✕</button>
             </div>
             <div>
                 <div class="momoTalk__side">
-                    <button class="momoTalk__side__friends"><svg xmlns="http://www.w3.org/2000/svg" width="56%" height="56%" class="bi bi-person-fill" viewBox="0 0 16 16">
-                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                      </svg></button>
-                    <button class="momoTalk__side__fmessages" data-count="0"><svg xmlns="http://www.w3.org/2000/svg" width="40%" height="40%" class="bi bi-chat-left-dots-fill" viewBox="0 0 16 16">
-                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4.414a1 1 0 0 0-.707.293L.854 15.146A.5.5 0 0 1 0 14.793zm5 4a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-                      </svg></button>
+                    <button class="momoTalk__side__friends">
+                        <span class="icon person"></span>
+                    </button>
+                    <button class="momoTalk__side__messages" data-count="0">
+                        <span class="icon talk"></span>
+                    </button>
                 </div>
                 <div class="momoTalk__list"></div>
                 <div class="momoTalk__detail"></div>
@@ -110,7 +103,30 @@
                 <button>▶</button>
             </div>
         </div>
+        <div class="loading">
+            <span class="loading__triangle"></span>
+            <span class="loading__triangle"></span>
+            <span class="loading__triangle"></span>
+            <span class="loading__triangle"></span>
+            <span class="loading__logo">
+                <img src="shitim.png">
+            </span>
+        </div>
     </div>
+    <svg xmlns="http://www.w3.org/2000/svg" style="width: 0; height: 0;overflow:hidden;">
+        <defs>
+            <clipPath id="peach" clipPathUnits="objectBoundingBox">
+                <path d="M0.78,0.752 C0.851,0.684,0.895,0.589,0.895,0.484 C0.895,0.339,0.799,0.215,0.689,0.149 C0.524,0.055,0.532,0,0.503,0 S0.482,0.055,0.318,0.149 C0.208,0.215,0.112,0.339,0.112,0.484 C0.112,0.589,0.156,0.684,0.226,0.752 C0.293,0.817,0.54,0.877,0.517,0.607 C0.512,0.543,0.587,0.539,0.55,0.713 C0.533,0.79,0.501,0.807,0.493,0.812 C0.484,0.816,0.484,0.823,0.503,0.826 C0.62,0.84,0.715,0.816,0.78,0.752 M0.172,0.757 C0.172,0.757,0.027,0.814,0,0.949 C0.217,1,0.421,0.937,0.456,0.881 C0.236,0.87,0.172,0.757,0.172,0.757 M0.828,0.757 C0.828,0.757,0.76,0.887,0.544,0.881 C0.579,0.937,0.783,1,1,0.949 C0.973,0.814,0.828,0.757,0.828,0.757" />
+            </clipPath>
+            <clipPath id="person" clipPathUnits="objectBoundingBox">
+                <path d="M0.083,1 S0,1,0,0.917 S0.083,0.583,0.5,0.583 S1,0.833,1,0.917 S0.917,1,0.917,1 M0.5,0.5 A0.25,0.25,0,1,0,0.5,0 A0.25,0.25,0,0,0,0.5,0.5" />
+            </clipPath>
+            <clipPath id="talk" clipPathUnits="objectBoundingBox">
+                <path d="M0,0.131 A0.125,0.131,0,0,1,0.125,0 H0.875 A0.125,0.131,0,0,1,1,0.131 V0.654 A0.125,0.131,0,0,1,0.875,0.785 H0.276 A0.063,0.065,0,0,0,0.232,0.804 L0.053,0.99 A0.031,0.033,0,0,1,0,0.967zm.3125 .25a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0m.25 0a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0m.25 0a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0" />
+            </clipPath>
+        </defs>
+    </svg>
+    
 </body>
 
 </html>

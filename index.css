@@ -1,19 +1,20 @@
+
+/* base css */
 @font-face {
     font-family: blue_archive;
     src: url("MainFont.ttf");
 }
-
-/*https://github.com/eifetx/Pixelify-Sans OFL license*/
 @font-face {
+    /* 
+        link : https://github.com/eifetx/Pixelify-Sans 
+        license : OFL license 
+    */
     font-family: pixel;
-    src: url("PixelFont.ttf");
+    src: url("PixelFont.ttf"); 
 }
-
-
 :root {
     --dark: #46495A;
     --theme: #35D3FD;
-    /*38CEFA*/
     --blue: #315086;
     --bright-blue: #68FDFD;
     --light: #9AF8FF;
@@ -21,7 +22,6 @@
     --dialog: #0D1A25DD;
     font-size: 0.5vw;
 }
-
 * {
     position: relative;
     box-sizing: border-box;
@@ -33,7 +33,27 @@ body {
     background-color: black;
     margin: 0;
 }
+.icon {
+    background: white;
+    display: inline-block;
+}
+.icon.peach{
+    clip-path: url(#peach);
+    transform: translateY(5.25%);
+    aspect-ratio: 1 / 0.885;
+}
+.icon.talk{
+    clip-path: url(#talk);
+    aspect-ratio: 1;
 
+}
+.icon.person{
+    clip-path: url(#person);
+    aspect-ratio: 1;
+    
+}
+
+/* loading css */
 .loading {
     position: absolute;
     top: 50%;
@@ -49,7 +69,6 @@ body {
     pointer-events: none;
     overflow: hidden;
 }
-
 .loading::after {
     content: '';
     position: absolute;
@@ -67,8 +86,7 @@ body {
     background-color: #ffffff;
     opacity: 1
 }
-
-.loading>.logo {
+.loading__logo {
     position: absolute;
     height: 50%;
     aspect-ratio: 1;
@@ -79,8 +97,12 @@ body {
     border-radius: 50%;
 
 }
-
-.loading>.triangle {
+.loading__logo > img {
+    height: 90%;
+    top: 5%;
+    opacity: 0.8;
+}
+.loading__triangle {
     position: absolute;
     top: 5%;
     left: 26%;
@@ -90,28 +112,19 @@ body {
     border-left: 8.25vw solid transparent;
     border-right: 8.25vw solid transparent;
 }
-
-.loading>.triangle[index="1"] {
+.loading__triangle:nth-child(2) {
     top: 93%;
     left: 34%;
 }
-
-.loading>.triangle[index="2"] {
+.loading__triangle:nth-child(3) {
     top: 65%;
     left: 16.6%;
     transform: rotate(180deg);
 }
-
-.loading>.triangle[index="3"] {
+.loading__triangle:nth-child(4) {
     top: 41%;
     left: 56%;
     transform: rotate(180deg);
-}
-
-.loading>span>img {
-    height: 90%;
-    top: 5%;
-    opacity: 0.8;
 }
 
 .container {
@@ -899,6 +912,8 @@ button.square {
     transform: translate(-50%, -100%);
 }
 
+.momoTalk__top__logo > span {width: 100%;}
+
 .momoTalk__top__title {
     transform: translate(-50%, 0);
 }
@@ -937,6 +952,7 @@ button.square {
     background-color: transparent;
     color: white;
     opacity: 0.4;
+    font-size: 5.5rem;
 }
 
 .momoTalk__side>button:hover {
@@ -944,8 +960,8 @@ button.square {
     opacity: 1;
 }
 
-.momoTalk__side>button>svg {
-    fill: #ffffff;
+.momoTalk__side>button>span {
+    height: 1em;
 }
 
 .momoTalk__side__friends::before {
