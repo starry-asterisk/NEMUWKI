@@ -356,7 +356,7 @@ class sector_skill2 extends sector_skill1 {
 
     addBullet = (num = 0) => {
         let wave = viewer.playManager.currentWave;
-        if(wave.outOfView) return;
+        if(wave == null || wave.outOfView) return;
         let list = wave.enemyList.filter(e => e.isLive && e.y < this.y);
         if(list.length < 1) return;
         let target = list[randomInt(0, list.length - 1)];
