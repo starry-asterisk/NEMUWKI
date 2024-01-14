@@ -1051,6 +1051,7 @@ dialog::backdrop {
     background-color: pink;
 }
 .dialog__top {
+    height: 6.5rem;
     border-bottom: 1px solid lightgrey;
     text-align: center;
 }

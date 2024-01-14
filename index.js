@@ -9,7 +9,7 @@ class Loader {
         this._topMenu__auto = document.querySelector('.topMenu__auto');
     }
     load(mode) {
-        if(this._gameInstance) {
+        if (this._gameInstance) {
             this._gameInstance.break();
             this._gameInstance = null;
         }
@@ -85,7 +85,7 @@ class VisualNovel {
         this._scene_oder = scene_order;
         this._flags = flags;
 
-        if(script.length > 0){
+        if (script.length > 0) {
             this._topMenu__auto.onclick = () => {
                 if (_this._topMenu__auto.classList.toggle('active-gold')) {
                     _this.autoProgress(false);
@@ -93,19 +93,21 @@ class VisualNovel {
                     _this.autoProgress(true);
                 }
             };
-            this._topMenu__menu.onclick = () =>{
-                _this.load();
-                app.load('main');
+            this._topMenu__menu.onclick = () => {
+                modal({}, () => {
+                    _this.load();
+                    app.load('main');
+                });
             }
             this.start();
-        }else {
+        } else {
             this._topMenu__auto.onclick = this._topMenu__menu.onclick = null
         }
     }
 
     autoProgress(isAuto) {
         let _this = this;
-        if (isAuto) {if(this._auto_timer) clearTimeout(this._auto_timer);}
+        if (isAuto) { if (this._auto_timer) clearTimeout(this._auto_timer); }
         else this._auto_timer = setTimeout(() => {
             if (_this._choice_container.matches(':empty') & _this._dialog.onclick) _this._dialog.onclick();
             _this.autoProgress(false);
@@ -283,16 +285,16 @@ class VisualNovel {
                             object._img.src = `${URL_PREFIX_}/resource/imageSet/${option.name}/${option.type}.png`;
                             object._instance.style.setProperty('--mask', `url(${URL_PREFIX_}/resource/imageSet/${option.name}/${option.type}.png)`);
                         }
-    
+
                         if (option.horizontal_invert === true) object._instance.classList.add('horizontal_invert');
                         else if (option.horizontal_invert === false) object._instance.classList.remove('horizontal_invert');
-    
+
                         if (option.vertical_invert === true) object._instance.classList.add('vertical_invert');
                         else if (option.vertical_invert === false) object._instance.classList.remove('vertical_invert');
-    
+
                         if (option.isBehind === true) object._instance.classList.add('behind');
                         else if (option.isBehind === false) object._instance.classList.remove('behind');
-    
+
                         if (option.scale) object._instance.style.zoom = option.scale;
                         if (option.order) object._instance.style.zIndex = option.order;
                         if (option.animation) stopable_arr.push(object._instance.animate(option.animation.keyframes, option.animation.option).finish);
@@ -318,7 +320,7 @@ const 대사 = 0;
 
 
 //const URL_PREFIX_ = 'https://starry-asterisk.github.io/BlueArchieve';
-const URL_PREFIX_ = location.hostname == 'localhost'?'':'https://starry-asterisk.github.io/BlueArchieve';
+const URL_PREFIX_ = location.hostname == 'localhost' ? '' : 'https://starry-asterisk.github.io/BlueArchieve';
 
 let app;
 
@@ -359,4 +361,76 @@ function mainMenuHandler(e) {
 
 const VisualNovelLoader = {
 
+}
+
+const modal = (option = {}, callback) => {
+    let html = build_html([
+        'dialog',
+        [
+            [
+                'form',
+                { method: 'dialog' },
+                [
+                    [
+                        { class: 'dialog__top' },
+                        [
+                            [
+                                'span',
+                                { class: 'dialog__top__title' },
+                                ['일시정지']
+                            ],
+                            [
+                                'button',
+                                { class: 'dialog__top__close', value: 'cancel' }
+                            ]
+                        ]
+                    ], [
+                        { class: 'dialog__content' },
+                        [
+                            [
+                                'button',
+                                { value: 'default' },
+                                ['메인으로']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]);
+    console.log(html.element);
+    document.body.appendChild(html.element);
+    html.element.showModal();
+    html.element.onclose = returnValue => {
+        callback(returnValue);
+    }
+}
+
+const build_html = option => {
+    let el;
+    let named = [];
+    if (option.constructor === String) {
+        el = document.createTextNode(option);
+    } else {
+        el = document.createElement(option[0] && option[0].constructor === String ? option.shift() : 'div');
+        if (option[0] && option[0].constructor === Object) {
+            let attrs = option.shift();
+            for (let name in attrs) {
+                if (name.indexOf('on') === 0) {
+                    el[name] = attrs[name];
+                    continue;
+                }
+                el.setAttribute(name, attrs[name]);
+            };
+        }
+        if (option[0] && option[0].constructor === Array) {
+            for (let child of option[0]) {
+                (({ element, named_elements }) => {
+                    named.concat(named_elements);
+                    el.appendChild(element);
+                })(build_html(child));
+            }
+        }
+    }
+    return { element: el, named_elements: named };
 }
