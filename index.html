@@ -104,11 +104,16 @@
             </div>
         </div>
         <dialog open="true">
+            <form method="dialog">
+                
             <div class="dialog__top">
                 <span class="dialog__top__title">일시정지</span>
-                <button class="dialog__top__close"></button>
+                <button class="dialog__top__close" value="cancel"></button>
             </div>
-            <div class="dialog__content"></div>
+            <div class="dialog__content">
+                <button value="default" onclick="app.load('main')">메인으로</button>
+            </div>
+            </form>
         </div>
         <div class="loading">
             <span class="loading__triangle"></span>
