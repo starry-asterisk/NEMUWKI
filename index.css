@@ -1033,3 +1033,27 @@ button.square {
 [mode="talk"] .momoTalk>div:last-child {
     flex: 1;
 }
+
+dialog {
+    width: 45%;
+    background: white;
+    border-radius: 4rem;
+}
+dialog::backdrop {
+    background-color: #000000aa;
+}
+.dialog__title {
+    border-bottom: 1px solid lightgrey;
+}
+.dialog__title::after {
+    content: '';
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: 0;
+    height: 1rem;
+    background: yellow;
+}
+.dialog__content {
+    padding: 1.5rem;
+}

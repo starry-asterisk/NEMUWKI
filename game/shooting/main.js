@@ -194,7 +194,7 @@ class ShootingGame {
                 this.skill[index].state = SkillState.CHARGING;
                 this.skill[index].container.setAttribute('state', SkillState.CHARGING);
                 this.skill[index].container.setAttribute('cost', this.skill[index].cost);
-                this.skill[index].container.style.setProperty('background-image', `url("${skill.image_url}")`);
+                this.skill[index].container.style.setProperty('background-image', `url("${URL_PREFIX_+skill.image_url}")`);
                 break;
             }
         }
