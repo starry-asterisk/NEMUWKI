@@ -128,6 +128,7 @@ body {
 }
 
 .container {
+    display: flex;
     flex: 1;
     position: relative;
     aspect-ratio: 2;
@@ -331,6 +332,9 @@ body {
 }
 
 .topMenu {
+    position: absolute;
+    top: 0;
+    right: 0;
     display: none;
     filter: drop-shadow(0.3rem 0.3rem 0.2rem #00000077);
     transform: skew(-6deg, 0);
@@ -1036,23 +1040,29 @@ button.square {
 
 dialog {
     width: 45%;
+    min-height: 30rem;
+    padding: 0;
+    border-radius: 2rem;
+    border: 0;
     background: white;
-    border-radius: 4rem;
+    box-shadow: 0 0.4rem 0.6rem;
 }
 dialog::backdrop {
-    background-color: #000000aa;
+    background-color: pink;
 }
-.dialog__title {
+.dialog__top {
     border-bottom: 1px solid lightgrey;
+    text-align: center;
 }
-.dialog__title::after {
-    content: '';
-    position: absolute;
-    left: 20%;
-    right: 20%;
-    bottom: 0;
-    height: 1rem;
-    background: yellow;
+.dialog__top__title {
+    line-height: 1.5em;
+    border-bottom: 1rem solid rgb(231, 221, 126);
+}
+.dialog__top__close {
+    float: right;
+}
+.dialog__top__close::after {
+    content: '✕';
 }
 .dialog__content {
     padding: 1.5rem;
