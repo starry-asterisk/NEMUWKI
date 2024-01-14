@@ -1055,11 +1055,19 @@ dialog::backdrop {
     text-align: center;
 }
 .dialog__top__title {
-    line-height: 1.5em;
-    border-bottom: 1rem solid rgb(231, 221, 126);
+    display: inline-block;
+    font-size: 3rem;
+    line-height: 6rem;
+    border-bottom: 0.5rem solid rgb(231, 221, 126);
+    box-sizing: border-box;
 }
 .dialog__top__close {
-    float: right;
+    padding: 0;
+    width: 6rem;
+    min-width: unset;
+    background: none;
+    position: absolute;
+    right: 1rem;
 }
 .dialog__top__close::after {
     content: '✕';
