@@ -316,8 +316,9 @@ const 회상 = 2;
 const 나레이션 = 1;
 const 대사 = 0;
 
+
 //const URL_PREFIX_ = 'https://starry-asterisk.github.io/BlueArchieve';
-const URL_PREFIX_ = '';
+const URL_PREFIX_ = location.hostname == 'localhost'?'':'https://starry-asterisk.github.io/BlueArchieve';
 
 let app;
 
