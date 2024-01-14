@@ -26,7 +26,7 @@ class ShootingGame {
     skill = [
 
     ]
-    constructor(container, rootPath = '/game/shooting') {
+    constructor(container, rootPath = URL_PREFIX_+'/game/shooting') {
         this.container = container;
         this.rootPath = rootPath;
 
