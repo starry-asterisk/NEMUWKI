@@ -19,6 +19,7 @@ class ShootingGame {
     offscreen;
     container;
     status = GameState.BEFORE_INIT;
+    lastStatus= null;
     remain_cost = 0;
     max_cost = 10;
     offset_cost = 0.025;
@@ -26,7 +27,7 @@ class ShootingGame {
     skill = [
 
     ]
-    constructor(container, rootPath = URL_PREFIX_+'/game/shooting') {
+    constructor(container, rootPath = URL_PREFIX_ + '/game/shooting') {
         this.container = container;
         this.rootPath = rootPath;
 
@@ -35,6 +36,7 @@ class ShootingGame {
         this.costGauge__bar = document.querySelector('.gameMenu_costGauge__bar');
         this.costGauge__count = document.querySelector('.gameMenu_costGauge__count');
         this.score_board = document.querySelector('.topMenu__score');
+        this._topMenu__menu = document.querySelector('.topMenu__menu');
 
         document.querySelectorAll('.gameMenu__skillSet__skill').forEach((skill, index) => this.skill[index] = {
             container: skill,
@@ -53,12 +55,10 @@ class ShootingGame {
 
         this.worker.onmessage = this.onmessage;
 
-        document.addEventListener('keydown', this.onKeyEvent('keydown'), false);
-        document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
     }
 
     chageStatus = state => {
-        //if(GameState.indexOf(state) < 0) return console.error(`State '${state}' is not Exist`);
+        this.lastStatus = this.status;
         this.status = state;
         this.container.setAttribute('status', state);
     }
@@ -68,10 +68,16 @@ class ShootingGame {
             case 'ready':
                 this.worker.postMessage({ type: 'init', canvas: this.offscreen, rootPath: this.rootPath }, [this.offscreen]);
                 this.chageStatus(GameState.LOBBY);
+                this._topMenu__menu.onclick = e => {
+                    if (e && GameState.LOBBY === this.status) this.onmessage({data:{type:'pause'}});
+                    else this.onKeyEvent('keyDown')({ key: 'enter', fromModal: true });
+                }
+                document.addEventListener('keydown', this.onKeyEvent('keydown'), false);
+                document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
                 break;
             case 'start':
-                this.timer = setInterval(() => this.increaseCost(), 25);
-                this.chageStatus(GameState.PLAYING);
+                if(this.lastStatus === GameState.PLAYING)this.timer = setInterval(() => this.increaseCost(), 25);
+                this.chageStatus(this.lastStatus);
                 break;
             case 'pause':
                 if (this.timer) {
@@ -79,6 +85,16 @@ class ShootingGame {
                     this.timer = null;
                 }
                 this.chageStatus(GameState.PAUSE);
+                modal({}, v => {
+                    if (v === 'default') {
+                        this.break();
+                        app.load('main');
+                        return;
+                    }
+                    if (this.status !== GameState.PAUSE) return console.warn('illegal start tries catched when status is not PAUSE');
+                    if (this.lastStatus === GameState.LOBBY) this.onmessage({data:{type:'start'}});
+                    else this.onKeyEvent('keyDown')({ key: 'enter', fromModal: true });
+                });
                 break;
             case 'score':
                 this.score_board.innerHTML = event.data.score;
@@ -129,6 +145,7 @@ class ShootingGame {
     }
 
     onKeyEvent = eventName => event => {
+        if(this.status === GameState.PAUSE) if(!event.fromModal) return;
         switch (event.key) {
             case "Down": // IE/Edge에서 사용되는 값
             case "ArrowDown":
@@ -194,7 +211,7 @@ class ShootingGame {
                 this.skill[index].state = SkillState.CHARGING;
                 this.skill[index].container.setAttribute('state', SkillState.CHARGING);
                 this.skill[index].container.setAttribute('cost', this.skill[index].cost);
-                this.skill[index].container.style.setProperty('background-image', `url("${URL_PREFIX_+skill.image_url}")`);
+                this.skill[index].container.style.setProperty('background-image', `url("${URL_PREFIX_ + skill.image_url}")`);
                 break;
             }
         }
@@ -219,8 +236,9 @@ class ShootingGame {
             this.worker = null;
             document.removeEventListener('keydown', this.onKeyEvent('keydown'), false);
             document.removeEventListener('keyup', this.onKeyEvent('keyup'), false);
+            this._topMenu__menu.onclick = undefined;
         }
         for (let child of this.container.querySelectorAll('*')) child.remove();
-        this.chageStatus(GameState.CLOSED );
+        this.chageStatus(GameState.CLOSED);
     }
 }

@@ -9,6 +9,8 @@ class Loader {
         this._topMenu__auto = document.querySelector('.topMenu__auto');
     }
     load(mode) {
+        let focused = document.querySelector('*:focus');
+        if(focused) focused.blur();
         if (this._gameInstance) {
             this._gameInstance.break();
             this._gameInstance = null;
@@ -94,7 +96,8 @@ class VisualNovel {
                 }
             };
             this._topMenu__menu.onclick = () => {
-                modal({}, () => {
+                modal({}, v => {
+                    console.log(v);
                     _this.load();
                     app.load('main');
                 });
@@ -398,12 +401,19 @@ const modal = (option = {}, callback) => {
             ]
         ]
     ]);
-    console.log(html.element);
     document.body.appendChild(html.element);
     html.element.showModal();
-    html.element.onclose = returnValue => {
-        callback(returnValue);
+    html.element.onclose = event => {
+        callback(event.target.returnValue);
+        html.element.remove()
     }
+    html.element.onclick = e => {
+        console.log(e);
+        if(e.target == html.element){
+            let rect = html.element.getBoundingClientRect();
+            if(e.pageX < rect.left || e.pageX > rect.left + rect.width || e.pageY < rect.top || e.pageY > rect.top + rect.height) html.element.onclose({target:{returnValue: ''}});
+        }
+    };
 }
 
 const build_html = option => {
