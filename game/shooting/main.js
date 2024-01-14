@@ -76,8 +76,8 @@ class ShootingGame {
                 document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
                 break;
             case 'start':
-                if(this.lastStatus === GameState.PLAYING)this.timer = setInterval(() => this.increaseCost(), 25);
-                this.chageStatus(this.lastStatus);
+                this.timer = setInterval(() => this.increaseCost(), 25);
+                this.chageStatus(this.lastStatus !== GameState.PAUSE?this.lastStatus:GameState.PLAYING);
                 break;
             case 'pause':
                 if (this.timer) {

@@ -404,14 +404,16 @@ const modal = (option = {}, callback) => {
     document.body.appendChild(html.element);
     html.element.showModal();
     html.element.onclose = event => {
+        event.target.blur();
+        event.preventDefault();
+        event.stopPropagation();
         callback(event.target.returnValue);
         html.element.remove()
     }
     html.element.onclick = e => {
-        console.log(e);
         if(e.target == html.element){
             let rect = html.element.getBoundingClientRect();
-            if(e.pageX < rect.left || e.pageX > rect.left + rect.width || e.pageY < rect.top || e.pageY > rect.top + rect.height) html.element.onclose({target:{returnValue: ''}});
+            if(e.pageX < rect.left || e.pageX > rect.left + rect.width || e.pageY < rect.top || e.pageY > rect.top + rect.height) html.element.onclose(e);
         }
     };
 }
