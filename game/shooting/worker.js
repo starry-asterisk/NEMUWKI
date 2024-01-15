@@ -899,7 +899,7 @@ const __events = {
         switch (viewer.status) {
             case ViewerStatus.opening: viewer.playing(); break;
             case ViewerStatus.playing: viewer.pause(); break;
-            case ViewerStatus.pause: viewer.status = ViewerStatus.playing; postMessage({ type: 'start' }); break;
+            case ViewerStatus.pause: viewer.status = ViewerStatus.playing; postMessage({ type: 'start', from: 'pause' }); break;
         }
     }
 };

@@ -58,6 +58,7 @@ class ShootingGame {
     }
 
     chageStatus = state => {
+        console.log(state);
         this.lastStatus = this.status;
         this.status = state;
         this.container.setAttribute('status', state);
@@ -68,16 +69,16 @@ class ShootingGame {
             case 'ready':
                 this.worker.postMessage({ type: 'init', canvas: this.offscreen, rootPath: this.rootPath }, [this.offscreen]);
                 this.chageStatus(GameState.LOBBY);
-                this._topMenu__menu.onclick = e => {
-                    if (e && GameState.LOBBY === this.status) this.onmessage({data:{type:'pause'}});
-                    else this.onKeyEvent('keyDown')({ key: 'enter', fromModal: true });
+                this._topMenu__menu.onclick = () => {
+                    if (GameState.LOBBY === this.status) this.onmessage({data:{type:'pause'}});
+                    else if(GameState.PAUSE !== this.status) this.onKeyEvent('keyDown')({ key: 'Enter'});
                 }
                 document.addEventListener('keydown', this.onKeyEvent('keydown'), false);
                 document.addEventListener('keyup', this.onKeyEvent('keyup'), false);
                 break;
             case 'start':
                 this.timer = setInterval(() => this.increaseCost(), 25);
-                this.chageStatus(this.lastStatus !== GameState.PAUSE?this.lastStatus:GameState.PLAYING);
+                this.chageStatus(event.data.from === 'pause'?this.lastStatus:GameState.PLAYING);
                 break;
             case 'pause':
                 if (this.timer) {
@@ -92,8 +93,8 @@ class ShootingGame {
                         return;
                     }
                     if (this.status !== GameState.PAUSE) return console.warn('illegal start tries catched when status is not PAUSE');
-                    if (this.lastStatus === GameState.LOBBY) this.onmessage({data:{type:'start'}});
-                    else this.onKeyEvent('keyDown')({ key: 'enter', fromModal: true });
+                    if (this.lastStatus === GameState.LOBBY) this.onmessage({data:{type:'start',from: 'pause'}});
+                    else this.onKeyEvent('keyDown')({ key: 'Enter', fromModal: true });
                 });
                 break;
             case 'score':

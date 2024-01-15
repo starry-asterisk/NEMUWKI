@@ -410,6 +410,10 @@ const modal = (option = {}, callback) => {
         callback(event.target.returnValue);
         html.element.remove()
     }
+    html.element.onkeydown = html.element.onkeyup = e => {
+        e.preventDefault();
+        e.stopPropagation();
+    }
     html.element.onclick = e => {
         if(e.target == html.element){
             let rect = html.element.getBoundingClientRect();
