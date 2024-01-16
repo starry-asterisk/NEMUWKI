@@ -20,7 +20,7 @@
     --light: #9AF8FF;
     --grey: #D5DDE9;
     --dialog: #0D1A25DD;
-    font-size: 0.5vw;
+    font-size: 0.5vw;;
 }
 * {
     position: relative;
@@ -1075,4 +1075,21 @@ dialog::backdrop {
 }
 .dialog__content {
     padding: 1.5rem;
+}
+
+.skew {
+    transform: skewX(-6deg);
+}
+.hexa_background {
+    --c_1: #ffffff20;
+    --c_2: #ffffff00;
+    --c_3: #ffffff18;
+    --c_4: #ffffff20;
+    --c_5: #ffffff28;
+    --c_6: #ffffff10;
+    --crystal_bg_1 : conic-gradient(from 0deg at 10% 10%, var(--c_1) 0deg, var(--c_1) 60deg,  var(--c_2) 60deg, var(--c_2) 120deg, var(--c_3) 120deg, var(--c_3) 180deg, var(--c_4) 180deg, var(--c_4) 240deg, var(--c_5) 240deg, var(--c_5) 300deg, var(--c_6) 300deg, var(--c_6) 360deg);
+    --crystal_bg_2 : conic-gradient(from 180deg at 90% 90%, var(--c_1) 0deg, var(--c_1) 60deg,  var(--c_2) 60deg, var(--c_2) 120deg, var(--c_3) 120deg, var(--c_3) 180deg, var(--c_4) 180deg, var(--c_4) 240deg, var(--c_5) 240deg, var(--c_5) 300deg, var(--c_6) 300deg, var(--c_6) 360deg);
+    --crystal_bg_3 : conic-gradient(from 0deg at 90% 90%, var(--c_1) 0deg, var(--c_1) 60deg,  var(--c_2) 60deg, var(--c_2) 120deg, var(--c_3) 120deg, var(--c_3) 180deg, var(--c_2) 180deg, var(--c_2) 240deg, var(--c_5) 240deg, var(--c_5) 300deg, var(--c_6) 300deg, var(--c_6) 360deg);
+
+    background-image: linear-gradient(to  bottom, transparent, black, transparent), var(--crystal_bg_1), var(--crystal_bg_2);
 }
