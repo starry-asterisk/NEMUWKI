@@ -52,6 +52,11 @@
         aside {
             width: 21rem;
             background: green;
+            transition: margin-left 500ms;
+            margin-left: -20.5rem;
+        }
+        aside.open {
+            margin-left: 0;
         }
         button.toggle {
             position: absolute;
@@ -84,6 +89,8 @@
     </div>
 </body>
 <script>
-
+document.querySelector('.toggle').onclick = () =>{
+    document.querySelector('aside').classList.toggle('open');
+}
 </script>
 </html>
