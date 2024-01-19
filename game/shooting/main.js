@@ -13,6 +13,69 @@ const GameState = {
     ENDING: 'ending',
     CLOSED: 'closed',
 }
+const GameModal = {
+    pause: ({stageName='#-1 Stage',type=0}) => [
+        [
+            'p',
+            {style: 'font-size: 3rem;border-bottom: 2px solid grey;padding: 1rem 0;'},
+            [
+                type == 0?'무한 모드':'스토리 모드',
+                [
+                    'span',
+                    {style: 'margin: 0 2rem;padding: 1px;background: grey;'}
+                ],
+                stageName
+            ]
+        ],
+        [
+            'div',
+            {},
+            []
+        ],
+        [
+            'p',
+            {class:'skew',style:'height: 9rem;display: flex;gap:10px;margin: 2rem;'},
+            [
+                [
+                    'button',
+                    {
+                        class: 'hexa_background',
+                        style: 'height: auto;flex: 1;',
+                        value: 'default'
+                    },
+                    ['메인으로']
+                ],
+                [
+                    'button',
+                    {
+                        class: 'hexa_background',
+                        style: 'height: auto;flex: 1;',
+                        value: 'disabled'
+                    },
+                    ['button 2']
+                ],
+                [
+                    'button',
+                    {
+                        class: 'hexa_background',
+                        style: 'height: auto;flex: 1;',
+                        value: 'disabled'
+                    },
+                    ['button 3']
+                ],
+                [
+                    'button',
+                    {
+                        class: 'hexa_background',
+                        style: 'height: auto;flex: 1;',
+                        value: 'disabled'
+                    },
+                    ['button 4']
+                ]
+            ]
+        ],
+    ]
+}
 class ShootingGame {
     rootPath;
     worker;
@@ -86,7 +149,7 @@ class ShootingGame {
                     this.timer = null;
                 }
                 this.chageStatus(GameState.PAUSE);
-                modal({}, v => {
+                modal({content=GameModal.pause()}, v => {
                     if (v === 'default') {
                         this.break();
                         app.load('main');

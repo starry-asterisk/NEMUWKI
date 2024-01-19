@@ -389,67 +389,7 @@ const modal = (option = {}, callback) => {
                         ]
                     ], [
                         { class: 'dialog__content' },
-                        [
-                            [
-                                'p',
-                                {style: 'font-size: 3rem;border-bottom: 2px solid grey;padding: 1rem 0;'},
-                                [
-                                    '임무',
-                                    [
-                                        'span',
-                                        {style: 'margin: 0 2rem;padding: 1px;background: grey;'}
-                                    ],
-                                    '임무 제목 - 소재목 1'
-                                ]
-                            ],
-                            [
-                                'div',
-                                {},
-                                []
-                            ],
-                            [
-                                'p',
-                                {class:'skew',style:'height: 9rem;display: flex;gap:10px;margin: 2rem;'},
-                                [
-                                    [
-                                        'button',
-                                        {
-                                            class: 'hexa_background',
-                                            style: 'height: auto;flex: 1;',
-                                            value: 'default'
-                                        },
-                                        ['메인으로']
-                                    ],
-                                    [
-                                        'button',
-                                        {
-                                            class: 'hexa_background',
-                                            style: 'height: auto;flex: 1;',
-                                            value: 'disabled'
-                                        },
-                                        ['button 2']
-                                    ],
-                                    [
-                                        'button',
-                                        {
-                                            class: 'hexa_background',
-                                            style: 'height: auto;flex: 1;',
-                                            value: 'disabled'
-                                        },
-                                        ['button 3']
-                                    ],
-                                    [
-                                        'button',
-                                        {
-                                            class: 'hexa_background',
-                                            style: 'height: auto;flex: 1;',
-                                            value: 'disabled'
-                                        },
-                                        ['button 4']
-                                    ]
-                                ]
-                            ],
-                        ]
+                        option.content || []
                     ]
                 ]
             ]
