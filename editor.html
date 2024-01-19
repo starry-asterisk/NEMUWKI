@@ -60,6 +60,8 @@
         }
 
         nav {
+            display: flex;
+            flex-direction: column;
             width: 5rem;
             z-index: 2;
             background-color: var(--background-dark);
@@ -132,6 +134,23 @@
             border-top: 0.2rem solid var(--highligh-color);
             background-color: transparent;
         }
+        nav > button {
+            width: 5rem;
+            height: 5rem;
+            line-height: 5rem;
+            opacity: 0.8;
+        }
+        nav > button.on {
+            opacity: 1;
+        }
+        nav > button.on::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0.2rem;
+        }
     </style>
 </head>
 
@@ -142,6 +161,8 @@
     <div class="rootContainer">
         <nav>
             <p>btn</p>
+            <button>A</button>
+            <button class="on">A</button>
         </nav>
         <aside>
             <p>소스제어</p>
