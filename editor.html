@@ -67,7 +67,7 @@
 
         aside {
             min-width: 21rem;
-            width: 21rem;
+            width: 30rem;
             max-width: 50vw;
             background-color: var(--background-dark);
             border-right: 0.1rem solid var(--border-color);
@@ -108,15 +108,28 @@
         button.resizer:hover::after {
             opacity: 1;
         }
+        .subTab__buttonContianer {
+            display: flex;
+            padding: 0;
+        }
+        .subTab__buttonContianer::after {
+            content: '';
+            display: block;
+            flex:1;
+            background-color: var(--background-dark);
+            border-bottom: 0.1rem solid var(--border-color);
+        }
         .subTab__buttonContianer > button {
             height: 100%;
             padding: 0 1rem;
             border-bottom: 0.1rem solid var(--border-color);
             border-right: 0.1rem solid var(--border-color);
+            background-color: var(--background-dark);
         }
         .subTab__buttonContianer > button.on {
             border-bottom-width: 0;
-            border-top: 0.2rem solid var(--highligh-color)
+            border-top: 0.2rem solid var(--highligh-color);
+            background-color: transparent;
         }
     </style>
 </head>
