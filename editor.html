@@ -28,20 +28,38 @@
             bottom:0;
             overflow: hidden;
             display: flex;
+            flex-direction: column;
+        }
+        button {
+            cursor: pointer;
+        }
+        button:disabled {
+            cursor: not-allowed;
         }
         header {
-            height: 5rem;
+            height: 3rem;
             border-bottom: 0.1rem solid var(--border-color);
         }
         .rootContainer {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex: 1;
         }
         nav {
-            width: 100px;
+            width: 7rem;
+            background: pink;
         }
         aside {
-            width: 300px;
+            width: 21rem;
+            background: green;
+        }
+        button.toggle {
+            position: absolute;
+            width: 0.5rem;
+            top:0;
+            right:0;
+            bottom:0;
+            background-color: yellow;
         }
         section {
             flex: 1
@@ -58,7 +76,7 @@
 1
         </nav>
         <aside>
-2
+<button class="toggle"></button>
         </aside>
         <section>
 3
