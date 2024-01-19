@@ -10,7 +10,8 @@
     <style>
         :root {
             font-size: 10px;
-            --border-color: grey;
+            --border-color: #eeeeee;
+            --highligh-color: #0a8ce2
         }
         * {
             margin: 0;
@@ -48,26 +49,33 @@
         nav {
             width: 7rem;
             background: pink;
+            z-index: 2;
         }
         aside {
+            min-width: 21rem;
             width: 21rem;
             background: green;
-            transition: margin-left 500ms;
-            margin-left: -20.5rem;
         }
-        aside.open {
-            margin-left: 0;
-        }
-        button.toggle {
+        button.resizer {
             position: absolute;
-            width: 0.5rem;
+            width: 0;
             top:0;
             right:0;
             bottom:0;
-            background-color: yellow;
+        }
+        button.resizer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -0.5rem;
+            right: -0.5rem;
+            height: 100%;
+        }
+        button.resizer:hover::after{
+            background-color: var(--highligh-color);
         }
         section {
-            flex: 1
+            flex: 1;
         }
     </style>
 </head>
@@ -81,7 +89,7 @@
 1
         </nav>
         <aside>
-<button class="toggle"></button>
+<button class="resizer"></button>
         </aside>
         <section>
 3
@@ -89,8 +97,15 @@
     </div>
 </body>
 <script>
-document.querySelector('.toggle').onclick = () =>{
-    document.querySelector('aside').classList.toggle('open');
+let resizer = document.querySelector('.resizer');
+let aside = document.querySelector('aside');
+resizer.onmousedown = e_down =>{
+    let pos = e_down.screenX;
+    let width = aside.getBoundingClientRect().width;
+    window.onmousemove = e_move => aside.style.width = `${width + e_move.screenX - pos}px`;
+    window.onmouseup = window.onmouseleave = window.onmouseout = () => {
+        window.onmouseup = window.onmouseleave = window.onmouseout = window.onmousemove = undefined;
+    }
 }
 </script>
 </html>
