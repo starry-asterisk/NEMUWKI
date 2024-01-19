@@ -14,9 +14,10 @@
             --background-dark: #181818;
             --background-light: #1f1f1f;
             --highligh-color: #0078d4;
-            ---color: #d7d7d7;
+            --color: #d7d7d7;
             color: var(--color);
         }
+
         * {
             margin: 0;
             padding: 0;
@@ -25,54 +26,73 @@
             position: relative;
             font-size: 2rem;
         }
+
         body {
             position: fixed;
-            top:0;
-            left:0;
-            right:0;
-            bottom:0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
+
         button {
             cursor: pointer;
         }
+
         button:disabled {
             cursor: not-allowed;
         }
+
         header {
             height: 3rem;
             border-bottom: 0.1rem solid var(--border-color);
             background-color: var(--background-light);
         }
+
         .rootContainer {
             display: flex;
             flex-direction: row;
             flex: 1;
         }
+
         nav {
             width: 7rem;
-            background: pink;
             z-index: 2;
             background-color: var(--background-dark);
             border-right: 0.1rem solid var(--border-color);
         }
+
         aside {
             min-width: 21rem;
             width: 21rem;
             max-width: 50vw;
-            background: green;
             background-color: var(--background-dark);
             border-right: 0.1rem solid var(--border-color);
         }
+
+        section {
+            flex: 1;
+            background-color: var(--background-light);
+        }
+
+
+        p {
+            height: 3rem;
+            line-height: 3rem;
+            padding: 0 1rem;
+        }
+
         button.resizer {
             position: absolute;
             width: 0;
-            top:0;
-            right:0;
-            bottom:0;
+            top: 0;
+            right: 0;
+            bottom: 0;
         }
+
         button.resizer::after {
             content: '';
             position: absolute;
@@ -84,42 +104,57 @@
             opacity: 0;
             transition: opacity 200ms;
         }
-        button.resizer:hover::after{
+
+        button.resizer:hover::after {
             opacity: 1;
         }
-        section {
-            flex: 1;
-            background-color: var(--background-light);
+        .subTab__buttonContianer > button {
+            height: 100%;
+            padding: 0 1rem;
+            border-bottom: 0.1rem solid var(--border-color);
+            border-right: 0.1rem solid var(--border-color);
+        }
+        .subTab__buttonContianer > button.on {
+            border-bottom-width: 0;
+            border-top: 0.2rem solid var(--highligh-color)
         }
     </style>
 </head>
 
 <body>
     <header>
-4
+
     </header>
     <div class="rootContainer">
         <nav>
-1
+            <p>btn</p>
         </nav>
         <aside>
-<button class="resizer"></button>
+            <p>소스제어</p>
+            <button class="resizer"></button>
         </aside>
         <section>
-3
+            <p class="subTab__buttonContianer">
+                <button class="on">sub-tab1</button>
+                <button>sub-tab2</button>
+                <button>sub-tab3</button>
+                <button>sub-tab4</button>
+            </p>
         </section>
     </div>
 </body>
 <script>
-let resizer = document.querySelector('.resizer');
-let aside = document.querySelector('aside');
-resizer.onmousedown = e_down =>{
-    let pos = e_down.screenX;
-    let width = aside.getBoundingClientRect().width;
-    window.onmousemove = e_move => aside.style.width = `${width + e_move.screenX - pos}px`;
-    window.onmouseup = () => {
-        window.onmouseup = window.onmousemove = undefined;
+    let resizer = document.querySelector('.resizer');
+    let aside = document.querySelector('aside');
+    let subTabs = [];
+    resizer.onmousedown = e_down => {
+        let pos = e_down.screenX;
+        let width = aside.getBoundingClientRect().width;
+        window.onmousemove = e_move => aside.style.width = `${width + e_move.screenX - pos}px`;
+        window.onmouseup = () => {
+            window.onmouseup = window.onmousemove = undefined;
+        }
     }
-}
 </script>
+
 </html>
