@@ -149,7 +149,7 @@ class ShootingGame {
                     this.timer = null;
                 }
                 this.chageStatus(GameState.PAUSE);
-                modal({content=GameModal.pause()}, v => {
+                modal({content:GameModal.pause()}, v => {
                     if (v === 'default') {
                         this.break();
                         app.load('main');
