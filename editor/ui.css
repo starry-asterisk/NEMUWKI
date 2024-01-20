@@ -1,0 +1,230 @@
+:root {
+    font-size: 10px;
+    font-family: "Segoe", "Segoe UI", sans-serif;
+    --border-color: #2b2b2b;
+    --background-dark: #181818;
+    --background-light: #1f1f1f;
+    --highligh-color: #0078d4;
+    --color: #d7d7d7;
+    color: var(--color);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-sizing: border-box;
+    position: relative;
+    font-size: 1.3rem;
+}
+
+.bodyContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+button {
+    cursor: pointer;
+    color: var(--color);
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+header {
+    height: 3.5rem;
+    border-bottom: 0.1rem solid var(--border-color);
+    background-color: var(--background-dark);
+}
+
+.rootContainer {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    width: 5rem;
+    z-index: 2;
+    background-color: var(--background-dark);
+    border-right: 0.1rem solid var(--border-color);
+}
+
+aside {
+    flex: 1;
+    min-width: 21rem;
+    width: 30rem;
+    background-color: var(--background-dark);
+    border-right: 0.1rem solid var(--border-color);
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 30rem);
+    background-color: var(--background-light);
+}
+
+
+p {
+    height: 3.5rem;
+    line-height: 3.5rem;
+    padding: 0 1rem;
+}
+
+button.resizer {
+    position: absolute;
+    width: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+button.resizer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -0.3rem;
+    right: -0.3rem;
+    height: 100%;
+    background-color: var(--highligh-color);
+    opacity: 0;
+    transition: opacity 200ms;
+}
+
+button.resizer:hover::after {
+    opacity: 1;
+}
+
+.subTab__buttonContianer {
+    display: flex;
+    height: 3.5rem;
+    padding: 0;
+}
+.subTab__buttonContianer>div{
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+}
+.subTab__buttonContianer>div::after {
+    content: '';
+    display: block;
+    flex: 1;
+    background-color: var(--background-dark);
+    border-bottom: 0.1rem solid var(--border-color);
+}
+
+.subTab__buttonContianer>div>button {
+    height: 100%;
+    padding: 0 1rem;
+    border-bottom: 0.1rem solid var(--border-color);
+    border-right: 0.1rem solid var(--border-color);
+    background-color: var(--background-dark);
+}
+
+.subTab__buttonContianer>div>button.on {
+    border-bottom-width: 0;
+    border-top: 0.2rem solid var(--highligh-color);
+    background-color: transparent;
+}
+
+nav>button {
+    width: 5rem;
+    height: 5rem;
+    line-height: 5rem;
+    font-size: 2.4rem;;
+    opacity: 0.6;
+    background: transparent;
+}
+
+nav>button.on {
+    opacity: 1;
+}
+
+nav>button.on::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0.2rem;
+    background: var(--highligh-color);
+}
+code {
+    font-size: 1.1rem;
+    padding: 0.6rem;
+    color: #ccccccaa;
+    font-family: "Segoe", "Segoe UI", sans-serif;
+    background-color: #80808011;
+}
+.section__empty {
+    text-align: center;
+    margin: auto 0;
+}
+.section__empty > p {
+    height: fit-content;
+    padding: 0;
+    text-align: center;
+}
+.section__empty__icon {
+    line-height: 30rem;
+    font-size: 30rem;
+    color: var(--background-dark);
+}
+.section__empty__command > *{
+    display: inline-block;
+    padding: 0.3rem;
+    color: #ffffff80;
+    width: 40%;
+}
+.section__empty__command > *:first-child {
+    text-align: right;
+}
+.section__empty__command > *:last-child {
+    text-align: left;
+}
+.aside_line {
+    padding-left: 0.3rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+}
+.aside_folder {
+    line-height: 2.2rem;
+    max-height: 2.2rem;
+    overflow: hidden;
+}
+.aside_folder.open{
+    max-height: unset;
+}
+.aside_line:focus::after {
+    content: '';
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 2.2rem;
+    border: 0.1rem solid var(--highligh-color);
+    background-color: #0078d455;
+    box-sizing: border-box;
+
+}
+.aside_folder > *:nth-child(n + 2) {
+    padding-left: 2rem;
+}
+
+.h-scrollbar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    height: 5px;
+    background-color: white;
+}

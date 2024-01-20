@@ -2,196 +2,73 @@
 
 <head>
     <meta charset="UTF-8">
+    <link href="https://db.onlinewebfonts.com/c/4735dd9ca25670c44600021e7428b8d3?family=Segoe" rel="stylesheet" type="text/css"/>
+    <link href="https://db.onlinewebfonts.com/c/623c7118249e082fe87a78e08506cb4b?family=Segoe+UI" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <link rel="stylesheet" type="text/css" href="./editor/ui.css">
     <link rel="stylesheet" type="text/css" href="./cursor.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="./editor/ui.js"></script>
     <script src="./cursor.js"></script>
     <title>편집기</title>
-    <style>
-        :root {
-            font-size: 10px;
-            --border-color: #2b2b2b;
-            --background-dark: #181818;
-            --background-light: #1f1f1f;
-            --highligh-color: #0078d4;
-            --color: #d7d7d7;
-            color: var(--color);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            border: none;
-            box-sizing: border-box;
-            position: relative;
-            font-size: 1.5rem;
-        }
-
-        body {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        button {
-            cursor: pointer;
-            color: var(--color);
-        }
-
-        button:disabled {
-            cursor: not-allowed;
-        }
-
-        header {
-            height: 3rem;
-            border-bottom: 0.1rem solid var(--border-color);
-            background-color: var(--background-light);
-        }
-
-        .rootContainer {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-        }
-
-        nav {
-            display: flex;
-            flex-direction: column;
-            width: 5rem;
-            z-index: 2;
-            background-color: var(--background-dark);
-            border-right: 0.1rem solid var(--border-color);
-        }
-
-        aside {
-            min-width: 21rem;
-            width: 30rem;
-            max-width: 50vw;
-            background-color: var(--background-dark);
-            border-right: 0.1rem solid var(--border-color);
-        }
-
-        section {
-            flex: 1;
-            background-color: var(--background-light);
-        }
-
-
-        p {
-            height: 3rem;
-            line-height: 3rem;
-            padding: 0 1rem;
-        }
-
-        button.resizer {
-            position: absolute;
-            width: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-        }
-
-        button.resizer::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -0.3rem;
-            right: -0.3rem;
-            height: 100%;
-            background-color: var(--highligh-color);
-            opacity: 0;
-            transition: opacity 200ms;
-        }
-
-        button.resizer:hover::after {
-            opacity: 1;
-        }
-        .subTab__buttonContianer {
-            display: flex;
-            padding: 0;
-        }
-        .subTab__buttonContianer::after {
-            content: '';
-            display: block;
-            flex:1;
-            background-color: var(--background-dark);
-            border-bottom: 0.1rem solid var(--border-color);
-        }
-        .subTab__buttonContianer > button {
-            height: 100%;
-            padding: 0 1rem;
-            border-bottom: 0.1rem solid var(--border-color);
-            border-right: 0.1rem solid var(--border-color);
-            background-color: var(--background-dark);
-        }
-        .subTab__buttonContianer > button.on {
-            border-bottom-width: 0;
-            border-top: 0.2rem solid var(--highligh-color);
-            background-color: transparent;
-        }
-        nav > button {
-            width: 5rem;
-            height: 5rem;
-            line-height: 5rem;
-            opacity: 0.8;
-            background: transparent;
-        }
-        nav > button.on {
-            opacity: 1;
-        }
-        nav > button.on::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 0.2rem;
-            background: var(--highligh-color);
-        }
-    </style>
 </head>
 
 <body>
-    <header>
-
-    </header>
-    <div class="rootContainer">
-        <nav>
-            <p>btn</p>
-            <button>A</button>
-            <button class="on">A</button>
-        </nav>
-        <aside>
-            <p>소스제어</p>
-            <button class="resizer"></button>
-        </aside>
-        <section>
-            <p class="subTab__buttonContianer">
-                <button class="on">sub-tab1</button>
-                <button>sub-tab2</button>
-                <button>sub-tab3</button>
-                <button>sub-tab4</button>
-            </p>
-        </section>
+    <div class="bodyContainer">
+        <header>
+        </header>
+        <div class="rootContainer">
+            <nav>
+                <p>btn</p>
+                <button 
+                v-for="tab in tabs" 
+                :class="{mdi:true,[tab._icon]:true, on:onTab._uid == tab._uid }" 
+                v-on:click="onTab = tab">
+            </button>
+            </nav>
+            <aside>
+                <p>소스제어</p>
+                <button class="resizer"></button>
+                <file v-for="file in files" v-on:click="onTab.newSubTab(file)" v-bind="{...file, onTab}"></file>
+            </aside>
+            <section>
+                <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
+                    <div class="subTab__buttonContianer__div">
+                        <button 
+                    v-for="subTab in onTab._subTabs" 
+                    :class="{on:subTab._uid == onTab._onSubTab._uid}"
+                    v-on:click="onTab._onSubTab = subTab"
+                    >{{subTab._name}}</button>
+                    </div>
+                    <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
+                </div>
+                <div v-else class="section__empty">
+                    <span class="section__empty__icon mdi mdi-alert-octagon"></span>
+                    <p class="section__empty__command">
+                        <span>모든 명령 표시</span>
+                        <span><code>Ctrl</code>+<code>Shift</code>+<code>P</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>파일로 이동</span>
+                        <span><code>Ctrl</code>+<code>P</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>파일에서 찾기</span>
+                        <span><code>Ctrl</code>+<code>Shift</code>+<code>F</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>전체 화면 설정/해제</span>
+                        <span><code>F11</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>설정 표시</span>
+                        <span><code>Ctrl</code>+<code>,</code></span>
+                    </p>
+                </div>
+            </section>
+        </div>
+        <footer></footer>
     </div>
 </body>
-<script>
-    let resizer = document.querySelector('.resizer');
-    let aside = document.querySelector('aside');
-    let subTabs = [];
-    resizer.onmousedown = e_down => {
-        let pos = e_down.screenX;
-        let width = aside.getBoundingClientRect().width;
-        window.onmousemove = e_move => aside.style.width = `${width + e_move.screenX - pos}px`;
-        window.onmouseup = () => {
-            window.onmouseup = window.onmousemove = undefined;
-        }
-    }
-</script>
 
 </html>
