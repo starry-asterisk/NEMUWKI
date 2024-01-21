@@ -6,6 +6,7 @@
     --background-light: #1f1f1f;
     --highligh-color: #0078d4;
     --color: #d7d7d7;
+    --color-dark: #ffffff80;
     color: var(--color);
 }
 
@@ -130,6 +131,9 @@ button.resizer:hover::after {
     border-right: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
 }
+.subTab__buttonContianer>div>button[state="0"]{
+    font-style: italic;
+}
 
 .subTab__buttonContianer>div>button.on {
     border-bottom-width: 0;
@@ -156,7 +160,7 @@ nav>button.on::after {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 0.2rem;
+    width: 0.3rem;
     background: var(--highligh-color);
 }
 code {
@@ -202,8 +206,42 @@ code {
     max-height: 2.2rem;
     overflow: hidden;
 }
+.aside_line::before {
+    display: inline-block;
+    font: normal normal normal 24px/1 "Material Design Icons";
+    font-size: inherit;
+    text-rendering: auto;
+    line-height: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 .aside_folder.open{
     max-height: unset;
+}
+.aside_folder > .aside_line:first-child::before {
+    content: "\F0142";
+}
+.aside_folder.open > .aside_line:first-child::before {
+    content: "\F0140";
+}
+.aside_line::before {
+    content: "\F09AA";
+}
+.aside_line[type="json"]::before {
+    color: #cbcb41;
+    content: "\F0169";
+}
+.aside_line[type="html"]::before {
+    color: #e37933;
+    content: "\F0174";
+}
+.aside_line[type="css"]::before {
+    color: #519aba;
+    content: "\F0423";
+}
+.aside_line[type="js"]::before {
+    color: #cbcb41;
+    content: "\F031E";
 }
 .aside_line:focus::after {
     content: '';
@@ -225,6 +263,38 @@ code {
     position: absolute;
     top: 100%;
     left: 0;
-    height: 5px;
-    background-color: white;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #ffffff11;
+    transition: height 300ms;
+}
+.h-scrollbar:hover {
+    height: 1rem;
+}
+.h-scrollbar.unused {
+    display: none;
+}
+
+.header__search{
+    height: 2.4rem;
+    width: 30vw;
+    max-width: 60rem;
+    min-width: 10rem;
+    border: 0.1rem solid #9d9d9d40;
+    border-radius: 0.6rem;
+    margin: 0.55rem auto;
+    background-color: var(--background-light);
+    text-align: center;
+    color: var(--color-dark);
+}
+.subTab__contents {
+    flex: 1;
+}
+.subTab__contents > .line {
+    line-height: 1em;
+    font-size: 1em;
+    height: 1em;
+}
+.subTab__contents:focus{
+    outline: 0.1rem solid skyblue;
 }

@@ -16,6 +16,7 @@
 <body>
     <div class="bodyContainer">
         <header>
+            <div class="header__search">text</div>
         </header>
         <div class="rootContainer">
             <nav>
@@ -23,7 +24,7 @@
                 <button 
                 v-for="tab in tabs" 
                 :class="{mdi:true,[tab._icon]:true, on:onTab._uid == tab._uid }" 
-                v-on:click="onTab = tab">
+                v-on:click="()=>changeTab(tab)">
             </button>
             </nav>
             <aside>
@@ -37,10 +38,14 @@
                         <button 
                     v-for="subTab in onTab._subTabs" 
                     :class="{on:subTab._uid == onTab._onSubTab._uid}"
+                    :state="subTab._state"
                     v-on:click="onTab._onSubTab = subTab"
                     >{{subTab._name}}</button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
+                </div>
+                <div v-if="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" onkeydown="editor.on.keydown(event)" onkeyup="">
+                    <div class="line"></div>
                 </div>
                 <div v-else class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>
