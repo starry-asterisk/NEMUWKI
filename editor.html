@@ -30,7 +30,10 @@
             <aside>
                 <p>소스제어</p>
                 <button class="resizer"></button>
-                <file v-for="file in files" v-on:click="onTab.newSubTab(file)" v-bind="{...file, onTab}"></file>
+                <div class="aside_folder open">
+                    <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0"> Root</div>
+                    <file v-for="file in files" v-on:click="onTab.newSubTab(file)" v-bind="{...file, onTab}"></file>
+                </div>
             </aside>
             <section>
                 <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
