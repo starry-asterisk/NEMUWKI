@@ -181,6 +181,7 @@ const editor = {
         editor.cnt.total++;
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
+        line_number.contenteditable=false;
         line_number.innerHTML = editor.cnt.total;
         document.querySelector('.subTab__contents').append(line_number);
         let line = document.createElement('div');
@@ -193,7 +194,8 @@ const editor = {
         total: 0,
     },
     on: {
-        keydown: ({ keyCode, key }) => {
+        keydown: ({ keyCode, key, preventDefault }) => {
+            preventDefault();
             console.log(keyCode, key);
             if (keyCode > 64 && keyCode < 91) {
                 editor.focus.append(document.createTextNode(key));

@@ -300,6 +300,7 @@ code {
     padding-right: 2.5rem;
     text-align: right;
     color: #6e7681;
+    user-select: none;
 }
 .subTab__contents .line, .subTab__contents .line_number {
     line-height: 1.9rem;
