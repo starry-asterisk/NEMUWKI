@@ -19,6 +19,10 @@
     font-size: 1.3rem;
 }
 
+*:focus {
+    outline: none;
+}
+
 .bodyContainer {
     position: fixed;
     top: 0;
@@ -295,15 +299,23 @@ code {
     grid-template-columns: 6.8rem 1fr;
     grid-auto-rows: 1.9rem;
     font-family: Consolas, monospace;
+    counter-reset: line_number;
 }
 .subTab__contents .line_number {
+    counter-increment: line_number;
     padding-right: 2.5rem;
     text-align: right;
     color: #6e7681;
     user-select: none;
 }
+.line_number::after {
+    content: counter(line_number);
+}
 .subTab__contents .line, .subTab__contents .line_number {
     line-height: 1.9rem;
     font-size: 1.4rem;
     height: 1.9rem;
+}
+.caret {
+    border-left: 1px solid white;
 }

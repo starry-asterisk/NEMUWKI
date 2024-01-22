@@ -16,15 +16,15 @@ Vue.component('file', {
         'padding': { default: 2.2 }
     },
     template: `
-    <div class="aside_folder" v-if="isFolder" :style="'padding-left:'+padding+'rem;'">
-        <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0">{{ name }}</div>
+    <div class="aside_folder" v-if="isFolder">
+        <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
         <file v-for="child in children" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
     </div>
     <div class="aside_line" v-else 
         v-on:click="onTab.addSubTab({id, name, isFolder, onTab}, true)"
         v-on:dblclick="onTab.addSubTab({id})"
         :type="name.split('.')[1]||'file'"
-        :style="'padding-left:'+padding+'rem;margin-left:'+(padding - 2.2)+'rem;'"
+        :style="'padding-left:'+padding+'rem;'"
         tabindex="0">{{ name }}</div>
     `
 })
@@ -176,18 +176,29 @@ function between(min, max, value) {
 
 
 const editor = {
-    focus: undefined,
+    getCaret: () => {
+        return document.querySelector('.caret') || function () {
+            let c = document.createElement('span');
+            c.classList.add('caret');
+            return c;
+        }();
+    },
+    focus: new_target => {
+        if (!new_target.classList.contains('line')) return;
+        editor.focused_target = new_target;
+        new_target.appendChild(editor.getCaret());
+    },
+    focused_target: undefined,
     newLine: () => {
         editor.cnt.total++;
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        line_number.contenteditable=false;
-        line_number.innerHTML = editor.cnt.total;
+        line_number.contenteditable = false;
         document.querySelector('.subTab__contents').append(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
         document.querySelector('.subTab__contents').append(line);
-        line.onclick = line_number.onclick = () => editor.focus = line;
+        line.onclick = line_number.onclick = () => editor.focus(line);
         line.onclick();
     },
     cnt: {
@@ -198,14 +209,38 @@ const editor = {
             event.preventDefault();
             console.log(keyCode, key);
             if (keyCode > 64 && keyCode < 91) {
-                editor.focus.append(document.createTextNode(key));
+                editor.getCaret().before(document.createTextNode(key));
             } else {
-                switch (keyCode) {
-                    case 8:
-                        editor.focus.innerHTML = '';
+                let c =  editor.getCaret();
+                switch (key) {
+                    case "Down":
+                    case "ArrowDown":
+                        editor.focused_target.nextElementSibling && editor.focus(editor.focused_target.nextElementSibling.nextElementSibling);
                         break;
-                    case 13:
+                    case "Up":
+                    case "ArrowUp":
+                        editor.focused_target.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
+                        break;
+                    case "Left":
+                    case "ArrowLeft":
+                        c.previousSibling && c.previousSibling.before(c);
+                        break;
+                    case "Right":
+                    case "ArrowRight":
+                        c.nextSibling && c.nextSibling.after(c);
+                        break;
+                    case "Enter":
                         editor.newLine();
+                        break;
+                    case "Backspace":
+                        if(c.previousSibling) {
+                            c.previousSibling.remove();
+                        }else if(document.querySelector('.subTab__contents').children.length > 2){
+                            let t = editor.focused_target;
+                            t.previousElementSibling.remove();
+                            editor.focus(t.previousElementSibling);
+                            t.remove();
+                        }
                         break;
                 }
             }
@@ -214,14 +249,11 @@ const editor = {
         keyup: ({ keyCode }) => {
 
         },
-        click: () => {
-            const sel = getSelection();
-            if (sel.rangeCount) {
-                const range = sel.getRangeAt(0);
-                const targetedNode = range.startContainer;
-                const clickedLetter = targetedNode.textContent.substr(range.startOffset, 1);
-                console.log(clickedLetter);
-            }
+        click: e => {
+            let line = e.target;
+            if (document.querySelector('.subTab__contents').children.length < 1) {
+                editor.newLine();
+            } else editor.focus(e.target);
         }
     }
 }
