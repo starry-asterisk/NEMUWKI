@@ -177,24 +177,33 @@ function between(min, max, value) {
 
 const editor = {
     focus: undefined,
+    newLine: () => {
+        editor.count.total++;
+        let line_number = document.createElement('div');
+        line_number.classList.add('line_number');
+        line_number.innerHTML = editor.count.total;
+        document.querySelector('.subTab__contents').append(line_number);
+        let line = document.createElement('div');
+        line.classList.add('line');
+        document.querySelector('.subTab__contents').append(line);
+        line.onclick = () => editor.focus = line;
+        line.onclick();
+    },
+    cnt: {
+        total: 0,
+    },
     on: {
         keydown: ({ keyCode, key }) => {
             console.log(keyCode, key);
             if (keyCode > 64 && keyCode < 91) {
-                this.focus.append(document.createTextNode(key));
+                editor.focus.append(document.createTextNode(key));
             } else {
                 switch (keyCode) {
                     case 8:
-                        this.focus.innerHTML = '';
+                        editor.focus.innerHTML = '';
                         break;
                     case 13:
-                        let line = document.createElement('div');
-                        line.classList.add('line');
-                        line.onclick = function(){
-                            console.log('ok');
-                            this.focus = line;
-                        }
-                        document.querySelector('.subTab__contents').append(line);
+                        editor.newLine();
                         break;
                 }
             }

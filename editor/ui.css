@@ -210,6 +210,7 @@ code {
 }
 .aside_line::before {
     width: 2.2rem;
+    text-align: center;
     display: inline-block;
     font: normal normal normal 24px/1 "Material Design Icons";
     font-size: inherit;
@@ -290,11 +291,16 @@ code {
 }
 .subTab__contents {
     flex: 1;
+    display: grid;
+    grid-template-columns: 6.8rem 1fr;
 }
-.subTab__contents > .line {
-    line-height: 1em;
-    font-size: 1em;
-    height: 1em;
+.subTab__contents .line_number {
+    text-align: center;
+}
+.subTab__contents .line, .subTab__contents .line_number {
+    line-height: 1.9em;
+    font-size: 1.4em;
+    height: 1.9em;
 }
 .subTab__contents:focus{
     outline: 0.1rem solid skyblue;
