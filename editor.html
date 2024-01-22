@@ -47,7 +47,7 @@
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
-                <div v-if="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" onkeydown="editor.on.keydown(event)" onkeyup="" onclick="console.log(event.target)"></div>
+                <div v-if="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" onkeydown="editor.on.keydown(event)" onkeyup="" onclick="editor.on.click(event)"></div>
                 <div v-else class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>
                     <p class="section__empty__command">

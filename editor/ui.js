@@ -13,7 +13,7 @@ Vue.component('file', {
         'children': { default: () => [] },
         'state': { type: Number },
         'onTab': {},
-        'padding': { default: 2.2}
+        'padding': { default: 2.2 }
     },
     template: `
     <div class="aside_folder" v-if="isFolder" :style="'padding-left:'+padding+'rem;'">
@@ -211,6 +211,15 @@ const editor = {
         },
         keyup: ({ keyCode }) => {
 
+        },
+        click: () => {
+            const sel = getSelection();
+            if (sel.rangeCount) {
+                const range = sel.getRangeAt(0);
+                const targetedNode = range.startContainer;
+                const clickedLetter = targetedNode.textContent.substr(range.startOffset, 1);
+                console.log(clickedLetter);
+            }
         }
     }
 }
