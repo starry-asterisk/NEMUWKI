@@ -186,20 +186,25 @@ const editor = {
     focus: new_target => {
         if (!new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
-        new_target.appendChild(editor.getCaret());
+        //new_target.appendChild(editor.getCaret());
+
+        const selection = getSelection();
+            const charClicked = selection.focusNode
+            if (charClicked) {
+                charClicked.before(editor.getCaret());
+                console.log(charClicked);
+            }else new_target.appendChild(editor.getCaret());
     },
     focused_target: undefined,
     newLine: () => {
-        editor.cnt.total++;
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        line_number.contenteditable = false;
         document.querySelector('.subTab__contents').append(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
         document.querySelector('.subTab__contents').append(line);
         line.onclick = line_number.onclick = () => editor.focus(line);
-        line.onclick();
+        editor.focus(line);
     },
     cnt: {
         total: 0,
@@ -211,7 +216,7 @@ const editor = {
             if (keyCode > 64 && keyCode < 91) {
                 editor.getCaret().before(document.createTextNode(key));
             } else {
-                let c =  editor.getCaret();
+                let c = editor.getCaret();
                 switch (key) {
                     case "Down":
                     case "ArrowDown":
@@ -233,9 +238,9 @@ const editor = {
                         editor.newLine();
                         break;
                     case "Backspace":
-                        if(c.previousSibling) {
+                        if (c.previousSibling) {
                             c.previousSibling.remove();
-                        }else if(document.querySelector('.subTab__contents').children.length > 2){
+                        } else if (document.querySelector('.subTab__contents').children.length > 2) {
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
                             editor.focus(t.previousElementSibling);
