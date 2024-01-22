@@ -194,8 +194,8 @@ const editor = {
         total: 0,
     },
     on: {
-        keydown: ({ keyCode, key, preventDefault }) => {
-            preventDefault();
+        keydown: ({ keyCode, key }) => {
+            event.preventDefault();
             console.log(keyCode, key);
             if (keyCode > 64 && keyCode < 91) {
                 editor.focus.append(document.createTextNode(key));
