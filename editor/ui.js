@@ -178,15 +178,15 @@ function between(min, max, value) {
 const editor = {
     focus: undefined,
     newLine: () => {
-        editor.count.total++;
+        editor.cnt.total++;
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        line_number.innerHTML = editor.count.total;
+        line_number.innerHTML = editor.cnt.total;
         document.querySelector('.subTab__contents').append(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
         document.querySelector('.subTab__contents').append(line);
-        line.onclick = () => editor.focus = line;
+        line.onclick = line_number.onclick = () => editor.focus = line;
         line.onclick();
     },
     cnt: {
