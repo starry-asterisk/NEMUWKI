@@ -12,17 +12,19 @@ Vue.component('file', {
         'isFolder': { default: false },
         'children': { default: () => [] },
         'state': { type: Number },
-        'onTab': {}
+        'onTab': {},
+        'padding': { default: 2.2}
     },
     template: `
     <div class="aside_folder" v-if="isFolder">
         <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0"> {{ name }}</div>
-        <file v-for="child in children" v-bind="{...child,onTab}"></file>
+        <file v-for="child in children" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
     </div>
     <div class="aside_line" v-else 
         v-on:click="onTab.addSubTab({id, name, isFolder, onTab}, true)"
         v-on:dblclick="onTab.addSubTab({id})"
         :type="name.split('.')[1]||'file'"
+        :style="'padding-left:'+padding+'rem;'"
         tabindex="0"> {{ name }}</div>
     `
 })
