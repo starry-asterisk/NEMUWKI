@@ -186,14 +186,7 @@ const editor = {
     focus: new_target => {
         if (!new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
-        //new_target.appendChild(editor.getCaret());
-
-        const selection = getSelection();
-            const charClicked = selection.focusNode
-            if (charClicked) {
-                charClicked.before(editor.getCaret());
-                console.log(charClicked);
-            }else new_target.appendChild(editor.getCaret());
+        new_target.appendChild(editor.getCaret());
     },
     focused_target: undefined,
     newLine: () => {
@@ -259,6 +252,10 @@ const editor = {
             if (document.querySelector('.subTab__contents').children.length < 1) {
                 editor.newLine();
             } else editor.focus(e.target);
+
+            const charClicked = getSelection().focusNode;
+            if (charClicked && charClicked.nodeType === 3) charClicked.before(editor.getCaret());
+            else new_target.appendChild(editor.getCaret());
         }
     }
 }
