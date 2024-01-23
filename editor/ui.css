@@ -353,6 +353,10 @@ code {
     margin-right: -0.1rem;
     animation: blink-effect 1s step-end infinite;
 }
+.hangulCaret {
+    border-bottom: 0.1rem solid white;
+    margin-bottom: -0.1rem;
+}
 
 .subTab__contents:not(:focus) .caret {
     display: none;
