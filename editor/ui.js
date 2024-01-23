@@ -48,7 +48,7 @@ class Tab {
         name = 'file1.txt',
         id
     }, temp = false) => {
-        if(this._subTabs.find(subTab => subTab._state != TabState.temp && subTab._uid == id)) return;
+        if (this._subTabs.find(subTab => subTab._state != TabState.temp && subTab._uid == id)) return;
         let subTab = null, temp_index = this._subTabs.findIndex(subTab => subTab._state == TabState.temp);
         let state = temp ? TabState.temp : TabState.open;
 
@@ -111,7 +111,7 @@ window.onload = () => {
             changeTab: function (tab) {
                 this.onTab = tab;
             },
-            changeSubTab: function(subTab){
+            changeSubTab: function (subTab) {
                 editor.clear();
                 this.onTab._onSubTab = subTab
             }
@@ -144,7 +144,7 @@ window.addEventListener('resize', function () {
 function repaintScrollbar(scrollbar) {
     let target = document.querySelector(scrollbar.getAttribute('target'));
 
-    if(target == undefined) return console.warn(`${scrollbar.getAttribute('target')} is not exist`);
+    if (target == undefined) return console.warn(`${scrollbar.getAttribute('target')} is not exist`);
 
     let w = target.getBoundingClientRect().width;
     let scroll_w = target.scrollWidth;
@@ -235,26 +235,27 @@ function hangulCombine(원자들) {
         + 종성_인덱스
     );
 }
-function checkKeepHangul(c){
-    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.contains('hangulCaret')){
+function checkKeepHangul(c) {
+    if (c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.contains('hangulCaret')) {
         c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
         hangul_typing = [];
     }
 }
 const editor = {
-    get: function(){return document.querySelector('.subTab__contents');},
-    clear: function(){
-       for(let child of editor.get().children) child.remove();
+    get: function () { return document.querySelector('.subTab__contents'); },
+    clear: function () {
+        let contents = this.get();
+        while (contents.firstChild) contents.lastChild.remove();
     },
-    getCaret: function(){
+    getCaret: function () {
         return document.querySelector('.caret') || function () {
             let c = document.createElement('span');
             c.classList.add('caret');
             return c;
         }();
     },
-    getHangulCaret: function(){
-        let c = editor.getCaret();
+    getHangulCaret: function () {
+        let c = this.getCaret();
         return c.previousSibling && c.previousSibling.nodeType != 3 ? c.previousSibling : (() => {
             let hangulCaret = document.createElement('span');
             hangulCaret.classList.add('hangulCaret');
@@ -262,98 +263,98 @@ const editor = {
             return hangulCaret;
         })()
     },
-    focus: function(new_target){
+    focus: function (new_target) {
         if (!new_target.classList.contains('line')) return;
-        editor.focused_target = new_target;
-        new_target.appendChild(editor.getCaret());
+        this.focused_target = new_target;
+        new_target.appendChild(this.getCaret());
     },
-    focusout: function() {
+    focusout: function () {
         let hc = getHangulCaret();
-        if(hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
+        if (hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
         else getHangulCaret().remove();
         getCaret().remove();
     },
     focused_target: undefined,
-    newLine: function(){
+    newLine: function () {
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        editor.get().append(line_number);
+        this.get().append(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
-        editor.get().append(line);
-        line.onclick = line_number.onclick = () => editor.focus(line);
-        editor.focus(line);
+        this.get().append(line);
+        line.onclick = line_number.onclick = () => this.focus(line);
+        this.focus(line);
     },
     on: {
-        keydown: function({ keyCode, key }){
+        keydown: function ({ keyCode, key }) {
             console.log(key, ':', keyCode);
             event.preventDefault();
             if (key.length < 2) {
                 let hanguel_i;
-                let c = editor.getCaret();
+                let c = this.getCaret();
                 if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
                     checkKeepHangul(c);
                     c.before(document.createTextNode(key));
                 } else {
                     if (hangul_typing[0] == undefined) {
                         hangul_typing[0] = hanguel_i;
-                        editor.getHangulCaret().innerText = hanguel_i;
+                        this.getHangulCaret().innerText = hanguel_i;
                     } else if (hangul_typing[1] == undefined) {
                         if (isMoeum(hanguel_i)) {
                             if (isMoeum(hangul_typing[0])) {
                                 if (hangul_moeum_combine[hangul_typing[0]] && hangul_moeum_combine[hangul_typing[0]][hanguel_i]) {
-                                    editor.getHangulCaret().replaceWith(document.createTextNode(hangul_moeum_combine[hangul_typing[0]][hanguel_i]));
+                                    this.getHangulCaret().replaceWith(document.createTextNode(hangul_moeum_combine[hangul_typing[0]][hanguel_i]));
                                     hangul_typing = [];
                                 } else {
-                                    editor.getHangulCaret().before(document.createTextNode(hangul_typing[0]))
-                                    editor.getHangulCaret().innerText = hanguel_i;
+                                    this.getHangulCaret().before(document.createTextNode(hangul_typing[0]))
+                                    this.getHangulCaret().innerText = hanguel_i;
                                     hangul_typing = [hanguel_i];
                                 }
                             } else {
                                 hangul_typing[1] = hanguel_i;
-                                editor.getHangulCaret().innerText = hangulCombine(hangul_typing);
+                                this.getHangulCaret().innerText = hangulCombine(hangul_typing);
                             }
                         } else if (hangul_jaum_combine[hangul_typing[0]] && hangul_jaum_combine[hangul_typing[0]][hanguel_i]) {
-                            editor.getHangulCaret().replaceWith(document.createTextNode(hangul_jaum_combine[hangul_typing[0]][hanguel_i]));
+                            this.getHangulCaret().replaceWith(document.createTextNode(hangul_jaum_combine[hangul_typing[0]][hanguel_i]));
                             hangul_typing = [];
                         } else {
-                            editor.getHangulCaret().before(document.createTextNode(hangul_typing[0]))
-                            editor.getHangulCaret().innerText = hanguel_i;
+                            this.getHangulCaret().before(document.createTextNode(hangul_typing[0]))
+                            this.getHangulCaret().innerText = hanguel_i;
                             hangul_typing = [hanguel_i];
                         }
                     } else if (hangul_typing[2] == undefined) {
                         if (isMoeum(hanguel_i)) {
                             if (hangul_moeum_combine[hangul_typing[1]] && hangul_moeum_combine[hangul_typing[1]][hanguel_i]) {
                                 hangul_typing[1] = hangul_moeum_combine[hangul_typing[1]][hanguel_i];
-                                editor.getHangulCaret().innerText = hangulCombine(hangul_typing);
+                                this.getHangulCaret().innerText = hangulCombine(hangul_typing);
                             } else {
-                                editor.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
-                                editor.getHangulCaret().innerText = hanguel_i;
+                                this.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
+                                this.getHangulCaret().innerText = hanguel_i;
                                 hangul_typing = [hanguel_i];
                             }
-                        }else{
+                        } else {
                             hangul_typing[2] = hanguel_i;
-                            editor.getHangulCaret().innerText = hangulCombine(hangul_typing);
+                            this.getHangulCaret().innerText = hangulCombine(hangul_typing);
                         }
                     } else {
                         if (isMoeum(hanguel_i)) {
                             let new_hangul_typing = [hangul_typing.pop(), hanguel_i];
-                            editor.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
-                            editor.getHangulCaret().innerText = hangulCombine(new_hangul_typing);
+                            this.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
+                            this.getHangulCaret().innerText = hangulCombine(new_hangul_typing);
                             hangul_typing = new_hangul_typing;
                         } else if (hangul_jaum_combine[hangul_typing[2]] && hangul_jaum_combine[hangul_typing[2]][hanguel_i]) {
                             hangul_typing[2] = hangul_jaum_combine[hangul_typing[2]][hanguel_i];
-                            editor.getHangulCaret().replaceWith(document.createTextNode(hangulCombine(hangul_typing)));
+                            this.getHangulCaret().replaceWith(document.createTextNode(hangulCombine(hangul_typing)));
                             hangul_typing = [];
                         } else {
-                            editor.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
-                            editor.getHangulCaret().innerText = hanguel_i;
+                            this.getHangulCaret().before(document.createTextNode(hangulCombine(hangul_typing)));
+                            this.getHangulCaret().innerText = hanguel_i;
                             hangul_typing = [hanguel_i];
                         }
                     }
                 }
             } else {
-                let c = editor.getCaret();
+                let c = this.getCaret();
                 checkKeepHangul(c);
                 switch (key) {
                     case "HangulMode":
@@ -361,11 +362,11 @@ const editor = {
                         break;
                     case "Down":
                     case "ArrowDown":
-                        editor.focused_target.nextElementSibling && editor.focus(editor.focused_target.nextElementSibling.nextElementSibling);
+                        this.focused_target.nextElementSibling && this.focus(this.focused_target.nextElementSibling.nextElementSibling);
                         break;
                     case "Up":
                     case "ArrowUp":
-                        editor.focused_target.previousElementSibling &&  editor.focused_target.previousElementSibling.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
+                        this.focused_target.previousElementSibling && this.focused_target.previousElementSibling.previousElementSibling && this.focus(this.focused_target.previousElementSibling.previousElementSibling);
                         break;
                     case "Left":
                     case "ArrowLeft":
@@ -376,16 +377,16 @@ const editor = {
                         c.nextSibling && c.nextSibling.after(c);
                         break;
                     case "Enter":
-                        editor.newLine();
+                        this.newLine();
                         break;
                     case "Backspace":
                         if (c.previousSibling) {
                             c.previousSibling.remove();
-                        } else if (editor.get().children.length > 2) {
+                        } else if (this.get().children.length > 2) {
                             console.log(getSelection());
-                            let t = editor.focused_target;
+                            let t = this.focused_target;
                             t.previousElementSibling.remove();
-                            editor.focus(t.previousElementSibling);
+                            this.focus(t.previousElementSibling);
                             t.remove();
                         }
                         break;
@@ -393,17 +394,17 @@ const editor = {
             }
 
         },
-        keyup: function({ keyCode }){
+        keyup: function ({ keyCode }) {
 
         },
-        click: function(e){
+        click: function (e) {
             let line = e.target;
-            if (editor.get().children.length < 1) {
-                editor.newLine();
+            if (this.get().children.length < 1) {
+                this.newLine();
             } else {
-                editor.focus(e.target);
+                this.focus(e.target);
                 const charClicked = getSelection().focusNode;
-                if (charClicked && charClicked.nodeType === 3) charClicked.before(editor.getCaret());
+                if (charClicked && charClicked.nodeType === 3) charClicked.before(this.getCaret());
             }
         }
     }
