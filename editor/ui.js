@@ -304,13 +304,15 @@ const editor = {
                         case 's':
                             editor.save();
                             break;
+                        case 'f5':
+                            location.reload();
+                            break
                     }
                 }
 
                 return;
             }
             repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
-            console.log(key, ':', keyCode,ctrlkey);
             if (key.length < 2) {
                 let hanguel_i;
                 let c = editor.getCaret();
