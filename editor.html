@@ -42,7 +42,7 @@
                     v-for="subTab in onTab._subTabs" 
                     :class="{on:subTab._uid == onTab._onSubTab._uid}"
                     :state="subTab._state"
-                    v-on:click="onTab._onSubTab = subTab"
+                    v-on:click="changeSubTab(subTab)"
                     >{{subTab._name}}</button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>

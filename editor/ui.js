@@ -53,6 +53,7 @@ class Tab {
         let state = temp ? TabState.temp : TabState.open;
 
         if (temp_index < 0) {
+            editor.clear();
             if (temp_index = this._subTabs.findIndex(subTab => subTab._uid == id) > -1) return;
             this._app.onTab._onSubTab = subTab = create();
             this._subTabs.push(subTab);
@@ -60,6 +61,7 @@ class Tab {
             this._app.onTab._onSubTab = subTab = this._subTabs[temp_index];
             subTab.set('state', state);
         } else {
+            editor.clear();
             this._app.$set(this._app.onTab._subTabs, temp_index, create());
             this._app.onTab._onSubTab = subTab = this._subTabs[temp_index];
         }
@@ -108,6 +110,10 @@ window.onload = () => {
             },
             changeTab: function (tab) {
                 this.onTab = tab;
+            },
+            changeSubTab: function(subTab){
+                editor.clear();
+                this.onTab._onSubTab = subTab
             }
         }
     });
@@ -234,14 +240,18 @@ function checkKeepHangul(c){
     }
 }
 const editor = {
-    getCaret: () => {
+    get: function(){return document.querySelector('.subTab__contents');},
+    clear: function(){
+       for(let child of editor.get().children) child.remove();
+    },
+    getCaret: function(){
         return document.querySelector('.caret') || function () {
             let c = document.createElement('span');
             c.classList.add('caret');
             return c;
         }();
     },
-    getHangulCaret: () => {
+    getHangulCaret: function(){
         let c = editor.getCaret();
         return c.previousSibling && c.previousSibling.nodeType != 3 ? c.previousSibling : (() => {
             let hangulCaret = document.createElement('span');
@@ -250,30 +260,30 @@ const editor = {
             return hangulCaret;
         })()
     },
-    focus: (new_target) => {
+    focus: function(new_target){
         if (!new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
         new_target.appendChild(editor.getCaret());
     },
-    focusout: () => {
+    focusout: function() {
         let hc = getHangulCaret();
         if(hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
         else getHangulCaret().remove();
         getCaret().remove();
     },
     focused_target: undefined,
-    newLine: () => {
+    newLine: function(){
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        document.querySelector('.subTab__contents').append(line_number);
+        editor.get().append(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
-        document.querySelector('.subTab__contents').append(line);
+        editor.get().append(line);
         line.onclick = line_number.onclick = () => editor.focus(line);
         editor.focus(line);
     },
     on: {
-        keydown: ({ keyCode, key }) => {
+        keydown: function({ keyCode, key }){
             console.log(key, ':', keyCode);
             event.preventDefault();
             if (key.length < 2) {
@@ -369,7 +379,7 @@ const editor = {
                     case "Backspace":
                         if (c.previousSibling) {
                             c.previousSibling.remove();
-                        } else if (document.querySelector('.subTab__contents').children.length > 2) {
+                        } else if (editor.get().children.length > 2) {
                             console.log(getSelection());
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
@@ -381,12 +391,12 @@ const editor = {
             }
 
         },
-        keyup: ({ keyCode }) => {
+        keyup: function({ keyCode }){
 
         },
-        click: e => {
+        click: function(e){
             let line = e.target;
-            if (document.querySelector('.subTab__contents').children.length < 1) {
+            if (editor.get().children.length < 1) {
                 editor.newLine();
             } else {
                 editor.focus(e.target);
