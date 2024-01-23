@@ -358,7 +358,8 @@ code {
     margin-bottom: -0.1rem;
 }
 
-.subTab__contents:not(:focus) .caret {
+.subTab__contents:not(:focus) .caret,
+.subTab__contents:not(:focus) .hangulCaret {
     display: none;
 }
 

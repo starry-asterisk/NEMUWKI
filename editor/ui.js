@@ -227,7 +227,7 @@ function hangulCombine(원자들) {
     );
 }
 function checkKeepHangul(c){
-    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
+    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.contains('hangulCaret')){
         c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
         hangul_typing = [];
     }
@@ -253,6 +253,10 @@ const editor = {
         if (!new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
         new_target.appendChild(editor.getCaret());
+    },
+    focusout: () => {
+        getHangulCaret().remove();
+        getCaret().remove();
     },
     focused_target: undefined,
     newLine: () => {
