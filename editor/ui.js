@@ -144,6 +144,8 @@ window.addEventListener('resize', function () {
 function repaintScrollbar(scrollbar) {
     let target = document.querySelector(scrollbar.getAttribute('target'));
 
+    if(target == undefined) return console.warn(`${scrollbar.getAttribute('target')} is not exist`);
+
     let w = target.getBoundingClientRect().width;
     let scroll_w = target.scrollWidth;
     let ratio = w / scroll_w;
