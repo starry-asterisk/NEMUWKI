@@ -350,7 +350,7 @@ code {
 
 .caret {
     border-left: 0.1rem solid white;
-    margin-right: 0.1rem;
+    margin-right: -0.1rem;
     animation: blink-effect 1s step-end infinite;
 }
 

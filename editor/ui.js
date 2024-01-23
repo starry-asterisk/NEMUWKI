@@ -174,7 +174,16 @@ function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
 }
 
-
+const hangul = {
+    q: "ㅂ", w: "ㅈ", e: "ㄷ", r: "ㄱ", t: "ㅅ", y: "ㅛ", u: "ㅕ", i: "ㅑ", o: "ㅐ", p: "ㅔ" ,
+    a: "ㅁ", s: "ㄴ", d: "ㅇ", f: "ㄹ", g: "ㅎ", h: "ㅗ", j: "ㅓ", k: "ㅏ", l: "ㅣ",
+    z: "ㅋ", x: "ㅌ", c: "ㅊ", v: "ㅍ", b: "ㅠ", n: "ㅜ", m: "ㅡ",
+    Q: "ㅃ", W: "ㅉ", E: "ㄸ", R: "ㄲ", T: "ㅆ", Y: "ㅛ", U: "ㅕ", I: "ㅑ", O: "ㅒ", P: "ㅖ" ,
+    A: "ㅁ", S: "ㄴ", D: "ㅇ", F: "ㄹ", G: "ㅎ", H: "ㅗ", J: "ㅓ", K: "ㅏ", L: "ㅣ",
+    Z: "ㅋ", X: "ㅌ", C: "ㅊ", V: "ㅍ", B: "ㅠ", N: "ㅜ", M: "ㅡ",
+};
+const hangul_moeum = ["ㅛ","ㅕ","ㅑ","ㅐ","ㅒ","ㅔ","ㅖ","ㅗ","ㅓ","ㅏ","ㅣ","ㅠ","ㅜ","ㅡ"];
+const hangul_moeum_combine = {};
 const editor = {
     getCaret: () => {
         return document.querySelector('.caret') || function () {
@@ -199,15 +208,16 @@ const editor = {
         line.onclick = line_number.onclick = () => editor.focus(line);
         editor.focus(line);
     },
-    cnt: {
-        total: 0,
-    },
     on: {
         keydown: ({ keyCode, key }) => {
             event.preventDefault();
-            console.log(keyCode, key);
-            if (keyCode > 64 && keyCode < 91) {
-                editor.getCaret().before(document.createTextNode(key));
+            if (key.length < 2) {
+                let hanguel_i = hangul[key];
+                if(hanguel_i == undefined){
+                    editor.getCaret().before(document.createTextNode(key));
+                }else{
+                    editor.getCaret().before(document.createTextNode(hanguel_i));
+                }
             } else {
                 let c = editor.getCaret();
                 switch (key) {
