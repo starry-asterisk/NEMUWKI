@@ -183,7 +183,7 @@ const editor = {
             return c;
         }();
     },
-    focus: new_target => {
+    focus: (new_target) => {
         if (!new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
         new_target.appendChild(editor.getCaret());
@@ -251,11 +251,11 @@ const editor = {
             let line = e.target;
             if (document.querySelector('.subTab__contents').children.length < 1) {
                 editor.newLine();
-            } else editor.focus(e.target);
-
-            const charClicked = getSelection().focusNode;
-            if (charClicked && charClicked.nodeType === 3) charClicked.before(editor.getCaret());
-            else new_target.appendChild(editor.getCaret());
+            } else {
+                editor.focus(e.target);
+                const charClicked = getSelection().focusNode;
+                if (charClicked && charClicked.nodeType === 3) charClicked.before(editor.getCaret());
+            }
         }
     }
 }
