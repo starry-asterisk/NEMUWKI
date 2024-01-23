@@ -275,15 +275,17 @@ const editor = {
         getCaret().remove();
     },
     focused_target: undefined,
-    newLine: function () {
+    newLine: function (bool=true) {
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        editor.get().append(line_number);
+        if(bool) editor.get().append(line_number);
+        else editor.focused_target.after(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
-        editor.get().append(line);
+        line_number.after(line);
         line.onclick = line_number.onclick = () => editor.focus(line);
         editor.focus(line);
+        return line;
     },
     on: {
         keydown: function ({ keyCode, key }) {
@@ -377,7 +379,14 @@ const editor = {
                         c.nextSibling && c.nextSibling.after(c);
                         break;
                     case "Enter":
-                        editor.newLine();
+                        //imsi
+                        let ns = c.nextSibling;
+                        let nl = editor.newLine(false);
+                        let temp;
+                        while(temp = ns.nextSibling) {
+                            nl.appendChild(temp);
+                            ns = temp;
+                        }
                         break;
                     case "Backspace":
                         if (c.previousSibling) {
