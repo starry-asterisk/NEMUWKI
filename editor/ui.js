@@ -255,7 +255,9 @@ const editor = {
         new_target.appendChild(editor.getCaret());
     },
     focusout: () => {
-        getHangulCaret().remove();
+        let hc = getHangulCaret();
+        if(hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
+        else getHangulCaret().remove();
         getCaret().remove();
     },
     focused_target: undefined,
