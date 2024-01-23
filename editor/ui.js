@@ -226,6 +226,12 @@ function hangulCombine(원자들) {
         + 종성_인덱스
     );
 }
+function checkKeepHangul(c){
+    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
+        c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
+        hangul_typing = [];
+    }
+}
 const editor = {
     getCaret: () => {
         return document.querySelector('.caret') || function () {
@@ -267,9 +273,7 @@ const editor = {
                 let hanguel_i;
                 let c = editor.getCaret();
                 if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
-                    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
-                        c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
-                    }
+                    checkKeepHangul(c);
                     c.before(document.createTextNode(key));
                 } else {
                     if (hangul_typing[0] == undefined) {
@@ -331,9 +335,7 @@ const editor = {
                 }
             } else {
                 let c = editor.getCaret();
-                if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
-                    c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
-                }
+                checkKeepHangul(c);
                 switch (key) {
                     case "HangulMode":
                         HangulMode = !HangulMode;
