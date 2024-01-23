@@ -336,7 +336,9 @@ code {
     color: #6e7681;
     user-select: none;
 }
-
+.subTab__contents .line {
+    white-space: pre;
+}
 .line_number::after {
     content: counter(line_number);
 }
