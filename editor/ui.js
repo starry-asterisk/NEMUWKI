@@ -188,7 +188,7 @@ const hangul_jaum_combine = { 'ㄱ': { 'ㅅ': 'ㄳ' }, 'ㄴ': { 'ㅈ': 'ㄵ', '�
 let HangulMode = true;
 let hangul_typing = [];
 function isMoeum(char) {
-    return hangul_moeum.indexof(char) > -1;
+    return hangul_moeum.indexOf(char) > -1;
 }
 function hangulCombine(원자들) {
     const 초성 = 원자들[0] || '';
@@ -236,7 +236,7 @@ const editor = {
     },
     getHangulCaret: () => {
         let c = editor.getCaret();
-        return c.previousSibling.nodeType != 3 ? c.previousSibling : (() => {
+        return c.previousSibling && c.previousSibling.nodeType != 3 ? c.previousSibling : (() => {
             let hangulCaret = document.createElement('span');
             hangulCaret.classList.add('hangulCaret');
             c.before(hangulCaret);
@@ -267,6 +267,9 @@ const editor = {
                 let hanguel_i;
                 let c = editor.getCaret();
                 if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
+                    if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
+                        c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
+                    }
                     c.before(document.createTextNode(key));
                 } else {
                     if (hangul_typing[0] == undefined) {
@@ -328,6 +331,9 @@ const editor = {
                 }
             } else {
                 let c = editor.getCaret();
+                if(c.previousSibling && c.previousSibling.nodeType !== 3 && c.previousSibling.classList.indexOf('hangulCaret') > -1){
+                    c.previousSibling.replaceWith(document.createTextNode(c.previousSibling.innerText));
+                }
                 switch (key) {
                     case "HangulMode":
                         HangulMode = !HangulMode;
