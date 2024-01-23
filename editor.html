@@ -32,7 +32,7 @@
                 <button class="resizer"></button>
                 <div class="aside_folder open">
                     <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0"> Root</div>
-                    <file v-for="file in files" v-on:click="onTab.newSubTab(file)" v-bind="{...file, onTab, padding: 2.2}"></file>
+                    <file v-for="file in files" v-bind="{...file, onTab, padding: 2.2}"></file>
                 </div>
             </aside>
             <section>

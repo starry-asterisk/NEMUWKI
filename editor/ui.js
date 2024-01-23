@@ -48,6 +48,7 @@ class Tab {
         name = 'file1.txt',
         id
     }, temp = false) => {
+        if(this._subTabs.find(subTab => subTab._state != TabState.temp && subTab._uid == id)) return;
         let subTab = null, temp_index = this._subTabs.findIndex(subTab => subTab._state == TabState.temp);
         let state = temp ? TabState.temp : TabState.open;
 
@@ -352,7 +353,7 @@ const editor = {
                         break;
                     case "Up":
                     case "ArrowUp":
-                        editor.focused_target.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
+                        editor.focused_target.previousElementSibling &&  editor.focused_target.previousElementSibling.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
                         break;
                     case "Left":
                     case "ArrowLeft":
@@ -369,6 +370,7 @@ const editor = {
                         if (c.previousSibling) {
                             c.previousSibling.remove();
                         } else if (document.querySelector('.subTab__contents').children.length > 2) {
+                            console.log(getSelection());
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
                             editor.focus(t.previousElementSibling);
