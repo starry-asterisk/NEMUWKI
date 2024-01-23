@@ -298,6 +298,12 @@ code {
     transition: height 300ms;
 }
 
+.h-scrollbar.overlay {
+    top: auto;
+    bottom: 0;
+    background-color: #ffffff44;
+}
+
 .h-scrollbar:hover {
     height: 1rem;
 }
@@ -327,14 +333,20 @@ code {
     grid-auto-rows: 1.9rem;
     font-family: Consolas, monospace;
     counter-reset: line_number;
+    background-color: inherit;
+    overflow: hidden;
 }
 
 .subTab__contents .line_number {
+    position: sticky;
+    left:0;
     counter-increment: line_number;
     padding-right: 2.5rem;
     text-align: right;
     color: #6e7681;
     user-select: none;
+    background-color: inherit;
+    z-index: 1;
 }
 .subTab__contents .line {
     white-space: pre;

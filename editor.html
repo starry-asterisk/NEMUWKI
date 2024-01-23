@@ -43,12 +43,12 @@
                     :class="{on:subTab._uid == onTab._onSubTab._uid}"
                     :state="subTab._state"
                     v-on:click="changeSubTab(subTab)"
-                    >{{subTab._name}}</button>
+                    >{{subTab._name}} <span v-on:click="closeSubTab(subTab)" style="margin-left: 0.5rem;font-style: normal;">✕</span></button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
                 <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" onkeydown="editor.on.keydown(event)" onkeyup="" onclick="editor.on.click(event)" focusout="editor.focusout()"></div>
-                <span class="h-scrollbar" target=".subTab__contents"></span>
+                <span class="h-scrollbar overlay" target=".subTab__contents"></span>
                 <div v-show="onTab._subTabs.length < 1" class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>
                     <p class="section__empty__command">

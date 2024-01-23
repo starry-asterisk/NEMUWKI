@@ -114,6 +114,10 @@ window.onload = () => {
             changeSubTab: function (subTab) {
                 editor.clear();
                 this.onTab._onSubTab = subTab
+            },
+            closeSubTab: function ({_uid}) {
+                editor.clear();
+                this.onTab._subTabs = this.onTab._subTabs.filter(sub => sub._uid != _uid);
             }
         }
     });
@@ -247,6 +251,9 @@ const editor = {
         let contents = editor.get();
         while (contents.firstChild) contents.lastChild.remove();
     },
+    save: ()=> {
+    console.log('text save imsi');
+    },
     getCaret: function () {
         return document.querySelector('.caret') || function () {
             let c = document.createElement('span');
@@ -288,9 +295,22 @@ const editor = {
         return line;
     },
     on: {
-        keydown: function ({ keyCode, key }) {
-            console.log(key, ':', keyCode);
-            event.preventDefault();
+        keydown: function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
+            if(ctrlKey || shiftKey || altKey || metaKey){
+                event.preventDefault();
+
+                if(ctrlKey) {
+                    switch(key.toLowerCase()){
+                        case 's':
+                            editor.save();
+                            break;
+                    }
+                }
+
+                return;
+            }
+            repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
+            console.log(key, ':', keyCode,ctrlkey);
             if (key.length < 2) {
                 let hanguel_i;
                 let c = editor.getCaret();
@@ -379,13 +399,12 @@ const editor = {
                         c.nextSibling && c.nextSibling.after(c);
                         break;
                     case "Enter":
-                        //imsi
                         let ns = c.nextSibling;
                         let nl = editor.newLine(false);
                         let temp;
-                        while(temp = ns.nextSibling) {
+                        while(temp = ns) {
+                            ns = ns.nextSibling;
                             nl.appendChild(temp);
-                            ns = temp;
                         }
                         break;
                     case "Backspace":
@@ -395,6 +414,7 @@ const editor = {
                             console.log(getSelection());
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
+                            for(let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
                             editor.focus(t.previousElementSibling);
                             t.remove();
                         }
