@@ -523,6 +523,7 @@ const editor = {
                 i1 = -1;
                 i2 = node.parentNode.childNodes.indexOf(node);
             }
+            return {i1, i2};
         }
     },
     deselect: () => {
