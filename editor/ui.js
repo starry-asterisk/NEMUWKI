@@ -507,7 +507,7 @@ const editor = {
             selLine(lines[focus_index.i2], 0, focus_index.i1);
         }
         function selLine(line, s_index = 0, e_index = line.childNodes.length - 1){
-            for(let node of line.childNodes.slice(s_index, e_index + 1)){
+            for(let node of Array.from(line.childNodes).slice(s_index, e_index + 1)){
                 let span = document.createElement('span');
                 span.classList.add('sel');
                 span.innerText = node.nodeValue;
@@ -517,11 +517,11 @@ const editor = {
         function getIndex(node) {
             let i1, i2;
             if (node.nodeType === 3 || node.classList.contains('caret')) {
-                i1 = node.parentNode.childNodes.indexOf(node);
-                i2 = node.parentNode.parentNode.childNodes.indexOf(node.parentNode);
+                i1 = Array.from(node.parentNode.childNodes).indexOf(node);
+                i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(node.parentNode);
             } else {
                 i1 = -1;
-                i2 = node.parentNode.childNodes.indexOf(node);
+                i2 = Array.from(node.parentNode.childNodes).indexOf(node);
             }
             return {i1, i2};
         }
