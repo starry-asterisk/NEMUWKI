@@ -393,7 +393,14 @@ const editor = {
                         editor.focused_target.previousElementSibling && editor.focused_target.previousElementSibling.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
                         break;
                     case "Left":
-                        casc
+                    case "ArrowLeft":
+                        c.previousSibling && c.previousSibling.before(c);
+                        break;
+                    case "Right":
+                    case "ArrowRight":
+                        c.nextSibling && c.nextSibling.after(c);
+                        break;
+                    case "Enter":
                         let ns = c.nextSibling;
                         let nl = editor.newLine(false);
                         let temp;
@@ -403,10 +410,8 @@ const editor = {
                         }
                         break;
                     case "Backspace":
-
                         if (c.previousSibling) {
-                            t
-                            c.previousSibling.remove(); tt
+                            c.previousSibling.remove();
                         } else if (editor.get().children.length > 2) {
                             console.log(getSelection());
                             let t = editor.focused_target;
@@ -414,7 +419,7 @@ const editor = {
                             for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
                             editor.focus(t.previousElementSibling);
                             t.remove();
-                        } cvcvnvbnbvnbbbbbbbbbbbbbnvbnvnb
+                        }
                         break;
                 }
             }
@@ -439,8 +444,8 @@ const editor = {
 function getClickedTextNode(element, event, callback = false) {
     let range = getClickedTextNode.range || (getClickedTextNode.range = document.createRange());
     for (let node of element.childNodes) {
-        if (node.nodeType === 3 ?compare(node):getClickedTextNode(node, event)) {
-            if(callback !== false) callback(node);
+        if (node.nodeType === 3 ? compare(node) : getClickedTextNode(node, event)) {
+            if (callback !== false) callback(node);
             return node;
         }
     }
