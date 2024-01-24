@@ -450,7 +450,7 @@ const editor = {
 function getClickedTextNode(element, event, callback = false) {
     let range = getClickedTextNode.range || (getClickedTextNode.range = document.createRange());
     for (let node of element.childNodes) {
-        if (node.nodeType === 3 ?compare(rects):getClickedTextNode(node, event)) {
+        if (node.nodeType === 3 ?compare(node):getClickedTextNode(node, event)) {
             if(callback !== false) callback(node);
             return node;
         }
