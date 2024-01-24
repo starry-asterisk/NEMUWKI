@@ -440,7 +440,7 @@ const editor = {
             }
         },
         mousedown: e_down => {
-            e_down.preventDefault();
+            //e_down.preventDefault();
             let anchor_line = e_down.target, focus_line, anchor, focus;
             switch (anchor_line.classList[0]) {
                 case 'subTab__contents':
