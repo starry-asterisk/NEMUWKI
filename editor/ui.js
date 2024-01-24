@@ -419,7 +419,7 @@ const editor = {
                             for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
                             editor.focus(t.previousElementSibling);
                             t.remove();
-                            if(last_char) last_char.after(editor.getCaret());
+                            if (last_char) last_char.after(editor.getCaret());
                         }
                         break;
                 }
@@ -437,6 +437,45 @@ const editor = {
                 editor.focus(e.target);
 
                 getClickedTextNode(e.target, e, node => node.before(editor.getCaret()));
+            }
+        },
+        mousedown: e_down => {
+            e_down.preventDefault();
+            let anchor_line = e_down.target, focus_line, anchor, focus;
+            switch (anchor_line.classList[0]) {
+                case 'subTab__contents':
+                    return;
+                    break;
+                case 'line_number':
+                    anchor_line = anchor_line.nextElementSibling;
+                    break;
+                case 'line':
+                default:
+                    break;
+            }
+            anchor = getClickedTextNode(anchor_line, e_down);
+            editor.get().onmousemove = e_move => {
+                e_move.preventDefault();
+                focus_line = e_move.target;
+                switch (focus_line.classList[0]) {
+                    case 'subTab__contents':
+                        focus = editor.get().lastElementChild.lastChild || editor.get().lastElementChild;
+                        break;
+                    case 'line_number':
+                        focus = focus_line.previousElementSibling.lastChild || focus_line.previousElementSibling;
+                        break;
+                    case 'line':
+                        focus = getClickedTextNode(focus_line, e_move);
+                    default:
+                        break;
+                }
+                console.log(anchor,focus);
+                console.log(e_down,e_move);
+
+            }
+            window.mouseup = e_up => {
+                e_up.preventDefault();
+
             }
         }
     }
