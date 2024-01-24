@@ -473,8 +473,10 @@ const editor = {
                         focus = focus_line.previousElementSibling.lastChild || focus_line.previousElementSibling;
                         break;
                     case 'line':
-                        focus = getClickedTextNode(focus_line, e_move);
+                    case 'sel':
+                        focus = getClickedTextNode(focus_line, e_move) || focus_line.lastChild || focus_line;
                     default:
+                        console.log(focus_line);
                         break;
                 }
                 editor.select(anchor, focus);
