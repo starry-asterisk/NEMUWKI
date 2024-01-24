@@ -413,12 +413,13 @@ const editor = {
                         if (c.previousSibling) {
                             c.previousSibling.remove();
                         } else if (editor.get().children.length > 2) {
-                            console.log(getSelection());
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
+                            let last_char = t.previousElementSibling.lastChild;
                             for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
                             editor.focus(t.previousElementSibling);
                             t.remove();
+                            if(last_char) last_char.after(editor.getCaret());
                         }
                         break;
                 }
