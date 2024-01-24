@@ -115,7 +115,7 @@ window.onload = () => {
                 editor.clear();
                 this.onTab._onSubTab = subTab
             },
-            closeSubTab: function ({_uid}) {
+            closeSubTab: function ({ _uid }) {
                 editor.clear();
                 this.onTab._subTabs = this.onTab._subTabs.filter(sub => sub._uid != _uid);
             }
@@ -251,8 +251,8 @@ const editor = {
         let contents = editor.get();
         while (contents.firstChild) contents.lastChild.remove();
     },
-    save: ()=> {
-    console.log('text save imsi');
+    save: () => {
+        console.log('text save imsi');
     },
     getCaret: function () {
         return document.querySelector('.caret') || function () {
@@ -275,17 +275,17 @@ const editor = {
         editor.focused_target = new_target;
         new_target.appendChild(editor.getCaret());
     },
-    focusout: function () {
+    blur: function () {
         let hc = getHangulCaret();
         if (hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
         else getHangulCaret().remove();
         getCaret().remove();
     },
     focused_target: undefined,
-    newLine: function (bool=true) {
+    newLine: function (bool = true) {
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
-        if(bool) editor.get().append(line_number);
+        if (bool) editor.get().append(line_number);
         else editor.focused_target.after(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
@@ -296,11 +296,11 @@ const editor = {
     },
     on: {
         keydown: function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
-            if(ctrlKey || shiftKey || altKey || metaKey){
+            if (ctrlKey || shiftKey || altKey || metaKey) {
                 event.preventDefault();
 
-                if(ctrlKey) {
-                    switch(key.toLowerCase()){
+                if (ctrlKey) {
+                    switch (key.toLowerCase()) {
                         case 's':
                             editor.save();
                             break;
@@ -393,33 +393,28 @@ const editor = {
                         editor.focused_target.previousElementSibling && editor.focused_target.previousElementSibling.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
                         break;
                     case "Left":
-                    case "ArrowLeft":
-                        c.previousSibling && c.previousSibling.before(c);
-                        break;
-                    case "Right":
-                    case "ArrowRight":
-                        c.nextSibling && c.nextSibling.after(c);
-                        break;
-                    case "Enter":
+                        casc
                         let ns = c.nextSibling;
                         let nl = editor.newLine(false);
                         let temp;
-                        while(temp = ns) {
+                        while (temp = ns) {
                             ns = ns.nextSibling;
                             nl.appendChild(temp);
                         }
                         break;
                     case "Backspace":
+
                         if (c.previousSibling) {
-                            c.previousSibling.remove();
+                            t
+                            c.previousSibling.remove(); tt
                         } else if (editor.get().children.length > 2) {
                             console.log(getSelection());
                             let t = editor.focused_target;
                             t.previousElementSibling.remove();
-                            for(let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
+                            for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
                             editor.focus(t.previousElementSibling);
                             t.remove();
-                        }
+                        } cvcvnvbnbvnbbbbbbbbbbbbbnvbnvnb
                         break;
                 }
             }
@@ -434,9 +429,35 @@ const editor = {
                 editor.newLine();
             } else {
                 editor.focus(e.target);
-                const charClicked = getSelection().focusNode;
-                if (charClicked && charClicked.nodeType === 3) charClicked.before(editor.getCaret());
+
+                getClickedTextNode(e.target, e, node => node.before(editor.getCaret()));
+            }
+        },
+        mousedown: function(e_start){
+            let s = getClickedTextNode(e.target, e_start);
+            window.onmouseover = e_over => {
+                let e = getClickedTextNode(e.target, e_over);
+                console.log(s,e);
+            }
+            window.onmouseup = ()=>{
+                window.onmouseup = window.onmouseover = undefined;
             }
         }
+    }
+}
+
+function getClickedTextNode(element, event, callback = false) {
+    let range = getClickedTextNode.range || (getClickedTextNode.range = document.createRange());
+    for (let node of element.childNodes) {
+        if (node.nodeType === 3 ?compare(rects):getClickedTextNode(node, event)) {
+            if(callback !== false) callback(node);
+            return node;
+        }
+    }
+
+    function compare(node) {
+        range.selectNodeContents(node);
+        let { left, right } = range.getClientRects();
+        return event.clientX >= left && event.clientX <= right;
     }
 }
