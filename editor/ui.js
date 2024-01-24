@@ -493,7 +493,7 @@ function getClickedTextNode(element, event, callback = false) {
 
     function compare(node) {
         range.selectNodeContents(node);
-        let { left, right } = range.getClientRects();
+        let { left, right } = range.getClientRects()[0];
         return event.pageX >= left && event.pageX <= right;
     }
 }
