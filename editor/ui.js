@@ -515,7 +515,7 @@ const editor = {
             for(let node of Array.from(line.childNodes).slice(s_index, e_index + 1)){
                 let span = document.createElement('span');
                 span.classList.add('sel');
-                span.innerText = node.nodeValue;
+                span.append(node);
                 node.replaceWith(span);
             }
         }
@@ -533,7 +533,8 @@ const editor = {
     },
     deselect: () => {
         for(let sel_span of editor.get().querySelectorAll('span.sel')){
-            sel_span.replaceWith(document.createTextNode(sel_span.innerText));
+            sel_span.before(sel_span.lastChild);
+            sel_span.remove();
         }
     }
 }
