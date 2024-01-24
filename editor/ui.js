@@ -457,6 +457,9 @@ const editor = {
                 case 'line_number':
                     anchor_line = anchor_line.nextElementSibling;
                     break;
+                case 'sel':
+                    anchor_line = anchor_line.parentNode;
+                    break;
             }
             anchor = getClickedTextNode(anchor_line, e_down) || anchor_line.lastChild || anchor_line;
             editor.get().onmousemove = e_move => {
@@ -468,6 +471,9 @@ const editor = {
                         break;
                     case 'line_number':
                         focus_line = focus_line.previousElementSibling;
+                        break;
+                    case 'sel':
+                        focus_line = focus_line.parentNode;
                         break;
                 }
                 focus = getClickedTextNode(focus_line, e_move) || focus_line.lastChild || focus_line;
@@ -533,7 +539,7 @@ const editor = {
     },
     deselect: () => {
         for(let sel_span of editor.get().querySelectorAll('span.sel')){
-            sel_span.before(sel_span.lastChild);
+            if(sel_span.lastChild) sel_span.before(sel_span.lastChild);
             sel_span.remove();
         }
     }
