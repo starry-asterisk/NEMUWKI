@@ -473,9 +473,9 @@ const editor = {
                 console.log(e_down,e_move);
 
             }
-            window.mouseup = e_up => {
+            window.onmouseup = e_up => {
                 e_up.preventDefault();
-                window.mouseup = undefined;
+                window.onmouseup = undefined;
                 editor.get().onmousemove = undefined;
             }
         }
@@ -494,6 +494,6 @@ function getClickedTextNode(element, event, callback = false) {
     function compare(node) {
         range.selectNodeContents(node);
         let { left, right } = range.getClientRects();
-        return event.clientX >= left && event.clientX <= right;
+        return event.pageX >= left && event.pageX <= right;
     }
 }
