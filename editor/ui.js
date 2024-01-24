@@ -432,16 +432,17 @@ const editor = {
 
         },
         click: function (e) {
-            let line = e.target;
+            
+        },
+        mousedown: e_down => {
+            let line = e_down.target;
             if (editor.get().children.length < 1) {
                 editor.newLine();
             } else {
-                editor.focus(e.target);
+                editor.focus(e_down.target);
 
-                getClickedTextNode(e.target, e, node => node.before(editor.getCaret()));
+                getClickedTextNode(e_down.target, e_down, node => node.before(editor.getCaret()));
             }
-        },
-        mousedown: e_down => {
             //e_down.preventDefault();
             let anchor_line = e_down.target, focus_line, anchor, focus;
             switch (anchor_line.classList[0]) {
