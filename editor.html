@@ -47,7 +47,13 @@
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
-                <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" onkeydown="editor.on.keydown(event)" onkeyup="" onclick="editor.on.click(event)" onmousedown="editor.on.mousedown(event)" onblur="editor.blur()"></div>
+                <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" 
+                    onkeydown="editor.on.keydown(event)" 
+                    onkeyup="" onclick="editor.on.click(event)" 
+                    onmousedown="editor.on.mousedown(event)" 
+                    onmouseup="editor.on.mouseup(event)"  
+                    onclick="editor.on.click(event)" 
+                    onblur="editor.blur()"></div>
                 <span class="h-scrollbar overlay" target=".subTab__contents"></span>
                 <div v-show="onTab._subTabs.length < 1" class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>

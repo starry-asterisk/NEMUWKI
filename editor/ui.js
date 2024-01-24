@@ -432,9 +432,13 @@ const editor = {
 
         },
         click: function (e) {
-            
+            console.log(1);
+        },
+        mouseup: function (e) {
+            console.log(2);
         },
         mousedown: e_down => {
+            console.log(3);
             let line = e_down.target;
             if (editor.get().children.length < 1) {
                 editor.newLine();
