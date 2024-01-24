@@ -432,17 +432,6 @@ const editor = {
 
                 getClickedTextNode(e.target, e, node => node.before(editor.getCaret()));
             }
-        },
-        mousedown: function(e_start){
-            let s = getClickedTextNode(e_start.target, e_start);
-            window.onmouseover = e_over => {
-                let e = getClickedTextNode(e_over.target, e_over);
-                console.log(s,e);
-                console.log(e_start.target,e_start,e_over.targete,e_over);
-            }
-            window.onmouseup = ()=>{
-                window.onmouseup = window.onmouseover = undefined;
-            }
         }
     }
 }
