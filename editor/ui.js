@@ -433,6 +433,7 @@ const editor = {
         },
         click: function (e) {
             console.log(1);
+            editor.get().focus();
         },
         mouseup: function (e) {
             console.log(2);
@@ -451,18 +452,14 @@ const editor = {
             let anchor_line = e_down.target, focus_line, anchor, focus;
             switch (anchor_line.classList[0]) {
                 case 'subTab__contents':
-                    focus_line = editor.get().lastElementChild.lastChild;
+                    anchor_line = editor.get().lastElementChild.lastChild;
                     break;
                 case 'line_number':
                     anchor_line = anchor_line.nextElementSibling;
                     break;
-                case 'line':
-                default:
-                    break;
             }
-            anchor = getClickedTextNode(anchor_line, e_down);
+            anchor = getClickedTextNode(anchor_line, e_down) || anchor_line.lastChild || anchor_line;
             editor.get().onmousemove = e_move => {
-                editor.deselect();
                 e_move.preventDefault();
                 focus_line = e_move.target;
                 switch (focus_line.classList[0]) {
@@ -472,16 +469,9 @@ const editor = {
                     case 'line_number':
                         focus_line = focus_line.previousElementSibling;
                         break;
-                    case 'line':
-                        break;
-                    case 'sel':
-                        focus_line = focus_line.parentNode;
-                        break;
-                    default:
-                        console.log(focus_line);
-                        break;
                 }
                 focus = getClickedTextNode(focus_line, e_move) || focus_line.lastChild || focus_line;
+                editor.deselect();
                 editor.select(anchor, focus);
 
             }
