@@ -382,3 +382,6 @@ code {
         opacity: 0;
     }
 }
+span.sel {
+    background-color: green;
+}
