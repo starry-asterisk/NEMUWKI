@@ -475,7 +475,8 @@ const editor = {
             }
             window.mouseup = e_up => {
                 e_up.preventDefault();
-
+                window.mouseup = undefined;
+                editor.get().onmousemove = undefined;
             }
         }
     }
