@@ -447,11 +447,11 @@ const editor = {
 
                 getClickedTextNode(e_down.target, e_down, node => node.before(editor.getCaret()));
             }
-            //e_down.preventDefault();
+            e_down.preventDefault();
             let anchor_line = e_down.target, focus_line, anchor, focus;
             switch (anchor_line.classList[0]) {
                 case 'subTab__contents':
-                    return;
+                    focus_line = editor.get().lastElementChild.lastChild;
                     break;
                 case 'line_number':
                     anchor_line = anchor_line.nextElementSibling;
@@ -483,13 +483,13 @@ const editor = {
                 }
                 focus = getClickedTextNode(focus_line, e_move) || focus_line.lastChild || focus_line;
                 editor.select(anchor, focus);
-                editor.focus(focus_line);
 
             }
             window.onmouseup = e_up => {
                 e_up.preventDefault();
                 window.onmouseup = undefined;
                 editor.get().onmousemove = undefined;
+                editor.focus(focus_line);
             }
         }
     },
@@ -554,8 +554,8 @@ function getClickedTextNode(element, event, callback = false) {
     let range = getClickedTextNode.range || (getClickedTextNode.range = document.createRange());
     for (let node of element.childNodes) {
         if (result = node.nodeType === 3 ? compare(node) : getClickedTextNode(node, event)) {
-            if (callback !== false) callback(node);
-            return node;
+            if (callback !== false) callback(result);
+            return result;
         }
     }
 
