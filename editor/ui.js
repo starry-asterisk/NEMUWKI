@@ -314,6 +314,7 @@ const editor = {
             }
             repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
             if (key.length < 2) {
+                for(let sel_span of editor.get().querySelectorAll('span.sel'))sel_span.remove();
                 let hanguel_i;
                 let c = editor.getCaret();
                 if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
@@ -421,6 +422,7 @@ const editor = {
                             t.remove();
                             if (last_char) last_char.after(editor.getCaret());
                         }
+                        for(let sel_span of editor.get().querySelectorAll('span.sel'))sel_span.remove();
                         break;
                 }
             }
@@ -455,6 +457,7 @@ const editor = {
             }
             anchor = getClickedTextNode(anchor_line, e_down);
             editor.get().onmousemove = e_move => {
+                editor.deselect();
                 e_move.preventDefault();
                 focus_line = e_move.target;
                 switch (focus_line.classList[0]) {
@@ -469,8 +472,7 @@ const editor = {
                     default:
                         break;
                 }
-                console.log(anchor,focus);
-                console.log(e_down,e_move);
+                editor.select(anchor, focus);
 
             }
             window.onmouseup = e_up => {
@@ -478,6 +480,54 @@ const editor = {
                 window.onmouseup = undefined;
                 editor.get().onmousemove = undefined;
             }
+        }
+    },
+    select: (anchor_node, focus_node) => {
+        let anchor_index = getIndex(anchor_node);
+        let focus_index = getIndex(focus_node);
+        let temp;
+        if (
+            anchor_index.i2 > focus_index.i2 ||
+            (anchor_index.i2 == focus_index.i2 && anchor_index.i1 > focus_index.i1)
+        ) {
+            temp = anchor_index;
+            anchor_index = focus_index;
+            focus_index = temp;
+        }
+        let lines = editor.get().childNodes;
+        let i = anchor_index.i2;
+        if(anchor_index.i2 == focus_index.i2){
+            selLine(lines[i], anchor_index.i1, focus_index.i1);
+        }else{
+            selLine(lines[i], anchor_index.i1);
+            while(i < focus_index.i2 - 1){
+                i++;
+                selLine(lines[i]);
+            }
+            selLine(lines[focus_index.i2], 0, focus_index.i1);
+        }
+        function selLine(line, s_index = 0, e_index = line.childNodes.length - 1){
+            for(let node of line.childNodes.slice(s_index, e_index + 1)){
+                let span = document.createElement('span');
+                span.classList.add('sel');
+                span.innerText = node.nodeValue;
+                node.replaceWith(span);
+            }
+        }
+        function getIndex(node) {
+            let i1, i2;
+            if (node.nodeType === 3 || node.classList.contains('caret')) {
+                i1 = node.parentNode.childNodes.indexOf(node);
+                i2 = node.parentNode.parentNode.childNodes.indexOf(node.parentNode);
+            } else {
+                i1 = -1;
+                i2 = node.parentNode.childNodes.indexOf(node);
+            }
+        }
+    },
+    deselect: () => {
+        for(let sel_span of editor.get().querySelectorAll('span.sel')){
+            sel_span.replaceWith(document.createTextNode(sel_span.innerText));
         }
     }
 }
