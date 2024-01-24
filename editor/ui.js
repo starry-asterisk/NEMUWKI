@@ -276,10 +276,10 @@ const editor = {
         new_target.appendChild(editor.getCaret());
     },
     blur: function () {
-        let hc = getHangulCaret();
+        let hc = editor.getHangulCaret();
         if (hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
-        else getHangulCaret().remove();
-        getCaret().remove();
+        else hc.remove();
+        editor.getCaret().remove();
     },
     focused_target: undefined,
     newLine: function (bool = true) {
@@ -434,10 +434,11 @@ const editor = {
             }
         },
         mousedown: function(e_start){
-            let s = getClickedTextNode(e.target, e_start);
+            let s = getClickedTextNode(e_start.target, e_start);
             window.onmouseover = e_over => {
-                let e = getClickedTextNode(e.target, e_over);
+                let e = getClickedTextNode(e_over.target, e_over);
                 console.log(s,e);
+                console.log(e_start.target,e_start,e_over.targete,e_over);
             }
             window.onmouseup = ()=>{
                 window.onmouseup = window.onmouseover = undefined;
