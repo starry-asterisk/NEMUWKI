@@ -271,7 +271,7 @@ const editor = {
         })()
     },
     focus: function (new_target) {
-        if (!new_target.classList.contains('line')) return;
+        if (new_target == undefined || !new_target.classList.contains('line')) return;
         editor.focused_target = new_target;
         new_target.appendChild(editor.getCaret());
     },
@@ -280,6 +280,7 @@ const editor = {
         if (hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
         else hc.remove();
         editor.getCaret().remove();
+        editor.focused_target = undefined;
     },
     focused_target: undefined,
     newLine: function (bool = true) {
@@ -421,7 +422,20 @@ const editor = {
                             editor.focus(t.previousElementSibling);
                             t.remove();
                             if (last_char) last_char.after(editor.getCaret());
+                        }/*
+                        let el = editor.get();
+                        let last = el.querySelectorAll('span.sel').pop();
+                        while(el.querySelector('span.sel')){
+                            if (last.previousSibling) {
+                                last.previousSibling.remove();
+                            } else if (el.children.length > 2) {
+                                let t = last.parentNode;
+                                t.previousElementSibling.remove();
+                                for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
+                                t.remove();
+                            }
                         }
+                        last.remove();*/
                         for(let sel_span of editor.get().querySelectorAll('span.sel'))sel_span.remove();
                         break;
                 }
@@ -431,19 +445,14 @@ const editor = {
         keyup: function ({ keyCode }) {
 
         },
-        click: function (e) {
-            console.log(1);
-            editor.get().focus();
-        },
+        click: ()=>editor.get().focus(),
         mouseup: function (e) {
-            console.log(2);
         },
         mousedown: e_down => {
-            console.log(3);
-            let line = e_down.target;
             if (editor.get().children.length < 1) {
-                editor.newLine();
+                return editor.newLine();
             } else {
+                editor.blur();
                 editor.focus(e_down.target);
 
                 getClickedTextNode(e_down.target, e_down, node => node.before(editor.getCaret()));
@@ -457,35 +466,37 @@ const editor = {
                 case 'line_number':
                     anchor_line = anchor_line.nextElementSibling;
                     break;
-                case 'sel':
-                    anchor_line = anchor_line.parentNode;
-                    break;
             }
             anchor = getClickedTextNode(anchor_line, e_down) || anchor_line.lastChild || anchor_line;
+            if(anchor.nodeType != 3 && anchor.classList.contains('sel')) anchor = anchor.lastChild;
             editor.get().onmousemove = e_move => {
                 e_move.preventDefault();
+                let focusIsFirst = Math.abs(e_down.screenY - e_move.screenY) < 22 ? e_down.screenX > e_move.screenX : e_down.screenY > e_move.screenY;
                 focus_line = e_move.target;
                 switch (focus_line.classList[0]) {
                     case 'subTab__contents':
                         focus_line = editor.get().lastElementChild.lastChild;
                         break;
                     case 'line_number':
-                        focus_line = focus_line.previousElementSibling;
-                        break;
-                    case 'sel':
-                        focus_line = focus_line.parentNode;
+                        focus_line = focusIsFirst?focus_line.nextElementSibling:focus_line.previousElementSibling;
                         break;
                 }
                 focus = getClickedTextNode(focus_line, e_move) || focus_line.lastChild || focus_line;
+                if(focus.nodeType != 3 && focus.classList.contains('sel')) focus = focus.lastChild;
                 editor.deselect();
                 editor.select(anchor, focus);
-
             }
             window.onmouseup = e_up => {
                 e_up.preventDefault();
+                let focusIsFirst = Math.abs(e_down.screenY - e_up.screenY) < 22 ? e_down.screenX > e_up.screenX : e_down.screenY > e_up.screenY;
+                let sel = Array.from(document.querySelectorAll('.sel'));
+                sel = focusIsFirst?sel.shift():sel.pop();
                 window.onmouseup = undefined;
                 editor.get().onmousemove = undefined;
-                editor.focus(focus_line);
+                if(sel == undefined) return;
+                editor.focus(sel.parentNode);
+                if(focusIsFirst) sel.before(editor.getCaret());
+                else sel.after(editor.getCaret());
             }
         }
     },
@@ -493,6 +504,7 @@ const editor = {
         let anchor_index = getIndex(anchor_node);
         let focus_index = getIndex(focus_node);
         let temp;
+        let focusFirst = false;
         if (
             anchor_index.i2 > focus_index.i2 ||
             (anchor_index.i2 == focus_index.i2 && anchor_index.i1 > focus_index.i1)
@@ -500,6 +512,7 @@ const editor = {
             temp = anchor_index;
             anchor_index = focus_index;
             focus_index = temp;
+            focusFirst = true;
         }
         let lines = editor.get().childNodes;
         let i = anchor_index.i2;
@@ -513,6 +526,7 @@ const editor = {
             }
             selLine(lines[focus_index.i2], 0, focus_index.i1);
         }
+        return focusFirst;
         function selLine(line, s_index = 0, e_index = line.childNodes.length - 1){
             for(let node of Array.from(line.childNodes).slice(s_index, e_index + 1)){
                 let span = document.createElement('span');
@@ -527,9 +541,14 @@ const editor = {
                 i1 = Array.from(node.parentNode.childNodes).indexOf(node);
                 i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(node.parentNode);
             } else if(node.classList.contains('caret')){
-                node = node.previousSibling;
-                i1 = Array.from(node.parentNode.childNodes).indexOf(node);
-                i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(node.parentNode);
+                if(node.previousSibling){
+                    node = node.previousSibling;
+                    i1 = Array.from(node.parentNode.childNodes).indexOf(node);
+                    i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(node.parentNode);
+                }else{
+                    i1 = -1;
+                    i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(node.parentNode);
+                }
             } else {
                 i1 = -1;
                 i2 = Array.from(node.parentNode.childNodes).indexOf(node);
