@@ -481,6 +481,7 @@ class Editor {
   onkeyup = function ({ keyCode }) {};
 
   onclick = function () {
+    console.log(this, "click");
     this.get().focus();
   };
   onmouseup = function (e) {
