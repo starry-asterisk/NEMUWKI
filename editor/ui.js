@@ -451,15 +451,11 @@ class Editor {
         click: () => editor.get().focus(),
         mouseup: function (e) {console.log(this)},
         mousedown: e_down => {
-            if (editor.get().children.length < 1) {
-                return editor.newLine();
-            } else {
-                editor.blur();
-                editor.focus(e_down.target);
-
-                getClickedTextNode(e_down.target, e_down, node => node.before(editor.getCaret()));
-            }
             e_down.preventDefault();
+            if (editor.get().children.length < 1)  return editor.newLine();
+            
+            editor.blur();
+
             let anchor_line = e_down.target, focus_line, anchor, focus;
             switch (anchor_line.classList[0]) {
                 case 'subTab__contents':
