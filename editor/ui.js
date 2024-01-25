@@ -237,7 +237,7 @@ class Editor {
   getCaret = function () {
     return (
       this._caret ||
-      (function () {
+      (() => {
         let c = (this._caret = document.createElement("span"));
         c.classList.add("caret");
         return c;
@@ -247,7 +247,7 @@ class Editor {
   getHangulCaret = function () {
     return (
       this.get().querySelector(".hangulCaret") ||
-      (function () {
+      (() => {
         let c = this.getCaret();
         let hc = (this._hangulCaret = document.createElement("span"));
         hc.classList.add("hangulCaret");
