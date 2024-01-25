@@ -497,7 +497,7 @@ class Editor {
                 else sel.after(editor.getCaret());
             }
         }
-    },
+    }
     select = (anchor_node, focus_node) => {
         let anchor_index = getIndex(anchor_node);
         let focus_index = getIndex(focus_node);
@@ -553,7 +553,7 @@ class Editor {
             }
             return {i1, i2};
         }
-    },
+    }
     deselect = () => {
         for(let sel_span of editor.get().querySelectorAll('span.sel')){
             if(sel_span.lastChild) sel_span.before(sel_span.lastChild);
