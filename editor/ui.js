@@ -208,17 +208,7 @@ function between(min, max, value) {
 
 let HangulMode = true;
 let hangul_typing = [];
-function checkKeepHangul(c = editor._caret) {
-  if (
-    c.previousSibling &&
-    c.previousSibling.nodeType !== 3 &&
-    c.previousSibling.classList.contains("hangulCaret")
-  ) {
-    c.previousSibling.before(c.previousSibling.lastChild);
-    c.previousSibling.remove();
-    hangul_typing = [];
-  }
-}
+
 class Editor {
   _caret;
   _hangulCaret;
@@ -256,6 +246,20 @@ class Editor {
       })()
     );
   };
+  removeCaret = function () {
+    if (this._caret == undefined) return;
+    this._caret.remove();
+    this._caret = undefined;
+  };
+  removeHanguleCaret = function () {
+    if (this._hangulCaret == undefined) return;
+    if (this._hangulCaret.lastChild) {
+      this._hangulCaret.before(this._hangulCaret.lastChild);
+    }
+    this._hangulCaret.remove();
+    this._hangulCaret = undefined;
+    hangul_typing = [];
+  };
   focus = function (new_target) {
     if (new_target == undefined || !new_target.classList.contains("line"))
       return;
@@ -263,15 +267,9 @@ class Editor {
     new_target.appendChild(this.getCaret());
   };
   blur = function () {
-    let hc = this.getHangulCaret();
-    if (hc.lastChild) {
-      hc.before(hc.lastChild);
-    }
-    hc.remove();
-    this.getCaret().remove();
+    this.removeCaret();
+    this.removeHanguleCaret();
     this._focused_line = undefined;
-    this._hangulCaret = undefined;
-    this._caret = undefined;
   };
 
   newLine = function (bool = this.get().childNodes.length < 2) {
@@ -309,7 +307,7 @@ class Editor {
       let hanguel_i;
       let c = this.getCaret();
       if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
-        checkKeepHangul(c);
+        this.removeHanguleCaret();
         c.before(document.createTextNode(key));
       } else {
         if (hangul_typing[0] == undefined) {
@@ -410,7 +408,7 @@ class Editor {
       }
     } else {
       let c = this.getCaret();
-      checkKeepHangul(c);
+      this.removeHanguleCaret();
       switch (key) {
         case "HangulMode":
           HangulMode = !HangulMode;
