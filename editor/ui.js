@@ -253,7 +253,7 @@ class Editor {
   };
   removeHanguleCaret = function () {
     if (this._hangulCaret == undefined) return;
-    if (this._hangulCaret.lastChild) {
+    if (this._hangulCaret.childNodes.length > 0) {
       this._hangulCaret.before(this._hangulCaret.lastChild);
     }
     this._hangulCaret.remove();
@@ -267,8 +267,8 @@ class Editor {
     new_target.appendChild(this.getCaret());
   };
   blur = function () {
-    this.removeCaret();
     this.removeHanguleCaret();
+    this.removeCaret();
     this._focused_line = undefined;
   };
 
@@ -320,18 +320,16 @@ class Editor {
                 hangul_moeum_combine[hangul_typing[0]] &&
                 hangul_moeum_combine[hangul_typing[0]][hanguel_i]
               ) {
-                editor
-                  .getHangulCaret()
-                  .replaceWith(
-                    document.createTextNode(
-                      hangul_moeum_combine[hangul_typing[0]][hanguel_i]
-                    )
-                  );
+                this.getHangulCaret().replaceWith(
+                  document.createTextNode(
+                    hangul_moeum_combine[hangul_typing[0]][hanguel_i]
+                  )
+                );
                 hangul_typing = [];
               } else {
-                editor
-                  .getHangulCaret()
-                  .before(document.createTextNode(hangul_typing[0]));
+                this.getHangulCaret().before(
+                  document.createTextNode(hangul_typing[0])
+                );
                 this.getHangulCaret().innerText = hanguel_i;
                 hangul_typing = [hanguel_i];
               }
