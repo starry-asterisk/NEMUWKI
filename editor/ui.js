@@ -264,11 +264,14 @@ class Editor {
   };
   blur = function () {
     let hc = this.getHangulCaret();
-    if (hc.innerText.length > 0)
-      hc.replaceWith(document.createTextNode(hc.innerText));
-    else hc.remove();
+    if (hc.lastChild) {
+      hc.before(hc.lastChild);
+    }
+    hc.remove();
     this.getCaret().remove();
     this._focused_line = undefined;
+    this._hangulCaret = undefined;
+    this._caret = undefined;
   };
 
   newLine = function (bool = this.get().childNodes.length < 2) {
