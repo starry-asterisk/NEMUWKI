@@ -246,7 +246,7 @@ class Editor {
   };
   getHangulCaret = function () {
     return (
-      this.get().querySelector(".hangulCaret") ||
+      this._hangulCaret ||
       (() => {
         let c = this.getCaret();
         let hc = (this._hangulCaret = document.createElement("span"));
@@ -479,13 +479,9 @@ class Editor {
     repaintScrollbar(this.get());
   };
   onkeyup = function ({ keyCode }) {};
-
-  onclick = function () {
-    console.log(this, "click");
-    this.get().focus();
-  };
   onmouseup = function (e) {
     console.log(this);
+    this.get().focus();
   };
   onmousedown = function (e_down) {
     console.log(this, "mousedown");
