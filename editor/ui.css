@@ -383,5 +383,8 @@ code {
     }
 }
 span.sel {
-    background-color: green;
+    background-color: #519aba55;
+    font-size: inherit;
+    line-height: inherit;
+    height: inherit;
 }
