@@ -448,9 +448,10 @@ class Editor {
 
         },
         keyup: function ({ keyCode }) {},
-        click: () => editor.get().focus(),
+        click: function(){editor.get().focus()},
         mouseup: function (e) {console.log(this)},
-        mousedown: e_down => {
+        mousedown:function( e_down){
+            consol.log(this,'mousedown');
             e_down.preventDefault();
             if (editor.get().children.length < 1)  return editor.newLine();
             
@@ -498,7 +499,7 @@ class Editor {
             }
         }
     }
-    select = (anchor_node, focus_node) => {
+    select = function(anchor_node, focus_node) {
         let anchor_index = getIndex(anchor_node);
         let focus_index = getIndex(focus_node);
         let temp;
@@ -554,7 +555,8 @@ class Editor {
             return {i1, i2};
         }
     }
-    deselect = () => {
+    deselect = function() {
+        consol.log(this,'deselect');
         for(let sel_span of editor.get().querySelectorAll('span.sel')){
             if(sel_span.lastChild) sel_span.before(sel_span.lastChild);
             sel_span.remove();
