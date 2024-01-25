@@ -503,7 +503,7 @@ class Editor {
     anchor_first = getTargetLetter(e_down, true);
     anchor_last = getTargetLetter(e_down);
 
-    container.onmousemove = function (e_move) {
+    container.onmousemove = (e_move) => {
       e_move.preventDefault();
       focusIsFirst =
         Math.abs(e_down.screenY - e_move.screenY) < 22
@@ -516,7 +516,7 @@ class Editor {
       this.select(focusIsFirst ? anchor_last : anchor_first, focus);
     };
 
-    window.onmouseup = function (e_up) {
+    window.onmouseup = (e_up) => {
       e_up.preventDefault();
       let sel = Array.from(document.querySelectorAll(".sel"));
       window.onmouseup = undefined;
@@ -539,10 +539,11 @@ class Editor {
           break;
         case "line_number":
           line = isFirst
-            ? focus_line.nextElementSibling
-            : focus_line.previousElementSibling;
+            ? line.nextElementSibling
+            : line.previousElementSibling;
           break;
       }
+      console.log(line);
       let result = getClickedTextNode(line, e) || line.lastChild || line;
       return result.nodeType != 3 && result.classList.contains("sel")
         ? result.lastChild
@@ -625,7 +626,7 @@ class Editor {
   };
 }
 
-const editor = new Editor();
+let editor = new Editor();
 
 function getClickedTextNode(element, event, callback = false) {
   let result;
