@@ -245,59 +245,65 @@ function checkKeepHangul(c) {
         hangul_typing = [];
     }
 }
-const editor = {
-    get: function () { return document.querySelector('.subTab__contents'); },
-    clear: function () {
-        let contents = editor.get();
-        while (contents.firstChild) contents.lastChild.remove();
-    },
-    save: () => {
+class Editor {
+
+    _caret
+    _hangulCaret
+    _focused_line
+
+    clear = function () {
+        let container = editor.get();
+        while (container.firstChild) container.lastChild.remove();
+    }
+    save = () => {
         console.log('text save imsi');
-    },
-    getCaret: function () {
-        return document.querySelector('.caret') || function () {
-            let c = document.createElement('span');
+    }
+    get = function () { return document.querySelector('.subTab__contents'); }
+    getCaret = function () {
+        return editor._caret || function () {
+            let c = editor._caret = document.createElement('span');
             c.classList.add('caret');
             return c;
         }();
-    },
-    getHangulCaret: function () {
-        let c = editor.getCaret();
-        return c.previousSibling && c.previousSibling.nodeType != 3 ? c.previousSibling : (() => {
-            let hangulCaret = document.createElement('span');
-            hangulCaret.classList.add('hangulCaret');
-            c.before(hangulCaret);
-            return hangulCaret;
-        })()
-    },
-    focus: function (new_target) {
+    }
+    getHangulCaret = function () {
+        return editor.get().querySelector('.hangulCaret') || function () {
+            let c = editor.getCaret();
+            let hc = editor._hangulCaret = document.createElement('span');
+            hc.classList.add('hangulCaret');
+            c.before(hc);
+            return hc;
+        }();
+    }
+    focus = function (new_target) {
         if (new_target == undefined || !new_target.classList.contains('line')) return;
-        editor.focused_target = new_target;
+        editor._focused_line = new_target;
         new_target.appendChild(editor.getCaret());
-    },
-    blur: function () {
+    }
+    blur = function () {
         let hc = editor.getHangulCaret();
         if (hc.innerText.length > 0) hc.replaceWith(document.createTextNode(hc.innerText));
         else hc.remove();
         editor.getCaret().remove();
-        editor.focused_target = undefined;
-    },
-    focused_target: undefined,
-    newLine: function (bool = true) {
+        editor._focused_line = undefined;
+    }
+    
+    newLine = function (bool = true) {
         let line_number = document.createElement('div');
         line_number.classList.add('line_number');
         if (bool) editor.get().append(line_number);
-        else editor.focused_target.after(line_number);
+        else editor._focused_line.after(line_number);
         let line = document.createElement('div');
         line.classList.add('line');
         line_number.after(line);
         line.onclick = line_number.onclick = () => editor.focus(line);
         editor.focus(line);
         return line;
-    },
-    on: {
+    }
+
+    on = {
         keydown: function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
-            if (ctrlKey || shiftKey || altKey || metaKey) {
+            if (ctrlKey || shiftKey || altKey || metaKey) { //단축키 를 이용하는 경우
                 event.preventDefault();
 
                 if (ctrlKey) {
@@ -311,10 +317,7 @@ const editor = {
                     }
                 }
 
-                return;
-            }
-            repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
-            if (key.length < 2) {
+            } else if (key.length < 2) { //글자 입력인 경우
                 for(let sel_span of editor.get().querySelectorAll('span.sel'))sel_span.remove();
                 let hanguel_i;
                 let c = editor.getCaret();
@@ -388,11 +391,11 @@ const editor = {
                         break;
                     case "Down":
                     case "ArrowDown":
-                        editor.focused_target.nextElementSibling && editor.focus(editor.focused_target.nextElementSibling.nextElementSibling);
+                        editor._focused_line.nextElementSibling && editor.focus(editor._focused_line.nextElementSibling.nextElementSibling);
                         break;
                     case "Up":
                     case "ArrowUp":
-                        editor.focused_target.previousElementSibling && editor.focused_target.previousElementSibling.previousElementSibling && editor.focus(editor.focused_target.previousElementSibling.previousElementSibling);
+                        editor._focused_line.previousElementSibling && editor._focused_line.previousElementSibling.previousElementSibling && editor.focus(editor._focused_line.previousElementSibling.previousElementSibling);
                         break;
                     case "Left":
                     case "ArrowLeft":
@@ -415,7 +418,7 @@ const editor = {
                         if (c.previousSibling) {
                             c.previousSibling.remove();
                         } else if (editor.get().children.length > 2) {
-                            let t = editor.focused_target;
+                            let t = editor._focused_line;
                             t.previousElementSibling.remove();
                             let last_char = t.previousElementSibling.lastChild;
                             for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
@@ -441,13 +444,12 @@ const editor = {
                 }
             }
 
-        },
-        keyup: function ({ keyCode }) {
+            repaintScrollbar(editor.get());
 
         },
-        click: ()=>editor.get().focus(),
-        mouseup: function (e) {
-        },
+        keyup: function ({ keyCode }) {},
+        click: () => editor.get().focus(),
+        mouseup: function (e) {console.log(this)},
         mousedown: e_down => {
             if (editor.get().children.length < 1) {
                 return editor.newLine();
@@ -500,7 +502,7 @@ const editor = {
             }
         }
     },
-    select: (anchor_node, focus_node) => {
+    select = (anchor_node, focus_node) => {
         let anchor_index = getIndex(anchor_node);
         let focus_index = getIndex(focus_node);
         let temp;
@@ -556,13 +558,15 @@ const editor = {
             return {i1, i2};
         }
     },
-    deselect: () => {
+    deselect = () => {
         for(let sel_span of editor.get().querySelectorAll('span.sel')){
             if(sel_span.lastChild) sel_span.before(sel_span.lastChild);
             sel_span.remove();
         }
     }
 }
+
+const editor = new Editor();
 
 function getClickedTextNode(element, event, callback = false) {
     let result;
