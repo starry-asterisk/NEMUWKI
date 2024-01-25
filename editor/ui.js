@@ -284,7 +284,7 @@ class Editor {
     return line;
   };
 
-  onKeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
+  onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
     if (ctrlKey || shiftKey || altKey || metaKey) {
       //단축키 를 이용하는 경우
       event.preventDefault();
@@ -530,7 +530,8 @@ class Editor {
       let line = e.target;
       switch (line.classList[0]) {
         case "subTab__contents":
-          line = container.lastElementChild.lastChild;
+          line =
+            container.lastElementChild.lastChild || container.lastElementChild;
           break;
         case "line_number":
           line = isFirst
