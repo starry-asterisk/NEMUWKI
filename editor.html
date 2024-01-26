@@ -2,14 +2,19 @@
 
 <head>
     <meta charset="UTF-8">
+    <!--
     <link href="https://db.onlinewebfonts.com/c/4735dd9ca25670c44600021e7428b8d3?family=Segoe" rel="stylesheet"
         type="text/css" />
     <link href="https://db.onlinewebfonts.com/c/623c7118249e082fe87a78e08506cb4b?family=Segoe+UI" rel="stylesheet"
         type="text/css" />
     <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
-    <link rel="stylesheet" type="text/css" href="./editor/ui.css">
-    <link rel="stylesheet" type="text/css" href="./cursor.css">
+        href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">-->
+    <link href="./editor/Segoe.css" rel="stylesheet" type="text/css">
+    <link href="./editor/Segoe-UI.css" rel="stylesheet" type="text/css" />
+    <link href="./editor/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="./editor/ui.css" rel="stylesheet" type="text/css">
+    <link href="./cursor.css" rel="stylesheet" type="text/css">
+    <link href="#" rel="short icon">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="./editor/hangul.js"></script>
     <script src="./editor/ui.js"></script>
@@ -25,8 +30,8 @@
         <div class="rootContainer">
             <nav>
                 <p>btn</p>
-                <button v-for="tab in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab._uid == tab._uid }"
-                    v-on:click="()=>changeTab(tab)">
+                <button v-for="(tab, index) in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab._uid == tab._uid }"
+                    v-on:click="()=>changeTab(tab)" :key="index">
                 </button>
             </nav>
             <aside>
@@ -35,24 +40,25 @@
                 <div class="aside_folder open">
                     <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0"> Root
                     </div>
-                    <file v-for="file in files" v-bind="{...file, onTab, padding: 2.2}"></file>
+                    <file v-for="(file, index) in files" v-bind="{...file, onTab, padding: 2.2}" :key="index"></file>
                 </div>
             </aside>
             <section>
                 <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
                     <div class="subTab__buttonContianer__div">
-                        <button v-for="subTab in onTab._subTabs" :class="{on:subTab._uid == onTab._onSubTab._uid}"
-                            :state="subTab._state" v-on:click="changeSubTab(subTab)">{{subTab._name}} <span
-                                v-on:click="closeSubTab(subTab)"
-                                style="margin-left: 0.5rem;font-style: normal;">✕</span></button>
+                        <button v-for="(subTab, index) in onTab._subTabs"
+                            :class="{on:subTab._uid == onTab._onSubTab._uid}" :state="subTab._state"
+                            v-on:click="changeSubTab(subTab)">{{subTab._name}} <span v-on:click="closeSubTab(subTab)"
+                                style="margin-left: 0.5rem;font-style: normal;" :key="index">✕</span></button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
                 <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0"
                     onkeydown="editor.onkeydown(event)" onkeyup="" onclick="editor.onkeyup(event)"
-                    onmousedown="editor.onmousedown(event)" onmouseup="editor.onmouseup(event)"
-                    onblur="editor.blur()"></div>
+                    onmousedown="editor.onmousedown(event)" onmouseup="editor.onmouseup(event)" onblur="editor.blur()">
+                </div>
                 <span class="h-scrollbar overlay" target=".subTab__contents"></span>
+                <span class="v-scrollbar overlay" target=".subTab__contents"></span>
                 <div v-show="onTab._subTabs.length < 1" class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>
                     <p class="section__empty__command">

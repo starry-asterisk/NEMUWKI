@@ -23,7 +23,7 @@ Vue.component("file", {
     template: `
     <div class="aside_folder" v-if="isFolder">
         <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
-        <file v-for="child in children" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
+        <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
     </div>
     <div class="aside_line" v-else 
         v-on:click="onTab.addSubTab({id, name, isFolder, onTab}, true)"
@@ -160,46 +160,87 @@ window.onload = () => {
 window.addEventListener("resize", function () {
     repaintScrollbarVisible();
 });
+class ScrollEventManager{
+    ListenerList = {};
+    addEventListener = (target, _id, eventName, callback) => {
+        if(typeof target == 'string') target = document.querySelector(target);
+        if(this.ListenerList[_id]) target.removeEventListener(eventName, this.ListenerList[_id]);
+        target.addEventListener(eventName, callback);
+        this.ListenerList[_id] = callback;
+    }
+}
+const scrollEventManager = new ScrollEventManager();
 
-function repaintScrollbar(scrollbar) {
-    let target = document.querySelector(scrollbar.getAttribute("target"));
+function repaintScrollbar(scrollbar, isHorizontal = true) {
+    let targetName = scrollbar.getAttribute("target");
+    let target = document.querySelector(targetName);
 
     if (target == undefined)
-        return console.warn(`${scrollbar.getAttribute("target")} is not exist`);
+        return console.warn(`${targetName} is not exist`);
 
-    let w = target.getBoundingClientRect().width;
-    let scroll_w = target.scrollWidth;
-    let ratio = w / scroll_w;
-    if (scroll_w - w < 2) return scrollbar.classList.add("unused");
+    let namespace = isHorizontal ? {
+        size: 'width',
+        pos: 'left',
+        scrollSize: 'scrollWidth',
+        scrollPos: 'scrollLeft',
+        screen: 'screenX',
+    } : {
+        size: 'height',
+        pos: 'top',
+        scrollSize: 'scrollHeight',
+        scrollPos: 'scrollTop',
+        screen: 'screenY',
+    };
+
+    let s = target.getBoundingClientRect()[namespace.size];
+    let scroll_s = target[namespace.scrollSize];
+    let ratio = s / scroll_s;
+    if (scroll_s - s < 2) return scrollbar.classList.add("unused");
     scrollbar.classList.remove("unused");
 
-    let offset = target.scrollLeft / scroll_w;
+    let offset = target[namespace.scrollPos] / scroll_s;
 
     let min = 0,
-        max = (scroll_w - w) * ratio;
+        max = (scroll_s - s) * ratio;
 
-    scrollbar.style.width = Math.floor(w * ratio) + "px";
-    scrollbar.style.left = Math.floor(w * offset) + "px";
+    scrollbar.style[namespace.size] = Math.floor(s * ratio) + "px";
+    scrollbar.style[namespace.pos] = Math.floor(s * offset) + "px";
 
     scrollbar.onmousedown = (e_down) => {
         e_down.preventDefault();
-        let pos = parseInt(scrollbar.getAttribute("pos")) || 0;
-        let pos_down = e_down.screenX;
+        let pos_final, pos = parseInt(scrollbar.getAttribute("pos")) || 0;
+        let pos_down = e_down[namespace.screen];
         window.onmouseup = () => {
             window.onmouseup = window.onmousemove = undefined;
+            scrollbar.setAttribute("pos", pos_final);
         };
         window.onmousemove = (e_move) => {
-            let pos_move = e_move.screenX;
-            let pos_final = between(min, max, pos_move - pos_down + pos);
-            target.scrollLeft = pos_final / ratio;
-            scrollbar.style.left = pos_final + "px";
+            let pos_move = e_move[namespace.screen];
+            pos_final = between(min, max, pos_move - pos_down + pos);
+            target[namespace.scrollPos] = pos_final / ratio;
+            scrollbar.style[namespace.pos] = pos_final + "px";
         };
     };
+
+    scrollEventManager.addEventListener(target, targetName+'_onwheel_'+isHorizontal, 'wheel', (e_wheel)=>{
+        if(e_wheel.shiftKey != isHorizontal) return;
+        let direction, pos = parseInt(scrollbar.getAttribute("pos")) || 0;
+        if (e_wheel.wheelDelta > 0 || e_wheel.detail < 0) direction = -1;
+        else direction = 1;
+        pos += direction * 19;
+        pos = between(min, max, pos);
+        console.log(pos);
+        scrollbar.setAttribute("pos", pos);
+        target[namespace.scrollPos] = pos / ratio;
+        scrollbar.style[namespace.pos] = pos + "px";
+    });
 }
 
 function repaintScrollbarVisible() {
     for (let scrollbar of document.querySelectorAll(".h-scrollbar"))
         repaintScrollbar(scrollbar);
+    for (let scrollbar of document.querySelectorAll(".v-scrollbar"))
+        repaintScrollbar(scrollbar, false);
 }
 
 function between(min, max, value) {
@@ -213,8 +254,9 @@ class Editor {
     _caret;
     _hangulCaret;
     _focused_line;
-    _selected = [];
     _lines = [];
+    _selected = [];
+    _selected_lines = [];
 
     clear = function () {
         let container = this.get();
@@ -275,6 +317,7 @@ class Editor {
         this.removeHanguleCaret();
         this.removeCaret();
         this._focused_line = undefined;
+        this.deselect();
     };
 
     newLine = function (bool = this.get().childNodes.length < 2) {
@@ -302,16 +345,28 @@ class Editor {
                     case "x":
                         let txt = "";
                         for (let l of this._selected) {
-                            let p;
                             for (let c of l) {
-                                p = c. parentNode;
                                 txt += c.innerText;
                                 c.remove();
                             }
-                            if(p)p.remove();
                             txt += '\n';
                         }
+                        let s_line = this._selected_lines.shift();
+                        let e_line = this._selected_lines.pop();
+                        if (s_line != e_line && s_line) {
+                            s_line.append(c);
+                            if (e_line) {
+                                for (let node of e_line.childNodes) s_line.append(node);
+                                for (let l of this._selected_lines) {
+                                    l.previousElementSibling.remove();
+                                    l.remove();
+                                }
+                                e_line.previousElementSibling.remove();
+                                e_line.remove();
+                            }
+                        }
                         this._selected = [];
+                        this._selected_lines = [];
                         navigator.clipboard
                             .writeText(txt);
                         break;
@@ -326,25 +381,26 @@ class Editor {
                         break;
                     case "v":
                         let pos = c.previousSibling || c.parentNode;
-                        let _this =this;
+                        let _this = this;
                         navigator.clipboard
                             .readText()
                             .then(
                                 (clipText) => {
                                     c = _this.getCaret();
-                                    pos.classList.contains('line')?pos.prepend(c):pos.after(c);
+                                    pos.classList.contains('line') ? pos.prepend(c) : pos.after(c);
                                     _this.focus(c);
                                     _this.get().focus();
-                                    console.log(clipText);
                                     let lines = clipText.split('\n');
-                                    for(let line_num in lines){
-                                        for(let char of lines[line_num].split('')){
+                                    for (let line_num in lines) {
+                                        for (let char of lines[line_num].split('')) {
                                             c.before(document.createTextNode(char));
                                         }
                                         _this.newLine();
                                     }
                                 },
-                            );
+                            )
+                            .catch(console.log)
+                            .finally(console.log)
                         break;
                     case "s":
                         this.save();
@@ -355,6 +411,7 @@ class Editor {
                 }
             }
         } else if (key.length < 2) {
+            this.deselect();
             //글자 입력인 경우
             for (let sel_span of this.get().querySelectorAll("span.sel"))
                 sel_span.remove();
@@ -395,7 +452,7 @@ class Editor {
                         hangul_jaum_combine[hangul_typing[0]] &&
                         hangul_jaum_combine[hangul_typing[0]][hanguel_i]
                     ) {
-                        editor
+                        this
                             .getHangulCaret()
                             .replaceWith(
                                 document.createTextNode(
@@ -404,7 +461,7 @@ class Editor {
                             );
                         hangul_typing = [];
                     } else {
-                        editor
+                        this
                             .getHangulCaret()
                             .before(document.createTextNode(hangul_typing[0]));
                         this.getHangulCaret().innerText = hanguel_i;
@@ -420,7 +477,7 @@ class Editor {
                                 hangul_moeum_combine[hangul_typing[1]][hanguel_i];
                             this.getHangulCaret().innerText = hangulCombine(hangul_typing);
                         } else {
-                            editor
+                            this
                                 .getHangulCaret()
                                 .before(document.createTextNode(hangulCombine(hangul_typing)));
                             this.getHangulCaret().innerText = hanguel_i;
@@ -433,7 +490,7 @@ class Editor {
                 } else {
                     if (isMoeum(hanguel_i)) {
                         let new_hangul_typing = [hangul_typing.pop(), hanguel_i];
-                        editor
+                        this
                             .getHangulCaret()
                             .before(document.createTextNode(hangulCombine(hangul_typing)));
                         this.getHangulCaret().innerText = hangulCombine(new_hangul_typing);
@@ -443,14 +500,14 @@ class Editor {
                         hangul_jaum_combine[hangul_typing[2]][hanguel_i]
                     ) {
                         hangul_typing[2] = hangul_jaum_combine[hangul_typing[2]][hanguel_i];
-                        editor
+                        this
                             .getHangulCaret()
                             .replaceWith(
                                 document.createTextNode(hangulCombine(hangul_typing))
                             );
                         hangul_typing = [];
                     } else {
-                        editor
+                        this
                             .getHangulCaret()
                             .before(document.createTextNode(hangulCombine(hangul_typing)));
                         this.getHangulCaret().innerText = hanguel_i;
@@ -467,6 +524,7 @@ class Editor {
                     break;
                 case "Down":
                 case "ArrowDown":
+                    this.deselect();
                     this._focused_line.nextElementSibling &&
                         this.focus(
                             this._focused_line.nextElementSibling.nextElementSibling
@@ -474,6 +532,7 @@ class Editor {
                     break;
                 case "Up":
                 case "ArrowUp":
+                    this.deselect();
                     this._focused_line.previousElementSibling &&
                         this._focused_line.previousElementSibling.previousElementSibling &&
                         this.focus(
@@ -482,10 +541,12 @@ class Editor {
                     break;
                 case "Left":
                 case "ArrowLeft":
+                    this.deselect();
                     c.previousSibling && c.previousSibling.before(c);
                     break;
                 case "Right":
                 case "ArrowRight":
+                    this.deselect();
                     c.nextSibling && c.nextSibling.after(c);
                     break;
                 case "Enter":
@@ -496,48 +557,70 @@ class Editor {
                         ns = ns.nextSibling;
                         nl.appendChild(temp);
                     }
-                    break;
-                case "Backspace":
-                    if (c.previousSibling) {
-                        c.previousSibling.remove();
-                    } else if (this.get().children.length > 2) {
-                        let t = this._focused_line;
-                        t.previousElementSibling.remove();
-                        let last_char = t.previousElementSibling.lastChild;
-                        for (let char of Array.from(t.childNodes))
-                            t.previousElementSibling.appendChild(char);
-                        this.focus(t.previousElementSibling);
-                        t.remove();
-                        if (last_char) last_char.after(this.getCaret());
-                    } /*
-                        let el = this.get();
-                        let last = el.querySelectorAll('span.sel').pop();
-                        while(el.querySelector('span.sel')){
-                            if (last.previousSibling) {
-                                last.previousSibling.remove();
-                            } else if (el.children.length > 2) {
-                                let t = last.parentNode;
-                                t.previousElementSibling.remove();
-                                for (let char of Array.from(t.childNodes)) t.previousElementSibling.appendChild(char);
-                                t.remove();
+                    if (this._selected.length > 0) {
+                        for (let l of this._selected) {
+                            for (let char of l) {
+                                char.remove();
                             }
                         }
-                        last.remove();*/
-                    for (let sel_span of this.get().querySelectorAll("span.sel"))
-                        sel_span.remove();
+                        this._selected_lines.shift();//첫번째 줄은 사라지지 않음
+                        for (let l of this._selected_lines) {
+                            l.previousElementSibling.remove();
+                            l.remove();
+                        }
+                        this._selected = [];
+                        this._selected_lines = [];
+                    }
+                    break;
+                case "Backspace":
+                    if (this._selected.length > 0) {
+                        for (let l of this._selected) {
+                            for (let char of l) {
+                                char.remove();
+                            }
+                        }
+                        let s_line = this._selected_lines.shift();
+                        let e_line = this._selected_lines.pop();
+                        if (s_line != e_line && s_line) {
+                            s_line.append(c);
+                            if (e_line) {
+                                for (let node of e_line.childNodes) s_line.append(node);
+                                for (let l of this._selected_lines) {
+                                    l.previousElementSibling.remove();
+                                    l.remove();
+                                }
+                                e_line.previousElementSibling.remove();
+                                e_line.remove();
+                            }
+                        }
+                        this._selected = [];
+                        this._selected_lines = [];
+                    } else {
+                        if (c.previousSibling) {
+                            c.previousSibling.remove();
+                        } else if (this.get().children.length > 2) {
+                            let t = this._focused_line;
+                            t.previousElementSibling.remove();
+                            let last_char = t.previousElementSibling.lastChild;
+                            for (let char of Array.from(t.childNodes))
+                                t.previousElementSibling.appendChild(char);
+                            this.focus(t.previousElementSibling);
+                            t.remove();
+                            if (last_char) last_char.after(this.getCaret());
+                        }
+                    }
                     break;
             }
         }
 
-        repaintScrollbar(this.get());
+        repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
+        repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
     };
     onkeyup = function ({ keyCode }) { };
     onmouseup = function (e) {
-        console.log(this);
         this.get().focus();
     };
     onmousedown = function (e_down) {
-        console.log(this, "mousedown");
         e_down.preventDefault();
         if (this.get().children.length < 1) return this.newLine(true);
 
@@ -571,9 +654,7 @@ class Editor {
             container.onmousemove = undefined;
             let c = this.getCaret();
             if (sel.length < 1) {
-                
                 focus = focus || anchor_first || anchor_last || this.get().lastChild;
-                console.log(focus);
                 if (focus.nodeType == 3 || focus.classList.contains('sel')) {
                     focus.before(c);
                 } else (focus.closest('.line') || this.get().lastChild).append(c);
@@ -631,8 +712,10 @@ class Editor {
             selLine(this, lines[focus_index.i2], 0, focus_index.i1);
         }
         return focusFirst;
+
+
         function selLine(_this, line, s_index = 0, e_index = line.childNodes.length - 1) {
-            if(line.classList.contains('line_number')) return;
+            if (line.classList.contains('line_number')) return;
             let line_data = [];
             for (let node of Array.from(line.childNodes).slice(
                 s_index,
@@ -642,10 +725,15 @@ class Editor {
                 span.classList.add("sel");
                 node.before(span);
                 span.append(node);
+
+                if (node.nodeValue === ' ') span.classList.add('empty');
                 line_data.push(span);
             }
+            _this._selected_lines.push(line);
             _this._selected.push(line_data);
         }
+
+
         function getIndex(node) {
             let i1, i2;
             if (node.nodeType === 3) {
@@ -675,7 +763,6 @@ class Editor {
     };
 
     deselect = function () {
-        console.log(this, "deselect");
         for (let sel_line of this._selected) {
             for (let sel_span of sel_line) {
                 if (sel_span.lastChild) sel_span.before(sel_span.lastChild);
@@ -683,6 +770,7 @@ class Editor {
             }
         }
         this._selected = [];
+        this._selected_lines = [];
     };
 }
 
