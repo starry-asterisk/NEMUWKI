@@ -160,11 +160,11 @@ window.onload = () => {
 window.addEventListener("resize", function () {
     repaintScrollbarVisible();
 });
-class ScrollEventManager{
+class ScrollEventManager {
     ListenerList = {};
     addEventListener = (target, _id, eventName, callback) => {
-        if(typeof target == 'string') target = document.querySelector(target);
-        if(this.ListenerList[_id]) target.removeEventListener(eventName, this.ListenerList[_id]);
+        if (typeof target == 'string') target = document.querySelector(target);
+        if (this.ListenerList[_id]) target.removeEventListener(eventName, this.ListenerList[_id]);
         target.addEventListener(eventName, callback);
         this.ListenerList[_id] = callback;
     }
@@ -222,8 +222,8 @@ function repaintScrollbar(scrollbar, isHorizontal = true) {
         };
     };
 
-    scrollEventManager.addEventListener(target, targetName+'_onwheel_'+isHorizontal, 'wheel', (e_wheel)=>{
-        if(e_wheel.shiftKey != isHorizontal) return;
+    scrollEventManager.addEventListener(target, targetName + '_onwheel_' + isHorizontal, 'wheel', (e_wheel) => {
+        if (e_wheel.shiftKey != isHorizontal) return;
         let direction, pos = parseInt(scrollbar.getAttribute("pos")) || 0;
         if (e_wheel.wheelDelta > 0 || e_wheel.detail < 0) direction = -1;
         else direction = 1;
@@ -328,7 +328,6 @@ class Editor {
         let line = document.createElement("div");
         line.classList.add("line");
         line_number.after(line);
-        line.onclick = line_number.onclick = () => this.focus(line);
         this.focus(line);
         return line;
     };
@@ -525,19 +524,26 @@ class Editor {
                 case "Down":
                 case "ArrowDown":
                     this.deselect();
-                    this._focused_line.nextElementSibling &&
-                        this.focus(
-                            this._focused_line.nextElementSibling.nextElementSibling
-                        );
+                    if (this._focused_line.nextElementSibling) {
+                        let focus_line = this._focused_line.nextElementSibling.nextElementSibling;
+                        if (focus_line.lastChild) (focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild).after(c);
+                        else focus_line.append(c);
+                        this.focus(c);
+                    } else {
+                        this._focused_line.append(c);
+                    }
                     break;
                 case "Up":
                 case "ArrowUp":
                     this.deselect();
-                    this._focused_line.previousElementSibling &&
-                        this._focused_line.previousElementSibling.previousElementSibling &&
-                        this.focus(
-                            this._focused_line.previousElementSibling.previousElementSibling
-                        );
+                    if (this._focused_line.previousElementSibling.previousElementSibling) {
+                        let focus_line = this._focused_line.previousElementSibling.previousElementSibling;
+                        if (focus_line.lastChild) (focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild).after(c);
+                        else focus_line.append(c);
+                        this.focus(c);
+                    } else {
+                        this._focused_line.prepend(c);
+                    }
                     break;
                 case "Left":
                 case "ArrowLeft":
@@ -686,8 +692,8 @@ class Editor {
     };
 
     select = function (anchor_node, focus_node) {
-        let anchor_index = getIndex(anchor_node);
-        let focus_index = getIndex(focus_node);
+        let anchor_index = getNodeIndex(anchor_node);
+        let focus_index = getNodeIndex(focus_node);
         let temp;
         let focusFirst = false;
         if (
@@ -732,34 +738,6 @@ class Editor {
             _this._selected_lines.push(line);
             _this._selected.push(line_data);
         }
-
-
-        function getIndex(node) {
-            let i1, i2;
-            if (node.nodeType === 3) {
-                i1 = Array.from(node.parentNode.childNodes).indexOf(node);
-                i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
-                    node.parentNode
-                );
-            } else if (node.classList.contains("caret")) {
-                if (node.previousSibling) {
-                    node = node.previousSibling;
-                    i1 = Array.from(node.parentNode.childNodes).indexOf(node);
-                    i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
-                        node.parentNode
-                    );
-                } else {
-                    i1 = -1;
-                    i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
-                        node.parentNode
-                    );
-                }
-            } else {
-                i1 = -1;
-                i2 = Array.from(node.parentNode.childNodes).indexOf(node);
-            }
-            return { i1, i2 };
-        }
     };
 
     deselect = function () {
@@ -798,3 +776,29 @@ function getClickedTextNode(element, event, callback = false) {
     }
 }
 
+function getNodeIndex(node) {
+    let i1, i2;
+    if (node.nodeType === 3) {
+        i1 = Array.from(node.parentNode.childNodes).indexOf(node);
+        i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
+            node.parentNode
+        );
+    } else if (node.classList.contains("caret")) {
+        if (node.previousSibling) {
+            node = node.previousSibling;
+            i1 = Array.from(node.parentNode.childNodes).indexOf(node);
+            i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
+                node.parentNode
+            );
+        } else {
+            i1 = -1;
+            i2 = Array.from(node.parentNode.parentNode.childNodes).indexOf(
+                node.parentNode
+            );
+        }
+    } else {
+        i1 = -1;
+        i2 = Array.from(node.parentNode.childNodes).indexOf(node);
+    }
+    return { i1, i2 };
+}
