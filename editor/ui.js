@@ -116,6 +116,7 @@ window.onload = () => {
             files,
             tabs: [],
             onTab: new Tab(),
+            hangulMode: false,
         },
         methods: {
             addTab: function () {
@@ -247,7 +248,6 @@ function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
 }
 
-let HangulMode = true;
 let hangul_typing = [];
 
 class Editor {
@@ -304,6 +304,29 @@ class Editor {
         this._hangulCaret = undefined;
         hangul_typing = [];
     };
+    removeSelected = function (c = this.getCaret()) {
+        for (let l of this._selected) {
+            for (let char of l) {
+                char.remove();
+            }
+        }
+        let s_line = this._selected_lines.shift();
+        let e_line = this._selected_lines.pop();
+        if (s_line != e_line && s_line) {
+            s_line.append(c);
+            if (e_line) {
+                for (let node of e_line.childNodes) s_line.append(node);
+                for (let l of this._selected_lines) {
+                    l.previousElementSibling.remove();
+                    l.remove();
+                }
+                e_line.previousElementSibling.remove();
+                e_line.remove();
+            }
+        }
+        this._selected = [];
+        this._selected_lines = [];
+    }
     focus = function (new_target) {
         if (new_target == undefined) return;
         if (new_target.classList.contains("line")) {
@@ -331,7 +354,31 @@ class Editor {
         this.focus(line);
         return line;
     };
+    copy = function () {
 
+    };
+    cut = function () {
+
+    };
+    backspace = function (c = this.getCaret()) {
+        if (this._selected.length > 0) this.removeSelected(c);
+        else {
+            if (c.previousSibling) {
+                c.previousSibling.remove();
+            } else if (this.get().children.length > 2) {
+                this._focused_line.previousElementSibling.remove();
+                let last_char = this._focused_line.previousElementSibling.lastChild;
+                for (let char of Array.from(this._focused_line.childNodes))
+                    this._focused_line.previousElementSibling.appendChild(char);
+                this.focus(this._focused_line.previousElementSibling);
+                this._focused_line.remove();
+                if (last_char) last_char.after(c);
+            }
+        }
+    };
+    paste = function () {
+
+    };
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
         if (ctrlKey || shiftKey || altKey || metaKey) {
             //단축키 를 이용하는 경우
@@ -410,13 +457,11 @@ class Editor {
                 }
             }
         } else if (key.length < 2) {
-            this.deselect();
             //글자 입력인 경우
-            for (let sel_span of this.get().querySelectorAll("span.sel"))
-                sel_span.remove();
-            let hanguel_i;
             let c = this.getCaret();
-            if (!HangulMode || (hanguel_i = hangul[key]) == undefined) {
+            this.removeSelected(c);
+            let hanguel_i;
+            if (!app.hangulMode || (hanguel_i = hangul[key]) == undefined) {
                 this.removeHanguleCaret();
                 c.before(document.createTextNode(key));
             } else {
@@ -519,7 +564,7 @@ class Editor {
             this.removeHanguleCaret();
             switch (key) {
                 case "HangulMode":
-                    HangulMode = !HangulMode;
+                    app.hangulMode = !app.hangulMode;
                     break;
                 case "Down":
                 case "ArrowDown":
@@ -559,62 +604,15 @@ class Editor {
                     let ns = c.nextSibling;
                     let nl = this.newLine(false);
                     let temp;
+                    this.removeSelected(c);
+                    nl.append(c);
                     while ((temp = ns)) {
                         ns = ns.nextSibling;
                         nl.appendChild(temp);
                     }
-                    if (this._selected.length > 0) {
-                        for (let l of this._selected) {
-                            for (let char of l) {
-                                char.remove();
-                            }
-                        }
-                        this._selected_lines.shift();//첫번째 줄은 사라지지 않음
-                        for (let l of this._selected_lines) {
-                            l.previousElementSibling.remove();
-                            l.remove();
-                        }
-                        this._selected = [];
-                        this._selected_lines = [];
-                    }
                     break;
                 case "Backspace":
-                    if (this._selected.length > 0) {
-                        for (let l of this._selected) {
-                            for (let char of l) {
-                                char.remove();
-                            }
-                        }
-                        let s_line = this._selected_lines.shift();
-                        let e_line = this._selected_lines.pop();
-                        if (s_line != e_line && s_line) {
-                            s_line.append(c);
-                            if (e_line) {
-                                for (let node of e_line.childNodes) s_line.append(node);
-                                for (let l of this._selected_lines) {
-                                    l.previousElementSibling.remove();
-                                    l.remove();
-                                }
-                                e_line.previousElementSibling.remove();
-                                e_line.remove();
-                            }
-                        }
-                        this._selected = [];
-                        this._selected_lines = [];
-                    } else {
-                        if (c.previousSibling) {
-                            c.previousSibling.remove();
-                        } else if (this.get().children.length > 2) {
-                            let t = this._focused_line;
-                            t.previousElementSibling.remove();
-                            let last_char = t.previousElementSibling.lastChild;
-                            for (let char of Array.from(t.childNodes))
-                                t.previousElementSibling.appendChild(char);
-                            this.focus(t.previousElementSibling);
-                            t.remove();
-                            if (last_char) last_char.after(this.getCaret());
-                        }
-                    }
+                    this.backspace(c);
                     break;
             }
         }

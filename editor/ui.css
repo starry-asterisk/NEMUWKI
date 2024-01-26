@@ -53,6 +53,19 @@ header {
     background-color: var(--background-dark);
 }
 
+footer {
+    height: 2.3rem;
+    border-top: 0.1rem solid var(--border-color);
+    background-color: var(--background-dark);
+}
+footer > * {
+    font-size: 1.9rem;
+    line-height: 2.2rem;
+    float: left;
+}
+footer > *.right {
+    float: right;
+}
 .rootContainer {
     display: flex;
     flex-direction: row;
@@ -378,6 +391,11 @@ code {
 }
 .subTab__contents .line {
     white-space: pre;
+    box-sizing: content-box;
+    padding-right: 10rem;
+}
+.subTab__contents .line:last-child {
+    padding-bottom: 80vh;
 }
 .line_number::after {
     content: counter(line_number);
