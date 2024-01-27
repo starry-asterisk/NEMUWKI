@@ -1,3 +1,41 @@
+if (!Element.prototype.matches) {
+    Element.prototype.matches =
+        Element.prototype.msMatchesSelector ||
+        Element.prototype.webkitMatchesSelector;
+}
+
+if (!Element.prototype.closest) {
+    Element.prototype.closest = function (s) {
+        var el = this;
+
+        do {
+            if (Element.prototype.matches.call(el, s)) return el;
+            el = el.parentElement || el.parentNode;
+        } while (el !== null && el.nodeType === 1);
+        return null;
+    };
+}
+
+HTMLElement.prototype.prev = function (s) {
+    var el = this.previousElementSibling;
+
+    while (el != null) {
+        if (Element.prototype.matches.call(el, s)) return el;
+        el = el.previousElementSibling;
+    }
+    return null;
+}
+
+HTMLElement.prototype.next = function (s) {
+    var el = this.nextElementSibling;
+
+    while (el != null) {
+        if (Element.prototype.matches.call(el, s)) return el;
+        el = el.nextElementSibling;
+    };
+    return null;
+}
+
 let app;
 let files = [
     { id: Math.random(), name: "files_1.txt" },
@@ -257,6 +295,16 @@ class Editor {
     _lines = [];
     _selected = [];
     _selected_lines = [];
+    _lastKey = undefined;
+
+    get focused_line() {
+        return this._focused_line;
+    };
+    set focused_line(val) {
+        if (this._focused_line && this._focused_line.previousElementSibling) this._focused_line.previousElementSibling.classList.remove('focused');
+        if (val && val.previousElementSibling) val.previousElementSibling.classList.add('focused');
+        this._focused_line = val;
+    };
 
     clear = function () {
         let container = this.get();
@@ -295,9 +343,9 @@ class Editor {
         this._caret.remove();
         this._caret = undefined;
     };
-    removeHanguleCaret = function () {
+    removeHanguleCaret = function (removeText = false) {
         if (this._hangulCaret == undefined) return;
-        if (this._hangulCaret.childNodes.length > 0) {
+        if (!removeText && this._hangulCaret.childNodes.length > 0) {
             this._hangulCaret.before(this._hangulCaret.lastChild);
         }
         this._hangulCaret.remove();
@@ -309,6 +357,77 @@ class Editor {
             for (let char of l) {
                 char.remove();
             }
+        }
+        let s_line = this._selected_lines.shift();
+        let e_line = this._selected_lines.pop();
+        if (s_line != e_line && s_line) {
+            this.focus(s_line);
+            if (e_line) {
+                for (let node of e_line.childNodes) s_line.append(node);
+                for (let l of this._selected_lines) {
+                    l.previousElementSibling.remove();
+                    l.remove();
+                }
+                e_line.previousElementSibling.remove();
+                e_line.remove();
+            }
+        }
+        this._selected = [];
+        this._selected_lines = [];
+    }
+    focus = function (new_target) {
+        if (new_target == undefined) return;
+        if (new_target.classList.contains("line")) {
+            this.focused_line = new_target;
+            new_target.appendChild(this.getCaret());
+        } else if (new_target.classList.contains("caret")) {
+            this.focused_line = new_target.parentNode;
+        }
+    };
+    blur = function () {
+        this.removeHanguleCaret();
+        this.removeCaret();
+        this.focused_line = undefined;
+        this.deselect();
+    };
+
+    newLine = function (bool = this.get().childNodes.length < 2) {
+        let line_number = document.createElement("div");
+        line_number.classList.add("line_number");
+        if (bool || this.focused_line == undefined) this.get().append(line_number);
+        else this.focused_line.after(line_number);
+        let line = document.createElement("div");
+        line.classList.add("line");
+        line_number.after(line);
+        this.focus(line);
+        return line;
+    };
+    copy = function () {
+        if (this._selected.length < 1) return;
+        let txt2 = "";
+        let last_l = this._selected.pop();
+        for (let l of this._selected) {
+            for (let c of l) txt2 += c.innerText;
+            txt2 += '\n';
+        }
+        for (let c of last_l) txt2 += c.innerText;
+        navigator.clipboard
+            .writeText(txt2);
+    };
+    cut = function (c = this.getCaret()) {
+        if (this._selected.length < 1) return;
+        let txt = "";
+        let last_l = this._selected.pop();
+        for (let l of this._selected) {
+            for (let c of l) {
+                txt += c.innerText;
+                c.remove();
+            }
+            txt += '\n';
+        }
+        for (let c of last_l) {
+            txt += c.innerText;
+            c.remove();
         }
         let s_line = this._selected_lines.shift();
         let e_line = this._selected_lines.pop();
@@ -326,39 +445,8 @@ class Editor {
         }
         this._selected = [];
         this._selected_lines = [];
-    }
-    focus = function (new_target) {
-        if (new_target == undefined) return;
-        if (new_target.classList.contains("line")) {
-            this._focused_line = new_target;
-            new_target.appendChild(this.getCaret());
-        } else if (new_target.classList.contains("caret")) {
-            this._focused_line = new_target.parentNode;
-        }
-    };
-    blur = function () {
-        this.removeHanguleCaret();
-        this.removeCaret();
-        this._focused_line = undefined;
-        this.deselect();
-    };
-
-    newLine = function (bool = this.get().childNodes.length < 2) {
-        let line_number = document.createElement("div");
-        line_number.classList.add("line_number");
-        if (bool) this.get().append(line_number);
-        else this._focused_line.after(line_number);
-        let line = document.createElement("div");
-        line.classList.add("line");
-        line_number.after(line);
-        this.focus(line);
-        return line;
-    };
-    copy = function () {
-
-    };
-    cut = function () {
-
+        navigator.clipboard
+            .writeText(txt);
     };
     backspace = function (c = this.getCaret()) {
         if (this._selected.length > 0) this.removeSelected(c);
@@ -366,21 +454,46 @@ class Editor {
             if (c.previousSibling) {
                 c.previousSibling.remove();
             } else if (this.get().children.length > 2) {
-                this._focused_line.previousElementSibling.remove();
-                let last_char = this._focused_line.previousElementSibling.lastChild;
-                for (let char of Array.from(this._focused_line.childNodes))
-                    this._focused_line.previousElementSibling.appendChild(char);
-                this.focus(this._focused_line.previousElementSibling);
-                this._focused_line.remove();
+                this.focused_line.previousElementSibling.remove();
+                let last_char = this.focused_line.previousElementSibling.lastChild;
+                for (let char of Array.from(this.focused_line.childNodes))
+                    this.focused_line.previousElementSibling.appendChild(char);
+                this.focus(this.focused_line.previousElementSibling);
+                this.focused_line.remove();
                 if (last_char) last_char.after(c);
             }
         }
     };
-    paste = function () {
+    paste = function (c = this.getCaret()) {
+        if (this._selected.length > 0) this.removeSelected(c);
+        let pos = c.previousSibling || c.parentNode;
+        let _this = this;
+        navigator.clipboard
+            .readText()
+            .then(
+                (clipText) => {
+                    c = _this.getCaret();
+                    pos.nodeType == 3 || !pos.classList.contains('line') ? pos.after(c) : pos.prepend(c);
+                    _this.focus(c);
+                    _this.get().focus();
+                    _this.loadText(clipText, c);
+                },
+            )
+            .catch(console.log)
+            .finally(console.log);
 
     };
+    loadText = (text, c) => {
+        let lines = text.split('\n');
+        let last_line = lines.pop();
+        for (let line_num in lines) {
+            for (let char of lines[line_num].split('')) this._caret.before(document.createTextNode(char));
+            this.newLine(c == undefined);
+        }
+        for (let char of last_line.split('')) this._caret.before(document.createTextNode(char));
+    }
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
-        if (ctrlKey || shiftKey || altKey || metaKey) {
+        if (ctrlKey || altKey || metaKey) {
             //단축키 를 이용하는 경우
             event.preventDefault();
 
@@ -388,65 +501,21 @@ class Editor {
 
             if (ctrlKey) {
                 switch (key.toLowerCase()) {
+                    case "a":
+                        this.deselect();
+                        let lines = Array.from(this.get().querySelectorAll('.line'));
+                        let first_line = lines.shift();
+                        let last_line = lines.pop() || first_line;
+                        if (first_line) this.select(first_line.firstChild || first_line, last_line.lastChild || last_line);
+                        break;
                     case "x":
-                        let txt = "";
-                        for (let l of this._selected) {
-                            for (let c of l) {
-                                txt += c.innerText;
-                                c.remove();
-                            }
-                            txt += '\n';
-                        }
-                        let s_line = this._selected_lines.shift();
-                        let e_line = this._selected_lines.pop();
-                        if (s_line != e_line && s_line) {
-                            s_line.append(c);
-                            if (e_line) {
-                                for (let node of e_line.childNodes) s_line.append(node);
-                                for (let l of this._selected_lines) {
-                                    l.previousElementSibling.remove();
-                                    l.remove();
-                                }
-                                e_line.previousElementSibling.remove();
-                                e_line.remove();
-                            }
-                        }
-                        this._selected = [];
-                        this._selected_lines = [];
-                        navigator.clipboard
-                            .writeText(txt);
+                        this.cut(c);
                         break;
                     case "c":
-                        let txt2 = "";
-                        for (let l of this._selected) {
-                            for (let c of l) txt2 += c.innerText;
-                            txt2 += '\n';
-                        }
-                        navigator.clipboard
-                            .writeText(txt2);
+                        this.copy();
                         break;
                     case "v":
-                        let pos = c.previousSibling || c.parentNode;
-                        let _this = this;
-                        navigator.clipboard
-                            .readText()
-                            .then(
-                                (clipText) => {
-                                    c = _this.getCaret();
-                                    pos.classList.contains('line') ? pos.prepend(c) : pos.after(c);
-                                    _this.focus(c);
-                                    _this.get().focus();
-                                    let lines = clipText.split('\n');
-                                    for (let line_num in lines) {
-                                        for (let char of lines[line_num].split('')) {
-                                            c.before(document.createTextNode(char));
-                                        }
-                                        _this.newLine();
-                                    }
-                                },
-                            )
-                            .catch(console.log)
-                            .finally(console.log)
+                        this.paste();
                         break;
                     case "s":
                         this.save();
@@ -475,11 +544,12 @@ class Editor {
                                 hangul_moeum_combine[hangul_typing[0]] &&
                                 hangul_moeum_combine[hangul_typing[0]][hanguel_i]
                             ) {
-                                this.getHangulCaret().replaceWith(
+                                this.getHangulCaret().before(
                                     document.createTextNode(
                                         hangul_moeum_combine[hangul_typing[0]][hanguel_i]
                                     )
                                 );
+                                this.removeHanguleCaret(true);
                                 hangul_typing = [];
                             } else {
                                 this.getHangulCaret().before(
@@ -498,11 +568,12 @@ class Editor {
                     ) {
                         this
                             .getHangulCaret()
-                            .replaceWith(
+                            .before(
                                 document.createTextNode(
                                     hangul_jaum_combine[hangul_typing[0]][hanguel_i]
                                 )
                             );
+                        this.removeHanguleCaret(true);
                         hangul_typing = [];
                     } else {
                         this
@@ -546,9 +617,10 @@ class Editor {
                         hangul_typing[2] = hangul_jaum_combine[hangul_typing[2]][hanguel_i];
                         this
                             .getHangulCaret()
-                            .replaceWith(
+                            .before(
                                 document.createTextNode(hangulCombine(hangul_typing))
                             );
+                        this.removeHanguleCaret(true);
                         hangul_typing = [];
                     } else {
                         this
@@ -566,56 +638,83 @@ class Editor {
                 case "HangulMode":
                     app.hangulMode = !app.hangulMode;
                     break;
+                case "PageDown":
                 case "Down":
                 case "ArrowDown":
-                    this.deselect();
-                    if (this._focused_line.nextElementSibling) {
-                        let focus_line = this._focused_line.nextElementSibling.nextElementSibling;
-                        if (focus_line.lastChild) (focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild).after(c);
-                        else focus_line.append(c);
-                        this.focus(c);
-                    } else {
-                        this._focused_line.append(c);
-                    }
+                    if (!shiftKey || this._lastKey != key) this.deselect();
+                    let focus_letter, focus_line = this.focused_line.next('.line');
+                    if (focus_line) {
+                        if (focus_line.lastChild) focus_letter = focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild;
+                    } else focus_line = this.focused_line;
+
+                    if (shiftKey) this.select(c.nextSibling || this.focused_line, focus_letter ? focus_letter : focus_line);
+                    focus_letter ? focus_letter.parentNode.after(c) : focus_line.append(c);
+                    this.focus(c)
                     break;
+                case "PageUp":
                 case "Up":
                 case "ArrowUp":
-                    this.deselect();
-                    if (this._focused_line.previousElementSibling.previousElementSibling) {
-                        let focus_line = this._focused_line.previousElementSibling.previousElementSibling;
-                        if (focus_line.lastChild) (focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild).after(c);
-                        else focus_line.append(c);
+                    if (!shiftKey || this._lastKey != key) this.deselect();
+                    let pos2 = c.previousSibling || this.focused_line;
+                    if (this.focused_line.previousElementSibling.previousElementSibling) {
+                        let focus_line = this.focused_line.previousElementSibling.previousElementSibling;
+                        let pos3 = focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild;
+                        pos3 ? pos3.after(c) : focus_line.append(c);
                         this.focus(c);
                     } else {
-                        this._focused_line.prepend(c);
+                        this.focused_line.prepend(c);
                     }
+                    if (shiftKey) this.select(pos2, c.nextSibling || this.focused_line.previousElementSibling.previousElementSibling);
                     break;
                 case "Left":
                 case "ArrowLeft":
-                    this.deselect();
-                    c.previousSibling && c.previousSibling.before(c);
+                    if (!shiftKey || this._lastKey != key) this.deselect();
+                    if (c.previousSibling) {
+                        if (shiftKey) this.select(c.previousSibling, c.previousSibling);
+                        c.previousSibling.before(c);
+                    }
                     break;
                 case "Right":
                 case "ArrowRight":
+                    if (!shiftKey || this._lastKey != key) this.deselect();
+                    if (c.nextSibling) {
+                        if (shiftKey) this.select(c.nextSibling, c.nextSibling);
+                        c.nextSibling.after(c);
+                    }
+                    break;
+                case "Home":
                     this.deselect();
-                    c.nextSibling && c.nextSibling.after(c);
+                    if (this.focused_line && this.focused_line.firstChild != c) {
+                        if (shiftKey) this.select(this.focused_line.firstChild, c);
+                        this.focused_line.firstChild.before(c);
+                    }
+                    break;
+                case "End":
+                    this.deselect();
+                    if (this.focused_line && this.focused_line.lastChild != c) {
+                        if (shiftKey) this.select(this.focused_line.lastChild, c.nextSibling);
+                        this.focused_line.lastChild.after(c);
+                    }
                     break;
                 case "Enter":
                     let ns = c.nextSibling;
                     let nl = this.newLine(false);
                     let temp;
                     this.removeSelected(c);
-                    nl.append(c);
+                    this.focus(nl);
                     while ((temp = ns)) {
                         ns = ns.nextSibling;
                         nl.appendChild(temp);
                     }
                     break;
+                case "Delete":
                 case "Backspace":
                     this.backspace(c);
                     break;
             }
         }
+
+        if (key != 'Shift') this._lastKey = key;
 
         repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
         repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
@@ -769,7 +868,7 @@ function getClickedTextNode(element, event, callback = false) {
 
     function compare(node) {
         range.selectNodeContents(node);
-        let { left, right } = range.getClientRects()[0];
+        let { left, right } = range.getBoundingClientRect();
         return event.pageX >= left && event.pageX <= right ? node : undefined;
     }
 }
@@ -800,3 +899,17 @@ function getNodeIndex(node) {
     }
     return { i1, i2 };
 }
+
+async function loadSample() {
+    const response = await fetch("/editor/ui.js");
+    return await response.text();
+  }
+
+  async function sample(){
+    let text = await loadSample();
+
+
+    let comment_seperated = text.split(/(\/\*[\s\S]*?\*\/|\/\/.*)/g);
+    let trimmed = text.split(/(\s+)/g)
+    console.log(trimmed);
+  }

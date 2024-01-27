@@ -400,6 +400,9 @@ code {
 .line_number::after {
     content: counter(line_number);
 }
+.line_number.focused::after {
+    color: white;
+}
 
 .subTab__contents .line,
 .subTab__contents .line_number {
