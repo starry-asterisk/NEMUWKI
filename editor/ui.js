@@ -4,6 +4,7 @@ if (!Element.prototype.matches) {
         Element.prototype.webkitMatchesSelector;
 }
 
+
 if (!Element.prototype.closest) {
     Element.prototype.closest = function (s) {
         var el = this;
@@ -101,7 +102,7 @@ class Tab {
         let state = temp ? TabState.temp : TabState.open;
 
         if (temp_index < 0) {
-            editor.clear();
+            //editor.clear();
             if (
                 (temp_index =
                     this._subTabs.findIndex((subTab) => subTab._uid == id) > -1)
@@ -381,6 +382,7 @@ class Editor {
             this.focused_line = new_target;
             new_target.appendChild(this.getCaret());
         } else if (new_target.classList.contains("caret")) {
+            console.log(new_target.parentNode);
             this.focused_line = new_target.parentNode;
         }
     };
@@ -634,6 +636,7 @@ class Editor {
         } else {
             let c = this.getCaret();
             this.removeHanguleCaret();
+            let focus_letter, focus_line;
             switch (key) {
                 case "HangulMode":
                     app.hangulMode = !app.hangulMode;
@@ -642,29 +645,38 @@ class Editor {
                 case "Down":
                 case "ArrowDown":
                     if (!shiftKey || this._lastKey != key) this.deselect();
-                    let focus_letter, focus_line = this.focused_line.next('.line');
+                    focus_line = this.focused_line.next('.line');
+                    if (focus_line == undefined && c.nextSibling == undefined) break;
                     if (focus_line) {
-                        if (focus_line.lastChild) focus_letter = focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild;
+                        if (focus_line.lastChild) focus_letter = focus_line.childNodes[getNodeIndex(c).i1] || focus_line.firstChild;
                     } else focus_line = this.focused_line;
 
-                    if (shiftKey) this.select(c.nextSibling || this.focused_line, focus_letter ? focus_letter : focus_line);
-                    focus_letter ? focus_letter.parentNode.after(c) : focus_line.append(c);
-                    this.focus(c)
+                    let pos1 = c.nextSibling || focus_line.firstChild || focus_line;
+                    focus_letter ? focus_letter.after(c) : focus_line.append(c);
+                    let pos2 = c.previousSibling || this.focused_line.lastChild || this.focused_line;
+                    this.focus(c);
+
+                    if (shiftKey) this.select(pos1, pos2);
                     break;
                 case "PageUp":
                 case "Up":
                 case "ArrowUp":
                     if (!shiftKey || this._lastKey != key) this.deselect();
-                    let pos2 = c.previousSibling || this.focused_line;
-                    if (this.focused_line.previousElementSibling.previousElementSibling) {
-                        let focus_line = this.focused_line.previousElementSibling.previousElementSibling;
-                        let pos3 = focus_line.childNodes[getNodeIndex(c).i1] || focus_line.lastChild;
-                        pos3 ? pos3.after(c) : focus_line.append(c);
-                        this.focus(c);
+                    focus_line = this.focused_line.prev('.line');
+                    if (focus_line == undefined && c.previousSibling == undefined) break;
+                    if (focus_line) {
+                        if (focus_line.firstChild) focus_letter = focus_line.childNodes[getNodeIndex(c).i1 + 1];
                     } else {
-                        this.focused_line.prepend(c);
+                        focus_line = this.focused_line;
+                        focus_letter = focused_line.firstChild;
                     }
-                    if (shiftKey) this.select(pos2, c.nextSibling || this.focused_line.previousElementSibling.previousElementSibling);
+
+                    let pos3 = c.previousSibling || focus_line.lastChild || focus_line;
+                    focus_letter ? focus_letter.before(c) : focus_line.append(c);
+                    let pos4 = c.nextSibling || this.focused_line.firstChild || this.focused_line;
+                    this.focus(c);
+
+                    if (shiftKey) this.select(pos3, pos4);
                     break;
                 case "Left":
                 case "ArrowLeft":
@@ -903,13 +915,92 @@ function getNodeIndex(node) {
 async function loadSample() {
     const response = await fetch("/editor/ui.js");
     return await response.text();
-  }
+}
 
-  async function sample(){
+String.prototype.indexOfDefault = function (search, falseValue = -1, fromIndex = 0) {
+    let i = this.indexOf(search, fromIndex);
+    return i > -1 ? i + search.length : falseValue;
+}
+String.prototype.searchDefault = function (search, falseValue = -1, fromIndex = 0) {
+    let i = this.search(search, fromIndex);
+    return i > -1 ? i : falseValue;
+}
+
+async function sample() {
     let text = await loadSample();
+    let result = document.createElement('code');
+    let line = editor.newLine();
+    let temp;
+    try {
 
-
-    let comment_seperated = text.split(/(\/\*[\s\S]*?\*\/|\/\/.*)/g);
-    let trimmed = text.split(/(\s+)/g)
-    console.log(trimmed);
-  }
+        while (text != null && text.length > 0) {
+            if (text.startsWith('/*')) {
+                temp = text.indexOfDefault('*/', text.length);
+                String2html(text.substring(0, temp), 'c_0');
+                text = text.substring(temp);
+            } else if (text.startsWith('//')) {
+                temp = text.indexOfDefault('\n', text.length);
+                String2html(text.substring(0, temp), 'c_1');
+                text = text.substring(temp);
+            } else if (text[0] == "\"") {
+                temp = text.searchDefault(/[^\\](\\{2})*\"/, text.length - 2) + 2;
+                String2html(text.substring(0, temp), 'str_0');
+                text = text.substring(temp);
+            } else if (text[0] == "\'") {
+                temp = text.searchDefault(/[^\\](\\{2})*\'/, text.length - 2) + 2;
+                String2html(text.substring(0, temp), 'str_1');
+                text = text.substring(temp);
+            } else if (text[0] == "\`") {
+                temp = text.searchDefault(/[^\\](\\{2})*\`/, text.length - 2) + 2;
+                String2html(text.substring(0, temp), 'str_2');
+                text = text.substring(temp);
+            } else if (/\s/.test(text[0])) {
+                temp = text.search(/\S/);//index 0 : 버림칸, 1 : 공백문자열
+                if(temp < 0) temp = text.length;
+                String2html(text.substring(0,temp));
+                text = text.substring(temp);
+            } else if (/[\[\{\(\)\}\]]/.test(text[0])) {
+                String2html(text[0], 'b_0');
+                text = text.substring(1);
+            } else if (/[.,;:]/.test(text[0])) {
+                String2html(text[0], 'e_0');
+                text = text.substring(1);
+            } else if (/[0-9]/.test(text[0])) {
+                temp = text.search(/[^0-9]/);
+                if(temp < 0) temp = text.length;
+                String2html(text.substring(0,temp), 'd_0');
+                text = text.substring(temp);
+            } else if(/[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣_]/.test(text[0])) {
+                temp = text.search(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣_]/);
+                if(temp < 0) temp = text.length;
+                String2html(text.substring(0,temp), 't_0');
+                text = text.substring(temp);
+            } else {
+                String2html(text[0], 'etc');
+                text = text.substring(1);
+            }
+        }
+    } catch {
+        console.log(text);
+    }
+    function String2html(string, className = false) {
+        for (let char of string) {
+            switch (char) {
+                case '\n':
+                    line = editor.newLine();
+                    break;
+                case '\r':
+                    break;
+                default:
+                    if (className === false) {
+                        line.append(document.createTextNode(char));
+                    } else {
+                        line.append(document.createElement('span'));
+                        line.lastChild.classList.add(className);
+                        line.lastChild.innerText = char;
+                    }
+                    break;
+            }
+        }
+    }
+}

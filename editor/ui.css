@@ -458,3 +458,14 @@ span.sel.empty::after {
     border-radius: 0.1rem;
     background-color: #ffffff55;
 }
+
+.c_0{color: green;}
+.c_1{color: green;}
+.str_0{color: orangered;}
+.str_1{color: orangered;}
+.str_2{color: orangered;}
+.b_0{color: yellow;}
+.e_0{color: white;}
+.d_0{color: lime;}
+.t_0{color: skyblue;}
+.etc{color: white;}
