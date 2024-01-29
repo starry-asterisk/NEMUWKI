@@ -431,6 +431,7 @@ code {
         opacity: 0;
     }
 }
+.subTab__contents > .line span,
 span.sel {
     font-size: inherit;
     line-height: inherit;
@@ -469,3 +470,12 @@ span.sel.empty::after {
 .d_0{color: lime;}
 .t_0{color: skyblue;}
 .etc{color: white;}
+
+
+/*UPDATED CSS*/
+
+.caret {
+    position: absolute;
+    height: 1.9rem;
+    margin: 0 !important;
+}
