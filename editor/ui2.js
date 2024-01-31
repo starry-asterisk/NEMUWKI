@@ -2,8 +2,17 @@
 class Editor2 {
     lines = [];
     focused;
-    selected;
-    _caret
+    _selected = {
+        _startNode: undefined,
+        _endNode: undefined,
+    }
+    set selected({startNode, endNode}){
+
+    }
+    get selected() {
+
+    }
+    _caret;
     get caret() {
         if (this._caret == undefined) {
             this._caret = document.createElement('span');
@@ -48,25 +57,45 @@ class Editor2 {
         }
         
         */
-
         if (merge == false) this.deselect();
         let c_rect = this.container.getBoundingClientRect();
-        let s_rect = start.relative.rect;
+        let s_rect = getRelativeRect(c_rect, start.relative.rect);
         if (end == undefined) {
             if (start.absolute.outDirection > 0) this.caret.style.left = s_rect.right - c_rect.left + this.container.scrollLeft + 'px';
-            else this.caret.style.left = s_rect.left - c_rect.left + this.container.scrollLeft + 'px';
-            this.caret.style.top = s_rect.top - c_rect.top + this.container.scrollTop + 'px';
+            else this.caret.style.left = s_rect.left + this.container.scrollLeft + 'px';
+            this.caret.style.top = s_rect.top + this.container.scrollTop + 'px';
             return;
         }
-        let e_rect = end.relative.rect;
+        let e_rect = getRelativeRect(c_rect, end.relative.rect);
         if (end.absolute.outDirection > 0) {
-            this.caret.style.left = e_rect.right - c_rect.left + this.container.scrollLeft + 'px';
+            this.caret.style.left = e_rect.right + this.container.scrollLeft + 'px';
         } else if (e_rect.top > s_rect.top || (e_rect.top == s_rect.top && e_rect.left >= s_rect.left)) {
-            this.caret.style.left = e_rect.left - c_rect.left + this.container.scrollLeft + 'px';
+            this.caret.style.left = e_rect.left + this.container.scrollLeft + 'px';
         } else {
-            this.caret.style.left = e_rect.right - c_rect.left + this.container.scrollLeft + 'px';
+            this.caret.style.left = e_rect.right + this.container.scrollLeft + 'px';
         }
-        this.caret.style.top = e_rect.top - c_rect.top + this.container.scrollTop + 'px';
+        this.caret.style.top = e_rect.top + this.container.scrollTop + 'px';
+
+        if(compareRectPos(s_rect, e_rect)){
+            this.selected = {
+                startNode: 1,
+                endNode: 1,
+                startRect: 1,
+                endNode: 1,
+            };
+        }
+
+        /* 본래의 selection 생성방법
+        let range =
+        global_range ||
+        (global_range = document.createRange());
+
+        
+        range.setStart(start.relative.node, start.relative.pos);
+        range.setEnd(end.relative.node, end.relative.pos);
+
+        getSelection().removeAllRanges();
+        getSelection().addRange(range);*/
     }
 
     newLine = function () {
@@ -175,7 +204,6 @@ function getLetterPos(e, callback = false) {
     let outDirection = 0;// 0:left, 1: right;
     let l;
     while (!parent.classList.contains('line')) {
-        console.log(1);
         if (parent.parentNode.nodeType !== 1) {
             isOut = true;
             for (let line of editor.lines) {
@@ -198,7 +226,7 @@ function getLetterPos(e, callback = false) {
     let range =
         global_range ||
         (global_range = document.createRange());
-    r_v = compare(parent, 0);
+    r_v = compare(parent);
     if (r_v2 < 0) {
         if (isOut && e.pageX <= parent.getBoundingClientRect().left) {
             r_v = r_v2 = 0;
@@ -260,6 +288,16 @@ function getLetterPos(e, callback = false) {
     }
 }
 
+function compareRectPos(rect1, rect2){
+    if(rect1.top > rect2.top){
+        return true;
+    } else if(rect1.top == rect2.top){
+        return rect1.left >= rect2.left;
+    } else {
+        return false;
+    }
+}
+
 function covertEl2Pos(el, isLastPos){
     let namespace=isLastPos?"lastChild":"firstChild";
     let p = el;
@@ -289,4 +327,10 @@ function covertEl2Pos(el, isLastPos){
             rect: range.getBoundingClientRect()
         }
     }
+}
+
+function getRelativeRect(parent, child){
+    let r = {};
+    for(let prop in parent) r[prop] = child[prop] - parent[prop];
+    return r;
 }
