@@ -1,5 +1,5 @@
-HTMLElement.prototype.empty = function(){
-    for(let c of this.childNodes){
+HTMLElement.prototype.empty = function () {
+    for (let c of this.childNodes) {
         c.remove();
     }
 }
@@ -13,8 +13,8 @@ class Editor2 {
         _endNode: undefined,
     }
     _selectionContainer;
-    set selected({startNode, endNode, startRect, endRect}){
-        if(this._selectionContainer == undefined) {
+    set selected({ startNode, endNode, startRect, endRect }) {
+        if (this._selectionContainer == undefined) {
             console.log(this);
             this._selectionContainer = document.createElement('div');
             this._selectionContainer.classList.add('selectionContainer');
@@ -22,23 +22,32 @@ class Editor2 {
         }
         this._selectionContainer.empty();
 
-        let sline = startNode.parentNode.closest('.line');
-        let eline = endNode.parentNode.closest('.line');
-        if(sline == eline){
-            create.call(this,startRect.x,startRect.y,endRect.x-startRect.x,endRect.height);
-        }else{
-            /*
-        while(sline != eline){
-            //create();
-        }*/
+        let eline = startNode.parentNode.closest('.line');
+        let sline = endNode.parentNode.closest('.line');
+        if (sline == eline) {
+            create.call(this, endRect.x + endRect.width, startRect.y, startRect.x - endRect.x - endRect.width, endRect.height);
+        } else {
+
+            let c_rect = this.container.getBoundingClientRect();
+            let range =
+                global_range ||
+                (global_range = document.createRange());
+
+            while (sline != undefined && sline != eline) {
+                range.setStart(sline, 0);
+                range.setEnd(sline, sline.childNodes.length);
+                let l_rect = getRelativeRect(c_rect, range.getBoundingClientRect());
+                create.call(this, l_rect.x, l_rect.y, l_rect.width, l_rect.height);
+                sline = sline.next('.line');
+            }
         }
-        function create(x,y,w,h){
-            console.log(x,y,w,h);
+        function create(x, y, w, h) {
+            console.log(x, y, w, h);
             let sel = document.createElement('span');
-            sel.style.top = y+'px';
-            sel.style.left = x+'px';
-            sel.style.height = h+'px';
-            sel.style.width = w+'px';
+            sel.style.top = y + 'px';
+            sel.style.left = x + 'px';
+            sel.style.height = h + 'px';
+            sel.style.width = w + 'px';
             console.log(sel);
             this._selectionContainer.append(sel);
         }
@@ -110,7 +119,7 @@ class Editor2 {
         }
         this.caret.style.top = e_rect.top + this.container.scrollTop + 'px';
 
-        if(compareRectPos(s_rect, e_rect)){
+        if (compareRectPos(s_rect, e_rect)) {
             this.selected = {
                 startNode: start.relative.node,
                 endNode: end.relative.node,
@@ -126,18 +135,18 @@ class Editor2 {
             };
         }
 
-         //본래의 selection 생성방법
-         /*
-        let range =
-        global_range ||
-        (global_range = document.createRange());
+        //본래의 selection 생성방법
+        /*
+       let range =
+       global_range ||
+       (global_range = document.createRange());
 
-        
-        range.setStart(start.relative.node, start.relative.pos);
-        range.setEnd(end.relative.node, end.relative.pos);
+       
+       range.setStart(start.relative.node, start.relative.pos);
+       range.setEnd(end.relative.node, end.relative.pos);
 
-        getSelection().removeAllRanges();
-        getSelection().addRange(range);*/
+       getSelection().removeAllRanges();
+       getSelection().addRange(range);*/
     }
 
     newLine = function () {
@@ -330,27 +339,27 @@ function getLetterPos(e, callback = false) {
     }
 }
 
-function compareRectPos(rect1, rect2){
-    if(rect1.top > rect2.top){
+function compareRectPos(rect1, rect2) {
+    if (rect1.top > rect2.top) {
         return true;
-    } else if(rect1.top == rect2.top){
+    } else if (rect1.top == rect2.top) {
         return rect1.left >= rect2.left;
     } else {
         return false;
     }
 }
 
-function covertEl2Pos(el, isLastPos){
-    let namespace=isLastPos?"lastChild":"firstChild";
+function covertEl2Pos(el, isLastPos) {
+    let namespace = isLastPos ? "lastChild" : "firstChild";
     let p = el;
     let r_v, outDirection;
-    while(el.nodeType != 3) el = el[namespace];
-    if(isLastPos){
+    while (el.nodeType != 3) el = el[namespace];
+    if (isLastPos) {
         r_v = el.nodeValue.length;
         range.setStart(el, r_v - 1);
         range.setEnd(el, r_v);
         outDirection = 1;
-    }else{
+    } else {
         r_v = 0;
         range.setStart(el, 0);
         range.setEnd(el, 1);
@@ -371,7 +380,7 @@ function covertEl2Pos(el, isLastPos){
     }
 }
 
-function getRelativeRect(parent, child){
+function getRelativeRect(parent, child) {
     return {
         x: child.x - parent.x,
         y: child.y - parent.y,

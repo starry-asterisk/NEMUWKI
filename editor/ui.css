@@ -488,5 +488,6 @@ span.sel.empty::after {
     z-index: 3;
 }
 .selectionContainer > span {
+    position: absolute;
     background-color: #00ff0055;
 }
