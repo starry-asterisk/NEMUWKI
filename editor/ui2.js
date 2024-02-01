@@ -1,3 +1,9 @@
+HTMLElement.prototype.empty = function(){
+    for(let c of this.childNodes){
+        c.remove();
+    }
+}
+
 
 class Editor2 {
     lines = [];
@@ -6,8 +12,36 @@ class Editor2 {
         _startNode: undefined,
         _endNode: undefined,
     }
-    set selected({startNode, endNode}){
+    _selectionContainer;
+    set selected({startNode, endNode, startRect, endRect}){
+        if(this._selectionContainer == undefined) {
+            console.log(this);
+            this._selectionContainer = document.createElement('div');
+            this._selectionContainer.classList.add('selectionContainer');
+            this.container.append(this._selectionContainer);
+        }
+        this._selectionContainer.empty();
 
+        let sline = startNode.parentNode.closest('.line');
+        let eline = endNode.parentNode.closest('.line');
+        if(sline == eline){
+            create.call(this,startRect.x,startRect.y,endRect.x-startRect.x,endRect.height);
+        }else{
+            /*
+        while(sline != eline){
+            //create();
+        }*/
+        }
+        function create(x,y,w,h){
+            console.log(x,y,w,h);
+            let sel = document.createElement('span');
+            sel.style.top = y+'px';
+            sel.style.left = x+'px';
+            sel.style.height = h+'px';
+            sel.style.width = w+'px';
+            console.log(sel);
+            this._selectionContainer.append(sel);
+        }
     }
     get selected() {
 
@@ -17,7 +51,7 @@ class Editor2 {
         if (this._caret == undefined) {
             this._caret = document.createElement('span');
             this._caret.classList.add('caret');
-            this.get().append(this._caret);
+            this.container.append(this._caret);
         }
         return this._caret;
     }
@@ -61,7 +95,7 @@ class Editor2 {
         let c_rect = this.container.getBoundingClientRect();
         let s_rect = getRelativeRect(c_rect, start.relative.rect);
         if (end == undefined) {
-            if (start.absolute.outDirection > 0) this.caret.style.left = s_rect.right - c_rect.left + this.container.scrollLeft + 'px';
+            if (start.absolute.outDirection > 0) this.caret.style.left = s_rect.right + this.container.scrollLeft + 'px';
             else this.caret.style.left = s_rect.left + this.container.scrollLeft + 'px';
             this.caret.style.top = s_rect.top + this.container.scrollTop + 'px';
             return;
@@ -78,14 +112,22 @@ class Editor2 {
 
         if(compareRectPos(s_rect, e_rect)){
             this.selected = {
-                startNode: 1,
-                endNode: 1,
-                startRect: 1,
-                endNode: 1,
+                startNode: start.relative.node,
+                endNode: end.relative.node,
+                startRect: s_rect,
+                endRect: e_rect,
+            };
+        } else {
+            this.selected = {
+                startNode: end.relative.node,
+                endNode: start.relative.node,
+                startRect: e_rect,
+                endRect: s_rect,
             };
         }
 
-        /* 본래의 selection 생성방법
+         //본래의 selection 생성방법
+         /*
         let range =
         global_range ||
         (global_range = document.createRange());
@@ -176,7 +218,7 @@ class Editor2 {
     };
     onmousedown = function (e_down) {
         e_down.preventDefault();
-        editor.lines = document.querySelectorAll('.line');//임시 나중에 제거할 것
+        this.lines = document.querySelectorAll('.line');//임시 나중에 제거할 것
         let ePos, sPos = getLetterPos(e_down);
 
         this.select(sPos);
@@ -330,7 +372,14 @@ function covertEl2Pos(el, isLastPos){
 }
 
 function getRelativeRect(parent, child){
-    let r = {};
-    for(let prop in parent) r[prop] = child[prop] - parent[prop];
-    return r;
+    return {
+        x: child.x - parent.x,
+        y: child.y - parent.y,
+        top: child.top - parent.top,
+        left: child.left - parent.left,
+        bottom: child.bottom - parent.top,
+        right: child.right - parent.left,
+        height: child.height,
+        width: child.width
+    };
 }
