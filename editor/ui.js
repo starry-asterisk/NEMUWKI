@@ -287,7 +287,6 @@ function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
 }
 
-let hangul_typing = [];
 
 class Editor {
     _caret;

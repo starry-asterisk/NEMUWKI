@@ -431,6 +431,12 @@ code {
         opacity: 0;
     }
 }
+.subTab__contents > .line span {
+    font-size: inherit;
+    line-height: inherit;
+    height: inherit;
+}
+/*
 .subTab__contents > .line span,
 span.sel {
     font-size: inherit;
@@ -458,7 +464,7 @@ span.sel.empty::after {
     margin: auto;
     border-radius: 0.1rem;
     background-color: #ffffff55;
-}
+}*/
 
 .c_0{color: green;}
 .c_1{color: green;}
@@ -486,8 +492,12 @@ span.sel.empty::after {
     bottom: 0;
     right: 0;
     z-index: 3;
+    pointer-events: none;
 }
 .selectionContainer > span {
     position: absolute;
-    background-color: #00ff0055;
+    background-color: #519aba55;
+    box-sizing: content-box;
+    padding: 0.1rem 0;
+    margin: -0.1rem 0;
 }

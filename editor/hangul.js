@@ -151,3 +151,71 @@ function hangulCombine(원자들) {
     유니코드_한글_시작점 + 초성_인덱스 * 588 + 중성_인덱스 * 28 + 종성_인덱스
   );
 }
+
+let hangul_typing = [];
+
+function inputHangul(hanguel_i) {
+  let firedLetter = '';
+  if (hangul_typing[0] == undefined) {
+    hangul_typing[0] = hanguel_i;
+  } else if (hangul_typing[1] == undefined) {
+    if (isMoeum(hanguel_i)) {
+      if (isMoeum(hangul_typing[0])) {
+        if (
+          hangul_moeum_combine[hangul_typing[0]] &&
+          hangul_moeum_combine[hangul_typing[0]][hanguel_i]
+        ) {
+          firedLetter = hangul_moeum_combine[hangul_typing[0]][hanguel_i];
+          hangul_typing = [];
+        } else {
+          firedLetter = hangul_typing[0];
+          hangul_typing = [hanguel_i];
+        }
+      } else {
+        hangul_typing[1] = hanguel_i;
+      }
+    } else if (
+      hangul_jaum_combine[hangul_typing[0]] &&
+      hangul_jaum_combine[hangul_typing[0]][hanguel_i]
+    ) {
+      firedLetter = hangul_jaum_combine[hangul_typing[0]][hanguel_i];
+      hangul_typing = [];
+    } else {
+      firedLetter = hangul_typing[0];
+      hangul_typing = [hanguel_i];
+    }
+  } else if (hangul_typing[2] == undefined) {
+    if (isMoeum(hanguel_i)) {
+      if (
+        hangul_moeum_combine[hangul_typing[1]] &&
+        hangul_moeum_combine[hangul_typing[1]][hanguel_i]
+      ) {
+        hangul_typing[1] =
+          hangul_moeum_combine[hangul_typing[1]][hanguel_i];
+      } else {
+        firedLetter = hangulCombine(hangul_typing);
+        hangul_typing = [hanguel_i];
+      }
+    } else {
+      hangul_typing[2] = hanguel_i;
+    }
+  } else {
+    if (isMoeum(hanguel_i)) {
+      let last_typing = hangul_typing.pop();
+      firedLetter = hangulCombine(hangul_typing);
+      hangul_typing = [last_typing, hanguel_i];
+    } else if (
+      hangul_jaum_combine[hangul_typing[2]] &&
+      hangul_jaum_combine[hangul_typing[2]][hanguel_i]
+    ) {
+      hangul_typing[2] = hangul_jaum_combine[hangul_typing[2]][hanguel_i];
+      firedLetter = hangulCombine(hangul_typing);
+      hangul_typing = [];
+    } else {
+      firedLetter = hangulCombine(hangul_typing);
+      hangul_typing = [hanguel_i];
+    }
+  }
+
+  
+}

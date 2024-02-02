@@ -1,61 +1,24 @@
 HTMLElement.prototype.empty = function () {
-    for (let c of this.childNodes) {
+    let removed = Array.from(this.childNodes)
+    for (let c of removed) {
         c.remove();
     }
+    return removed;
 }
-
+HTMLElement.prototype.setStyles = function (obj) {
+    if (obj == undefined) console.error('Arguments 0 is undefined or null');
+    else for (let name in obj) this.style.setProperty(name, obj[name]);
+    return this;
+}
 
 class Editor2 {
     lines = [];
     focused;
-    _selected = {
-        _startNode: undefined,
-        _endNode: undefined,
-    }
-    _selectionContainer;
-    set selected({ startNode, endNode, startRect, endRect }) {
-        if (this._selectionContainer == undefined) {
-            console.log(this);
-            this._selectionContainer = document.createElement('div');
-            this._selectionContainer.classList.add('selectionContainer');
-            this.container.append(this._selectionContainer);
-        }
-        this._selectionContainer.empty();
-
-        let eline = startNode.parentNode.closest('.line');
-        let sline = endNode.parentNode.closest('.line');
-        if (sline == eline) {
-            create.call(this, endRect.x + endRect.width, startRect.y, startRect.x - endRect.x - endRect.width, endRect.height);
-        } else {
-
-            let c_rect = this.container.getBoundingClientRect();
-            let range =
-                global_range ||
-                (global_range = document.createRange());
-
-            while (sline != undefined && sline != eline) {
-                range.setStart(sline, 0);
-                range.setEnd(sline, sline.childNodes.length);
-                let l_rect = getRelativeRect(c_rect, range.getBoundingClientRect());
-                create.call(this, l_rect.x, l_rect.y, l_rect.width, l_rect.height);
-                sline = sline.next('.line');
-            }
-        }
-        function create(x, y, w, h) {
-            console.log(x, y, w, h);
-            let sel = document.createElement('span');
-            sel.style.top = y + 'px';
-            sel.style.left = x + 'px';
-            sel.style.height = h + 'px';
-            sel.style.width = w + 'px';
-            console.log(sel);
-            this._selectionContainer.append(sel);
-        }
-    }
-    get selected() {
-
-    }
     _caret;
+    _hangulCaret;
+    _container;
+    _selected;
+    _selectionContainer;
     get caret() {
         if (this._caret == undefined) {
             this._caret = document.createElement('span');
@@ -64,8 +27,68 @@ class Editor2 {
         }
         return this._caret;
     }
+    get hangulCaret() {
+        if (this._hangulCaret == undefined) {
+            this._hangulCaret = document.createElement('span');
+            this._hangulCaret.classList.add('hangulCaret');
+            this.container.append(this._hangulCaret);
+        }
+        return this._hangulCaret;
+    }
     get container() {
-        return document.querySelector(".subTab__contents");
+        return this._container || (this._container = document.querySelector(".subTab__contents"));
+    }
+    get containerRect() {
+        return this.container.getBoundingClientRect();
+    }
+    get selected() {
+        return this._selected || {
+            startNode: undefined,
+            endNode: undefined,
+            startRect: undefined,
+            endRect: undefined,
+            startPos: undefined,
+            endPos: undefined,
+            direction: undefined
+        };
+    }
+    set selected({ startNode, endNode, startRect, endRect, startPos, endPos, direction }) {
+        this._selected = { startNode, endNode, startRect, endRect, startPos, endPos, direction };
+        if(this._selected.startNode == undefined) return;
+        if (this._selectionContainer == undefined) {
+            this._selectionContainer = document.createElement('div');
+            this._selectionContainer.classList.add('selectionContainer');
+            this.container.append(this._selectionContainer);
+        }
+        this._selectionContainer.empty();
+
+        let sline = startNode.parentNode.closest('.line');
+        let eline = endNode.parentNode.closest('.line');
+        let c_rect, range;
+
+        const create = (x, y, w, h) => this._selectionContainer.append(
+            document.createElement('span').setStyles({ top: `${y}px`, left: `${x}px`, height: `${h}px`, width: `${w}px` })
+        );
+
+        if (sline == eline) {
+            create(startRect.x, startRect.y, endRect.x - startRect.x, startRect.height);
+        } else {
+            c_rect = this.containerRect;
+            range = getRange();
+
+            const create2 = (processor) => {
+                range.setStart(sline, 0);
+                range.setEnd(sline, sline.childNodes.length);
+                processor(getRelativeRect(c_rect, range.getBoundingClientRect()));
+                sline = sline.next('.line');
+            }
+
+            create2(l_rect => create(startRect.x, l_rect.y, l_rect.right - startRect.x, l_rect.height));
+
+            while (sline != undefined && sline != eline) create2(l_rect => create(l_rect.x, l_rect.y, l_rect.width, l_rect.height));
+
+            create2(l_rect => create(l_rect.x, l_rect.y, endRect.left - l_rect.x, l_rect.height));
+        }
     }
     clear = function () {
         let container = this.get();
@@ -82,81 +105,48 @@ class Editor2 {
     }
 
     deselect = function () {
+        this.selected = undefined;
     };
 
     select = (start, end, merge = false) => {
-        /*
-        
-        absolute: {
-            pos: r_v,
-            node: parent,
-            isOut: isOut,
-            outDirection: outDirection
-        },
-        relative: {
-            pos: r_v2,
-            node: r_n,
-            rect: r_rect
-        }
-        
-        */
         if (merge == false) this.deselect();
-        let c_rect = this.container.getBoundingClientRect();
+        let c_rect = this.containerRect;
         let s_rect = getRelativeRect(c_rect, start.relative.rect);
+        let e_rect, compared;
         if (end == undefined) {
-            if (start.absolute.outDirection > 0) this.caret.style.left = s_rect.right + this.container.scrollLeft + 'px';
-            else this.caret.style.left = s_rect.left + this.container.scrollLeft + 'px';
-            this.caret.style.top = s_rect.top + this.container.scrollTop + 'px';
-            return;
-        }
-        let e_rect = getRelativeRect(c_rect, end.relative.rect);
-        if (end.absolute.outDirection > 0) {
-            this.caret.style.left = e_rect.right + this.container.scrollLeft + 'px';
-        } else if (e_rect.top > s_rect.top || (e_rect.top == s_rect.top && e_rect.left >= s_rect.left)) {
-            this.caret.style.left = e_rect.left + this.container.scrollLeft + 'px';
+            e_rect = s_rect;
+            end = start;
+            compared = true;
         } else {
-            this.caret.style.left = e_rect.right + this.container.scrollLeft + 'px';
+            e_rect = getRelativeRect(c_rect, end.relative.rect);
+            compared = compareRectPos(e_rect, s_rect);
         }
-        this.caret.style.top = e_rect.top + this.container.scrollTop + 'px';
-
-        if (compareRectPos(s_rect, e_rect)) {
-            this.selected = {
-                startNode: start.relative.node,
-                endNode: end.relative.node,
-                startRect: s_rect,
-                endRect: e_rect,
-            };
-        } else {
-            this.selected = {
-                startNode: end.relative.node,
-                endNode: start.relative.node,
-                startRect: e_rect,
-                endRect: s_rect,
-            };
-        }
-
-        //본래의 selection 생성방법
-        /*
-       let range =
-       global_range ||
-       (global_range = document.createRange());
-
-       
-       range.setStart(start.relative.node, start.relative.pos);
-       range.setEnd(end.relative.node, end.relative.pos);
-
-       getSelection().removeAllRanges();
-       getSelection().addRange(range);*/
+        this.caret.setStyles({
+            left: `${e_rect.left + this.container.scrollLeft}px`,
+            top: `${e_rect.top + this.container.scrollTop}px`
+        });
+        this.selected = {
+            startNode: compared ? start.relative.node : end.relative.node,
+            startRect: compared ? s_rect : e_rect,
+            startPos: compared ? start.relative.pos : end.relative.pos,
+            endNode: compared ? end.relative.node : start.relative.node,
+            endRect: compared ? e_rect : s_rect,
+            endtPos: compared ? endtPos.relative.pos : start.relative.pos,
+            direction: compared
+        };
     }
 
-    newLine = function () {
-        let line_number = document.createElement("div");
+    addLine = function () {
+        let line_number = document.createElement("span");
         line_number.classList.add("line_number");
         this.container.append(line_number);
         let line = document.createElement("div");
         line.classList.add("line");
         line_number.after(line);
         this.lines.push(line);
+        let lastNode = document.createElement("span");
+        lastNode.classList.add("lastNode");
+        line.append(lastNode);
         return line;
     };
     delLine = function (v) {
@@ -186,8 +176,12 @@ class Editor2 {
                         break;
                 }
             }
-        } else if (key.length < 2) {
+
+            return;
+        }
+        if (key.length < 2) {
             //글자 입력인 경우
+            inputText.call(this, key);
         } else {
             switch (key) {
                 case "HangulMode":
@@ -244,35 +238,31 @@ class Editor2 {
 let global_range;
 editor = new Editor2();
 
-function getLetterPos(e, callback = false) {
+function getLetterPos(e) {
     let r_v = 0;
     let r_v2 = -1;
     let r_n = undefined;
     let r_rect = undefined;
     let isEnd = false;
-    let parent = e.target;
+    let parent = e.target.closest('.line');
     let isOut = false;
     let outDirection = 0;// 0:left, 1: right;
     let l;
-    while (!parent.classList.contains('line')) {
-        if (parent.parentNode.nodeType !== 1) {
-            isOut = true;
-            for (let line of editor.lines) {
-                let p_rect = line.getBoundingClientRect();
-                if (p_rect.top <= e.pageY && p_rect.bottom >= e.pageY) {
-                    parent = line;
-                    break;
-                }
-            }
-            if (!parent.classList.contains('line')) {
-                let c_rect = editor.container.getBoundingClientRect();
-                if (c_rect.top >= e.pageY) parent = editor.lines[0];
-                else parent = editor.lines[editor.lines.length - 1];
+    if (parent == undefined) {
+        isOut = true;
+        for (let line of editor.lines) {
+            let p_rect = line.getBoundingClientRect();
+            if (p_rect.top <= e.pageY && p_rect.bottom >= e.pageY) {
+                parent = line;
                 break;
             }
-            if (parent == undefined) return false;
-            break;
-        } else parent = parent.parentNode;
+        }
+        if (parent == undefined) {
+            let c_rect = editor.container.getBoundingClientRect();
+            if (c_rect.top >= e.pageY) parent = editor.lines[0];
+            else parent = editor.lines[editor.lines.length - 1];
+        }
+        if (parent == undefined) return false;
     }
     let range =
         global_range ||
@@ -349,37 +339,6 @@ function compareRectPos(rect1, rect2) {
     }
 }
 
-function covertEl2Pos(el, isLastPos) {
-    let namespace = isLastPos ? "lastChild" : "firstChild";
-    let p = el;
-    let r_v, outDirection;
-    while (el.nodeType != 3) el = el[namespace];
-    if (isLastPos) {
-        r_v = el.nodeValue.length;
-        range.setStart(el, r_v - 1);
-        range.setEnd(el, r_v);
-        outDirection = 1;
-    } else {
-        r_v = 0;
-        range.setStart(el, 0);
-        range.setEnd(el, 1);
-        outDirection = -1;
-    }
-    return {
-        absolute: {
-            pos: r_v,
-            node: p,
-            isOut: true,
-            outDirection: outDirection
-        },
-        relative: {
-            pos: r_v,
-            node: el,
-            rect: range.getBoundingClientRect()
-        }
-    }
-}
-
 function getRelativeRect(parent, child) {
     return {
         x: child.x - parent.x,
@@ -391,4 +350,21 @@ function getRelativeRect(parent, child) {
         height: child.height,
         width: child.width
     };
+}
+
+function getRange() {
+    return global_range ||
+        (global_range = document.createRange());
+}
+
+function inputText(key) {
+    let c = this.caret;
+    this.removeSelected(c);
+    let hanguel_i;
+    if (!app.hangulMode || (hanguel_i = hangul[key]) == undefined) {
+        this.removeHanguleCaret();
+        c.before(document.createTextNode(key));
+    } else {
+        inputHangul.call(this, key);
+    }
 }
