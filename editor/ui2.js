@@ -55,6 +55,15 @@ class Editor2 {
     set selected({ startNode, endNode, startRect, endRect, startPos, endPos, direction }) {
         this._selected = { startNode, endNode, startRect, endRect, startPos, endPos, direction };
         if(this._selected.startNode == undefined) return;
+
+        if(startRect == undefined) this._selected.startRect = startRect = getLetterRect(startNode, startPos);
+        if(endRect == undefined) this._selected.endRect = endRect = getLetterRect(endNode, endPos);
+
+        (rect=>this.caret.setStyles({
+            left: `${rect.left + this.container.scrollLeft}px`,
+            top: `${rect.top + this.container.scrollTop}px`
+        }))(direction?startNode:endNode);
+
         if (this._selectionContainer == undefined) {
             this._selectionContainer = document.createElement('div');
             this._selectionContainer.classList.add('selectionContainer');
@@ -64,7 +73,7 @@ class Editor2 {
 
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
-        let c_rect, range;
+        let c_rect;
 
         const create = (x, y, w, h) => this._selectionContainer.append(
             document.createElement('span').setStyles({ top: `${y}px`, left: `${x}px`, height: `${h}px`, width: `${w}px` })
@@ -74,12 +83,9 @@ class Editor2 {
             create(startRect.x, startRect.y, endRect.x - startRect.x, startRect.height);
         } else {
             c_rect = this.containerRect;
-            range = getRange();
 
             const create2 = (processor) => {
-                range.setStart(sline, 0);
-                range.setEnd(sline, sline.childNodes.length);
-                processor(getRelativeRect(c_rect, range.getBoundingClientRect()));
+                processor(getRelativeRect(c_rect, getLetterRect(sline,0,sline.childNodes.length)));
                 sline = sline.next('.line');
             }
 
@@ -121,10 +127,7 @@ class Editor2 {
             e_rect = getRelativeRect(c_rect, end.relative.rect);
             compared = compareRectPos(e_rect, s_rect);
         }
-        this.caret.setStyles({
-            left: `${e_rect.left + this.container.scrollLeft}px`,
-            top: `${e_rect.top + this.container.scrollTop}px`
-        });
+        
         this.selected = {
             startNode: compared ? start.relative.node : end.relative.node,
             startRect: compared ? s_rect : e_rect,
@@ -144,9 +147,7 @@ class Editor2 {
         line.classList.add("line");
         line_number.after(line);
         this.lines.push(line);
-        let lastNode = document.createElement("span");
-        lastNode.classList.add("lastNode");
-        line.append(lastNode);
+        line.append(document.createTextNode("&nbsp;"));
         return line;
     };
     delLine = function (v) {
@@ -238,7 +239,13 @@ class Editor2 {
 }
 let global_range;
 editor = new Editor2();
-
+function getLetterRect(node, spos = 0, epos){
+    let range = getRange();
+    if(epos == undefined) epos = spos + 1;
+    range.setStart(node, spos);
+    range.setEnd(node, epos);
+    return range.getBoundingClientRect();
+}
 function getLetterPos(e) {
     let r_v = 0;
     let r_v2 = -1;
@@ -259,15 +266,13 @@ function getLetterPos(e) {
             }
         }
         if (parent == undefined) {
-            let c_rect = editor.container.getBoundingClientRect();
+            let c_rect = editor.containerRect;
             if (c_rect.top >= e.pageY) parent = editor.lines[0];
             else parent = editor.lines[editor.lines.length - 1];
         }
         if (parent == undefined) return false;
     }
-    let range =
-        global_range ||
-        (global_range = document.createRange());
+
     r_v = compare(parent);
     if (r_v2 < 0) {
         if (isOut && e.pageX <= parent.getBoundingClientRect().left) {
@@ -275,21 +280,17 @@ function getLetterPos(e) {
             outDirection = -1;
             r_n = parent.firstChild;
             while (r_n.nodeType !== 3) r_n = r_n.firstChild;
-            range.setStart(r_n, 0);
-            range.setEnd(r_n, 1);
         }
 
         if (r_n == undefined) {
-            r_v2 = r_v;
             outDirection = 1;
             isOut = true;
             r_n = parent.lastChild;
             while (r_n.nodeType !== 3) r_n = r_n.lastChild;
-            range.setStart(r_n, r_n.nodeValue.length - 1);
-            range.setEnd(r_n, r_n.nodeValue.length);
+            r_v2 = r_n.nodeValue.length - 1;
         }
         if (r_rect == undefined) {
-            r_rect = range.getBoundingClientRect();
+            r_rect = getLetterRect(r_n, r_v2);
         }
     }
 
@@ -313,9 +314,7 @@ function getLetterPos(e) {
         if (node.nodeType === 3) {
             l = node.nodeValue.length;
             for (let i = 0; i < l; i++) {
-                range.setStart(node, i);
-                range.setEnd(node, i + 1);
-                let rect = range.getBoundingClientRect();
+                let rect = getLetterRect(node, i);
                 if (e.pageX >= rect.left && e.pageX <= rect.right) {
                     isEnd = true;
                     r_n = node;
@@ -368,4 +367,23 @@ function inputText(key) {
     } else {
         inputHangul.call(this, hanguel_i);
     }
+}
+
+function shiftLetterPos(node, pos, offset = 1){
+    let line = node.parentNode.closest('.line');
+    if(node.nodeValue.length > post + offset){
+        return {
+            node,
+            pos: pos + offset
+        }
+    }
+
+    while(node.nextSibling == undefined && node != line) node = node.parent;
+    if(node == line) node = line.next('.line');
+    if(node == undefined) return undefined;
+    while(node.nodeType != 3) node = node.firstChild;
+    return {
+        node,
+        pos: 0
+    };
 }
