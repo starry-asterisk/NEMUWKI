@@ -105,7 +105,7 @@ class Editor2 {
     }
 
     deselect = function () {
-        this.selected = undefined;
+        this.selected = {};
     };
 
     select = (start, end, merge = false) => {
@@ -131,7 +131,7 @@ class Editor2 {
             startPos: compared ? start.relative.pos : end.relative.pos,
             endNode: compared ? end.relative.node : start.relative.node,
             endRect: compared ? e_rect : s_rect,
-            endtPos: compared ? endtPos.relative.pos : start.relative.pos,
+            endtPos: compared ? end.relative.pos : start.relative.pos,
             direction: compared
         };
     }
@@ -185,6 +185,7 @@ class Editor2 {
         } else {
             switch (key) {
                 case "HangulMode":
+                    app.hangulMode = !app.hangulMode;
                     break;
                 case "PageDown":
                 case "Down":
@@ -359,12 +360,12 @@ function getRange() {
 
 function inputText(key) {
     let c = this.caret;
-    this.removeSelected(c);
     let hanguel_i;
+    let node = editor.selected.startNode;
     if (!app.hangulMode || (hanguel_i = hangul[key]) == undefined) {
-        this.removeHanguleCaret();
-        c.before(document.createTextNode(key));
+        //c.before(document.createTextNode(key));
+        node.nodeValue.substring()
     } else {
-        inputHangul.call(this, key);
+        inputHangul.call(this, hanguel_i);
     }
 }

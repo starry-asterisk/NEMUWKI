@@ -217,5 +217,5 @@ function inputHangul(hanguel_i) {
     }
   }
 
-  
+  console.log(firedLetter,hangulCombine(hangul_typing));
 }
