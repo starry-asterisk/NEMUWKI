@@ -371,7 +371,9 @@ function inputText(key) {
 
 function shiftLetterPos(node, pos, offset = 1){
     let line = node.parentNode.closest('.line');
-    if(node.nodeValue.length > post + offset){
+    let maxOffset = node.nodeValue.length;
+    let overflow = pos + offset - maxOffset;
+    if(overflow < 0){
         return {
             node,
             pos: pos + offset
@@ -380,10 +382,8 @@ function shiftLetterPos(node, pos, offset = 1){
 
     while(node.nextSibling == undefined && node != line) node = node.parent;
     if(node == line) node = line.next('.line');
+    else node = node.nextSibling;
     if(node == undefined) return undefined;
     while(node.nodeType != 3) node = node.firstChild;
-    return {
-        node,
-        pos: 0
-    };
+    return shiftLetterPos(node, 0, overflow);
 }
