@@ -19,6 +19,12 @@ class Editor2 {
     _container;
     _selected;
     _selectionContainer;
+    set hangulMode(v) {
+        app.hangulMode = v;
+    }
+    get hangulMode() {
+        return app.hangulMode;
+    }
     get caret() {
         if (this._caret == undefined) {
             this._caret = document.createElement('span');
@@ -54,26 +60,25 @@ class Editor2 {
     }
     set selected({ startNode, endNode, startRect, endRect, startPos, endPos, direction }) {
         this._selected = { startNode, endNode, startRect, endRect, startPos, endPos, direction };
-        if(this._selected.startNode == undefined) return;
-
-        if(startRect == undefined) this._selected.startRect = startRect = getLetterRect(startNode, startPos);
-        if(endRect == undefined) this._selected.endRect = endRect = getLetterRect(endNode, endPos);
-
-        (rect=>this.caret.setStyles({
-            left: `${rect.left + this.container.scrollLeft}px`,
-            top: `${rect.top + this.container.scrollTop}px`
-        }))(direction?startNode:endNode);
-
         if (this._selectionContainer == undefined) {
             this._selectionContainer = document.createElement('div');
             this._selectionContainer.classList.add('selectionContainer');
             this.container.append(this._selectionContainer);
         }
         this._selectionContainer.empty();
+        if (this._selected.startNode == undefined) return;
+
+        let c_rect = this.containerRect;
+        if (startRect == undefined) this._selected.startRect = startRect = getRelativeRect(c_rect, getLetterRect(startNode, startPos));
+        if (endRect == undefined) this._selected.endRect = endRect = getRelativeRect(c_rect, getLetterRect(endNode, endPos));
+
+        (rect => this.caret.setStyles({
+            left: `${rect.left + this.container.scrollLeft}px`,
+            top: `${rect.top + this.container.scrollTop}px`
+        }))(direction ? endRect : startRect);
 
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
-        let c_rect;
 
         const create = (x, y, w, h) => this._selectionContainer.append(
             document.createElement('span').setStyles({ top: `${y}px`, left: `${x}px`, height: `${h}px`, width: `${w}px` })
@@ -82,10 +87,10 @@ class Editor2 {
         if (sline == eline) {
             create(startRect.x, startRect.y, endRect.x - startRect.x, startRect.height);
         } else {
-            c_rect = this.containerRect;
+
 
             const create2 = (processor) => {
-                processor(getRelativeRect(c_rect, getLetterRect(sline,0,sline.childNodes.length)));
+                processor(getRelativeRect(c_rect, getLetterRect(sline, 0, sline.childNodes.length)));
                 sline = sline.next('.line');
             }
 
@@ -114,6 +119,16 @@ class Editor2 {
         this.selected = {};
     };
 
+    collapsSelect = function (isEnd = false) {
+        let { startNode, startPos, endNode, endPos } = this.selected;
+        this.selected = {
+            startNode: isEnd ? endNode : startNode,
+            startPos: isEnd ? endPos : startPos,
+            endNode: isEnd ? endNode : startNode,
+            endPos: isEnd ? endPos : startPos
+        }
+    }
+
     select = (start, end, merge = false) => {
         if (merge == false) this.deselect();
         let c_rect = this.containerRect;
@@ -127,14 +142,14 @@ class Editor2 {
             e_rect = getRelativeRect(c_rect, end.relative.rect);
             compared = compareRectPos(e_rect, s_rect);
         }
-        
+
         this.selected = {
             startNode: compared ? start.relative.node : end.relative.node,
             startRect: compared ? s_rect : e_rect,
             startPos: compared ? start.relative.pos : end.relative.pos,
             endNode: compared ? end.relative.node : start.relative.node,
             endRect: compared ? e_rect : s_rect,
-            endtPos: compared ? end.relative.pos : start.relative.pos,
+            endPos: compared ? end.relative.pos : start.relative.pos,
             direction: compared
         };
     }
@@ -147,7 +162,7 @@ class Editor2 {
         line.classList.add("line");
         line_number.after(line);
         this.lines.push(line);
-        line.append(document.createTextNode("&nbsp;"));
+        line.append(document.createTextNode(" "));
         return line;
     };
     delLine = function (v) {
@@ -155,7 +170,37 @@ class Editor2 {
         v.prev('.line_number').remove();
         v.remove();
     };
+    delSelect = function (v) {
+        let { startNode, endNode, startRect, endRect, startPos, endPos, direction } = v || this.selected;
+
+        let prev = shiftLetterPos(startNode, startPos, -1);
+
+        let sline = startNode.parentNode.closest('.line');
+        let eline = endNode.parentNode.closest('.line');
+
+        if (sline == eline) deleteText(startNode, startPos, endNode, endPos);
+        else {
+            deleteText(startNode, startPos, sline.lastChild, 1);
+            deleteText(eline.firstChild, 0, endNode, endPos);
+            for (let node of eline.childNodes) sline.append(node);
+            while (sline != eline) {
+                let temp = eline.prev('.line');
+                this.delLine(eline);
+                eline = temp;
+            }
+        }
+
+        let to = shiftLetterPos(prev.node, prev.pos, 1);
+        this.selected = {
+            startNode: to.node,
+            startPos: to.pos,
+            endNode: to.node,
+            endPos: to.pos
+        };
+
+    };
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
+        let selection = this.selected;
         if (ctrlKey || altKey || metaKey) {
             //단축키 를 이용하는 경우
             event.preventDefault();
@@ -182,11 +227,11 @@ class Editor2 {
         }
         if (key.length < 2) {
             //글자 입력인 경우
-            inputText.call(this, key);
+            inputText.call(this, key, this.hangulMode);
         } else {
             switch (key) {
                 case "HangulMode":
-                    app.hangulMode = !app.hangulMode;
+                    this.hangulMode = !this.hangulMode;
                     break;
                 case "PageDown":
                 case "Down":
@@ -198,9 +243,23 @@ class Editor2 {
                     break;
                 case "Left":
                 case "ArrowLeft":
+                    let to = shiftLetterPos(selection.startNode, selection.startPos, -1);
+                    this.selected = {
+                        startNode: to.node,
+                        startPos: to.pos,
+                        endNode: to.node,
+                        endPos: to.pos
+                    };
                     break;
                 case "Right":
                 case "ArrowRight":
+                    let to2 = shiftLetterPos(selection.startNode, selection.startPos, 1);
+                    this.selected = {
+                        startNode: to2.node,
+                        startPos: to2.pos,
+                        endNode: to2.node,
+                        endPos: to2.pos
+                    };
                     break;
                 case "Home":
                     break;
@@ -210,6 +269,7 @@ class Editor2 {
                     break;
                 case "Delete":
                 case "Backspace":
+                    this.delSelect();
                     break;
             }
         }
@@ -223,7 +283,6 @@ class Editor2 {
     };
     onmousedown = function (e_down) {
         e_down.preventDefault();
-        this.lines = document.querySelectorAll('.line');//임시 나중에 제거할 것
         let ePos, sPos = getLetterPos(e_down);
 
         this.select(sPos);
@@ -239,9 +298,9 @@ class Editor2 {
 }
 let global_range;
 editor = new Editor2();
-function getLetterRect(node, spos = 0, epos){
+function getLetterRect(node, spos = 0, epos) {
     let range = getRange();
-    if(epos == undefined) epos = spos + 1;
+    if (epos == undefined) epos = spos + 1;
     range.setStart(node, spos);
     range.setEnd(node, epos);
     return range.getBoundingClientRect();
@@ -357,33 +416,109 @@ function getRange() {
         (global_range = document.createRange());
 }
 
-function inputText(key) {
+function inputText(key, hangulMode) {
     let c = this.caret;
     let hanguel_i;
     let node = editor.selected.startNode;
-    if (!app.hangulMode || (hanguel_i = hangul[key]) == undefined) {
+    let letters;
+    if (!hangulMode || (hanguel_i = hangul[key]) == undefined) {
         //c.before(document.createTextNode(key));
-        node.nodeValue.substring()
+        letters = {
+            firedLetter: key,
+            now_letter: '',
+            old_letter: ''
+        }
     } else {
-        inputHangul.call(this, hanguel_i);
+        letters = inputHangul.call(this, hanguel_i);
     }
+
+    let {
+        startNode,
+        startPos,
+        endNode,
+        endPos
+    } = editor.selected;
+    if (isLineLast(node)) {
+        let target = shiftPrevLetterPos(node, 0, -1) || (() => {
+            let textNode = document.createTextNode('');
+            node.before(textNode);
+            return {
+                node: textNode,
+                pos: 0
+            };
+        })();
+        target.node.nodeValue = target.node.nodeValue.substring(0, target.node.nodeValue.length - letters.old_letter.length) + letters.firedLetter + letters.now_letter;
+    } else {
+
+        startNode.nodeValue = startNode.nodeValue.substring(0, startPos - letters.old_letter.length) + letters.firedLetter + letters.now_letter + startNode.nodeValue.substring(startPos);
+        startPos += letters.now_letter.length - letters.old_letter.length + letters.firedLetter.length;
+    }
+    editor.selected = {
+        startNode,
+        startPos,
+        endNode,
+        endPos
+    };
+    //editor.container.focus();
 }
 
-function shiftLetterPos(node, pos, offset = 1){
+function shiftLetterPos(node, pos, offset = 1) {
     let line = node.parentNode.closest('.line');
     let maxOffset = node.nodeValue.length;
     let overflow = pos + offset - maxOffset;
-    if(overflow < 0){
+    if (overflow < 0) {
         return {
             node,
             pos: pos + offset
         }
     }
 
-    while(node.nextSibling == undefined && node != line) node = node.parent;
-    if(node == line) node = line.next('.line');
+    if (offset < 0) return shiftPrevLetterPos(node, pos, offset);
+
+    while (node.nextSibling == undefined && node != line) node = node.parent;
+    if (node == line) node = line.next('.line');
     else node = node.nextSibling;
-    if(node == undefined) return undefined;
-    while(node.nodeType != 3) node = node.firstChild;
+    if (node == undefined) return undefined;
+    while (node.nodeType != 3) node = node.firstChild;
     return shiftLetterPos(node, 0, overflow);
+}
+
+function shiftPrevLetterPos(node, pos, offset) {
+    let line = node.parentNode.closest('.line');
+    let overflow = pos + offset;
+
+    if (overflow < 0) {
+        while (node.previousSibling == undefined && node != line) node = node.parent;
+        if (node == line) node = line.prev('.line');
+        else node = node.previousSibling;
+        if (node == undefined) return undefined;
+        while (node.nodeType != 3) node = node.lastChild;
+        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow);
+    } else return {
+        node,
+        pos: pos + offset
+    }
+
+
+
+
+}
+
+function isLineLast(node) {
+    return node.parentNode.closest('.line').lastChild == node;
+}
+
+function deleteText(s_node, s_pos, e_node, e_pos) {
+    let text;
+    let r = getRange();
+    r.setStart(s_node, s_pos);
+    r.setEnd(e_node, e_pos);
+
+    let s = document.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
+    text = s.toString();
+    s.deleteFromDocument();
+    s.removeAllRanges();
+    return text;
 }

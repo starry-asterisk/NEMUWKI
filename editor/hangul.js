@@ -156,6 +156,7 @@ let hangul_typing = [];
 
 function inputHangul(hanguel_i) {
   let firedLetter = '';
+  let old_letter = hangulCombine(hangul_typing);
   if (hangul_typing[0] == undefined) {
     hangul_typing[0] = hanguel_i;
   } else if (hangul_typing[1] == undefined) {
@@ -217,5 +218,9 @@ function inputHangul(hanguel_i) {
     }
   }
 
-  console.log(firedLetter,hangulCombine(hangul_typing));
+  return {
+    firedLetter,
+    now_letter: hangulCombine(hangul_typing),
+    old_letter
+  };
 }

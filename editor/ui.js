@@ -102,7 +102,25 @@ class Tab {
         let state = temp ? TabState.temp : TabState.open;
 
         if (temp_index < 0) {
-            //editor.clear();
+            editor.clear();
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
             if (
                 (temp_index =
                     this._subTabs.findIndex((subTab) => subTab._uid == id) > -1)
