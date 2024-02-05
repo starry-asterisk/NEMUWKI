@@ -154,14 +154,22 @@ class Editor2 {
         };
     }
 
-    addLine = function () {
+    addLine = function (target) {
         let line_number = document.createElement("span");
         line_number.classList.add("line_number");
-        this.container.append(line_number);
+        if (target) target.after(line_number);
+        else this.container.append(line_number);
         let line = document.createElement("div");
         line.classList.add("line");
         line_number.after(line);
-        this.lines.push(line);
+        if (target) {
+            for (let index in this.lines) {
+                if (this.lines[index] == target) {
+                    this.lines.splice(parseInt(index) + 1, 0, line);
+                    break;
+                }
+            }
+        } else this.lines.push(line);
         line.append(document.createTextNode(" "));
         return line;
     };
@@ -177,17 +185,22 @@ class Editor2 {
 
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
+        let tline = sline.next('.line');
 
-        if (sline == eline) deleteText(startNode, startPos, endNode, endPos);
+        let text = '';
+
+        if (sline == eline) text += deleteText(startNode, startPos, endNode, endPos);
         else {
-            deleteText(startNode, startPos, sline.lastChild, 1);
-            deleteText(eline.firstChild, 0, endNode, endPos);
-            for (let node of eline.childNodes) sline.append(node);
-            while (sline != eline) {
-                let temp = eline.prev('.line');
-                this.delLine(eline);
-                eline = temp;
+            text += deleteText(startNode, startPos, sline.lastChild, 1);
+            while (tline != eline) {
+                let temp = tline.next('.line');
+                text += '\n' + tline.innerText;
+                this.delLine(tline);
+                tline = temp;
             }
+            text += '\n' + deleteText(eline.firstChild, 0, endNode, endPos);
+            for (let node of Array.from(eline.childNodes)) sline.append(node);
+            this.delLine(eline);
         }
 
         let to = shiftLetterPos(prev.node, prev.pos, 1);
@@ -198,9 +211,10 @@ class Editor2 {
             endPos: to.pos
         };
 
+        return text;
     };
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
-        let selection = this.selected;
+        let selection = this.selected, line, new_selection, temp;
         if (ctrlKey || altKey || metaKey) {
             //단축키 를 이용하는 경우
             event.preventDefault();
@@ -236,42 +250,59 @@ class Editor2 {
                 case "PageDown":
                 case "Down":
                 case "ArrowDown":
+                    line = selection.endNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line.next('.line'), getAbsolutePos(selection.endNode, selection.endPos)));
                     break;
                 case "PageUp":
                 case "Up":
                 case "ArrowUp":
+                    line = selection.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line.prev('.line'), getAbsolutePos(selection.startNode, selection.startPos)));
                     break;
                 case "Left":
                 case "ArrowLeft":
-                    let to = shiftLetterPos(selection.startNode, selection.startPos, -1);
-                    this.selected = {
-                        startNode: to.node,
-                        startPos: to.pos,
-                        endNode: to.node,
-                        endPos: to.pos
-                    };
+                    move(shiftLetterPos(selection.startNode, selection.startPos, -1));
                     break;
                 case "Right":
                 case "ArrowRight":
-                    let to2 = shiftLetterPos(selection.startNode, selection.startPos, 1);
-                    this.selected = {
-                        startNode: to2.node,
-                        startPos: to2.pos,
-                        endNode: to2.node,
-                        endPos: to2.pos
-                    };
+                    move(shiftLetterPos(selection.endNode, selection.endPos, 1));
                     break;
                 case "Home":
+                    line = selection.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line, 0));
                     break;
                 case "End":
+                    line = selection.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line, line.innerText.length - 1));
                     break;
                 case "Enter":
+                    this.delSelect();
+                    line = this.selected.startNode.parentNode.closest('.line');
+                    let text = this.delSelect({
+                        startNode: this.selected.startNode,
+                        startPos: this.selected.startPos,
+                        endNode: line.lastChild,
+                        endPos: 0
+                    })
+                    let new_line = this.addLine(line);
+                    let new_node = document.createTextNode(text);
+                    new_line.prepend(new_node);
+                    move({ node: new_node, pos: 0 });
                     break;
                 case "Delete":
                 case "Backspace":
                     this.delSelect();
                     break;
             }
+
+            function move(posInfo) {
+                if (posInfo == undefined) return;
+                new_selection = {};
+                new_selection.startNode = new_selection.endNode = posInfo.node;
+                new_selection.startPos = new_selection.endPos = posInfo.pos;
+            }
+
+            if (new_selection != undefined) this.selected = new_selection;
         }
 
         repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
@@ -449,7 +480,6 @@ function inputText(key, hangulMode) {
         })();
         target.node.nodeValue = target.node.nodeValue.substring(0, target.node.nodeValue.length - letters.old_letter.length) + letters.firedLetter + letters.now_letter;
     } else {
-
         startNode.nodeValue = startNode.nodeValue.substring(0, startPos - letters.old_letter.length) + letters.firedLetter + letters.now_letter + startNode.nodeValue.substring(startPos);
         startPos += letters.now_letter.length - letters.old_letter.length + letters.firedLetter.length;
     }
@@ -466,16 +496,15 @@ function shiftLetterPos(node, pos, offset = 1) {
     let line = node.parentNode.closest('.line');
     let maxOffset = node.nodeValue.length;
     let overflow = pos + offset - maxOffset;
-    if (overflow < 0) {
-        return {
-            node,
-            pos: pos + offset
-        }
-    }
 
     if (offset < 0) return shiftPrevLetterPos(node, pos, offset);
 
-    while (node.nextSibling == undefined && node != line) node = node.parent;
+    if (overflow < 0) return {
+        node,
+        pos: pos + offset
+    }
+
+    while (node.nextSibling == undefined && node != line) node = node.parentNode;
     if (node == line) node = line.next('.line');
     else node = node.nextSibling;
     if (node == undefined) return undefined;
@@ -488,20 +517,16 @@ function shiftPrevLetterPos(node, pos, offset) {
     let overflow = pos + offset;
 
     if (overflow < 0) {
-        while (node.previousSibling == undefined && node != line) node = node.parent;
+        while (node.previousSibling == undefined && node != line) node = node.parentNode;
         if (node == line) node = line.prev('.line');
         else node = node.previousSibling;
         if (node == undefined) return undefined;
         while (node.nodeType != 3) node = node.lastChild;
-        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow);
+        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow + 1);
     } else return {
         node,
         pos: pos + offset
     }
-
-
-
-
 }
 
 function isLineLast(node) {
@@ -521,4 +546,40 @@ function deleteText(s_node, s_pos, e_node, e_pos) {
     s.deleteFromDocument();
     s.removeAllRanges();
     return text;
+}
+
+function getAbsolutePos(node, pos) {
+    let p = node.parentNode.closest('.line');
+    let firstNode = p.firstChild;
+    while (firstNode.firstChild) firstNode = firstNode.firstChild;
+    let r = getRange();
+    r.setStart(firstNode, 0);
+    r.setEnd(node, pos);
+
+    return r.toString().length;
+}
+
+function getNodeByAbsPos(line, pos) {
+    if (line == undefined) return undefined;
+    const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT)
+    while (walker.nextNode()) {
+        if (walker.currentNode.nodeValue.length > pos) return {
+            node: walker.currentNode,
+            pos: pos
+        }
+        else pos -= walker.currentNode.nodeValue.length;
+    }
+    return {
+        node: walker.currentNode,
+        pos: walker.currentNode.nodeValue.length - 1
+    };
+}
+
+function textNodesUnder(el) {
+    const children = [] // Type: Node[]
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    while (walker.nextNode()) {
+        children.push(walker.currentNode)
+    }
+    return children
 }
