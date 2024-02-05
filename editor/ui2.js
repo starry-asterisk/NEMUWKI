@@ -88,7 +88,6 @@ class Editor2 {
             create(startRect.x, startRect.y, endRect.x - startRect.x, startRect.height);
         } else {
 
-
             const create2 = (processor) => {
                 processor(getRelativeRect(c_rect, getLetterRect(sline, 0, sline.childNodes.length)));
                 sline = sline.next('.line');
@@ -118,7 +117,7 @@ class Editor2 {
     deselect = function () {
         this.selected = {};
     };
-
+/*
     collapsSelect = function (isEnd = false) {
         let { startNode, startPos, endNode, endPos } = this.selected;
         this.selected = {
@@ -127,7 +126,7 @@ class Editor2 {
             endNode: isEnd ? endNode : startNode,
             endPos: isEnd ? endPos : startPos
         }
-    }
+    }*/
 
     select = (start, end, merge = false) => {
         if (merge == false) this.deselect();
@@ -162,14 +161,8 @@ class Editor2 {
         let line = document.createElement("div");
         line.classList.add("line");
         line_number.after(line);
-        if (target) {
-            for (let index in this.lines) {
-                if (this.lines[index] == target) {
-                    this.lines.splice(parseInt(index) + 1, 0, line);
-                    break;
-                }
-            }
-        } else this.lines.push(line);
+        if (target) this.lines.splice(this.lines.indexOf(target) + 1, 0, line);
+        else this.lines.push(line);
         line.append(document.createTextNode(" "));
         return line;
     };
@@ -179,36 +172,38 @@ class Editor2 {
         v.remove();
     };
     delSelect = function (v) {
-        let { startNode, endNode, startRect, endRect, startPos, endPos, direction } = v || this.selected;
-
-        let prev = shiftLetterPos(startNode, startPos, -1);
+        let { startNode, endNode, startPos, endPos } = v || this.selected;
 
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
-        let tline = sline.next('.line');
 
         let text = '';
 
+        let final = {
+            node: startNode,
+            pos: startPos,
+        }
+
         if (sline == eline) text += deleteText(startNode, startPos, endNode, endPos);
         else {
+            let tline_index = this.lines.indexOf(sline.next('.line'));
             text += deleteText(startNode, startPos, sline.lastChild, 1);
-            while (tline != eline) {
-                let temp = tline.next('.line');
-                text += '\n' + tline.innerText;
-                this.delLine(tline);
-                tline = temp;
+            while (this.lines[tline_index] != eline) {
+                text += '\n' + this.lines[tline_index].innerText;
+                this.delLine(this.lines[tline_index]);
             }
             text += '\n' + deleteText(eline.firstChild, 0, endNode, endPos);
             for (let node of Array.from(eline.childNodes)) sline.append(node);
             this.delLine(eline);
+            final.node = endNode;
+            final.pos = 0;
         }
 
-        let to = shiftLetterPos(prev.node, prev.pos, 1);
         this.selected = {
-            startNode: to.node,
-            startPos: to.pos,
-            endNode: to.node,
-            endPos: to.pos
+            startNode: final.node,
+            startPos: final.pos,
+            endNode: final.node,
+            endPos: final.pos
         };
 
         return text;
@@ -538,13 +533,8 @@ function deleteText(s_node, s_pos, e_node, e_pos) {
     let r = getRange();
     r.setStart(s_node, s_pos);
     r.setEnd(e_node, e_pos);
-
-    let s = document.getSelection();
-    s.removeAllRanges();
-    s.addRange(r);
-    text = s.toString();
-    s.deleteFromDocument();
-    s.removeAllRanges();
+    text = r.toString();
+    r.deleteContents();
     return text;
 }
 
@@ -573,13 +563,4 @@ function getNodeByAbsPos(line, pos) {
         node: walker.currentNode,
         pos: walker.currentNode.nodeValue.length - 1
     };
-}
-
-function textNodesUnder(el) {
-    const children = [] // Type: Node[]
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-    while (walker.nextNode()) {
-        children.push(walker.currentNode)
-    }
-    return children
 }
