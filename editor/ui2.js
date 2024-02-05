@@ -15,7 +15,7 @@ class Editor2 {
     lines = [];
     focused;
     _caret;
-    _hangulCaret;
+    //_hangulCaret;
     _container;
     _selected;
     _selectionContainer;
@@ -32,7 +32,7 @@ class Editor2 {
             this.container.append(this._caret);
         }
         return this._caret;
-    }
+    }/*
     get hangulCaret() {
         if (this._hangulCaret == undefined) {
             this._hangulCaret = document.createElement('span');
@@ -40,7 +40,7 @@ class Editor2 {
             this.container.append(this._hangulCaret);
         }
         return this._hangulCaret;
-    }
+    }*/
     get container() {
         return this._container || (this._container = document.querySelector(".subTab__contents"));
     }
@@ -164,6 +164,7 @@ class Editor2 {
         if (target) this.lines.splice(this.lines.indexOf(target) + 1, 0, line);
         else this.lines.push(line);
         line.append(document.createTextNode(" "));
+        line.after(document.createTextNode('\n'));//텍스트 복사할때 줄 바꿈 반영을 위해서 추가함
         return line;
     };
     delLine = function (v) {
@@ -217,10 +218,24 @@ class Editor2 {
             if (ctrlKey) {
                 switch (key.toLowerCase()) {
                     case "a":
+                        let s = getNodeByAbsPos(this.lines[0], 0);
+                        let e = getNodeByAbsPos(this.lines[this.lines.length - 1], this.lines[this.lines.length - 1].innerText.length - 1);
+                        this.selected = {
+                            startNode: s.node,
+                            startPos: s.pos,
+                            endNode: e.node,
+                            endPos: s.pos,
+                            direction: true
+                        }
                         break;
                     case "x":
+                        navigator.clipboard.writeText(this.delSelect());
                         break;
                     case "c":
+                        temp = getRange();
+                        temp.setStart(this.selected.startNode, this.selected.startPos);
+                        temp.setEnd(this.selected.endNode, this.selected.endPos);
+                        navigator.clipboard.writeText(temp.toString());
                         break;
                     case "v":
                         break;
