@@ -376,6 +376,8 @@ code {
     counter-reset: line_number;
     background-color: inherit;
     overflow: hidden;
+    --scrollTop: 0px;
+    --scrollLeft: 0px;
 }
 
 .subTab__contents .line_number {
@@ -496,6 +498,10 @@ span.sel.empty::after {
     right: 0;
     z-index: 3;
     pointer-events: none;
+    --scrollTop: inherit;
+    --scrollLeft: inherit;
+    margin-top: var(--scrollTop);
+    margin-left: var(--scrollLeft);
 }
 .selectionContainer > span {
     position: absolute;

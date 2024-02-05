@@ -287,7 +287,6 @@ function repaintScrollbar(scrollbar, isHorizontal = true) {
         else direction = 1;
         pos += direction * 19;
         pos = between(min, max, pos);
-        console.log(pos);
         scrollbar.setAttribute("pos", pos);
         target[namespace.scrollPos] = pos / ratio;
         scrollbar.style[namespace.pos] = pos + "px";

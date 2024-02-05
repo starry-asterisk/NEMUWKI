@@ -59,6 +59,9 @@ class Editor2 {
         this._selectionContainer.empty();
         if (this._selected.startNode == undefined) return;
 
+        this.container.style.setProperty('--scrollTop',`${this.container.scrollTop}px`);
+        this.container.style.setProperty('--scrollLeft',`${this.container.scrollLeft}px`);
+
         let c_rect = this.containerRect;
         if (startRect == undefined) this._selected.startRect = startRect = getRelativeRect(c_rect, getLetterRect(startNode, startPos));
         if (endRect == undefined) this._selected.endRect = endRect = getRelativeRect(c_rect, getLetterRect(endNode, endPos));
@@ -253,6 +256,8 @@ class Editor2 {
                 }
             }
 
+            repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
+            repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
             return;
         }
         if (key.length < 2) {
