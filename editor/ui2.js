@@ -15,7 +15,6 @@ class Editor2 {
     lines = [];
     focused;
     _caret;
-    //_hangulCaret;
     _container;
     _selected;
     _selectionContainer;
@@ -32,15 +31,7 @@ class Editor2 {
             this.container.append(this._caret);
         }
         return this._caret;
-    }/*
-    get hangulCaret() {
-        if (this._hangulCaret == undefined) {
-            this._hangulCaret = document.createElement('span');
-            this._hangulCaret.classList.add('hangulCaret');
-            this.container.append(this._hangulCaret);
-        }
-        return this._hangulCaret;
-    }*/
+    }
     get container() {
         return this._container || (this._container = document.querySelector(".subTab__contents"));
     }
@@ -117,16 +108,6 @@ class Editor2 {
     deselect = function () {
         this.selected = {};
     };
-/*
-    collapsSelect = function (isEnd = false) {
-        let { startNode, startPos, endNode, endPos } = this.selected;
-        this.selected = {
-            startNode: isEnd ? endNode : startNode,
-            startPos: isEnd ? endPos : startPos,
-            endNode: isEnd ? endNode : startNode,
-            endPos: isEnd ? endPos : startPos
-        }
-    }*/
 
     select = (start, end, merge = false) => {
         if (merge == false) this.deselect();
@@ -181,8 +162,8 @@ class Editor2 {
         let text = '';
 
         let final = {
-            node: startNode,
-            pos: startPos,
+            node: endNode,
+            pos: 0,
         }
 
         if (sline == eline) text += deleteText(startNode, startPos, endNode, endPos);
@@ -196,8 +177,10 @@ class Editor2 {
             text += '\n' + deleteText(eline.firstChild, 0, endNode, endPos);
             for (let node of Array.from(eline.childNodes)) sline.append(node);
             this.delLine(eline);
-            final.node = endNode;
-            final.pos = 0;
+        }
+        if (endNode == startNode) {
+            final.node = startNode;
+            final.pos = startPos;
         }
 
         this.selected = {
@@ -209,6 +192,17 @@ class Editor2 {
 
         return text;
     };
+
+    loadText = (text, line, tailText = '') => {
+        let lines = text.split('\n');
+        line.lastChild.before(document.createTextNode(lines.shift()));
+        tailText = lines.pop() + tailText;
+        for (let lineText of lines) {
+            line = this.addLine(line);
+            line.lastChild.before(document.createTextNode(lineText));
+        }
+        this.addLine(line).lastChild.before(document.createTextNode(tailText));
+    }
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
         let selection = this.selected, line, new_selection, temp;
         if (ctrlKey || altKey || metaKey) {
@@ -238,6 +232,18 @@ class Editor2 {
                         navigator.clipboard.writeText(temp.toString());
                         break;
                     case "v":
+                        navigator.clipboard
+                            .readText()
+                            .then((clipText) => {
+                                line = this.selected.startNode.parentNode.closest('.line');
+
+                                this.loadText(clipText, line, this.delSelect({
+                                    startNode: this.selected.startNode,
+                                    startPos: this.selected.startPos,
+                                    endNode: line.lastChild,
+                                    endPos: 0
+                                }));
+                            });
                         break;
                     case "s":
                         break;
@@ -251,6 +257,7 @@ class Editor2 {
         }
         if (key.length < 2) {
             //글자 입력인 경우
+            this.delSelect();
             inputText.call(this, key, this.hangulMode);
         } else {
             switch (key) {
@@ -295,9 +302,12 @@ class Editor2 {
                         endPos: 0
                     })
                     let new_line = this.addLine(line);
-                    let new_node = document.createTextNode(text);
-                    new_line.prepend(new_node);
-                    move({ node: new_node, pos: 0 });
+                    if(text == '') move({ node: new_line.lastChild, pos: 0 });
+                    else{
+                        let new_node = document.createTextNode(text);
+                        new_line.prepend(new_node);
+                        move({ node: new_node, pos: 0 });
+                    }
                     break;
                 case "Delete":
                 case "Backspace":
