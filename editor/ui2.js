@@ -50,7 +50,7 @@ class Editor2 {
         };
     }
     set selected({ startNode, endNode, startRect, endRect, startPos, endPos, direction }) {
-        
+
         this._selected = { startNode, endNode, startRect, endRect, startPos, endPos, direction };
         if (this._selectionContainer == undefined) {
             this._selectionContainer = document.createElement('div');
@@ -75,7 +75,7 @@ class Editor2 {
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
 
-        const fragment = document.createDocumentFragment(); 
+        const fragment = document.createDocumentFragment();
 
         const create = (x, y, w, h) => fragment.append(
             document.createElement('span').setStyles({ top: `${y}px`, left: `${x}px`, height: `${h}px`, width: `${w}px` })
@@ -94,7 +94,7 @@ class Editor2 {
 
             create2(l_rect => create(l_rect.x, l_rect.y, endRect.left - l_rect.x, l_rect.height));
         }
-        
+
         this._selectionContainer.append(fragment);
     }
     clear = function () {
@@ -162,7 +162,7 @@ class Editor2 {
     delLineByIndex = function (sindex, eindex) {
         let deleted = this.lines.splice(sindex, eindex - sindex);
         let text_arr = [];
-        for(let l of deleted){
+        for (let l of deleted) {
             text_arr.push(l.textContent);
             l.prev('.line_number').remove();
             l.remove();
@@ -226,11 +226,8 @@ class Editor2 {
             if (ctrlKey) {
                 switch (key.toLowerCase()) {
                     case "a":
-                        console.timeStamp();
                         let s = getNodeByAbsPos(this.lines[0], 0);
-                        console.timeStamp();
                         let e = getNodeByAbsPos(this.lines[this.lines.length - 1], this.lines[this.lines.length - 1].innerText.length - 1);
-                        console.timeStamp();
                         this.selected = {
                             startNode: s.node,
                             startPos: s.pos,
@@ -358,9 +355,9 @@ class Editor2 {
                     endNode: posInfo.node,
                     endPos: posInfo.pos
                 };
-                if(shiftKey){
-                    if(expandDirection > 0) {
-                        if(true == selection.direction) {
+                if (shiftKey) {
+                    if (expandDirection > 0) {
+                        if (true == selection.direction) {
                             new_selection.startNode = selection.startNode;
                             new_selection.startPos = selection.startPos;
                         } else {
@@ -369,8 +366,8 @@ class Editor2 {
                         }
                         new_selection.direction = true;
                     }
-                    else if(expandDirection < 0) {
-                        if(false == selection.direction) {
+                    else if (expandDirection < 0) {
+                        if (false == selection.direction) {
                             new_selection.endNode = selection.endNode;
                             new_selection.endPos = selection.endPos;
                         } else {
@@ -550,7 +547,7 @@ function inputText(key, hangulMode) {
         endPos
     } = editor.selected;
     if (isLineLast(node)) {
-        let target = shiftPrevLetterPos(node, 0, -1) || (() => {
+        let target = shiftPrevLetterPos(node, 0, -1, true) || (() => {
             let textNode = document.createTextNode('');
             node.before(textNode);
             return {
@@ -592,13 +589,13 @@ function shiftLetterPos(node, pos, offset = 1) {
     return shiftLetterPos(node, 0, overflow);
 }
 
-function shiftPrevLetterPos(node, pos, offset) {
+function shiftPrevLetterPos(node, pos, offset, inline = false) {
     let line = node.parentNode.closest('.line');
     let overflow = pos + offset;
 
     if (overflow < 0) {
         while (node.previousSibling == undefined && node != line) node = node.parentNode;
-        if (node == line) node = line.prev('.line');
+        if (node == line) if (inline) return undefined; else node = line.prev('.line');
         else node = node.previousSibling;
         if (node == undefined) return undefined;
         while (node.nodeType != 3) node = node.lastChild;
