@@ -50,6 +50,7 @@ class Editor2 {
         };
     }
     set selected({ startNode, endNode, startRect, endRect, startPos, endPos, direction }) {
+        
         this._selected = { startNode, endNode, startRect, endRect, startPos, endPos, direction };
         if (this._selectionContainer == undefined) {
             this._selectionContainer = document.createElement('div');
@@ -59,8 +60,8 @@ class Editor2 {
         this._selectionContainer.empty();
         if (this._selected.startNode == undefined) return;
 
-        this.container.style.setProperty('--scrollTop',`${this.container.scrollTop}px`);
-        this.container.style.setProperty('--scrollLeft',`${this.container.scrollLeft}px`);
+        this.container.style.setProperty('--scrollTop', `${this.container.scrollTop}px`);
+        this.container.style.setProperty('--scrollLeft', `${this.container.scrollLeft}px`);
 
         let c_rect = this.containerRect;
         if (startRect == undefined) this._selected.startRect = startRect = getRelativeRect(c_rect, getLetterRect(startNode, startPos));
@@ -74,14 +75,14 @@ class Editor2 {
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
 
-        const create = (x, y, w, h) => this._selectionContainer.append(
+        const fragment = document.createDocumentFragment(); 
+
+        const create = (x, y, w, h) => fragment.append(
             document.createElement('span').setStyles({ top: `${y}px`, left: `${x}px`, height: `${h}px`, width: `${w}px` })
         );
-
         if (sline == eline) {
             create(startRect.x, startRect.y, endRect.x - startRect.x, startRect.height);
         } else {
-
             const create2 = (processor) => {
                 processor(getRelativeRect(c_rect, getLetterRect(sline, 0, sline.childNodes.length)));
                 sline = sline.next('.line');
@@ -93,6 +94,8 @@ class Editor2 {
 
             create2(l_rect => create(l_rect.x, l_rect.y, endRect.left - l_rect.x, l_rect.height));
         }
+        
+        this._selectionContainer.append(fragment);
     }
     clear = function () {
         let container = this.get();
@@ -156,6 +159,16 @@ class Editor2 {
         v.prev('.line_number').remove();
         v.remove();
     };
+    delLineByIndex = function (sindex, eindex) {
+        let deleted = this.lines.splice(sindex, eindex - sindex);
+        let text_arr = [];
+        for(let l of deleted){
+            text_arr.push(l.textContent);
+            l.prev('.line_number').remove();
+            l.remove();
+        }
+        return text_arr.join('\n')
+    }
     delSelect = function (v) {
         let { startNode, endNode, startPos, endPos } = v || this.selected;
 
@@ -172,11 +185,9 @@ class Editor2 {
         if (sline == eline) text += deleteText(startNode, startPos, endNode, endPos);
         else {
             let tline_index = this.lines.indexOf(sline.next('.line'));
+            let eline_index = this.lines.indexOf(eline);
             text += deleteText(startNode, startPos, sline.lastChild, 1);
-            while (this.lines[tline_index] != eline) {
-                text += '\n' + this.lines[tline_index].innerText;
-                this.delLine(this.lines[tline_index]);
-            }
+            text += '\n' + this.delLineByIndex(tline_index, eline_index);
             text += '\n' + deleteText(eline.firstChild, 0, endNode, endPos);
             for (let node of Array.from(eline.childNodes)) sline.append(node);
             this.delLine(eline);
@@ -215,8 +226,11 @@ class Editor2 {
             if (ctrlKey) {
                 switch (key.toLowerCase()) {
                     case "a":
+                        console.timeStamp();
                         let s = getNodeByAbsPos(this.lines[0], 0);
+                        console.timeStamp();
                         let e = getNodeByAbsPos(this.lines[this.lines.length - 1], this.lines[this.lines.length - 1].innerText.length - 1);
+                        console.timeStamp();
                         this.selected = {
                             startNode: s.node,
                             startPos: s.pos,
@@ -235,6 +249,7 @@ class Editor2 {
                         navigator.clipboard.writeText(temp.toString());
                         break;
                     case "v":
+                        this.delSelect();
                         navigator.clipboard
                             .readText()
                             .then((clipText) => {
@@ -249,6 +264,7 @@ class Editor2 {
                             });
                         break;
                     case "s":
+                        this.save();
                         break;
                     case "f5":
                         location.reload();
@@ -265,37 +281,42 @@ class Editor2 {
             this.delSelect();
             inputText.call(this, key, this.hangulMode);
         } else {
+            console.log(key);
             switch (key) {
+                case "Tab":
+                    event.preventDefault();
+                    inputText.call(this, '     ', this.hangulMode);
+                    break;
                 case "HangulMode":
                     this.hangulMode = !this.hangulMode;
                     break;
                 case "PageDown":
                 case "Down":
                 case "ArrowDown":
-                    line = selection.endNode.parentNode.closest('.line');
-                    move(getNodeByAbsPos(line.next('.line'), getAbsolutePos(selection.endNode, selection.endPos)));
+                    line = this.selected.endNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line.next('.line'), getAbsolutePos(this.selected.endNode, this.selected.endPos)), 1);
                     break;
                 case "PageUp":
                 case "Up":
                 case "ArrowUp":
-                    line = selection.startNode.parentNode.closest('.line');
-                    move(getNodeByAbsPos(line.prev('.line'), getAbsolutePos(selection.startNode, selection.startPos)));
+                    line = this.selected.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line.prev('.line'), getAbsolutePos(this.selected.startNode, this.selected.startPos)), -1);
                     break;
                 case "Left":
                 case "ArrowLeft":
-                    move(shiftLetterPos(selection.startNode, selection.startPos, -1));
+                    move(shiftLetterPos(this.selected.startNode, this.selected.startPos, -1), -1);
                     break;
                 case "Right":
                 case "ArrowRight":
-                    move(shiftLetterPos(selection.endNode, selection.endPos, 1));
+                    move(shiftLetterPos(this.selected.endNode, this.selected.endPos, 1), 1);
                     break;
                 case "Home":
-                    line = selection.startNode.parentNode.closest('.line');
-                    move(getNodeByAbsPos(line, 0));
+                    line = this.selected.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line, 0), -1);
                     break;
                 case "End":
-                    line = selection.startNode.parentNode.closest('.line');
-                    move(getNodeByAbsPos(line, line.innerText.length - 1));
+                    line = this.selected.startNode.parentNode.closest('.line');
+                    move(getNodeByAbsPos(line, line.innerText.length - 1), 1);
                     break;
                 case "Enter":
                     this.delSelect();
@@ -307,8 +328,8 @@ class Editor2 {
                         endPos: 0
                     })
                     let new_line = this.addLine(line);
-                    if(text == '') move({ node: new_line.lastChild, pos: 0 });
-                    else{
+                    if (text == '') move({ node: new_line.lastChild, pos: 0 });
+                    else {
                         let new_node = document.createTextNode(text);
                         new_line.prepend(new_node);
                         move({ node: new_node, pos: 0 });
@@ -316,15 +337,49 @@ class Editor2 {
                     break;
                 case "Delete":
                 case "Backspace":
-                    this.delSelect();
+                    if (this.selected.startNode == this.selected.endNode && this.selected.startPos == this.selected.endPos) {
+                        let d = shiftLetterPos(this.selected.startNode, this.selected.startPos, -1);
+                        if (d == undefined) break;
+                        this.delSelect({
+                            ...this.selected,
+                            startNode: d.node,
+                            startPos: d.pos
+                        });
+                    }
+                    else this.delSelect();
                     break;
             }
 
-            function move(posInfo) {
+            function move(posInfo, expandDirection = 0) {
                 if (posInfo == undefined) return;
-                new_selection = {};
-                new_selection.startNode = new_selection.endNode = posInfo.node;
-                new_selection.startPos = new_selection.endPos = posInfo.pos;
+                new_selection = {
+                    startNode: posInfo.node,
+                    startPos: posInfo.pos,
+                    endNode: posInfo.node,
+                    endPos: posInfo.pos
+                };
+                if(shiftKey){
+                    if(expandDirection > 0) {
+                        if(true == selection.direction) {
+                            new_selection.startNode = selection.startNode;
+                            new_selection.startPos = selection.startPos;
+                        } else {
+                            new_selection.startNode = selection.endNode;
+                            new_selection.startPos = selection.endPos;
+                        }
+                        new_selection.direction = true;
+                    }
+                    else if(expandDirection < 0) {
+                        if(false == selection.direction) {
+                            new_selection.endNode = selection.endNode;
+                            new_selection.endPos = selection.endPos;
+                        } else {
+                            new_selection.endNode = selection.startNode;
+                            new_selection.endPos = selection.startPos;
+                        }
+                        new_selection.direction = false;
+                    }
+                }
             }
 
             if (new_selection != undefined) this.selected = new_selection;
