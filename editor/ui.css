@@ -408,6 +408,9 @@ code {
 .line_number.focused::after {
     color: white;
 }
+.line_number.focused + .line {
+    outline: 0.1rem solid #ffffff22;
+}
 
 .subTab__contents .line,
 .subTab__contents .line_number {

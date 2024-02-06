@@ -1,3 +1,16 @@
+Element.prototype.scrollIntoViewIfNeeded = function () {
+    let parent = this.parentNode,
+        overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
+        overBottom = (this.offsetTop - parent.offsetTop + this.clientHeight) > (parent.scrollTop + parent.clientHeight),
+        overLeft = this.offsetLeft - parent.offsetLeft < parent.scrollLeft,
+        overRight = (this.offsetLeft - parent.offsetLeft + this.clientWidth) > (parent.scrollLeft + parent.clientWidth);
+
+    if (overTop || overBottom || overLeft || overRight) {
+        this.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
+};
+
+
 HTMLElement.prototype.empty = function () {
     let removed = Array.from(this.childNodes)
     for (let c of removed) {
@@ -75,6 +88,12 @@ class Editor2 {
         let sline = startNode.parentNode.closest('.line');
         let eline = endNode.parentNode.closest('.line');
 
+        let old_caret_on_line = this.container.querySelector('.line_number.focused');
+        if (old_caret_on_line) old_caret_on_line.classList.remove('focused');
+        (direction ? eline : sline).prev('.line_number').classList.add('focused');
+
+        this.caret.scrollIntoViewIfNeeded();
+
         const fragment = document.createDocumentFragment();
 
         const create = (x, y, w, h) => fragment.append(
@@ -150,8 +169,7 @@ class Editor2 {
         line_number.after(line);
         if (target) this.lines.splice(this.lines.indexOf(target) + 1, 0, line);
         else this.lines.push(line);
-        line.append(document.createTextNode(" "));
-        line.after(document.createTextNode('\n'));//텍스트 복사할때 줄 바꿈 반영을 위해서 추가함
+        line.append(document.createTextNode("\n"));//텍스트 복사할때 줄 바꿈 반영을 위해서 추가함
         return line;
     };
     delLine = function (v) {
@@ -208,15 +226,22 @@ class Editor2 {
     };
 
     loadText = (text, line, tailText = '') => {
-        let lines = text.split('\n');
-        line.lastChild.before(document.createTextNode(lines.shift()));
-        tailText = lines.pop() + tailText;
+        let node, lines = text.split('\n');
+        line.lastChild.before(node = document.createTextNode(lines.shift()));
         for (let lineText of lines) {
             line = this.addLine(line);
-            line.lastChild.before(document.createTextNode(lineText));
+            line.lastChild.before(node = document.createTextNode(lineText));
         }
-        this.addLine(line).lastChild.before(document.createTextNode(tailText));
+        let pos = node.nodeValue.length;
+        node.nodeValue += tailText;
+        return shiftLetterPos(node, 0, pos);
     }
+
+    redrawScroll = () => {
+        repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
+        repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
+    }
+
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
         let selection = this.selected, line, new_selection, temp;
         if (ctrlKey || altKey || metaKey) {
@@ -235,15 +260,18 @@ class Editor2 {
                             endPos: s.pos,
                             direction: true
                         }
+                        this.redrawScroll();
                         break;
                     case "x":
                         navigator.clipboard.writeText(this.delSelect());
+                        this.redrawScroll();
                         break;
                     case "c":
                         temp = getRange();
                         temp.setStart(this.selected.startNode, this.selected.startPos);
                         temp.setEnd(this.selected.endNode, this.selected.endPos);
                         navigator.clipboard.writeText(temp.toString());
+                        this.redrawScroll();
                         break;
                     case "v":
                         this.delSelect();
@@ -252,25 +280,33 @@ class Editor2 {
                             .then((clipText) => {
                                 line = this.selected.startNode.parentNode.closest('.line');
 
-                                this.loadText(clipText, line, this.delSelect({
+                                let posInfo = this.loadText(clipText, line, this.delSelect({
                                     startNode: this.selected.startNode,
                                     startPos: this.selected.startPos,
                                     endNode: line.lastChild,
                                     endPos: 0
                                 }));
+
+                                this.selected = {
+                                    startNode: posInfo.node,
+                                    startPos: posInfo.pos,
+                                    endNode: posInfo.node,
+                                    endPos: posInfo.pos
+                                };
+
+                                this.redrawScroll();
                             });
                         break;
                     case "s":
                         this.save();
+                        this.redrawScroll();
                         break;
                     case "f5":
                         location.reload();
+                        this.redrawScroll();
                         break;
                 }
             }
-
-            repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
-            repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
             return;
         }
         if (key.length < 2) {
@@ -382,8 +418,7 @@ class Editor2 {
             if (new_selection != undefined) this.selected = new_selection;
         }
 
-        repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
-        repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
+        this.redrawScroll();
     };
     onkeyup = function ({ keyCode }) { };
     onmouseup = function (e) {

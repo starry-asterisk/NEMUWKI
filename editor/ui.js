@@ -270,16 +270,19 @@ function repaintScrollbar(scrollbar, isHorizontal = true) {
         let pos_down = e_down[namespace.screen];
         window.onmouseup = () => {
             window.onmouseup = window.onmousemove = undefined;
-            scrollbar.setAttribute("pos", pos_final);
         };
         window.onmousemove = (e_move) => {
             let pos_move = e_move[namespace.screen];
             pos_final = between(min, max, pos_move - pos_down + pos);
             target[namespace.scrollPos] = pos_final / ratio;
-            scrollbar.style[namespace.pos] = pos_final + "px";
         };
     };
 
+    scrollEventManager.addEventListener(target, targetName + '_onscroll_' + isHorizontal, 'scroll', () => {
+        let pos = target[namespace.scrollPos] * ratio;
+        scrollbar.style[namespace.pos] = pos + 'px';
+        scrollbar.setAttribute("pos", pos);
+    });
     scrollEventManager.addEventListener(target, targetName + '_onwheel_' + isHorizontal, 'wheel', (e_wheel) => {
         if (e_wheel.shiftKey != isHorizontal) return;
         let direction, pos = parseInt(scrollbar.getAttribute("pos")) || 0;
@@ -287,9 +290,7 @@ function repaintScrollbar(scrollbar, isHorizontal = true) {
         else direction = 1;
         pos += direction * 19;
         pos = between(min, max, pos);
-        scrollbar.setAttribute("pos", pos);
         target[namespace.scrollPos] = pos / ratio;
-        scrollbar.style[namespace.pos] = pos + "px";
     });
 }
 
