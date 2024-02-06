@@ -681,3 +681,11 @@ function getNodeByAbsPos(line, pos) {
         pos: walker.currentNode.nodeValue.length - 1
     };
 }
+
+
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+
+
+    return false;
+});
