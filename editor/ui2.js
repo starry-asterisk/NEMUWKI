@@ -297,6 +297,14 @@ class Editor2 {
                                 this.redrawScroll();
                             });
                         break;
+                    case "f":
+                        //finder 로직
+                        if (shiftKey) {
+                            //global finder
+                        } else {
+
+                        }
+                        break;
                     case "s":
                         this.save();
                         this.redrawScroll();
@@ -682,10 +690,98 @@ function getNodeByAbsPos(line, pos) {
     };
 }
 
+let contextMunuInfos = [
+    {
+        name: 'menu1',
+        disabled: false,
+        callback: function () { },
+        order: 1
+    },
+    {
+        //구분선
+    },
+    {
+        name: 'menu2',
+        disabled: true,
+        callback: function () { },
+        order: 1
+    },
+    {
+        name: 'menu3',
+        disabled: false,
+        callback: function () { },
+        order: 1
+    }
+];
 
-document.addEventListener('contextmenu', function(e) {
+document.addEventListener('contextmenu', function (e) {
     e.preventDefault();
 
+    let contextContainer = document.querySelector('.contextContainer') || (() => {
+        let el = document.createElement('div');
+        el.classList.add('contextContainer');
+        return el;
+    })();
+
+    let contextMenu = document.querySelector('.contextMenu') || (() => {
+        let el = document.createElement('div');
+        el.classList.add('contextMenu');
+        contextContainer.append(el);
+        return el;
+    })();
+
+    contextMenu.setStyles({
+        top: e.pageY + 'px',
+        left: e.pageX + 'px',
+    });
+
+    contextContainer.onmousedown = (e2) => e2.preventDefault();
+
+    contextContainer.onclick = (e2) => {
+        e2.preventDefault();
+        if (e2.srcElement != contextContainer) return;
+        contextContainer.remove();
+    }
+
+    contextMenu.empty();
+
+    contextMunuInfos.sort((info1, info2) => info1.order != undefined && info2.order != undefined && info1.order < info2.order);
+
+    for (let contextMunuInfo of contextMunuInfos) {
+        let { name, disabled, callback, order } = contextMunuInfo;
+        let contextMenuItem = (() => {
+            let el = document.createElement('p');
+            if (name == undefined) {
+                el.classList.add('contextMenu__line');
+            } else {
+                el.classList.add('contextMenu__item');
+                el.innerHTML = name;
+                if (!disabled) el.onclick = callback;
+                else el.classList.add('disabled');
+            }
+            return el;
+        })();
+
+        contextMenu.append(contextMenuItem);
+    }
+
+    document.body.append(contextContainer);
 
     return false;
 });
+
+
+/*
+https://googlechromelabs.github.io/text-editor/ 및 FileSystem Api MDN 문서 참조
+웹 백업과 로컬 two-way 방식으로 지원하고 싶음
+*/
+async function getFolder() {
+    // Open file picker and destructure the result the first handle
+    const [directoryHandle] = await window.showDirectoryPicker({
+        id: 'some id',
+        mode: 'read' || 'readWrite',
+        startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
+    });
+    const directory = await fileHandle.getFile();
+    return directory;
+}
