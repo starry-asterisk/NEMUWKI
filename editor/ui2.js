@@ -446,6 +446,18 @@ class Editor2 {
             window.onmousemove = window.onmouseup = undefined;
         }
     };
+    ondblclick = function({srcElement}){
+        if(srcElement.matches('div.line')){
+            let startNode = srcElement.firstChild;
+            while(startNode.nodeType != 3 && startNode != undefined) startNode = startNode.firstChild;
+            this.selected = {
+                startNode: startNode,
+                startPos: 0,
+                endNode: srcElement.lastChild,
+                endPos: 0
+            };
+        }
+    }
 }
 let global_range;
 editor = new Editor2();
@@ -690,31 +702,28 @@ function getNodeByAbsPos(line, pos) {
     };
 }
 
-let contextMunuInfos = [
+let contextMunu = [
     {
         name: 'menu1',
         disabled: false,
-        callback: function () { },
-        order: 1
+        callback: function () { }
     },
     {
-        //구분선
+
     },
     {
         name: 'menu2',
         disabled: true,
-        callback: function () { },
-        order: 1
+        callback: function () { }
     },
     {
         name: 'menu3',
         disabled: false,
-        callback: function () { },
-        order: 1
+        callback: function () { }
     }
 ];
 
-document.addEventListener('contextmenu', function (e) {
+function contextMenuHandler(e) {
     e.preventDefault();
 
     let contextContainer = document.querySelector('.contextContainer') || (() => {
@@ -745,10 +754,10 @@ document.addEventListener('contextmenu', function (e) {
 
     contextMenu.empty();
 
-    contextMunuInfos.sort((info1, info2) => info1.order != undefined && info2.order != undefined && info1.order < info2.order);
+    contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
 
     for (let contextMunuInfo of contextMunuInfos) {
-        let { name, disabled, callback, order } = contextMunuInfo;
+        let { name, disabled, callback } = contextMunuInfo;
         let contextMenuItem = (() => {
             let el = document.createElement('p');
             if (name == undefined) {
@@ -766,9 +775,18 @@ document.addEventListener('contextmenu', function (e) {
     }
 
     document.body.append(contextContainer);
+    contextContainer.animate([
+        { opacity: 0 },
+        { opacity: 1 },
+      ],{
+        duration: 200,
+        iterations: 1,
+      })
 
     return false;
-});
+}
+
+document.addEventListener('contextmenu', contextMenuHandler);
 
 
 /*

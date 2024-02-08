@@ -58,14 +58,17 @@ footer {
     border-top: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
 }
-footer > * {
+
+footer>* {
     font-size: 1.9rem;
     line-height: 2.2rem;
     float: left;
 }
-footer > *.right {
+
+footer>*.right {
     float: right;
 }
+
 .rootContainer {
     display: flex;
     flex-direction: row;
@@ -166,7 +169,7 @@ button.resizer:hover::after {
     background-color: transparent;
 }
 
-section > .v-scrollbar {
+section>.v-scrollbar {
     margin-top: 3.5rem;
 }
 
@@ -320,6 +323,7 @@ code {
     transition: height 300ms;
     z-index: 10;
 }
+
 .v-scrollbar {
     position: absolute;
     left: 100%;
@@ -336,6 +340,7 @@ code {
     bottom: 0;
     background-color: #ffffff44;
 }
+
 .v-scrollbar.overlay {
     left: auto;
     right: 0;
@@ -345,11 +350,13 @@ code {
 .h-scrollbar:hover {
     height: 1rem;
 }
+
 .v-scrollbar:hover {
     width: 1rem;
 }
 
-.h-scrollbar.unused, .v-scrollbar.unused {
+.h-scrollbar.unused,
+.v-scrollbar.unused {
     display: none;
 }
 
@@ -382,7 +389,7 @@ code {
 
 .subTab__contents .line_number {
     position: sticky;
-    left:0;
+    left: 0;
     counter-increment: line_number;
     padding-right: 2.5rem;
     text-align: right;
@@ -391,24 +398,29 @@ code {
     background-color: inherit;
     z-index: 1;
 }
+
 .subTab__contents .line {
     white-space: pre;
     box-sizing: content-box;
     padding-right: 10rem;
 }
+
 .subTab__contents::after {
     content: '';
     display: block;
     height: 80vh;
     grid-column: 1/3;
 }
+
 .line_number::after {
     content: counter(line_number);
 }
+
 .line_number.focused::after {
     color: white;
 }
-.line_number.focused + .line {
+
+.line_number.focused+.line {
     outline: 0.1rem solid #ffffff22;
 }
 
@@ -424,6 +436,7 @@ code {
     margin-right: -0.1rem;
     animation: blink-effect 1s step-end infinite;
 }
+
 .hangulCaret {
     border-bottom: 0.1rem solid white;
     margin-bottom: -0.1rem;
@@ -439,11 +452,13 @@ code {
         opacity: 0;
     }
 }
-.subTab__contents > .line span {
+
+.subTab__contents>.line span {
     font-size: inherit;
     line-height: inherit;
     height: inherit;
 }
+
 /*
 .subTab__contents > .line span,
 span.sel {
@@ -474,16 +489,45 @@ span.sel.empty::after {
     background-color: #ffffff55;
 }*/
 
-.c_0{color: green;}
-.c_1{color: green;}
-.str_0{color: orangered;}
-.str_1{color: orangered;}
-.str_2{color: orangered;}
-.b_0{color: yellow;}
-.e_0{color: white;}
-.d_0{color: lime;}
-.t_0{color: skyblue;}
-.etc{color: white;}
+.c_0 {
+    color: green;
+}
+
+.c_1 {
+    color: green;
+}
+
+.str_0 {
+    color: orangered;
+}
+
+.str_1 {
+    color: orangered;
+}
+
+.str_2 {
+    color: orangered;
+}
+
+.b_0 {
+    color: yellow;
+}
+
+.e_0 {
+    color: white;
+}
+
+.d_0 {
+    color: lime;
+}
+
+.t_0 {
+    color: skyblue;
+}
+
+.etc {
+    color: white;
+}
 
 
 /*UPDATED CSS*/
@@ -493,6 +537,7 @@ span.sel.empty::after {
     height: 1.9rem;
     margin: 0 !important;
 }
+
 .selectionContainer {
     position: absolute;
     top: 0;
@@ -506,7 +551,8 @@ span.sel.empty::after {
     margin-top: var(--scrollTop);
     margin-left: var(--scrollLeft);
 }
-.selectionContainer > span {
+
+.selectionContainer>span {
     position: absolute;
     background-color: #519aba55;
     box-sizing: content-box;
@@ -527,10 +573,11 @@ span.sel.empty::after {
     position: absolute;
     min-width: 20rem;
     border-radius: 1rem;
-    background-color: #1F1F1F;
+    background-color: #ffffff08;
+    backdrop-filter: blur(7px);
     color: #E3E3E3;
     padding: 0.8rem 0;
-    box-shadow: 0 0 5px 5px #00000055;
+    box-shadow: 0 0 10px 2px #00000055;
 }
 
 .contextMenu__item {
@@ -544,7 +591,7 @@ span.sel.empty::after {
 }
 
 .contextMenu__line {
-    background-color: #5E5E5E;
+    background-color: #ffffff20;
     height: 0.1rem;
-    margin: 0.8rem 0;
+    margin: 0.8rem 0.5rem;
 }

@@ -55,6 +55,7 @@
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
                 <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0"
+                    ondblclick="editor.ondblclick(event)"
                     onkeydown="editor.onkeydown(event)" onkeyup="" onclick="editor.onkeyup(event)"
                     onmousedown="editor.onmousedown(event)" onmouseup="editor.onmouseup(event)" onblur="editor.blur()"></div>
                 <span class="h-scrollbar overlay" target=".subTab__contents"></span>
