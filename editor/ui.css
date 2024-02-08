@@ -567,6 +567,8 @@ span.sel.empty::after {
     bottom: 0;
     right: 0;
     z-index: 3;
+    cursor: text;
+    pointer-events: none;
 }
 
 .contextMenu {
@@ -576,14 +578,20 @@ span.sel.empty::after {
     background-color: #ffffff08;
     backdrop-filter: blur(7px);
     color: #E3E3E3;
-    padding: 0.8rem 0;
+    padding: 0.8rem;
     box-shadow: 0 0 10px 2px #00000055;
+    pointer-events: all;
 }
 
 .contextMenu__item {
     padding: 0 4.8rem;
+    border-radius: 0.2rem;
     height: 2.8rem;
     line-height: 2.8rem;
+    cursor: pointer;
+}
+.contextMenu__item:not(.disabled):hover {
+    background-color: #ffffff11;
 }
 
 .contextMenu__item.disabled {
@@ -594,4 +602,8 @@ span.sel.empty::after {
     background-color: #ffffff20;
     height: 0.1rem;
     margin: 0.8rem 0.5rem;
+}
+
+#loadOverlay {
+    display: none;
 }

@@ -1,6 +1,6 @@
 Element.prototype.scrollIntoViewIfNeeded = function () {
-    let parent = this.parentNode,
-        overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
+    let parent = this.parentNode;
+    let overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
         overBottom = (this.offsetTop - parent.offsetTop + this.clientHeight) > (parent.scrollTop + parent.clientHeight),
         overLeft = this.offsetLeft - parent.offsetLeft < parent.scrollLeft,
         overRight = (this.offsetLeft - parent.offsetLeft + this.clientWidth) > (parent.scrollLeft + parent.clientWidth);
@@ -127,7 +127,7 @@ class Editor2 {
         return document.querySelector(".subTab__contents");
     };
     blur = function () {
-
+        this.deselect();
     }
 
     deselect = function () {
@@ -434,6 +434,7 @@ class Editor2 {
     };
     onmousedown = function (e_down) {
         e_down.preventDefault();
+        if (e_down.which != 1) return;
         let ePos, sPos = getLetterPos(e_down);
 
         this.select(sPos);
@@ -446,10 +447,10 @@ class Editor2 {
             window.onmousemove = window.onmouseup = undefined;
         }
     };
-    ondblclick = function({srcElement}){
-        if(srcElement.matches('div.line')){
+    ondblclick = function ({ srcElement }) {
+        if (srcElement.matches('div.line')) {
             let startNode = srcElement.firstChild;
-            while(startNode.nodeType != 3 && startNode != undefined) startNode = startNode.firstChild;
+            while (startNode.nodeType != 3 && startNode != undefined) startNode = startNode.firstChild;
             this.selected = {
                 startNode: startNode,
                 startPos: 0,
@@ -702,9 +703,9 @@ function getNodeByAbsPos(line, pos) {
     };
 }
 
-let contextMunu = [
+let contextMunuGlobal = [
     {
-        name: 'menu1',
+        name: 'open',
         disabled: false,
         callback: function () { }
     },
@@ -712,16 +713,73 @@ let contextMunu = [
 
     },
     {
-        name: 'menu2',
+        name: 'cut',
         disabled: true,
         callback: function () { }
     },
     {
-        name: 'menu3',
+        name: 'copy',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'paste',
         disabled: false,
         callback: function () { }
     }
 ];
+
+let contextMunuEditor = [
+    {
+        name: 'select all',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'a' })
+    },
+    {
+        name: 'find...',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+
+    },
+    {
+        name: 'paste',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'v' })
+    },
+    {
+        name: 'cut',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'x' })
+    },
+    {
+        name: 'copy',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'c' })
+    },
+    {
+        name: 'delete',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: false, key: 'Delete' })
+    },
+    {
+
+    },
+    {
+        name: 'refresh',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
+    }
+];
+
+function callEditorFunction(option) {
+    return editor.onkeydown.call(editor, {
+        ...option,
+        preventDefault: () => { },
+        stopPropagation: () => { }
+    });
+}
 
 function contextMenuHandler(e) {
     e.preventDefault();
@@ -744,28 +802,37 @@ function contextMenuHandler(e) {
         left: e.pageX + 'px',
     });
 
-    contextContainer.onmousedown = (e2) => e2.preventDefault();
-
-    contextContainer.onclick = (e2) => {
+    window.onmousedown = (e2) => {
         e2.preventDefault();
-        if (e2.srcElement != contextContainer) return;
         contextContainer.remove();
+        window.onmousedown = undefined;
     }
 
     contextMenu.empty();
 
+    let contextMunuInfos = e.srcElement.closest('.subTab__contents') == undefined ? contextMunuGlobal : contextMunuEditor;
+
     contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
 
-    for (let contextMunuInfo of contextMunuInfos) {
+    for (let tabIndex in contextMunuInfos) {
+        let contextMunuInfo = contextMunuInfos[tabIndex];
         let { name, disabled, callback } = contextMunuInfo;
         let contextMenuItem = (() => {
             let el = document.createElement('p');
+            el.setAttribute('tabindex', tabIndex);
+            el.onmousedown = e3 => {
+                e3.preventDefault();
+                e3.stopPropagation();
+            }
             if (name == undefined) {
                 el.classList.add('contextMenu__line');
             } else {
                 el.classList.add('contextMenu__item');
                 el.innerHTML = name;
-                if (!disabled) el.onclick = callback;
+                if (!disabled) el.onclick = e4 => {
+                    window.onmousedown(e4);
+                    callback(e4);
+                }
                 else el.classList.add('disabled');
             }
             return el;
@@ -778,10 +845,10 @@ function contextMenuHandler(e) {
     contextContainer.animate([
         { opacity: 0 },
         { opacity: 1 },
-      ],{
+    ], {
         duration: 200,
         iterations: 1,
-      })
+    })
 
     return false;
 }
@@ -795,11 +862,28 @@ https://googlechromelabs.github.io/text-editor/ 및 FileSystem Api MDN 문서 �
 */
 async function getFolder() {
     // Open file picker and destructure the result the first handle
-    const [directoryHandle] = await window.showDirectoryPicker({
-        id: 'some id',
+    const directoryHandle = await window.showDirectoryPicker({
+        id: 'some_id',
         mode: 'read' || 'readWrite',
         startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
     });
-    const directory = await fileHandle.getFile();
-    return directory;
+
+    //generator function << 검색해봐
+    async function* getFilesRecursively(entry) {
+        if (entry.kind === "file") {
+            const file = await entry.getFile();
+            if (file !== null) {
+                //file.relativePath = getRelativePath(entry);
+                yield file;
+            }
+        } else if (entry.kind === "directory") {
+            for await (const handle of entry.values()) {
+                yield* getFilesRecursively(handle);
+            }
+        }
+    }
+    for await (const fileHandle of getFilesRecursively(directoryHandle)) {
+        console.log(fileHandle);
+    }
+
 }
