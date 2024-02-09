@@ -86,6 +86,8 @@ nav {
 }
 
 aside {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 21rem;
     width: 30rem;
@@ -131,6 +133,14 @@ button.resizer:hover::after {
     opacity: 1;
 }
 
+button.rect_button {
+    margin: 2rem;
+    padding: 0.4rem;
+    border-radius: 0.2rem;
+    background: var(--highligh-color);
+    line-height: 1.8rem;
+}
+
 .subTab__buttonContianer {
     display: flex;
     height: 3.5rem;
@@ -157,6 +167,7 @@ button.resizer:hover::after {
     border-bottom: 0.1rem solid var(--border-color);
     border-right: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
+    white-space: pre;
 }
 
 .subTab__buttonContianer>div>button[state="0"] {
@@ -240,6 +251,9 @@ code {
 .aside_line {
     height: 2.2rem;
     line-height: 2.2rem;
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .aside_line:hover {
@@ -280,24 +294,29 @@ code {
     content: "\F09AA";
 }
 
-.aside_line[type="json"]::before {
+.aside_line[type="application/json"]::before {
     color: #cbcb41;
     content: "\F0169";
 }
 
-.aside_line[type="html"]::before {
+.aside_line[type="text/html"]::before {
     color: #e37933;
     content: "\F0174";
 }
 
-.aside_line[type="css"]::before {
+.aside_line[type="text/css"]::before {
     color: #519aba;
     content: "\F0423";
 }
 
-.aside_line[type="js"]::before {
+.aside_line[type="text/javascript"]::before {
     color: #cbcb41;
     content: "\F031E";
+}
+
+.aside_line[type="application/zip"]::before {
+    color: #4196cb;
+    content: "\F07B9";
 }
 
 .aside_line:focus::after {

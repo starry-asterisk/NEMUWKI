@@ -38,36 +38,29 @@ HTMLElement.prototype.next = function (s) {
 }
 
 let app;
-let files = [
-    { id: Math.random(), name: "files_1.txt" },
-    { id: Math.random(), name: "index.css" },
-    {
-        id: Math.random(),
-        name: "index",
-        isFolder: true,
-        children: [{ name: "index.html" }],
-    },
-    { id: Math.random(), name: "index.html" },
-];
+let files = {name:'Root',kind:'directory'};
 Vue.component("file", {
     props: {
         id: {},
         name: { default: "[no_named_file]" },
-        isFolder: { default: false },
+        kind: { default: "file" },
+        type: {},
+        handle: {},
+        file: {},
         children: { default: () => [] },
         state: { type: Number },
         onTab: {},
         padding: { default: 2.2 },
     },
     template: `
-    <div class="aside_folder" v-if="isFolder">
-        <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
+    <div class="aside_folder" v-if="kind == 'directory'">
+        <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
         <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
     </div>
     <div class="aside_line" v-else 
-        v-on:click="onTab.addSubTab({id, name, isFolder, onTab}, true)"
+        v-on:click="onTab.addSubTab({id, name, kind, onTab, handle, file}, true)"
         v-on:dblclick="onTab.addSubTab({id})"
-        :type="name.split('.')[1]||'file'"
+        :type="type||name.split('.')[1]||'file'"
         :style="'padding-left:'+padding+'rem;'"
         tabindex="0">{{ name }}</div>
     `,
@@ -88,7 +81,7 @@ class Tab {
         this._onSubTab = new SubTab();
     }
 
-    addSubTab = ({ name = "file1.txt", id }, temp = false) => {
+    addSubTab = async ({ name = "file1.txt", id, handle, file }, temp = false) => {
         if (
             this._subTabs.find(
                 (subTab) => subTab._state != TabState.temp && subTab._uid == id
@@ -103,24 +96,7 @@ class Tab {
 
         if (temp_index < 0) {
             editor.clear();
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
-            editor.addLine().prepend(document.createTextNode('qazwsxedcrfvtgbyhnujmikolp1234567890'));
+            editor.loadText(await file.text());
             if (
                 (temp_index =
                     this._subTabs.findIndex((subTab) => subTab._uid == id) > -1)
@@ -133,12 +109,13 @@ class Tab {
             subTab.set("state", state);
         } else {
             editor.clear();
+            editor.loadText(await file.text());
             this._app.$set(this._app.onTab._subTabs, temp_index, create());
             this._app.onTab._onSubTab = subTab = this._subTabs[temp_index];
         }
 
         function create() {
-            return new SubTab(this, { uid: id, name, state });
+            return new SubTab(this, { uid: id, name, state, handle, file });
         }
 
         return subTab;
@@ -183,9 +160,11 @@ window.onload = () => {
             changeTab: function (tab) {
                 this.onTab = tab;
             },
-            changeSubTab: function (subTab) {
+            changeSubTab: async function (subTab) {
                 editor.clear();
                 this.onTab._onSubTab = subTab;
+                editor.clear();
+                editor.loadText(await subTab._file.text());
             },
             closeSubTab: function ({ _uid }) {
                 editor.clear();

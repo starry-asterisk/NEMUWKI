@@ -26,7 +26,6 @@ HTMLElement.prototype.setStyles = function (obj) {
 
 class Editor2 {
     lines = [];
-    focused;
     _caret;
     _container;
     _selected;
@@ -44,6 +43,10 @@ class Editor2 {
             this.container.append(this._caret);
         }
         return this._caret;
+    }
+    set caret(val) {
+        if (this._caret) this._caret.remove();
+        this._caret = val;
     }
     get container() {
         return this._container || (this._container = document.querySelector(".subTab__contents"));
@@ -71,7 +74,10 @@ class Editor2 {
             this.container.append(this._selectionContainer);
         }
         this._selectionContainer.empty();
-        if (this._selected.startNode == undefined) return;
+        if (this._selected.startNode == undefined) {
+            this.caret = undefined;
+            return;
+        }
 
         this.container.style.setProperty('--scrollTop', `${this.container.scrollTop}px`);
         this.container.style.setProperty('--scrollLeft', `${this.container.scrollLeft}px`);
@@ -117,14 +123,14 @@ class Editor2 {
         this._selectionContainer.append(fragment);
     }
     clear = function () {
-        let container = this.get();
+        let container = this.container;
         while (container.firstChild) container.lastChild.remove();
+        this.lines = [];
+        this.deselect();
+        this._selectionContainer = undefined;
     };
     save = () => {
         console.log("text save imsi");
-    };
-    get = function () {
-        return document.querySelector(".subTab__contents");
     };
     blur = function () {
         this.deselect();
@@ -225,7 +231,7 @@ class Editor2 {
         return text;
     };
 
-    loadText = (text, line, tailText = '') => {
+    loadText = (text, line = this.addLine(), tailText = '') => {
         let node, lines = text.split('\n');
         line.lastChild.before(node = document.createTextNode(lines.shift()));
         for (let lineText of lines) {
@@ -860,6 +866,9 @@ document.addEventListener('contextmenu', contextMenuHandler);
 https://googlechromelabs.github.io/text-editor/ 및 FileSystem Api MDN 문서 참조
 웹 백업과 로컬 two-way 방식으로 지원하고 싶음
 */
+
+/*
+
 async function getFolder() {
     // Open file picker and destructure the result the first handle
     const directoryHandle = await window.showDirectoryPicker({
@@ -870,6 +879,7 @@ async function getFolder() {
 
     //generator function << 검색해봐
     async function* getFilesRecursively(entry) {
+        yield entry;
         if (entry.kind === "file") {
             const file = await entry.getFile();
             if (file !== null) {
@@ -886,4 +896,69 @@ async function getFolder() {
         console.log(fileHandle);
     }
 
+}
+
+*/
+
+async function getFolder() {
+    // Open file picker and destructure the result the first handle
+    const directoryHandle = await window.showDirectoryPicker({
+        id: 'some_id',
+        mode: 'read' || 'readWrite',
+        startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
+    });
+    app.files = await FileFactory(directoryHandle);
+}
+
+async function FileFactory(entry) {
+    if (entry.kind === "file") {
+        return new CFile(entry, await entry.getFile());
+    } else if (entry.kind === "directory") {
+        let directory = new CDirectory(entry);
+        for await (const handle of entry.values()) {
+            directory.children.push(await FileFactory(handle));
+        }
+        return directory;
+    }
+}
+
+function openFolder() {
+    this.parentElement.classList.toggle('open');
+    repaintScrollbar(document.querySelector('.v-scrollbar[target=".root.aside_folder"]'), false);
+}
+
+class CFile {
+    constructor(fileHandle, file) {
+        this.id = Math.random();
+        if (fileHandle == null) return;
+        this.name = fileHandle.name;
+        this.kind = fileHandle.kind;
+        this.type = file.type;
+        this.children = [];
+        this.handle = fileHandle;
+        this.file = file;
+    }
+
+    write = async function (blob) {
+        // Write the blob to the file.
+        const writable = await this.handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }
+
+    move = async function () {
+        this.handle.move.apply(this.handle, arguments);
+        this.file = await this.handle.getFile();
+    }
+}
+
+class CDirectory {
+    constructor(fileHandle) {
+        this.id = Math.random();
+        if (fileHandle == null) return;
+        this.name = fileHandle.name;
+        this.kind = fileHandle.kind;
+        this.children = [];
+        this.handle = fileHandle;
+    }
 }

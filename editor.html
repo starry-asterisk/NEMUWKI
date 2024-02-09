@@ -38,11 +38,9 @@
             <aside>
                 <p>소스제어</p>
                 <button class="resizer"></button>
-                <div class="aside_folder open">
-                    <div class="aside_line" onclick="this.parentElement.classList.toggle('open')" tabindex="0"> Root
-                    </div>
-                    <file v-for="(file, index) in files" v-bind="{...file, onTab, padding: 2.2}" :key="index"></file>
-                </div>
+                <file v-if="files" v-bind="{...files, onTab, padding: 0}" :class="['root','open']"></file>
+                <span class="v-scrollbar overlay" target=".root.aside_folder" style="margin-top: 3.5rem;"></span>
+                <button onclick="getFolder();this.remove();" class="rect_button">Open Folder</button>
             </aside>
             <section>
                 <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
