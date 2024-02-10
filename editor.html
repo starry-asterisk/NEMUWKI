@@ -13,13 +13,15 @@
     <link href="./editor/Segoe-UI.css" rel="stylesheet" type="text/css" />
     <link href="./editor/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
     <link href="./editor/ui.css" rel="stylesheet" type="text/css">
-    <link href="./cursor.css" rel="stylesheet" type="text/css">
+    <!--<link href="./cursor.css" rel="stylesheet" type="text/css">-->
     <link href="#" rel="short icon">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="./editor/hangul.js"></script>
-    <script src="./editor/ui.js"></script>
-    <script src="./editor/ui2.js"></script>
-    <script src="./cursor.js"></script>
+    <script src="./editor/util.js"></script>
+    <script src="./editor/component.js"></script>
+    <script src="./editor/editor-util.js"></script>
+    <script src="./editor/editor-main.js"></script>
+    <!--<script src="./cursor.js"></script>-->
     <title>편집기</title>
 </head>
 
@@ -39,15 +41,15 @@
                 <p>소스제어</p>
                 <button class="resizer"></button>
                 <file v-if="files" v-bind="{...files, onTab, padding: 0}" :class="['root','open']"></file>
-                <span class="v-scrollbar overlay" target=".root.aside_folder" style="margin-top: 3.5rem;"></span>
-                <button onclick="getFolder();this.remove();" class="rect_button">Open Folder</button>
+                <span v-if="files" class="v-scrollbar overlay" target=".root.aside_folder" style="margin-top: 3.5rem;"></span>
+                <button v-else onclick="getFolder();" class="rect_button">Open Folder</button>
             </aside>
             <section>
                 <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
                     <div class="subTab__buttonContianer__div">
                         <button v-for="(subTab, index) in onTab._subTabs"
                             :class="{on:subTab._uid == onTab._onSubTab._uid}" :state="subTab._state"
-                            v-on:click="changeSubTab(subTab)">{{subTab._name}} <span v-on:click="closeSubTab(subTab)"
+                            v-on:click="onTab.addSubTab({id:subTab._uid})">{{subTab._name}} <span v-on:click="onTab.closeSubTab(subTab._uid)"
                                 style="margin-left: 0.5rem;font-style: normal;" :key="index">✕</span></button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>

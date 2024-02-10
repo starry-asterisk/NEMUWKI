@@ -1,30 +1,70 @@
-Element.prototype.scrollIntoViewIfNeeded = function () {
-    let parent = this.parentNode;
-    let overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
-        overBottom = (this.offsetTop - parent.offsetTop + this.clientHeight) > (parent.scrollTop + parent.clientHeight),
-        overLeft = this.offsetLeft - parent.offsetLeft < parent.scrollLeft,
-        overRight = (this.offsetLeft - parent.offsetLeft + this.clientWidth) > (parent.scrollLeft + parent.clientWidth);
 
-    if (overTop || overBottom || overLeft || overRight) {
-        this.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-    }
+let app;
+let files;
+let scrollEventManager;
+let editor;
+let global_range;
+
+window.onload = () => {
+    app = new Vue({
+        el: ".bodyContainer",
+        updated: () => {
+            repaintScrollbarVisible();
+        },
+        data: {
+            files,
+            tabs: [],
+            onTab: new Tab(),
+            hangulMode: false,
+        },
+        methods: {
+            addTab: function () {
+                let tab = new Tab(this);
+                this.tabs.push(tab);
+            },
+            changeTab: function (tab) {
+                this.onTab = tab;
+            },
+            changeSubTab: async function (subTab) {
+                editor.clear();
+                this.onTab._onSubTab = subTab;
+                editor.loadText(await subTab._file.text());
+            }
+        },
+    });
+    app.addTab();
+    app.addTab();
+    app.addTab();
+    app.onTab._app = app;
+
+    let aside = document.querySelector("section");
+    let resizer = document.querySelector(".resizer");
+
+    resizer.onmousedown = (e_down) => {
+        aside = document.querySelector("section");
+        let pos = e_down.screenX;
+        let width = aside.getBoundingClientRect().width;
+        window.onmousemove = (e_move) =>
+            (aside.style.width = `${width - e_move.screenX + pos}px`);
+        window.onmouseup = () => {
+            window.onmouseup = window.onmousemove = undefined;
+        };
+    };
+
+    scrollEventManager = new ScrollEventManager();
+
+    window.addEventListener("resize", function () {
+        repaintScrollbarVisible();
+    });
+
+    editor = new Editor();
+
+    document.addEventListener('contextmenu', contextMenuHandler);
+
+    loadOverlay.remove();
 };
 
-
-HTMLElement.prototype.empty = function () {
-    let removed = Array.from(this.childNodes)
-    for (let c of removed) {
-        c.remove();
-    }
-    return removed;
-}
-HTMLElement.prototype.setStyles = function (obj) {
-    if (obj == undefined) console.error('Arguments 0 is undefined or null');
-    else for (let name in obj) this.style.setProperty(name, obj[name]);
-    return this;
-}
-
-class Editor2 {
+class Editor {
     lines = [];
     _caret;
     _container;
@@ -464,501 +504,5 @@ class Editor2 {
                 endPos: 0
             };
         }
-    }
-}
-let global_range;
-editor = new Editor2();
-function getLetterRect(node, spos = 0, epos) {
-    let range = getRange();
-    if (epos == undefined) epos = spos + 1;
-    range.setStart(node, spos);
-    range.setEnd(node, epos);
-    return range.getBoundingClientRect();
-}
-function getLetterPos(e) {
-    let r_v = 0;
-    let r_v2 = -1;
-    let r_n = undefined;
-    let r_rect = undefined;
-    let isEnd = false;
-    let parent = e.target.closest('.line');
-    let isOut = false;
-    let outDirection = 0;// 0:left, 1: right;
-    let l;
-    if (parent == undefined) {
-        isOut = true;
-        for (let line of editor.lines) {
-            let p_rect = line.getBoundingClientRect();
-            if (p_rect.top <= e.pageY && p_rect.bottom >= e.pageY) {
-                parent = line;
-                break;
-            }
-        }
-        if (parent == undefined) {
-            let c_rect = editor.containerRect;
-            if (c_rect.top >= e.pageY) parent = editor.lines[0];
-            else parent = editor.lines[editor.lines.length - 1];
-        }
-        if (parent == undefined) return false;
-    }
-
-    r_v = compare(parent);
-    if (r_v2 < 0) {
-        if (isOut && e.pageX <= parent.getBoundingClientRect().left) {
-            r_v = r_v2 = 0;
-            outDirection = -1;
-            r_n = parent.firstChild;
-            while (r_n.nodeType !== 3) r_n = r_n.firstChild;
-        }
-
-        if (r_n == undefined) {
-            outDirection = 1;
-            isOut = true;
-            r_n = parent.lastChild;
-            while (r_n.nodeType !== 3) r_n = r_n.lastChild;
-            r_v2 = r_n.nodeValue.length - 1;
-        }
-        if (r_rect == undefined) {
-            r_rect = getLetterRect(r_n, r_v2);
-        }
-    }
-
-    return {
-        absolute: {
-            pos: r_v,
-            node: parent,
-            isOut: isOut,
-            outDirection: outDirection
-        },
-        relative: {
-            pos: r_v2,
-            node: r_n,
-            rect: r_rect
-        }
-    }
-
-    function compare(node) {
-        v = 0;
-        if (isEnd) return v;
-        if (node.nodeType === 3) {
-            l = node.nodeValue.length;
-            for (let i = 0; i < l; i++) {
-                let rect = getLetterRect(node, i);
-                if (e.pageX >= rect.left && e.pageX <= rect.right) {
-                    isEnd = true;
-                    r_n = node;
-                    r_v2 = i;
-                    r_rect = rect;
-                    return i;
-                }
-            }
-            return l;
-        } else for (let child of node.childNodes) v += compare(child);
-        return v;
-    }
-}
-
-function compareRectPos(rect1, rect2) {
-    if (rect1.top > rect2.top) {
-        return true;
-    } else if (rect1.top == rect2.top) {
-        return rect1.left >= rect2.left;
-    } else {
-        return false;
-    }
-}
-
-function getRelativeRect(parent, child) {
-    return {
-        x: child.x - parent.x,
-        y: child.y - parent.y,
-        top: child.top - parent.top,
-        left: child.left - parent.left,
-        bottom: child.bottom - parent.top,
-        right: child.right - parent.left,
-        height: child.height,
-        width: child.width
-    };
-}
-
-function getRange() {
-    return global_range ||
-        (global_range = document.createRange());
-}
-
-function inputText(key, hangulMode) {
-    let c = this.caret;
-    let hanguel_i;
-    let node = editor.selected.startNode;
-    let letters;
-    if (!hangulMode || (hanguel_i = hangul[key]) == undefined) {
-        //c.before(document.createTextNode(key));
-        letters = {
-            firedLetter: key,
-            now_letter: '',
-            old_letter: ''
-        }
-    } else {
-        letters = inputHangul.call(this, hanguel_i);
-    }
-
-    let {
-        startNode,
-        startPos,
-        endNode,
-        endPos
-    } = editor.selected;
-    if (isLineLast(node)) {
-        let target = shiftPrevLetterPos(node, 0, -1, true) || (() => {
-            let textNode = document.createTextNode('');
-            node.before(textNode);
-            return {
-                node: textNode,
-                pos: 0
-            };
-        })();
-        target.node.nodeValue = target.node.nodeValue.substring(0, target.node.nodeValue.length - letters.old_letter.length) + letters.firedLetter + letters.now_letter;
-    } else {
-        startNode.nodeValue = startNode.nodeValue.substring(0, startPos - letters.old_letter.length) + letters.firedLetter + letters.now_letter + startNode.nodeValue.substring(startPos);
-        startPos += letters.now_letter.length - letters.old_letter.length + letters.firedLetter.length;
-    }
-    editor.selected = {
-        startNode,
-        startPos,
-        endNode,
-        endPos
-    };
-    //editor.container.focus();
-}
-
-function shiftLetterPos(node, pos, offset = 1) {
-    let line = node.parentNode.closest('.line');
-    let maxOffset = node.nodeValue.length;
-    let overflow = pos + offset - maxOffset;
-
-    if (offset < 0) return shiftPrevLetterPos(node, pos, offset);
-
-    if (overflow < 0) return {
-        node,
-        pos: pos + offset
-    }
-
-    while (node.nextSibling == undefined && node != line) node = node.parentNode;
-    if (node == line) node = line.next('.line');
-    else node = node.nextSibling;
-    if (node == undefined) return undefined;
-    while (node.nodeType != 3) node = node.firstChild;
-    return shiftLetterPos(node, 0, overflow);
-}
-
-function shiftPrevLetterPos(node, pos, offset, inline = false) {
-    let line = node.parentNode.closest('.line');
-    let overflow = pos + offset;
-
-    if (overflow < 0) {
-        while (node.previousSibling == undefined && node != line) node = node.parentNode;
-        if (node == line) if (inline) return undefined; else node = line.prev('.line');
-        else node = node.previousSibling;
-        if (node == undefined) return undefined;
-        while (node.nodeType != 3) node = node.lastChild;
-        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow + 1);
-    } else return {
-        node,
-        pos: pos + offset
-    }
-}
-
-function isLineLast(node) {
-    return node.parentNode.closest('.line').lastChild == node;
-}
-
-function deleteText(s_node, s_pos, e_node, e_pos) {
-    let text;
-    let r = getRange();
-    r.setStart(s_node, s_pos);
-    r.setEnd(e_node, e_pos);
-    text = r.toString();
-    r.deleteContents();
-    return text;
-}
-
-function getAbsolutePos(node, pos) {
-    let p = node.parentNode.closest('.line');
-    let firstNode = p.firstChild;
-    while (firstNode.firstChild) firstNode = firstNode.firstChild;
-    let r = getRange();
-    r.setStart(firstNode, 0);
-    r.setEnd(node, pos);
-
-    return r.toString().length;
-}
-
-function getNodeByAbsPos(line, pos) {
-    if (line == undefined) return undefined;
-    const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT)
-    while (walker.nextNode()) {
-        if (walker.currentNode.nodeValue.length > pos) return {
-            node: walker.currentNode,
-            pos: pos
-        }
-        else pos -= walker.currentNode.nodeValue.length;
-    }
-    return {
-        node: walker.currentNode,
-        pos: walker.currentNode.nodeValue.length - 1
-    };
-}
-
-let contextMunuGlobal = [
-    {
-        name: 'open',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-
-    },
-    {
-        name: 'cut',
-        disabled: true,
-        callback: function () { }
-    },
-    {
-        name: 'copy',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'paste',
-        disabled: false,
-        callback: function () { }
-    }
-];
-
-let contextMunuEditor = [
-    {
-        name: 'select all',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'a' })
-    },
-    {
-        name: 'find...',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-
-    },
-    {
-        name: 'paste',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'v' })
-    },
-    {
-        name: 'cut',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'x' })
-    },
-    {
-        name: 'copy',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'c' })
-    },
-    {
-        name: 'delete',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: false, key: 'Delete' })
-    },
-    {
-
-    },
-    {
-        name: 'refresh',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
-    }
-];
-
-function callEditorFunction(option) {
-    return editor.onkeydown.call(editor, {
-        ...option,
-        preventDefault: () => { },
-        stopPropagation: () => { }
-    });
-}
-
-function contextMenuHandler(e) {
-    e.preventDefault();
-
-    let contextContainer = document.querySelector('.contextContainer') || (() => {
-        let el = document.createElement('div');
-        el.classList.add('contextContainer');
-        return el;
-    })();
-
-    let contextMenu = document.querySelector('.contextMenu') || (() => {
-        let el = document.createElement('div');
-        el.classList.add('contextMenu');
-        contextContainer.append(el);
-        return el;
-    })();
-
-    contextMenu.setStyles({
-        top: e.pageY + 'px',
-        left: e.pageX + 'px',
-    });
-
-    window.onmousedown = (e2) => {
-        e2.preventDefault();
-        contextContainer.remove();
-        window.onmousedown = undefined;
-    }
-
-    contextMenu.empty();
-
-    let contextMunuInfos = e.srcElement.closest('.subTab__contents') == undefined ? contextMunuGlobal : contextMunuEditor;
-
-    contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
-
-    for (let tabIndex in contextMunuInfos) {
-        let contextMunuInfo = contextMunuInfos[tabIndex];
-        let { name, disabled, callback } = contextMunuInfo;
-        let contextMenuItem = (() => {
-            let el = document.createElement('p');
-            el.setAttribute('tabindex', tabIndex);
-            el.onmousedown = e3 => {
-                e3.preventDefault();
-                e3.stopPropagation();
-            }
-            if (name == undefined) {
-                el.classList.add('contextMenu__line');
-            } else {
-                el.classList.add('contextMenu__item');
-                el.innerHTML = name;
-                if (!disabled) el.onclick = e4 => {
-                    window.onmousedown(e4);
-                    callback(e4);
-                }
-                else el.classList.add('disabled');
-            }
-            return el;
-        })();
-
-        contextMenu.append(contextMenuItem);
-    }
-
-    document.body.append(contextContainer);
-    contextContainer.animate([
-        { opacity: 0 },
-        { opacity: 1 },
-    ], {
-        duration: 200,
-        iterations: 1,
-    })
-
-    return false;
-}
-
-document.addEventListener('contextmenu', contextMenuHandler);
-
-
-/*
-https://googlechromelabs.github.io/text-editor/ 및 FileSystem Api MDN 문서 참조
-웹 백업과 로컬 two-way 방식으로 지원하고 싶음
-*/
-
-/*
-
-async function getFolder() {
-    // Open file picker and destructure the result the first handle
-    const directoryHandle = await window.showDirectoryPicker({
-        id: 'some_id',
-        mode: 'read' || 'readWrite',
-        startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
-    });
-
-    //generator function << 검색해봐
-    async function* getFilesRecursively(entry) {
-        yield entry;
-        if (entry.kind === "file") {
-            const file = await entry.getFile();
-            if (file !== null) {
-                //file.relativePath = getRelativePath(entry);
-                yield file;
-            }
-        } else if (entry.kind === "directory") {
-            for await (const handle of entry.values()) {
-                yield* getFilesRecursively(handle);
-            }
-        }
-    }
-    for await (const fileHandle of getFilesRecursively(directoryHandle)) {
-        console.log(fileHandle);
-    }
-
-}
-
-*/
-
-async function getFolder() {
-    // Open file picker and destructure the result the first handle
-    const directoryHandle = await window.showDirectoryPicker({
-        id: 'some_id',
-        mode: 'read' || 'readWrite',
-        startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
-    });
-    app.files = await FileFactory(directoryHandle);
-}
-
-async function FileFactory(entry) {
-    if (entry.kind === "file") {
-        return new CFile(entry, await entry.getFile());
-    } else if (entry.kind === "directory") {
-        let directory = new CDirectory(entry);
-        for await (const handle of entry.values()) {
-            directory.children.push(await FileFactory(handle));
-        }
-        return directory;
-    }
-}
-
-function openFolder() {
-    this.parentElement.classList.toggle('open');
-    repaintScrollbar(document.querySelector('.v-scrollbar[target=".root.aside_folder"]'), false);
-}
-
-class CFile {
-    constructor(fileHandle, file) {
-        this.id = Math.random();
-        if (fileHandle == null) return;
-        this.name = fileHandle.name;
-        this.kind = fileHandle.kind;
-        this.type = file.type;
-        this.children = [];
-        this.handle = fileHandle;
-        this.file = file;
-    }
-
-    write = async function (blob) {
-        // Write the blob to the file.
-        const writable = await this.handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-    }
-
-    move = async function () {
-        this.handle.move.apply(this.handle, arguments);
-        this.file = await this.handle.getFile();
-    }
-}
-
-class CDirectory {
-    constructor(fileHandle) {
-        this.id = Math.random();
-        if (fileHandle == null) return;
-        this.name = fileHandle.name;
-        this.kind = fileHandle.kind;
-        this.children = [];
-        this.handle = fileHandle;
     }
 }

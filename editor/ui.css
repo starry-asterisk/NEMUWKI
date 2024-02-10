@@ -121,8 +121,8 @@ button.resizer::after {
     content: '';
     position: absolute;
     top: 0;
-    left: -0.3rem;
-    right: -0.3rem;
+    left: -0.4rem;
+    right: -0.4rem;
     height: 100%;
     background-color: var(--highligh-color);
     opacity: 0;
@@ -621,8 +621,4 @@ span.sel.empty::after {
     background-color: #ffffff20;
     height: 0.1rem;
     margin: 0.8rem 0.5rem;
-}
-
-#loadOverlay {
-    display: none;
 }
