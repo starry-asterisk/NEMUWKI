@@ -140,6 +140,18 @@ function repaintScrollbarVisible() {
         repaintScrollbar(scrollbar, false);
 }
 
+function repaintResizer(e_down) {
+    let aside = document.querySelector("aside");
+    let pos = e_down.screenX;
+    let width = aside.getBoundingClientRect().width;
+    window.onmousemove = (e_move) => {
+        aside.style.maxWidth = aside.style.minWidth = `${Math.max(width + e_move.screenX - pos, 210)}px`;
+    };
+    window.onmouseup = () => {
+        window.onmouseup = window.onmousemove = undefined;
+    };
+}
+
 function contextMenuHandler(e) {
     e.preventDefault();
 

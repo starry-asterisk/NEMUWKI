@@ -8,7 +8,7 @@ class Tab {
         this._uid = Math.random();
         this._app = _app;
         this._icon = "mdi-radiobox-blank";
-        this._nam = "empty tab";
+        this._name = "empty tab";
         this._subTabs = [];
 
         this._onSubTab = new SubTab();
@@ -77,8 +77,32 @@ class SubTab {
 class GameTab extends Tab {
     constructor(_app) {
         super(_app);
-        this._nam = "game develop";
+        this._name = "game";
         this._icon = "mdi-gamepad-square";
+    }
+}
+
+class TextEditorTab extends Tab {
+    constructor(_app) {
+        super(_app);
+        this._name = "text";
+        this._icon = "mdi-file-multiple-outline";
+    }
+}
+
+class FinderTab extends Tab {
+    constructor(_app) {
+        super(_app);
+        this._name = "finder";
+        this._icon = "mdi-magnify";
+    }
+
+    get _subTabs(){
+        return this._app.tabs.find(tab => tab instanceof TextEditorTab)._subTabs;
+    }
+
+    set _subTabs(val){
+        this._app.tabs.find(tab => tab instanceof TextEditorTab)._subTabs = val;
     }
 }
 

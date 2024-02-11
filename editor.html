@@ -26,26 +26,35 @@
 </head>
 
 <body>
+    <!-- Vue App Root -->
     <div class="bodyContainer">
+        <!-- Serch Box -->
         <header>
             <div class="header__search">text</div>
         </header>
         <div class="rootContainer">
+            <!-- Left Side Navigation -->
             <nav>
-                <p>btn</p>
-                <button v-for="(tab, index) in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab._uid == tab._uid }"
-                    v-on:click="()=>changeTab(tab)" :key="index">
+                <p class="mdi mdi-menu"></p>
+                <!-- Navigate Button -->
+                <button v-for="(tab, index) in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab && onTab._uid == tab._uid }"
+                    v-on:click="changeTab(tab)" :key="index">
                 </button>
+                <span style="flex:1"></span>
+                <button class="mdi mdi-account-circle-outline"></button>
+                <button class="mdi mdi-cog-outline"></button>
             </nav>
-            <aside>
+            <!-- Side Menu -->
+            <aside v-show="onTab && onTab._name == 'text'">
                 <p>소스제어</p>
-                <button class="resizer"></button>
+                <button class="resizer" onmousedown="repaintResizer(event);"></button>
                 <file v-if="files" v-bind="{...files, onTab, padding: 0}" :class="['root','open']"></file>
                 <span v-if="files" class="v-scrollbar overlay" target=".root.aside_folder" style="margin-top: 3.5rem;"></span>
                 <button v-else onclick="getFolder();" class="rect_button">Open Folder</button>
             </aside>
+            <!-- Working Section -->
             <section>
-                <div class="subTab__buttonContianer" v-if="onTab._subTabs.length > 0">
+                <div class="subTab__buttonContianer" v-if="onTab && onTab._subTabs.length > 0">
                     <div class="subTab__buttonContianer__div">
                         <button v-for="(subTab, index) in onTab._subTabs"
                             :class="{on:subTab._uid == onTab._onSubTab._uid}" :state="subTab._state"
@@ -54,13 +63,15 @@
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
-                <div v-show="onTab._subTabs.length > 0" class="subTab__contents" tabindex="0"
+                <div v-show="onTab && onTab._subTabs.length > 0" class="subTab__contents" tabindex="0"
                     ondblclick="editor.ondblclick(event)"
                     onkeydown="editor.onkeydown(event)" onkeyup="" onclick="editor.onkeyup(event)"
                     onmousedown="editor.onmousedown(event)" onmouseup="editor.onmouseup(event)" onblur="editor.blur()"></div>
+                <!-- scrollBar(Working Section) -->
                 <span class="h-scrollbar overlay" target=".subTab__contents"></span>
                 <span class="v-scrollbar overlay" target=".subTab__contents"></span>
-                <div v-show="onTab._subTabs.length < 1" class="section__empty">
+                <!-- Tips for short-cut -->
+                <div v-show="onTab == undefined || onTab._subTabs.length < 1" class="section__empty">
                     <span class="section__empty__icon mdi mdi-alert-octagon"></span>
                     <p class="section__empty__command">
                         <span>모든 명령 표시</span>

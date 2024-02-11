@@ -14,16 +14,16 @@ window.onload = () => {
         data: {
             files,
             tabs: [],
-            onTab: new Tab(),
+            onTab: undefined,
             hangulMode: false,
         },
         methods: {
-            addTab: function () {
-                let tab = new Tab(this);
+            addTab: function (TabClass) {
+                let tab = new TabClass(this);
                 this.tabs.push(tab);
             },
             changeTab: function (tab) {
-                this.onTab = tab;
+                this.onTab = (tab == this.onTab)?undefined:tab;
             },
             changeSubTab: async function (subTab) {
                 editor.clear();
@@ -32,24 +32,9 @@ window.onload = () => {
             }
         },
     });
-    app.addTab();
-    app.addTab();
-    app.addTab();
-    app.onTab._app = app;
-
-    let aside = document.querySelector("section");
-    let resizer = document.querySelector(".resizer");
-
-    resizer.onmousedown = (e_down) => {
-        aside = document.querySelector("section");
-        let pos = e_down.screenX;
-        let width = aside.getBoundingClientRect().width;
-        window.onmousemove = (e_move) =>
-            (aside.style.width = `${width - e_move.screenX + pos}px`);
-        window.onmouseup = () => {
-            window.onmouseup = window.onmousemove = undefined;
-        };
-    };
+    app.addTab(TextEditorTab);
+    app.addTab(FinderTab);
+    app.addTab(GameTab);
 
     scrollEventManager = new ScrollEventManager();
 
@@ -58,6 +43,15 @@ window.onload = () => {
     });
 
     editor = new Editor();
+
+    window.onkeydown = ({ctrlKey, key}) => {
+        console.log(ctrlKey, key);
+        switch(key.toLowerCase()){
+            case 'b':
+                if(ctrlKey) app.changeTab(undefined);
+                break;
+        }
+    }
 
     document.addEventListener('contextmenu', contextMenuHandler);
 
@@ -272,7 +266,7 @@ class Editor {
     };
 
     loadText = (text, line = this.addLine(), tailText = '') => {
-        let node, lines = text.split('\n');
+        let node, lines = text.replaceAll('\r','').split('\n');
         line.lastChild.before(node = document.createTextNode(lines.shift()));
         for (let lineText of lines) {
             line = this.addLine(line);
@@ -306,7 +300,7 @@ class Editor {
                             endPos: s.pos,
                             direction: true
                         }
-                        this.redrawScroll();
+                        //this.redrawScroll();
                         break;
                     case "x":
                         navigator.clipboard.writeText(this.delSelect());
