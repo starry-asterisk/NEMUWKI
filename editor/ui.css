@@ -57,6 +57,7 @@ footer {
     height: 2.3rem;
     border-top: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
+    overflow: hidden;
 }
 
 footer>* {
@@ -79,10 +80,11 @@ footer>*.right {
 nav {
     display: flex;
     flex-direction: column;
-    width: 5rem;
+    min-width: 5rem;
     z-index: 2;
     background-color: var(--background-dark);
     border-right: 0.1rem solid var(--border-color);
+    overflow: hidden;
 }
 
 aside {
@@ -94,11 +96,17 @@ aside {
     border-right: 0.1rem solid var(--border-color);
 }
 
+aside > .aside_folder > .aside_line {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
 section {
     display: flex;
     flex-direction: column;
     flex: 1;
     background-color: var(--background-light);
+    max-width: calc(100% - 30rem);
 }
 
 aside[style*="display: none"] + section {
@@ -301,6 +309,18 @@ code {
 
 .aside_line::before {
     content: "\F09AA";
+}
+
+.aside_line[type="woff2"]::before,
+.aside_line[type="application/font-woff"]::before,
+.aside_line[type="ttf"]::before {
+    color: #ce3434;
+    content: "\F06D6";
+}
+
+.aside_line[type*="image"]::before {
+    color: #b864b8;
+    content: "\F02EF";
 }
 
 .aside_line[type="application/json"]::before {

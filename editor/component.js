@@ -190,7 +190,7 @@ Vue.component("file", {
     template: `
     <div class="aside_folder" v-if="kind == 'directory'">
         <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
-        <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 2.2}"></file>
+        <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 1.1}"></file>
     </div>
     <div class="aside_line" v-else 
         v-on:click="onTab.addSubTab({id, name, kind, onTab, handle, file}, true)"

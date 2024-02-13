@@ -300,7 +300,7 @@ class Editor {
                             endPos: s.pos,
                             direction: true
                         }
-                        //this.redrawScroll();
+                        this.redrawScroll();
                         break;
                     case "x":
                         navigator.clipboard.writeText(this.delSelect());
