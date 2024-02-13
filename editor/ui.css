@@ -101,6 +101,10 @@ section {
     background-color: var(--background-light);
 }
 
+aside[style*="display: none"] + section {
+    min-width: unset !important;
+    max-width: unset !important;
+}
 
 p {
     height: 3.5rem;

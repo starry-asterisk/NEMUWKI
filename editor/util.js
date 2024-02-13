@@ -142,10 +142,19 @@ function repaintScrollbarVisible() {
 
 function repaintResizer(e_down) {
     let aside = document.querySelector("aside");
+    let nav = document.querySelector("nav");
+    let section = document.querySelector("section");
+    let rootContainer = document.querySelector(".rootContainer");
     let pos = e_down.screenX;
     let width = aside.getBoundingClientRect().width;
+    let r_width = rootContainer.getBoundingClientRect().width;
+    let n_width = nav.getBoundingClientRect().width;
     window.onmousemove = (e_move) => {
-        aside.style.maxWidth = aside.style.minWidth = `${Math.max(width + e_move.screenX - pos, 210)}px`;
+        let v = width + e_move.screenX - pos;
+        let filtered_v = between(210, r_width - n_width, v);
+        aside.style.maxWidth = aside.style.minWidth = `${filtered_v}px`;
+        section.style.maxWidth = section.style.minWidth = `calc(100% - ${filtered_v + n_width}px)`;
+        repaintScrollbarVisible();
     };
     window.onmouseup = () => {
         window.onmouseup = window.onmousemove = undefined;
