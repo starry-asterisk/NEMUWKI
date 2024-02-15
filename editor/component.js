@@ -23,17 +23,17 @@ class Tab {
         let subTab = this._subTabs.find(
             (subTab) => subTab._state != TabState.temp && subTab._uid == id
         )
-        if (subTab){
-            if(this._app.onTab._onSubTab == subTab) return;
+        if (subTab) {
+            if (this._app.onTab._onSubTab == subTab) return;
             editor.clear();
-            editor.loadText(await subTab._file.text());
+            editor.loadFile(file);
             this._app.onTab._onSubTab = subTab;
             return;
         }
-            
+
         let temp_index = this._subTabs.findIndex(
-                (subTab) => subTab._state == TabState.temp
-            );
+            (subTab) => subTab._state == TabState.temp
+        );
         let state = temp ? TabState.temp : TabState.open;
 
         if (temp_index < 0) {
@@ -56,7 +56,7 @@ class Tab {
 
         async function create() {
             editor.clear();
-            editor.loadText(await file.text());
+            editor.loadFile(file);
             return new SubTab(this, { uid: id, name, state, handle, file });
         }
 
@@ -97,11 +97,11 @@ class FinderTab extends Tab {
         this._icon = "mdi-magnify";
     }
 
-    get _subTabs(){
+    get _subTabs() {
         return this._app.tabs.find(tab => tab instanceof TextEditorTab)._subTabs;
     }
 
-    set _subTabs(val){
+    set _subTabs(val) {
         this._app.tabs.find(tab => tab instanceof TextEditorTab)._subTabs = val;
     }
 }
@@ -111,7 +111,7 @@ class ScrollEventManager {
     addEventListener = (target, _id, eventName, callback) => {
         if (typeof target == 'string') target = document.querySelector(target);
         if (this.ListenerList[_id]) target.removeEventListener(eventName, this.ListenerList[_id]);
-        target.addEventListener(eventName, callback, {passive: true});
+        target.addEventListener(eventName, callback, { passive: true });
         this.ListenerList[_id] = callback;
     }
 }
@@ -153,15 +153,28 @@ class CDirectory {
 }
 
 async function getFolder() {
+    navigator.userActivation.isActive = true;
     // Open file picker and destructure the result the first handle
-    const directoryHandle = await window.showDirectoryPicker({
-        id: 'some_id',
-        mode: 'read' || 'readWrite',
-        startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
-    });
-    app.files = await FileFactory(directoryHandle);
-}
+    fileDB.get('workingDirectory', async ({ directoryHandle }) => {
+        if (directoryHandle == undefined) {
+            directoryHandle = await window.showDirectoryPicker({
+                id: 'some_id',
+                mode: 'read' || 'readWrite',
+                startIn: 'desktop' || 'documents' || 'downloads' || 'music' || 'pictures' || 'videos'
+            });
+            fileDB.insertOne({ use: 'workingDirectory', directoryHandle });
+        }
 
+        const options = { mode: 'readwrite' };
+        
+        if (
+            (await directoryHandle.queryPermission(options)) !== 'granted' &&
+            (await directoryHandle.requestPermission(options)) !== 'granted'
+        ) {
+            return console.error('permission not allowed!!');
+        } else app.files = await FileFactory(directoryHandle);
+    });
+}
 async function FileFactory(entry) {
     if (entry.kind === "file") {
         return new CFile(entry, await entry.getFile());

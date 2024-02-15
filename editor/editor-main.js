@@ -23,7 +23,7 @@ window.onload = () => {
                 this.tabs.push(tab);
             },
             changeTab: function (tab) {
-                this.onTab = (tab == this.onTab)?undefined:tab;
+                this.onTab = (tab == this.onTab) ? undefined : tab;
             },
             changeSubTab: async function (subTab) {
                 editor.clear();
@@ -44,11 +44,13 @@ window.onload = () => {
 
     editor = new Editor();
 
-    window.onkeydown = ({ctrlKey, key}) => {
+    fileDB = new FileDB();
+
+    window.onkeydown = ({ ctrlKey, key }) => {
         console.log(ctrlKey, key);
-        switch(key.toLowerCase()){
+        switch (key.toLowerCase()) {
             case 'b':
-                if(ctrlKey) app.changeTab(undefined);
+                if (ctrlKey) app.changeTab(undefined);
                 break;
         }
     }
@@ -265,8 +267,26 @@ class Editor {
         return text;
     };
 
+    loadFile = async file => {
+        let [type, subtype] = file.type.split('/');
+        switch (type) {
+            case 'text':
+                this.loadText(await file.text());
+                break;
+            case 'image':
+                if(subtype == 'svg+xml'){
+                    console.log(await file.text(),file);
+                    this.loadText(await file.text());
+                    break;
+                }
+                this.loadImage(file);
+                break;
+        }
+
+    }
+
     loadText = (text, line = this.addLine(), tailText = '') => {
-        let node, lines = text.replaceAll('\r','').split('\n');
+        let node, lines = text.replaceAll('\r', '').split('\n');
         line.lastChild.before(node = document.createTextNode(lines.shift()));
         for (let lineText of lines) {
             line = this.addLine(line);
@@ -275,6 +295,17 @@ class Editor {
         let pos = node.nodeValue.length;
         node.nodeValue += tailText;
         return shiftLetterPos(node, 0, pos);
+    }
+
+    loadImage = (blob) => {
+        var url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.src = url;
+        img.onload = function () {
+            //cleanup.
+            URL.revokeObjectURL(this.src);
+        }
+        this.addLine().append(img);
     }
 
     redrawScroll = () => {
