@@ -36,14 +36,14 @@
         <div class="rootContainer">
             <!-- Left Side Navigation -->
             <nav>
-                <p class="mdi mdi-menu" onclick="contextMenuHandler(event)"></p>
+                <p class="mdi mdi-menu" onclick="contextMenuHandler(event, contextMunuNav)"></p>
                 <!-- Navigate Button -->
                 <button v-for="(tab, index) in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab && onTab._uid == tab._uid }"
                     v-on:click="changeTab(tab)" :key="index">
                 </button>
                 <span style="flex:1"></span>
-                <button class="mdi mdi-account-circle-outline" onclick="contextMenuHandler(event)"></button>
-                <button class="mdi mdi-cog-outline" onclick="contextMenuHandler(event)"></button>
+                <button class="mdi mdi-account-circle-outline" onclick="contextMenuHandler(event, contextMunuAccount)"></button>
+                <button class="mdi mdi-cog-outline" onclick="contextMenuHandler(event, contextMunuSetting)"></button>
             </nav>
             <!-- Side Menu -->
             <aside v-show="onTab && onTab._name == 'text'">

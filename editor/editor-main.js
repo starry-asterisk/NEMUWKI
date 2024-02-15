@@ -66,11 +66,21 @@ class Editor {
     _container;
     _selected;
     _selectionContainer;
-    set hangulMode(v) {
-        app.hangulMode = v;
+    _mime;
+    _mime_sub;
+    get mimeType() {
+        return `${this._mime}/${this._mime_sub}`;
+    }
+    set mimeType(v) {
+        [this._mime, this._mime_sub] = v.split('/');
+        this.container.setAttribute('mime', this._mime);
+        this.container.setAttribute('mime-sub', this._mime_sub);
     }
     get hangulMode() {
         return app.hangulMode;
+    }
+    set hangulMode(v) {
+        app.hangulMode = v;
     }
     get caret() {
         if (this._caret == undefined) {
@@ -268,14 +278,14 @@ class Editor {
     };
 
     loadFile = async file => {
-        let [type, subtype] = file.type.split('/');
-        switch (type) {
+        this.mimeType = file.type;
+        switch (this._mime) {
             case 'text':
                 this.loadText(await file.text());
                 break;
             case 'image':
-                if(subtype == 'svg+xml'){
-                    console.log(await file.text(),file);
+                if (this._mime_sub == 'svg+xml') {
+                    console.log(await file.text(), file);
                     this.loadText(await file.text());
                     break;
                 }
@@ -301,11 +311,28 @@ class Editor {
         var url = URL.createObjectURL(blob);
         const img = new Image();
         img.src = url;
-        img.onload = function () {
-            //cleanup.
+        img.onload = () => {
             URL.revokeObjectURL(this.src);
+
+            let { height, width } = img;
+
+            let rect = this.containerRect;
+            let w_ratio = rect.width / width,
+                h_ratio = rect.height / height;
+            let ratio = Math.min(w_ratio, h_ratio, 2);
+
+            img.width = width * ratio;
+
+            img.onmousedown = e => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(ratio);
+                ratio = ratio + (e.ctrlKey?(-0.1):0.1);
+                console.log(ratio);
+                img.width = width * ratio;
+            }
         }
-        this.addLine().append(img);
+        this.container.append(img);
     }
 
     redrawScroll = () => {
@@ -314,6 +341,7 @@ class Editor {
     }
 
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
+        if (this._mime != 'text') return;
         let selection = this.selected, line, new_selection, temp;
         if (ctrlKey || altKey || metaKey) {
             //단축키 를 이용하는 경우

@@ -26,7 +26,7 @@ class Tab {
         if (subTab) {
             if (this._app.onTab._onSubTab == subTab) return;
             editor.clear();
-            editor.loadFile(file);
+            editor.loadFile(subTab._file);
             this._app.onTab._onSubTab = subTab;
             return;
         }

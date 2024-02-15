@@ -436,6 +436,11 @@ code {
     --scrollLeft: 0px;
 }
 
+.subTab__contents[mime="image"]:not([mime-sub="svg+xml"]) {
+    display: flex;
+    text-align: center;
+}
+
 .subTab__contents .line_number {
     position: sticky;
     left: 0;

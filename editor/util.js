@@ -151,7 +151,7 @@ function repaintResizer(e_down) {
     let n_width = nav.getBoundingClientRect().width;
     window.onmousemove = (e_move) => {
         let v = width + e_move.screenX - pos;
-        let filtered_v = between(210, r_width - n_width, v);
+        let filtered_v = between(21 * rem, r_width - n_width, v);
         aside.style.maxWidth = aside.style.minWidth = `${filtered_v}px`;
         section.style.maxWidth = section.style.minWidth = `calc(100% - ${filtered_v + n_width}px)`;
         repaintScrollbarVisible();
@@ -161,7 +161,7 @@ function repaintResizer(e_down) {
     };
 }
 
-function contextMenuHandler(e) {
+function contextMenuHandler(e, contextMunuInfos) {
     e.preventDefault();
 
     let contextContainer = document.querySelector('.contextContainer') || (() => {
@@ -190,7 +190,7 @@ function contextMenuHandler(e) {
 
     contextMenu.empty();
 
-    let contextMunuInfos = e.srcElement.closest('.subTab__contents') == undefined ? contextMunuGlobal : contextMunuEditor;
+    if (contextMunuInfos == undefined) contextMunuInfos = e.srcElement.closest('.subTab__contents') == undefined ? contextMunuGlobal : contextMunuEditor;
 
     contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
 
@@ -222,6 +222,13 @@ function contextMenuHandler(e) {
     }
 
     document.body.append(contextContainer);
+
+    let rect = contextMenu.getBoundingClientRect();
+
+    if (window.innerWidth < rect.right) contextMenu.style.left = `${rect.left - rect.width}px`;
+    if (window.innerHeight < rect.bottom) contextMenu.style.top = `${rect.top - rect.height}px`;
+
+
     contextContainer.animate([
         { opacity: 0 },
         { opacity: 1 },
@@ -240,6 +247,8 @@ function callEditorFunction(option) {
         stopPropagation: () => { }
     });
 }
+
+const rem = 10;
 
 let contextMunuGlobal = [
     {
@@ -309,4 +318,88 @@ let contextMunuEditor = [
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
     }
+];
+
+let contextMunuNav = [
+    {
+        name: 'File',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'Finder',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'Game',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'Account',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'Setting',
+        disabled: false,
+        callback: function () { }
+    },
+];
+
+let contextMunuAccount = [
+    {
+        name: 'starry-asterisk',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+    },
+    {
+        name: 'ho profile',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+    },
+    {
+        name: 'logout',
+        disabled: false,
+        callback: function () { }
+    },
+];
+
+
+let contextMunuSetting = [
+    {
+        name: 'setting 1',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'setting 2',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'setting 3',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'setting 4',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'setting 5',
+        disabled: false,
+        callback: function () { }
+    },
+    {
+        name: 'setting 6',
+        disabled: false,
+        callback: function () { }
+    },
 ];
