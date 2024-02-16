@@ -18,10 +18,11 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="./editor/hangul.js"></script>
     <script src="./editor/util.js"></script>
+    <script src="./editor/contextMenu.js"></script>
     <script src="./editor/component.js"></script>
+    <script src="./editor/db.js"></script>
     <script src="./editor/editor-util.js"></script>
     <script src="./editor/editor-main.js"></script>
-    <script src="./editor/db.js"></script>
     <!--<script src="./cursor.js"></script>-->
     <title>편집기</title>
 </head>
@@ -35,15 +36,15 @@
         </header>
         <div class="rootContainer">
             <!-- Left Side Navigation -->
-            <nav>
-                <p class="mdi mdi-menu" onclick="contextMenuHandler(event, contextMunuNav)"></p>
+            <nav context="nav_tab">
+                <p class="mdi mdi-menu" onclick="contextMenuHandler(event, 'nav_menu')" title="메뉴" v-show="!hide.nav_menu" v-on:hide="hide.nav_menu = !hide.nav_menu"></p>
                 <!-- Navigate Button -->
                 <button v-for="(tab, index) in tabs" :class="{mdi:true,[tab._icon]:true, on:onTab && onTab._uid == tab._uid }"
-                    v-on:click="changeTab(tab)" :key="index">
+                    v-on:click="changeTab(tab)" :key="index" v-on:hide="hideTab(tab, !tab._hide)" v-show="!tab._hide" :title="tab._alias">
                 </button>
                 <span style="flex:1"></span>
-                <button class="mdi mdi-account-circle-outline" onclick="contextMenuHandler(event, contextMunuAccount)"></button>
-                <button class="mdi mdi-cog-outline" onclick="contextMenuHandler(event, contextMunuSetting)"></button>
+                <button class="mdi mdi-account-circle-outline" onclick="contextMenuHandler(event, 'account')" title="계정" v-show="!hide.account" v-on:hide="hide.account = !hide.account"></button>
+                <button class="mdi mdi-cog-outline" onclick="contextMenuHandler(event, 'setting')" title="설정" v-show="!hide.setting" v-on:hide="hide.setting = !hide.setting"></button>
             </nav>
             <!-- Side Menu -->
             <aside v-show="onTab && onTab._name == 'text'">
@@ -64,7 +65,7 @@
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
                 </div>
-                <div v-show="onTab && onTab._subTabs.length > 0" class="subTab__contents" tabindex="0"
+                <div v-show="onTab && onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" context="editor"
                     ondblclick="editor.ondblclick(event)"
                     onkeydown="editor.onkeydown(event)" onkeyup="" onclick="editor.onkeyup(event)"
                     onmousedown="editor.onmousedown(event)" onmouseup="editor.onmouseup(event)" onblur="editor.blur()"></div>

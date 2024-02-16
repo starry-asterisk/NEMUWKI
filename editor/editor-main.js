@@ -4,6 +4,7 @@ let files;
 let scrollEventManager;
 let editor;
 let global_range;
+let fileDB;
 
 window.onload = () => {
     app = new Vue({
@@ -12,6 +13,11 @@ window.onload = () => {
             repaintScrollbarVisible();
         },
         data: {
+            hide: {
+                nav_menu: false,
+                account: false,
+                setting: false,
+            },
             files,
             tabs: [],
             onTab: undefined,
@@ -24,6 +30,10 @@ window.onload = () => {
             },
             changeTab: function (tab) {
                 this.onTab = (tab == this.onTab) ? undefined : tab;
+            },
+            hideTab: function (tab, bool) {
+                this.onTab = bool ? (tab == this.onTab ? undefined : this.onTab) : tab;
+                tab._hide = bool;
             },
             changeSubTab: async function (subTab) {
                 editor.clear();
@@ -546,14 +556,15 @@ class Editor {
             window.onmousemove = window.onmouseup = undefined;
         }
     };
-    ondblclick = function ({ srcElement }) {
-        if (srcElement.matches('div.line')) {
-            let startNode = srcElement.firstChild;
+    ondblclick = function ({ target }) {
+        console.log(target);
+        if (target.matches('div.line')) {
+            let startNode = target.firstChild;
             while (startNode.nodeType != 3 && startNode != undefined) startNode = startNode.firstChild;
             this.selected = {
                 startNode: startNode,
                 startPos: 0,
-                endNode: srcElement.lastChild,
+                endNode: target.lastChild,
                 endPos: 0
             };
         }

@@ -161,7 +161,7 @@ function repaintResizer(e_down) {
     };
 }
 
-function contextMenuHandler(e, contextMunuInfos) {
+function contextMenuHandler(e, context) {
     e.preventDefault();
 
     let contextContainer = document.querySelector('.contextContainer') || (() => {
@@ -190,13 +190,17 @@ function contextMenuHandler(e, contextMunuInfos) {
 
     contextMenu.empty();
 
-    if (contextMunuInfos == undefined) contextMunuInfos = e.srcElement.closest('.subTab__contents') == undefined ? contextMunuGlobal : contextMunuEditor;
+    if (context == undefined) {
+        let contextParent = e.target.closest('[context]') || {getAttribute: ()=>'global'};
+        context = contextParent.getAttribute('context');
+    } else context = 'global';
 
+    let contextMunuInfos = contextMenuOpt[context];
     contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
 
     for (let tabIndex in contextMunuInfos) {
         let contextMunuInfo = contextMunuInfos[tabIndex];
-        let { name, disabled, callback } = contextMunuInfo;
+        let { name, disabled, callback, icon, shortcut } = contextMunuInfo;
         let contextMenuItem = (() => {
             let el = document.createElement('p');
             el.setAttribute('tabindex', tabIndex);
@@ -214,6 +218,8 @@ function contextMenuHandler(e, contextMunuInfos) {
                     callback(e4);
                 }
                 else el.classList.add('disabled');
+                if(icon) el.classList.add('mdi', `mdi-${icon}`);
+                if(shortcut) el.setAttribute('shortcut', shortcut);
             }
             return el;
         })();
@@ -227,7 +233,6 @@ function contextMenuHandler(e, contextMunuInfos) {
 
     if (window.innerWidth < rect.right) contextMenu.style.left = `${rect.left - rect.width}px`;
     if (window.innerHeight < rect.bottom) contextMenu.style.top = `${rect.top - rect.height}px`;
-
 
     contextContainer.animate([
         { opacity: 0 },
@@ -249,157 +254,3 @@ function callEditorFunction(option) {
 }
 
 const rem = 10;
-
-let contextMunuGlobal = [
-    {
-        name: 'open',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-
-    },
-    {
-        name: 'cut',
-        disabled: true,
-        callback: function () { }
-    },
-    {
-        name: 'copy',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'paste',
-        disabled: false,
-        callback: function () { }
-    }
-];
-
-let contextMunuEditor = [
-    {
-        name: 'select all',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'a' })
-    },
-    {
-        name: 'find...',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-
-    },
-    {
-        name: 'paste',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'v' })
-    },
-    {
-        name: 'cut',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'x' })
-    },
-    {
-        name: 'copy',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'c' })
-    },
-    {
-        name: 'delete',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: false, key: 'Delete' })
-    },
-    {
-
-    },
-    {
-        name: 'refresh',
-        disabled: false,
-        callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
-    }
-];
-
-let contextMunuNav = [
-    {
-        name: 'File',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'Finder',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'Game',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'Account',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'Setting',
-        disabled: false,
-        callback: function () { }
-    },
-];
-
-let contextMunuAccount = [
-    {
-        name: 'starry-asterisk',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-    },
-    {
-        name: 'ho profile',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-    },
-    {
-        name: 'logout',
-        disabled: false,
-        callback: function () { }
-    },
-];
-
-
-let contextMunuSetting = [
-    {
-        name: 'setting 1',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'setting 2',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'setting 3',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'setting 4',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'setting 5',
-        disabled: false,
-        callback: function () { }
-    },
-    {
-        name: 'setting 6',
-        disabled: false,
-        callback: function () { }
-    },
-];

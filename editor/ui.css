@@ -667,6 +667,14 @@ span.sel.empty::after {
     color: #9AA0A6;
 }
 
+.contextMenu__item.mdi::before {
+    position: absolute;
+    left: 3rem;
+}
+.contextMenu__item[shortcut]::after {
+    content: '';
+}
+
 .contextMenu__line {
     background-color: #ffffff20;
     height: 0.1rem;

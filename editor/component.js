@@ -8,7 +8,9 @@ class Tab {
         this._uid = Math.random();
         this._app = _app;
         this._icon = "mdi-radiobox-blank";
-        this._name = "empty tab";
+        this._name = "empty";
+        this._alias = "빈 탭";
+        this._hide = false;
         this._subTabs = [];
 
         this._onSubTab = new SubTab();
@@ -78,6 +80,7 @@ class GameTab extends Tab {
     constructor(_app) {
         super(_app);
         this._name = "game";
+        this._alias = "게임";
         this._icon = "mdi-gamepad-square";
     }
 }
@@ -86,6 +89,7 @@ class TextEditorTab extends Tab {
     constructor(_app) {
         super(_app);
         this._name = "text";
+        this._alias = "문자열 편집기";
         this._icon = "mdi-file-multiple-outline";
     }
 }
@@ -94,6 +98,7 @@ class FinderTab extends Tab {
     constructor(_app) {
         super(_app);
         this._name = "finder";
+        this._alias = "검색";
         this._icon = "mdi-magnify";
     }
 

@@ -100,5 +100,3 @@ class FileDB {
         }
     }
 }
-
-let fileDB;
