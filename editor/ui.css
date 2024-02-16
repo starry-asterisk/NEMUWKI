@@ -48,6 +48,9 @@ button:disabled {
 }
 
 header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     height: 3.5rem;
     border-bottom: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
@@ -408,6 +411,20 @@ code {
     display: none;
 }
 
+.header__button {
+    display: inline-block;
+    margin: auto 0;
+    height: 2.4rem;
+    width: 2.4rem;
+    font-size: 1.5rem;
+    text-align: center;
+    line-height: 2.3rem;
+    opacity: 0.5;
+}
+.header__button:hover {
+    opacity: 1;
+}
+
 .header__search {
     height: 2.4rem;
     width: 30vw;
@@ -415,11 +432,37 @@ code {
     min-width: 10rem;
     border: 0.1rem solid #9d9d9d40;
     border-radius: 0.6rem;
-    margin: 0.55rem auto;
+    margin: auto 0;
     background-color: var(--background-light);
     text-align: center;
     color: var(--color-dark);
     line-height: 2.2rem;
+}
+
+.header__search:focus {
+    position: fixed;
+    top: 2rem;
+    width: 54rem;
+    max-width: 70vw;
+    border-color: var(--highligh-color);
+    z-index: 10;
+}
+
+.header__search:focus::after {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: -1rem;
+    right: -1rem;
+    height: 40vh;
+    min-height: 35rem;
+    border-radius: 1rem;
+    background-color: #ffffff08;
+    backdrop-filter: blur(7px);
+    color: #E3E3E3;
+    padding: 0.8rem;
+    box-shadow: 0 0 10px 2px #00000055;
+    z-index: -1;
 }
 
 .subTab__contents {
