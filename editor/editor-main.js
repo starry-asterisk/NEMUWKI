@@ -6,6 +6,12 @@ let editor;
 let global_range;
 let fileDB;
 
+const suggestions = [
+    '테스트 입니다',
+    '테스트입니다',
+    '스 트입 니다'
+]
+
 window.onload = () => {
     app = new Vue({
         el: ".bodyContainer",
@@ -13,6 +19,7 @@ window.onload = () => {
             repaintScrollbarVisible();
         },
         data: {
+            keyword: '',
             hide: {
                 nav_menu: false,
                 account: false,
@@ -24,6 +31,9 @@ window.onload = () => {
             hangulMode: false,
         },
         methods: {
+            search: function (keyword) {
+                return suggestions.filter(str => str.replaceAll(' ', '').indexOf(keyword) > -1);
+            },
             addTab: function (TabClass) {
                 let tab = new TabClass(this);
                 this.tabs.push(tab);
@@ -288,6 +298,7 @@ class Editor {
     };
 
     loadFile = async file => {
+        this.clear();
         this.mimeType = file.type;
         switch (this._mime) {
             case 'text':
@@ -295,7 +306,6 @@ class Editor {
                 break;
             case 'image':
                 if (this._mime_sub == 'svg+xml') {
-                    console.log(await file.text(), file);
                     this.loadText(await file.text());
                     break;
                 }
@@ -337,7 +347,7 @@ class Editor {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log(ratio);
-                ratio = ratio + (e.ctrlKey?(-0.1):0.1);
+                ratio = ratio + (e.ctrlKey ? (-0.1) : 0.1);
                 console.log(ratio);
                 img.width = width * ratio;
             }

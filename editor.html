@@ -16,6 +16,7 @@
     <!--<link href="./cursor.css" rel="stylesheet" type="text/css">-->
     <link href="#" rel="short icon">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./editor/codeHighlight.js"></script>
     <script src="./editor/hangul.js"></script>
     <script src="./editor/util.js"></script>
     <script src="./editor/contextMenu.js"></script>
@@ -34,7 +35,12 @@
         <header>
             <span class="header__button mdi mdi-arrow-left"></span>
             <span class="header__button mdi mdi-arrow-right"></span>
-            <div class="header__search" tabindex="1">text</div>
+            <div class="header__search" tabindex="1">
+                <input type="text" value="text_sample" autocomplete="off" name="search" spellcheck="false" v-model="keyword">
+                <div class="header__search__suggestion">
+                    <p v-for="(suggestion, index) in search(keyword)">{{suggestion}}</p>
+                </div>
+            </div>
         </header>
         <div class="rootContainer">
             <!-- Left Side Navigation -->
@@ -62,7 +68,7 @@
                     <div class="subTab__buttonContianer__div">
                         <button v-for="(subTab, index) in onTab._subTabs"
                             :class="{on:subTab._uid == onTab._onSubTab._uid}" :state="subTab._state"
-                            v-on:click="onTab.addSubTab({id:subTab._uid})">{{subTab._name}} <span v-on:click="onTab.closeSubTab(subTab._uid)"
+                            v-on:click="onTab.addSubTab({id:subTab._uid},true)">{{subTab._name}} <span v-on:click="onTab.closeSubTab(subTab._uid)"
                                 style="margin-left: 0.5rem;font-style: normal;" :key="index">✕</span></button>
                     </div>
                     <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>

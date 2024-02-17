@@ -22,47 +22,28 @@ class Tab {
         );
     }
     async addSubTab({ name = "file1.txt", id, handle, file }, temp = false) {
-        let subTab = this._subTabs.find(
-            (subTab) => subTab._state != TabState.temp && subTab._uid == id
-        )
-        if (subTab) {
-            if (this._app.onTab._onSubTab == subTab) return;
-            editor.clear();
-            editor.loadFile(subTab._file);
+        let subTab_index = this._subTabs.findIndex(tab => tab._uid == id);
+        let subTab =
+            this._subTabs[subTab_index] ||
+            new SubTab(this, { uid: id, name, state: TabState.temp, handle, file });
+
+        let temp_index = this._subTabs.findIndex(tab => tab._state == TabState.temp);
+
+        if (subTab_index < 0) {
+            if (temp_index < 0) {
+                this._subTabs.push(subTab);
+            } else {
+                this._app.$set(this._app.onTab._subTabs, temp_index, subTab);
+            }
+        } else if (subTab._state == TabState.temp && !temp) subTab.set("state", TabState.open);
+
+        if (
+            this._app.onTab._onSubTab == undefined ||
+            this._app.onTab._onSubTab._uid != id
+        ) {
             this._app.onTab._onSubTab = subTab;
-            return;
+            editor.loadFile(subTab._file);
         }
-
-        let temp_index = this._subTabs.findIndex(
-            (subTab) => subTab._state == TabState.temp
-        );
-        let state = temp ? TabState.temp : TabState.open;
-
-        if (temp_index < 0) {
-            /*
-            if (
-                (temp_index =
-                    this._subTabs.findIndex((subTab) => subTab._uid == id) > -1)
-            )
-                return console.log(1);
-            */
-            this._app.onTab._onSubTab = subTab = await create();
-            this._subTabs.push(subTab);
-        } else if (this._subTabs[temp_index]._uid === id) {
-            this._app.onTab._onSubTab = subTab = this._subTabs[temp_index];
-            subTab.set("state", state);
-        } else {
-            this._app.$set(this._app.onTab._subTabs, temp_index, await create());
-            this._app.onTab._onSubTab = subTab = this._subTabs[temp_index];
-        }
-
-        async function create() {
-            editor.clear();
-            editor.loadFile(file);
-            return new SubTab(this, { uid: id, name, state, handle, file });
-        }
-
-        return subTab;
     }
 }
 
@@ -171,7 +152,7 @@ async function getFolder() {
         }
 
         const options = { mode: 'readwrite' };
-        
+
         if (
             (await directoryHandle.queryPermission(options)) !== 'granted' &&
             (await directoryHandle.requestPermission(options)) !== 'granted'
