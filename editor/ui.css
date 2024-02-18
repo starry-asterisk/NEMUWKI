@@ -54,7 +54,7 @@ header {
     height: 3.5rem;
     border-bottom: 0.1rem solid var(--border-color);
     background-color: var(--background-dark);
-    z-index: 10;
+    z-index: 20;
 }
 
 footer {
@@ -325,6 +325,11 @@ code {
 .aside_line[type*="image"]::before {
     color: #b864b8;
     content: "\F02EF";
+}
+
+.aside_line[type*="video"]::before {
+    color: #ff4040;
+    content: "\F1705";
 }
 
 .aside_line[type="application/json"]::before {
@@ -738,7 +743,10 @@ span.sel.empty::after {
     left: 3rem;
 }
 .contextMenu__item[shortcut]::after {
-    content: '';
+    content: attr(shortcut);
+    float: right;
+    margin-left: 2rem;
+    opacity: 0.6;
 }
 
 .contextMenu__line {

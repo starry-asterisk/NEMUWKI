@@ -311,6 +311,12 @@ class Editor {
                 }
                 this.loadImage(file);
                 break;
+            case 'video':
+                this.loadVideo(file);
+                break;
+            case 'audio':
+                this.loadAudio(file);
+                break;
         }
 
     }
@@ -325,6 +331,32 @@ class Editor {
         let pos = node.nodeValue.length;
         node.nodeValue += tailText;
         return shiftLetterPos(node, 0, pos);
+    }
+    OLDloadTextOLD = (text, line = this.addLine(), tailText = '') => {
+        let node, lines = text.replaceAll('\r', '').split('\n');
+        line.lastChild.before(node = document.createTextNode(lines.shift()));
+        for (let lineText of lines) {
+            line = this.addLine(line);
+            line.lastChild.before(node = document.createTextNode(lineText));
+        }
+        let pos = node.nodeValue.length;
+        node.nodeValue += tailText;
+        return shiftLetterPos(node, 0, pos);
+    }
+
+    loadVideo = (blob) => {
+        var url = URL.createObjectURL(blob);
+        const vid = document.createElement('video');
+        vid.src = url;
+        this.container.append(vid);
+        vid.play();
+    }
+
+    loadAudio = (blob) => {
+        var url = URL.createObjectURL(blob);
+        const audio = document.createElement('audio');
+        audio.src = url;
+        this.container.append(audio);
     }
 
     loadImage = (blob) => {

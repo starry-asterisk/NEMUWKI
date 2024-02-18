@@ -68,35 +68,41 @@ let contextMunuGlobal = [
 
 let contextMunuEditor = [
     {
-        name: 'select all',
+        name: '전체 선택',
+        shortcut: 'Ctrl + A',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'a' })
     },
     {
-        name: 'find...',
+        name: '찾기...',
+        shortcut: 'Ctrl + F',
         disabled: false,
-        callback: function () { }
+        callback: function () {alert('기능 구현중...')}
     },
     {
 
     },
     {
-        name: 'paste',
+        name: '붙여넣기',
+        shortcut: 'Ctrl + V',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'v' })
     },
     {
-        name: 'cut',
+        name: '잘라내기',
+        shortcut: 'Ctrl + X',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'x' })
     },
     {
-        name: 'copy',
+        name: '복사하기',
+        shortcut: 'Ctrl + C',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'c' })
     },
     {
-        name: 'delete',
+        name: '삭제',
+        shortcut: 'Ctrl + D',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: false, key: 'Delete' })
     },
@@ -104,7 +110,8 @@ let contextMunuEditor = [
 
     },
     {
-        name: 'refresh',
+        name: '새로고침',
+        shortcut: 'Ctrl + F5',
         disabled: false,
         callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
     }

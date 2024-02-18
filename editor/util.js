@@ -193,7 +193,7 @@ function contextMenuHandler(e, context) {
     if (context == undefined) {
         let contextParent = e.target.closest('[context]') || {getAttribute: ()=>'global'};
         context = contextParent.getAttribute('context');
-    } else context = 'global';
+    }
 
     let contextMunuInfos = contextMenuOpt[context];
     contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
