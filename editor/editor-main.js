@@ -67,12 +67,16 @@ window.onload = () => {
     fileDB = new FileDB();
 
     window.onkeydown = ({ ctrlKey, key }) => {
-        console.log(ctrlKey, key);
+        if(ctrlKey) document.body.setAttribute('ctrlKey', ctrlKey);
         switch (key.toLowerCase()) {
             case 'b':
                 if (ctrlKey) app.changeTab(undefined);
                 break;
         }
+    }
+
+    window.onkeyup = ({ ctrlKey }) => {
+        if(!ctrlKey) document.body.removeAttribute('ctrlKey');
     }
 
     document.addEventListener('contextmenu', contextMenuHandler);
@@ -318,7 +322,7 @@ class Editor {
                 this.loadAudio(file);
                 break;
         }
-
+        this.redrawScroll();
     }
 
     loadText = (text, line = this.addLine(), tailText = '') => {
@@ -348,6 +352,7 @@ class Editor {
         var url = URL.createObjectURL(blob);
         const vid = document.createElement('video');
         vid.src = url;
+        vid.setAttribute('controls','');
         this.container.append(vid);
         vid.play();
     }
@@ -356,6 +361,7 @@ class Editor {
         var url = URL.createObjectURL(blob);
         const audio = document.createElement('audio');
         audio.src = url;
+        audio.setAttribute('controls','');
         this.container.append(audio);
     }
 
@@ -377,11 +383,20 @@ class Editor {
 
             img.onmousedown = e => {
                 e.preventDefault();
-                e.stopPropagation();
-                console.log(ratio);
+                if(e.button > 0) return;
                 ratio = ratio + (e.ctrlKey ? (-0.1) : 0.1);
-                console.log(ratio);
+                let rect = this.containerRect;
+                let {scrollHeight, scrollWidth, scrollTop, scrollLeft} = this.container;
                 img.width = width * ratio;
+                img.setStyles({
+                    'min-width': `${width * ratio}px`,
+                    'max-width': `${width * ratio}px`
+                });
+                this.redrawScroll();
+                if(rect.height >= scrollHeight) this.container.scrollTop =  (this.container.scrollHeight - rect.height) / 2;
+                else  this.container.scrollTop = scrollTop / (scrollHeight - rect.height) * (this.container.scrollHeight - rect.height);
+                if(rect.width >= scrollWidth) this.container.scrollTop =  (this.container.scrollWidth - rect.width) / 2;
+                else  this.container.scrollLeft = scrollLeft / (scrollWidth - rect.width) * (this.container.scrollWidth - rect.width);
             }
         }
         this.container.append(img);
@@ -584,6 +599,7 @@ class Editor {
         this.container.focus();
     };
     onmousedown = function (e_down) {
+        if(this._mime != 'text') return;
         e_down.preventDefault();
         if (e_down.which != 1) return;
         let ePos, sPos = getLetterPos(e_down);

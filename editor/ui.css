@@ -110,7 +110,7 @@ section {
     flex-direction: column;
     flex: 1;
     background-color: var(--background-light);
-    max-width: calc(100% - 30rem);
+    max-width: calc(100% - 35.1rem);
 }
 
 aside[style*="display: none"] + section {
@@ -337,6 +337,10 @@ code {
     color: #b864b8;
     content: "\F02EF";
 }
+.aside_line[type*="audio"]::before {
+    color: #b864b8;
+    content: "\F057E";
+}
 
 .aside_line[type*="video"]::before {
     color: #ff4040;
@@ -518,7 +522,9 @@ code {
     --scrollLeft: 0px;
 }
 
-.subTab__contents[mime="image"]:not([mime-sub="svg+xml"]) {
+.subTab__contents[mime="image"]:not([mime-sub="svg+xml"]),
+.subTab__contents[mime="video"],
+.subTab__contents[mime="audio"] {
     display: flex;
     text-align: center;
 }
@@ -546,6 +552,8 @@ code {
     --size: 2rem;
     --pos: 1rem;
     --color: #00000088;
+    min-width: attr(width);
+    max-width: attr(width);
     background-size: var(--size) var(--size);
     background-position-x: 0, var(--pos), var(--pos), 0;
     background-position-y: 0, var(--pos), 0, var(--pos);
@@ -554,6 +562,15 @@ code {
                         transparent 75%, var(--color) 75%, var(--color)),
         linear-gradient(45deg, var(--color) 25%, transparent 25%, 
                         transparent 75%, var(--color) 75%, var(--color));
+}
+
+.subTab__contents video {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.subTab__contents audio {
+    margin: auto;
 }
 
 .subTab__contents::after {

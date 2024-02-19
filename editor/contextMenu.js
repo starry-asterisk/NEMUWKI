@@ -3,7 +3,7 @@ class contextMenuOpt {
         return contextMunuGlobal;
     }
     static get editor() {
-        return contextMunuEditor;
+        return editor._mime == 'text'?contextMunuEditor:contextMunuEditorOther;
     }
     static get nav_menu() {
         return contextMunuNav;
@@ -116,6 +116,15 @@ let contextMunuEditor = [
         callback: () => callEditorFunction({ ctrlKey: true, key: 'f5' })
     }
 ];
+let contextMunuEditorOther = [
+    {
+        name: '복사하기',
+        shortcut: 'Ctrl + C',
+        disabled: false,
+        callback: () => callEditorFunction({ ctrlKey: true, key: 'c' })
+    }
+];
+
 
 let contextMunuNav = [
     {
