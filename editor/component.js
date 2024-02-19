@@ -83,6 +83,14 @@ class FinderTab extends Tab {
         this._icon = "mdi-magnify";
     }
 
+    get _onSubTab() {
+        return this._app.tabs.find(tab => tab instanceof TextEditorTab)._onSubTab;
+    }
+
+    set _onSubTab(val) {
+        this._app.tabs.find(tab => tab instanceof TextEditorTab)._onSubTab = val;
+    }
+
     get _subTabs() {
         return this._app.tabs.find(tab => tab instanceof TextEditorTab)._subTabs;
     }

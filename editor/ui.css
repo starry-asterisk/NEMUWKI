@@ -240,6 +240,8 @@ code {
 .section__empty {
     text-align: center;
     margin: auto 0;
+    container-name: empty_section;
+    container-type: inline-size;
 }
 
 .section__empty>p {
@@ -267,6 +269,15 @@ code {
 
 .section__empty__command>*:last-child {
     text-align: left;
+}
+
+@container empty_section (max-width: 36rem) {
+    .section__empty > p {
+        display: none;
+    }
+    .section__empty__icon {
+        font-size: 80vw;
+    }
 }
 
 .aside_line {
