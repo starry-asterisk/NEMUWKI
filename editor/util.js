@@ -63,6 +63,9 @@ HTMLElement.prototype.setStyles = function (obj) {
     return this;
 }
 
+Array.prototype.compare = function (target) {
+    return this.length === target.length && this.every((element, index) => element === target[index]);
+}
 
 function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
@@ -191,7 +194,7 @@ function contextMenuHandler(e, context) {
     contextMenu.empty();
 
     if (context == undefined) {
-        let contextParent = e.target.closest('[context]') || {getAttribute: ()=>'global'};
+        let contextParent = e.target.closest('[context]') || { getAttribute: () => 'global' };
         context = contextParent.getAttribute('context');
     }
 
@@ -218,8 +221,8 @@ function contextMenuHandler(e, context) {
                     callback(e4);
                 }
                 else el.classList.add('disabled');
-                if(icon) el.classList.add('mdi', `mdi-${icon}`);
-                if(shortcut) el.setAttribute('shortcut', shortcut);
+                if (icon) el.classList.add('mdi', `mdi-${icon}`);
+                if (shortcut) el.setAttribute('shortcut', shortcut);
             }
             return el;
         })();

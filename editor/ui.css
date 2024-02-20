@@ -100,7 +100,7 @@ aside {
     border-right: 0.1rem solid var(--border-color);
 }
 
-aside > .aside_folder > .aside_line {
+aside > .aside_folder > .aside_line:first-child {
     text-transform: uppercase;
     font-weight: bold;
 }
@@ -242,6 +242,7 @@ code {
     margin: auto 0;
     container-name: empty_section;
     container-type: inline-size;
+    min-width: 36rem;
 }
 
 .section__empty>p {
@@ -269,15 +270,6 @@ code {
 
 .section__empty__command>*:last-child {
     text-align: left;
-}
-
-@container empty_section (max-width: 36rem) {
-    .section__empty > p {
-        display: none;
-    }
-    .section__empty__icon {
-        font-size: 80vw;
-    }
 }
 
 .aside_line {
@@ -527,6 +519,7 @@ code {
 .subTab__contents[mime="audio"] {
     display: flex;
     text-align: center;
+    justify-content: center;
 }
 
 .subTab__contents .line_number {

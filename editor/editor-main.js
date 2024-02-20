@@ -31,6 +31,33 @@ window.onload = () => {
             hangulMode: false,
         },
         methods: {
+            drag: function(e, id, name){
+                console.log('dragstart :',id);
+                e.dataTransfer.setData("file", id);/*
+                let span = document.createElement('span');
+                span.innerHTML = name;
+                span.setStyles({
+                    'border': '1px solid black'
+                });
+                e.dataTransfer.setDragImage(elem, 0, 0);*/
+            },
+            dragover: function(e){
+                e.preventDefault();
+            },
+            drop: function(e, id){
+                e.stopPropagation();
+                let find_folder = this.files.find(id);
+                let find_file = this.files.find(e.dataTransfer.getData("file"));
+                let scope = this.files;
+                let target = find_file.path.pop();
+                if(find_file.path.compare(find_folder.path)) return console.warn('same directory');
+                find_file.path.shift();
+                for(let pathName of find_file.path) {
+                    scope = scope.children.find(file => file.name == pathName);
+                }
+                scope.children = scope.children.filter(file => file.name != target);
+                find_folder.node.children.push(find_file.node);
+            },
             search: function (keyword) {
                 return suggestions.filter(str => str.replaceAll(' ', '').indexOf(keyword) > -1);
             },

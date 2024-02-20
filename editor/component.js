@@ -133,6 +133,10 @@ class CFile {
         this.handle.move.apply(this.handle, arguments);
         this.file = await this.handle.getFile();
     }
+
+    find = (id, path = []) => {
+        return this.id == id ? {node: this, path: [...path, this.name]} : undefined;
+    }
 }
 
 class CDirectory {
@@ -143,6 +147,17 @@ class CDirectory {
         this.kind = fileHandle.kind;
         this.children = [];
         this.handle = fileHandle;
+    }
+
+    find = (id, path = []) => {
+        return this.id == id ? {node: this, path: [...path, this.name]} : this.findChild(id, [...path, this.name]);
+    }
+
+    findChild = (id, path = []) => {
+        for(let child of this.children) {
+            let result = child.find(id, path);
+            if(result) return result;
+        }
     }
 }
 
@@ -194,9 +209,14 @@ Vue.component("file", {
         onTab: {},
         padding: { default: 2.2 },
     },
+    methods: {
+        drag(e, id){this.$parent.drag(e, id)},
+        drop(e, id){this.$parent.drop(e, id)},
+        dragover(e){this.$parent.dragover(e)},
+    },
     template: `
-    <div class="aside_folder" v-if="kind == 'directory'">
-        <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'">{{ name }}</div>
+    <div class="aside_folder" v-if="kind == 'directory'"  v-on:dragover="dragover" v-on:drop="drop($event, id)">
+        <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'" draggable="true" v-on:dragstart="drag($event, id, name)">{{ name }}</div>
         <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 1.1}"></file>
     </div>
     <div class="aside_line" v-else 
@@ -204,7 +224,7 @@ Vue.component("file", {
         v-on:dblclick="onTab.addSubTab({id})"
         :type="type||name.split('.')[1]||'file'"
         :style="'padding-left:'+padding+'rem;'"
-        tabindex="0">{{ name }}</div>
+        tabindex="0" draggable="true" v-on:dragstart="drag($event, id, name)">{{ name }}</div>
     `,
 });
 
