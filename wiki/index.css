@@ -1,0 +1,228 @@
+/*
+ font from https://www.yd.go.kr/?page_id=120264
+ copright by 영덕군
+*/
+@font-face {
+    font-family: "headerFont";
+    src: url("./Yeongdeok\ Snow Crab.ttf")format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "mainFont";
+    src: url("./Yeongdeok\ Sea.ttf")format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    font-size: 10px;
+    font-family: "mainFont";
+    --accent: #1d9bf0aa;
+    --border: #eff3f4;
+    --background-dark: #f7f9f9;
+    --background: #FFF;
+    --block-padding: 2rem;
+    --border-radius: 2rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-sizing: border-box;
+    position: relative;
+    font-size: 2rem;
+}
+
+*:focus {
+    outline: none;
+}
+
+li {list-style: none;}
+
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: auto;
+    background-color: var(--background);
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5rem;
+    z-index: 10;
+    min-width: 40rem;
+    max-width: 126rem;
+    padding: 0 2rem;
+    margin: auto;
+
+}
+
+header::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5rem;
+    background-color: var(--accent);
+    backdrop-filter: blur(1rem);
+
+}
+
+header > * {
+    float: left;
+    margin-right: 2rem;
+}
+
+.header__logo {
+    line-height: 5rem;
+    font-family: "headerFont";
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    padding: 7rem 0 0 1rem;
+    min-width: 40rem;
+    max-width: 90rem;
+    min-height: calc(100vh - 18rem);
+    box-sizing: content-box;
+    border-right: 0.1rem solid var(--border);
+    flex: 1;
+}
+
+.main__header__title {
+    font-weight: 600;
+    font-size: 5rem;
+    height: 5rem;
+}
+.main__header__timestamp {
+    font-size: 1.7rem;
+    height: 1.7rem;
+}
+.main__header__toolbox {
+    position: absolute;
+    right: 1rem;
+    top:0;
+    display: flex;
+    flex-direction: row;
+    height: 5rem;
+    border-radius: 1rem;
+    border: 0.1rem solid var(--background-dark);
+}
+.main__header__toolbox > button {
+    min-width: 5rem;
+    background: none;
+}
+.main__header__toolbox > button + button {
+    border-left: 0.1rem solid var(--background-dark);
+}
+
+.main__contents {
+    flex: 1;
+    padding: var(--block-padding);
+    min-height: 3500px;
+}
+
+.main__contents:hover, footer:hover {
+    background-color: var(--background-dark);
+}
+
+aside {
+    margin: 7rem 2rem 2rem 1rem;
+    width: 32rem;
+}
+
+aside > * {
+    padding: var(--block-padding) 0;
+    background-color: var(--background-dark);
+    border-radius: var(--border-radius);
+}
+aside > * + * {
+    margin-top: 2rem;
+}
+aside > * > * {
+    padding: 0 var(--block-padding);
+}
+aside > * > p:first-child {
+    font-size: 1.5em;
+    margin-bottom: 1rem;
+}
+
+
+@media (max-width: 1000px) {
+    body {
+        flex-direction: column;
+    }
+    main {
+        max-width: unset;
+        min-width: unset;
+        margin: 7rem 2rem 2rem 2rem;
+    }
+    aside {
+        width: auto;
+    }
+}
+
+footer {
+    font-size: 1.5rem;
+    padding: 0 1rem;
+    height: 15rem;
+    white-space: pre-line;
+    text-align: right;
+}
+
+
+
+
+
+input, textarea {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: none;
+    border: none;
+    font-size: inherit;
+    color: inherit;
+    padding: 0 2rem;
+    font-family: inherit;
+}
+input:not(:focus) + .input_suggest {
+    display: none !important;
+}
+input:focus + .input_suggest {
+    display: block;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    padding: 0;
+    max-height: 30rem;
+    border-radius: 0.5rem;
+    background-color: var(--background);
+    z-index: 10;
+    box-shadow: 0 0 1rem 0 #4b749933;
+}
+.input_suggest > li {
+    padding: 1rem;
+}
+.input_suggest > li + li {
+    border-top: 0.1rem solid var(--border)
+}
+.input_suggest > li[value]:empty::after {
+    content: attr(value);
+}
+.input_suggest > li:hover {
+    background-color: var(--background-dark);
+}

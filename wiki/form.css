@@ -1,0 +1,49 @@
+.main__header {
+    padding: 2rem 0;
+}
+.main__contents {
+    padding: 0;
+}
+footer:hover, .component:hover {
+    background-color: var(--background-dark);
+}
+.main__contents:hover {
+    background-color: transparent;
+}
+.main__contents > .component {
+    border-top: 0.1rem solid var(--border);
+    padding: 2rem 4rem;
+    min-height: 10.5rem;
+}
+.main__contents > .component > p {
+    font-size: 3rem;
+}
+.main__contents > .component > *:not(p) {
+    margin-right: 5rem;
+}
+.component__remove_btn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 6rem;
+    height: 6rem;
+    margin: 0 !important;
+    border-radius: 50%;
+    color: #fff;
+    background-color: var(--accent);
+    font-size: 3rem;
+}
+.component__remove_btn:hover {
+    opacity: 0.7;
+}
+.component__remove_btn:active {
+    background: #F44336;
+    opacity: 1;
+}
+.component_list > li {
+    padding-left: var(--block-padding);
+}
+[placeholder]:empty::after {
+    content: attr(placeholder);
+    opacity: 0.5;
+}
