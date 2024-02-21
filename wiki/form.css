@@ -18,8 +18,8 @@ footer:hover, .component:hover {
 .main__contents > .component > p {
     font-size: 3rem;
 }
-.main__contents > .component > *:not(p) {
-    margin-right: 5rem;
+.main__contents > .component > *:not(p) {    
+    max-width: calc(100% - 5rem);
 }
 .component__remove_btn {
     position: absolute;
