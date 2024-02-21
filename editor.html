@@ -58,7 +58,7 @@
             <aside v-show="onTab && onTab._name == 'text'">
                 <p>소스제어</p>
                 <button class="resizer" onmousedown="repaintResizer(event);"></button>
-                <file v-if="files" v-bind="{...files, onTab, padding: 0}" :class="['root','open']"></file>
+                <file v-if="files" v-bind="file_prop_factory(files, 0)" :class="['root','open']"></file>
                 <span v-if="files" class="v-scrollbar overlay" target=".root.aside_folder" style="margin-top: 3.5rem;"></span>
                 <button v-else onclick="getFolder();" class="rect_button">Open Folder</button>
             </aside>

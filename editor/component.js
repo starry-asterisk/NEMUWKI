@@ -21,11 +21,11 @@ class Tab {
             (sub) => sub._uid != _uid
         );
     }
-    async addSubTab({ name = "file1.txt", id, handle, file }, temp = false) {
+    async addSubTab({ name, id }, temp = false) {
         let subTab_index = this._subTabs.findIndex(tab => tab._uid == id);
         let subTab =
             this._subTabs[subTab_index] ||
-            new SubTab(this, { uid: id, name, state: TabState.temp, handle, file });
+            new SubTab(this, { uid: id, name, state: TabState.temp });
 
         let temp_index = this._subTabs.findIndex(tab => tab._state == TabState.temp);
 
@@ -42,7 +42,7 @@ class Tab {
             this._app.onTab._onSubTab._uid != id
         ) {
             this._app.onTab._onSubTab = subTab;
-            editor.loadFile(subTab._file);
+            editor.loadFile(subTab.file);
         }
     }
 }
@@ -55,6 +55,10 @@ class SubTab {
     }
 
     set = (p, v) => (this["_" + p] = v);
+
+    get file (){
+        return this._tab._app.files.find(this._uid).node.file;
+    }
 }
 
 class GameTab extends Tab {
@@ -129,11 +133,6 @@ class CFile {
         await writable.close();
     }
 
-    move = async function () {
-        this.handle.move.apply(this.handle, arguments);
-        this.file = await this.handle.getFile();
-    }
-
     find = (id, path = []) => {
         return this.id == id ? {node: this, path: [...path, this.name]} : undefined;
     }
@@ -150,14 +149,13 @@ class CDirectory {
     }
 
     find = (id, path = []) => {
-        return this.id == id ? {node: this, path: [...path, this.name]} : this.findChild(id, [...path, this.name]);
-    }
-
-    findChild = (id, path = []) => {
-        for(let child of this.children) {
-            let result = child.find(id, path);
-            if(result) return result;
-        }
+        const findChild = (id, _path = []) => {
+            for(let child of this.children) {
+                let result = child.find(id, _path);
+                if(result) return result;
+            }
+        };
+        return this.id == id ? {node: this, path: [...path, this.name]} : findChild(id, [...path, this.name]);
     }
 }
 
@@ -202,26 +200,26 @@ Vue.component("file", {
         name: { default: "[no_named_file]" },
         kind: { default: "file" },
         type: {},
-        handle: {},
-        file: {},
         children: { default: () => [] },
         state: { type: Number },
-        onTab: {},
-        padding: { default: 2.2 },
+        padding: { default: 2.2 }
     },
     methods: {
         drag(e, id){this.$parent.drag(e, id)},
         drop(e, id){this.$parent.drop(e, id)},
         dragover(e){this.$parent.dragover(e)},
+        dragleave(e){this.$parent.dragleave(e)},
+        file_prop_factory(instance, padding){ return this.$parent.file_prop_factory(instance, padding);},
+        getOnTab(){return app.onTab;}
     },
     template: `
-    <div class="aside_folder" v-if="kind == 'directory'"  v-on:dragover="dragover" v-on:drop="drop($event, id)">
-        <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'" draggable="true" v-on:dragstart="drag($event, id, name)">{{ name }}</div>
-        <file v-for="(child, index) in children" :key="index" v-bind="{...child,onTab,padding: padding + 1.1}"></file>
+    <div class="aside_folder" v-if="kind == 'directory'"  v-on:dragover="dragover" v-on:drop="drop($event, id)" v-on:dragleave="dragleave">
+        <div class="aside_line" onclick="openFolder.call(this)" tabindex="0" :style="'padding-left:'+padding+'rem;'" draggable="true" v-on:dragstart="drag($event, id)">{{ name }}</div>
+        <file v-for="(child, index) in children" :key="index" v-bind="file_prop_factory(child, padding + 1.1)"></file>
     </div>
     <div class="aside_line" v-else 
-        v-on:click="onTab.addSubTab({id, name, kind, onTab, handle, file}, true)"
-        v-on:dblclick="onTab.addSubTab({id})"
+        v-on:click="getOnTab().addSubTab({id, name}, true)"
+        v-on:dblclick="getOnTab().addSubTab({id})"
         :type="type||name.split('.')[1]||'file'"
         :style="'padding-left:'+padding+'rem;'"
         tabindex="0" draggable="true" v-on:dragstart="drag($event, id, name)">{{ name }}</div>

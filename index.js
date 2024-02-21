@@ -97,7 +97,6 @@ class VisualNovel {
             };
             this._topMenu__menu.onclick = () => {
                 modal({}, v => {
-                    console.log(v);
                     _this.load();
                     app.load('main');
                 });

@@ -67,6 +67,15 @@ Array.prototype.compare = function (target) {
     return this.length === target.length && this.every((element, index) => element === target[index]);
 }
 
+let devMode = true;
+
+function dev(){
+    if(!devMode) return;
+    console[Array.prototype.shift.call(arguments) || 'log'](...arguments);
+}
+
+function sleep(delay) { return new Promise(resolve => setTimeout(resolve, delay)); }
+
 function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
 }
@@ -254,6 +263,23 @@ function callEditorFunction(option) {
         preventDefault: () => { },
         stopPropagation: () => { }
     });
+}
+
+function invalidMovePath(from, to){
+    if(from.node.kind == 'directory' && from.path.length < to.path.length){
+        for(let i in from.path){
+            if(from.path[i] != to.path[i]) return false;
+        }
+    } else {
+        if(from.path.length - 1 != to.path.length) {
+            return false;
+        }
+    
+        for(let i = 0; i < from.path.length - 1; i++){
+            if(from.path[i] != to.path[i]) return false;
+        }
+    }
+    return true;
 }
 
 const rem = 10;

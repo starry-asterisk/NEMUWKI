@@ -121,7 +121,6 @@ class ShootingGame {
     }
 
     chageStatus = state => {
-        console.log(state);
         this.lastStatus = this.status;
         this.status = state;
         this.container.setAttribute('status', state);

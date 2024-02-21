@@ -1,4 +1,3 @@
-
 let app;
 let files;
 let scrollEventManager;
@@ -28,31 +27,41 @@ window.onload = () => {
             files,
             tabs: [],
             onTab: undefined,
-            hangulMode: false,
+            hangulMode: false
         },
         methods: {
-            drag: function(e, id, name){
-                console.log('dragstart :',id);
-                e.dataTransfer.setData("file", id);/*
-                let span = document.createElement('span');
-                span.innerHTML = name;
-                span.setStyles({
-                    'border': '1px solid black'
-                });
-                e.dataTransfer.setDragImage(elem, 0, 0);*/
+            file_prop_factory: function (instance, padding) {
+                return {
+                    id: instance.id,
+                    name: instance.name,
+                    kind: instance.kind,
+                    type: instance.type,
+                    children: instance.children,
+                    state: instance.state,
+                    padding
+                };
             },
-            dragover: function(e){
+            drag: function (e, id) {
+                e.dataTransfer.setData("file", id);
+                e.dataTransfer.setDragImage(e.target, e.offsetX, e.offsetY);
+            },
+            dragover: function (e) {
                 e.preventDefault();
+                e.target.closest('.aside_folder').classList.add('dragover');
             },
-            drop: function(e, id){
+            dragleave: function (e) {
+                e.target.closest('.aside_folder').classList.remove('dragover');
+            },
+            drop: function (e, id) {
                 e.stopPropagation();
+                e.target.closest('.aside_folder').classList.remove('dragover');
                 let find_folder = this.files.find(id);
                 let find_file = this.files.find(e.dataTransfer.getData("file"));
+                if(invalidMovePath(find_file, find_folder)) return dev('warn','same directory');
                 let scope = this.files;
                 let target = find_file.path.pop();
-                if(find_file.path.compare(find_folder.path)) return console.warn('same directory');
                 find_file.path.shift();
-                for(let pathName of find_file.path) {
+                for (let pathName of find_file.path) {
                     scope = scope.children.find(file => file.name == pathName);
                 }
                 scope.children = scope.children.filter(file => file.name != target);
@@ -75,7 +84,7 @@ window.onload = () => {
             changeSubTab: async function (subTab) {
                 editor.clear();
                 this.onTab._onSubTab = subTab;
-                editor.loadText(await subTab._file.text());
+                editor.loadFile(subTab.file);
             }
         },
     });
@@ -94,7 +103,7 @@ window.onload = () => {
     fileDB = new FileDB();
 
     window.onkeydown = ({ ctrlKey, key }) => {
-        if(ctrlKey) document.body.setAttribute('ctrlKey', ctrlKey);
+        if (ctrlKey) document.body.setAttribute('ctrlKey', ctrlKey);
         switch (key.toLowerCase()) {
             case 'b':
                 if (ctrlKey) app.changeTab(undefined);
@@ -103,7 +112,7 @@ window.onload = () => {
     }
 
     window.onkeyup = ({ ctrlKey }) => {
-        if(!ctrlKey) document.body.removeAttribute('ctrlKey');
+        if (!ctrlKey) document.body.removeAttribute('ctrlKey');
     }
 
     document.addEventListener('contextmenu', contextMenuHandler);
@@ -330,9 +339,12 @@ class Editor {
 
     loadFile = async file => {
         this.clear();
-        this.mimeType = file.type;
+        this.mimeType = file.type || 'text/etc';
         switch (this._mime) {
+            default:
             case 'text':
+            case 'md':
+            case 'file':
                 this.loadText(await file.text());
                 break;
             case 'image':
@@ -363,23 +375,12 @@ class Editor {
         node.nodeValue += tailText;
         return shiftLetterPos(node, 0, pos);
     }
-    OLDloadTextOLD = (text, line = this.addLine(), tailText = '') => {
-        let node, lines = text.replaceAll('\r', '').split('\n');
-        line.lastChild.before(node = document.createTextNode(lines.shift()));
-        for (let lineText of lines) {
-            line = this.addLine(line);
-            line.lastChild.before(node = document.createTextNode(lineText));
-        }
-        let pos = node.nodeValue.length;
-        node.nodeValue += tailText;
-        return shiftLetterPos(node, 0, pos);
-    }
 
     loadVideo = (blob) => {
         var url = URL.createObjectURL(blob);
         const vid = document.createElement('video');
         vid.src = url;
-        vid.setAttribute('controls','');
+        vid.setAttribute('controls', '');
         this.container.append(vid);
         vid.play();
     }
@@ -388,7 +389,7 @@ class Editor {
         var url = URL.createObjectURL(blob);
         const audio = document.createElement('audio');
         audio.src = url;
-        audio.setAttribute('controls','');
+        audio.setAttribute('controls', '');
         this.container.append(audio);
     }
 
@@ -410,20 +411,20 @@ class Editor {
 
             img.onmousedown = e => {
                 e.preventDefault();
-                if(e.button > 0) return;
+                if (e.button > 0) return;
                 ratio = ratio + (e.ctrlKey ? (-0.1) : 0.1);
                 let rect = this.containerRect;
-                let {scrollHeight, scrollWidth, scrollTop, scrollLeft} = this.container;
+                let { scrollHeight, scrollWidth, scrollTop, scrollLeft } = this.container;
                 img.width = width * ratio;
                 img.setStyles({
                     'min-width': `${width * ratio}px`,
                     'max-width': `${width * ratio}px`
                 });
                 this.redrawScroll();
-                if(rect.height >= scrollHeight) this.container.scrollTop =  (this.container.scrollHeight - rect.height) / 2;
-                else  this.container.scrollTop = scrollTop / (scrollHeight - rect.height) * (this.container.scrollHeight - rect.height);
-                if(rect.width >= scrollWidth) this.container.scrollTop =  (this.container.scrollWidth - rect.width) / 2;
-                else  this.container.scrollLeft = scrollLeft / (scrollWidth - rect.width) * (this.container.scrollWidth - rect.width);
+                if (rect.height >= scrollHeight) this.container.scrollTop = (this.container.scrollHeight - rect.height) / 2;
+                else this.container.scrollTop = scrollTop / (scrollHeight - rect.height) * (this.container.scrollHeight - rect.height);
+                if (rect.width >= scrollWidth) this.container.scrollTop = (this.container.scrollWidth - rect.width) / 2;
+                else this.container.scrollLeft = scrollLeft / (scrollWidth - rect.width) * (this.container.scrollWidth - rect.width);
             }
         }
         this.container.append(img);
@@ -515,7 +516,6 @@ class Editor {
             this.delSelect();
             inputText.call(this, key, this.hangulMode);
         } else {
-            console.log(key);
             switch (key) {
                 case "Tab":
                     event.preventDefault();
@@ -626,7 +626,7 @@ class Editor {
         this.container.focus();
     };
     onmousedown = function (e_down) {
-        if(this._mime != 'text') return;
+        if (this._mime != 'text') return;
         e_down.preventDefault();
         if (e_down.which != 1) return;
         let ePos, sPos = getLetterPos(e_down);
@@ -642,7 +642,6 @@ class Editor {
         }
     };
     ondblclick = function ({ target }) {
-        console.log(target);
         if (target.matches('div.line')) {
             let startNode = target.firstChild;
             while (startNode.nodeType != 3 && startNode != undefined) startNode = startNode.firstChild;

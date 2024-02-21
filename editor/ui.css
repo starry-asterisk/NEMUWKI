@@ -280,7 +280,7 @@ code {
     overflow: hidden;
 }
 
-.aside_line:hover {
+.aside_line:hover, .aside_folder.dragover {
     background-color: #2a2d2e;
 }
 
