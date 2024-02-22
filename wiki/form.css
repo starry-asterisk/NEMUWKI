@@ -1,8 +1,37 @@
 .main__header {
     padding: 2rem 0;
 }
+.main__header__title {
+    margin-bottom: 1rem;
+}
+.main__header__title:has(input:invalid) {
+    height: 5rem;
+    padding-left: 2rem;
+}
+.main__header__title:has(input:invalid)::before {
+    content: "\F0028";
+    color: var(--invalid);
+    font-family:"Material Design Icons";
+}
+.main__header__title > input {
+    transition: 200ms padding;
+}
+.main__header__title > input:invalid {
+    padding-left: 8rem;
+}
 .main__contents {
     padding: 0;
+}
+.main__contents:empty::after {
+    content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 2rem;
+    background: var(--background-dark);
+    text-align: center;
+    line-height: 40rem;
 }
 footer:hover, .component:hover {
     background-color: var(--background-dark);
@@ -49,4 +78,30 @@ footer:hover, .component:hover {
 }
 aside > :first-child {
     transition: 400ms margin-top;
+}
+editable-table {
+    display: inline-block;
+    border: 0.1rem solid black;
+}
+.editable-table__row {
+    display: flex;
+    flex-direction: row;
+    height: 5rem;
+}
+.editable-table__row + .editable-table__row {
+    border-top: 0.1rem solid black;
+}
+.editable-table__row:first-child {
+    height: 5rem;
+    background-color: var(--background-dark);
+}
+.editable-table__cell {
+    box-sizing: content-box;
+    width: 10rem;
+}
+.editable-table__cell:first-child {
+    background-color: var(--background-dark);
+}
+.editable-table__cell + .editable-table__cell {
+    border-left: 0.1rem solid black;
 }

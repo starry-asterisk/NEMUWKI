@@ -16,10 +16,10 @@ function dropfile(files) {
             case 'image':
             case 'video':
             case 'audio':
-                main__contents.append(createComponent(type, {file}));
+                main__contents.append(createComponent(type, { file }));
                 break;
             default:
-                console.warn('no support type :',type);
+                console.warn('no support type :', type);
                 alert('지원하지 않는 파일형식 이거나 폴더 입니다');
                 break;
         }
@@ -114,8 +114,8 @@ const COMPONENT_SPEC = {
         option: function () {
             return document.createDocumentFragment();
         },
-        input: function ({file}) {
-            if(file){
+        input: function ({ file }) {
+            if (file) {
                 let el = new Image();
                 el.src = URL.createObjectURL(file);
                 return el;
@@ -128,10 +128,10 @@ const COMPONENT_SPEC = {
         option: function () {
             return document.createDocumentFragment();
         },
-        input: function ({file}) {
-            if(file){
+        input: function ({ file }) {
+            if (file) {
                 let el = document.createElement('audio');
-                el.setAttribute('controls',true);
+                el.setAttribute('controls', true);
                 el.src = URL.createObjectURL(file);
                 return el;
             }
@@ -143,10 +143,10 @@ const COMPONENT_SPEC = {
         option: function () {
             return document.createDocumentFragment();
         },
-        input: function ({file}) {
-            if(file){
+        input: function ({ file }) {
+            if (file) {
                 let el = document.createElement('video');
-                el.setAttribute('controls',true);
+                el.setAttribute('controls', true);
                 el.src = URL.createObjectURL(file);
                 return el;
             }
@@ -159,7 +159,7 @@ const COMPONENT_SPEC = {
             return document.createDocumentFragment();
         },
         input: function () {
-            return document.createDocumentFragment();
+            return document.createElement('editable-table');
         }
     },
     title: {
@@ -176,6 +176,24 @@ const COMPONENT_SPEC = {
     },
     seperator: {
         title: '구분선',
+        option: function () {
+            return document.createDocumentFragment();
+        },
+        input: function () {
+            return document.createDocumentFragment();
+        }
+    },
+    summury: {
+        title: '개요',
+        option: function () {
+            return document.createDocumentFragment();
+        },
+        input: function () {
+            return document.createDocumentFragment();
+        }
+    },
+    caption: {
+        title: '캡션',
         option: function () {
             return document.createDocumentFragment();
         },
@@ -218,8 +236,8 @@ function addSuggest(data, input) {
     input.querySelector('.input_suggest').append(li);
 }
 
-function test(){
-    let input = input_menu.querySelector('input');
+function test() {
+    let input = main__header__title.querySelector('input');
     input.focus();
     input.dispatchEvent(new Event("invalid"));
     input.dispatchEvent(new Event("input"));
@@ -230,69 +248,78 @@ function test(){
 }
 
 customElements.define('editable-table', class extends HTMLElement {
-    _rowcount = 1;
-    _colcount = 1;
+    _beforeInit = true;
+    _rowcount = 0;
+    _colcount = 0;
     _rows = [];
-    set rowcount(newValue){
-        if(newValue > this._rowcount){
-            while(newValue > this._rowcount){
+    set rowcount(newValue) {
+        if (this._beforeInit) {
+            let row = this._rows[0] = this.getRow();
+            for (let i = 0; i < this._colcount; i++) row.append(this.getCell());
+            this.append(row);
+        }
+        if (newValue > this._rowcount) {
+            while (newValue > this._rowcount) {
+                this._rowcount++;
                 let row = this._rows[this._rowcount] = this.getRow();
-                for(let i = 0;i<this._colcount;i++) row.append(this.getCell());
+                for (let i = 0; i < this._colcount; i++) row.append(this.getCell());
+                this.append(row);
             }
-        }else if(newValue < this._rowcount){
-            for(let i = newValue;i < this._rowcount;i++){
+        } else if (newValue < this._rowcount) {
+            for (let i = newValue; i < this._rowcount; i++) {
                 this._rows[i].remove();
             }
             this._rows.splice(newValue, this._rowcount - newValue);
         }
         this._rowcount = newValue;
     }
-    get rowcount(){
-        return _rowcount;
+    get rowcount() {
+        return this._rowcount;
     }
-    set colcount(newValue){
-        if(newValue > this._colcount){
-            for(let row of this._rows){
-                for(let i = this._colcount;i < newValue;i++){
+    set colcount(newValue) {
+        if (newValue > this._colcount) {
+            for (let row of this._rows) {
+                for (let i = this._colcount; i < newValue; i++) {
                     row.append(this.getCell());
                 }
             }
-        }else if(newValue < this._colcount){
-            for(let row of this._rows){
-                for(let i = newValue;i < this._colcount;i++){
+        } else if (newValue < this._colcount) {
+            for (let row of this._rows) {
+                for (let i = newValue; i < this._colcount; i++) {
                     row.lastChild.remove();
                 }
             }
         }
-        this._rowcount = newValue;
+        this._colcount = newValue;
     }
-    get colcount(){
-        return _colcount;
+    get colcount() {
+        return this._colcount;
     }
     constructor() {
         super();
     }
-    attributeChangedCallback(name, oldValue, newValue){
+    attributeChangedCallback(name, oldValue, newValue) {
+        console.log(
+            `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
+        );
         this[name.toLowerCase()] = newValue;
     }
     connectedCallback() {
-
+        if (this._beforeInit) {
+            this.rowcount = 3;
+            this.colcount = 3;
+            this._beforeInit = false;
+        }
     }
-    adjustRowCount(){
-
-    }
-    adjustColCount(){
-        
-    }
-    getCell(){
+    getCell() {
         let cell = document.createElement('div');
         cell.classList.add('editable-table__cell');
         let cellInput = document.createElement('input');
-        cellInput.setAttribute('type','text');
+        cellInput.setAttribute('type', 'text');
         cell.append(cellInput);
         return cell;
     }
-    getRow(){
+    getRow() {
         let row = document.createElement('div');
         row.classList.add('editable-table__row');
 
@@ -300,9 +327,9 @@ customElements.define('editable-table', class extends HTMLElement {
         rowSize.classList.add('editable-table__cell');
 
         let rowSizeInput = document.createElement('input');
-        rowSizeInput.setAttribute('type','number');
+        rowSizeInput.setAttribute('type', 'number');
         rowSizeInput.setAttribute('min', 0);
-        rowSizeInput.setAttribute('step',0.1);
+        rowSizeInput.setAttribute('step', 0.1);
         rowSize.append(rowSizeInput);
 
         row.append(rowSize);
