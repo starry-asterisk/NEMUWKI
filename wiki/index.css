@@ -27,6 +27,8 @@
     --background: #FFF;
     --block-padding: 2rem;
     --border-radius: 2rem;
+    --valid: #008000;
+    --invalid: #F44336;
 }
 
 * {
@@ -131,7 +133,6 @@ main {
 .main__contents {
     flex: 1;
     padding: var(--block-padding);
-    min-height: 3500px;
 }
 
 .main__contents:hover, footer:hover {
@@ -206,6 +207,7 @@ input:focus + .input_suggest {
     display: block;
     position: absolute;
     top: 100%;
+    left: 0;
     width: 100%;
     padding: 0;
     max-height: 30rem;
@@ -225,4 +227,45 @@ input:focus + .input_suggest {
 }
 .input_suggest > li:hover {
     background-color: var(--background-dark);
+}
+
+[placeholder]:empty::after {
+    content: attr(placeholder);
+    opacity: 0.5;
+}
+.input_container {
+    height: 4rem;
+    line-height: 4rem;
+    padding: 0 2rem;
+    transition: outline 200ms;
+}
+.input_container:focus-within {
+    outline: 0.2rem solid var(--accent);
+}
+.input_container:has(input:valid) {
+    outline: 0.2rem solid var(--valid);
+    padding-left: 1rem;
+}
+.input_container:has(input:user-invalid) {
+    outline: 0.2rem solid var(--invalid);
+    padding-left: 1rem;
+}
+.input_container::before {
+    content: "";
+    font-family:"Material Design Icons";
+    font-size: 2.5rem;
+}
+.input_container:has(input:valid)::before {
+    content: "\F05E1";
+    color: var(--valid);
+}
+.input_container:has(input:user-invalid)::before {
+    content: "\F0028";
+    color: var(--invalid);
+}
+.input_container input {
+    transition: padding 200ms;
+}
+.input_container input:valid, .input_container input:user-invalid {
+    padding-left: 4rem;
 }

@@ -16,7 +16,7 @@
         <main>
             <div class="main__header">
                 <div class="main__header__title"><input type="text" placeholder="제목"/></div>
-                <div class="main__header__timestamp"><input type="datetime" placeholder="업로드 시간"/></div>
+                <div class="main__header__timestamp"><input type="datetime-local" title="업로드 시간" id="upload_datetime"/></div>
                 <div class="main__header__toolbox">
                     <button>1</button>
                     <button>2</button>
@@ -34,12 +34,12 @@
             </footer>
         </main>
         <aside>
-            <div id="input_categories">
-                <input type="text" placeholder="카테고리"/>
+            <div id="input_categories" class="input_container">
+                <input type="text" required placeholder="카테고리"/>
                 <ul class="input_suggest"></ul>
             </div>
-            <div id="input_menu">
-                <input type="text" placeholder="메뉴"/>
+            <div id="input_menu" class="input_container">
+                <input type="text" required placeholder="메뉴"/>
                 <ul class="input_suggest"></ul>
             </div>
             <div style="user-select: none;">

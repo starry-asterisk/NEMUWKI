@@ -131,6 +131,7 @@ const COMPONENT_SPEC = {
         input: function ({file}) {
             if(file){
                 let el = document.createElement('audio');
+                el.setAttribute('controls',true);
                 el.src = URL.createObjectURL(file);
                 return el;
             }
@@ -145,6 +146,7 @@ const COMPONENT_SPEC = {
         input: function ({file}) {
             if(file){
                 let el = document.createElement('video');
+                el.setAttribute('controls',true);
                 el.src = URL.createObjectURL(file);
                 return el;
             }
@@ -166,7 +168,10 @@ const COMPONENT_SPEC = {
             return document.createDocumentFragment();
         },
         input: function () {
-            return document.createDocumentFragment();
+            let element = document.createElement('div');
+            element.setAttribute('contenteditable', "plaintext-only");
+            element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
+            return element;
         }
     },
     seperator: {
@@ -195,6 +200,13 @@ window.addEventListener('load', function () {
         li.innerHTML = spec.title;
         component_list.append(li);
     }
+    let aside_firstChild = document.querySelector('aside > :first-child');
+    let html = document.getElementsByTagName('html')[0];
+    window.addEventListener('scroll', () => aside_firstChild.style.marginTop = `${html.scrollTop}px`);
+
+    let date = new Date();
+    date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
+    upload_datetime.value = date.toISOString().split('.')[0];
 });
 
 function addSuggest(data, input) {
@@ -205,3 +217,95 @@ function addSuggest(data, input) {
     }
     input.querySelector('.input_suggest').append(li);
 }
+
+function test(){
+    let input = input_menu.querySelector('input');
+    input.focus();
+    input.dispatchEvent(new Event("invalid"));
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new Event("focus"));
+    input.dispatchEvent(new Event("change"));
+    input.setCustomValidity('ha-ha');
+    input.reportValidity();
+}
+
+customElements.define('editable-table', class extends HTMLElement {
+    _rowcount = 1;
+    _colcount = 1;
+    _rows = [];
+    set rowcount(newValue){
+        if(newValue > this._rowcount){
+            while(newValue > this._rowcount){
+                let row = this._rows[this._rowcount] = this.getRow();
+                for(let i = 0;i<this._colcount;i++) row.append(this.getCell());
+            }
+        }else if(newValue < this._rowcount){
+            for(let i = newValue;i < this._rowcount;i++){
+                this._rows[i].remove();
+            }
+            this._rows.splice(newValue, this._rowcount - newValue);
+        }
+        this._rowcount = newValue;
+    }
+    get rowcount(){
+        return _rowcount;
+    }
+    set colcount(newValue){
+        if(newValue > this._colcount){
+            for(let row of this._rows){
+                for(let i = this._colcount;i < newValue;i++){
+                    row.append(this.getCell());
+                }
+            }
+        }else if(newValue < this._colcount){
+            for(let row of this._rows){
+                for(let i = newValue;i < this._colcount;i++){
+                    row.lastChild.remove();
+                }
+            }
+        }
+        this._rowcount = newValue;
+    }
+    get colcount(){
+        return _colcount;
+    }
+    constructor() {
+        super();
+    }
+    attributeChangedCallback(name, oldValue, newValue){
+        this[name.toLowerCase()] = newValue;
+    }
+    connectedCallback() {
+
+    }
+    adjustRowCount(){
+
+    }
+    adjustColCount(){
+        
+    }
+    getCell(){
+        let cell = document.createElement('div');
+        cell.classList.add('editable-table__cell');
+        let cellInput = document.createElement('input');
+        cellInput.setAttribute('type','text');
+        cell.append(cellInput);
+        return cell;
+    }
+    getRow(){
+        let row = document.createElement('div');
+        row.classList.add('editable-table__row');
+
+        let rowSize = document.createElement('div');
+        rowSize.classList.add('editable-table__cell');
+
+        let rowSizeInput = document.createElement('input');
+        rowSizeInput.setAttribute('type','number');
+        rowSizeInput.setAttribute('min', 0);
+        rowSizeInput.setAttribute('step',0.1);
+        rowSize.append(rowSizeInput);
+
+        row.append(rowSize);
+        return row;
+    }
+});
