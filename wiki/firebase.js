@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -34,6 +34,7 @@ window.addEventListener('load', async function () {
     firebase.post = {
         insertOne: async data => {
             try {
+                if(data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
                 const docRef = await addDoc(collection(db, "postList"), {
                     board_name: "",
                     category: "",
@@ -41,13 +42,11 @@ window.addEventListener('load', async function () {
                     contents: [],
                     hidden: false,
                     use: true,
-                    timestamp: {
-                        nanoseconds:770000000,
-                        seconds:1708533677
-                    },
+                    timestamp: Timestamp.fromDate(new Date()),
                     ...data
                 });
                 console.log("Document written with ID: ", docRef.id);
+                return docRef;
             } catch (e) {
                 console.error("Error adding document: ", e);
             }

@@ -107,6 +107,9 @@ const COMPONENT_SPEC = {
             element.setAttribute('contenteditable', "plaintext-only");
             element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
             return element;
+        },
+        getData: id => {
+            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
         }
     },
     image: {
@@ -115,12 +118,37 @@ const COMPONENT_SPEC = {
             return document.createDocumentFragment();
         },
         input: function ({ file }) {
+            let fragment = document.createDocumentFragment();
+            let input = document.createElement('input');
+            input.setAttribute('type','file');
+            input.setAttribute('accept','image/*');
+            fragment.append(input);
+            let img;
             if (file) {
-                let el = new Image();
-                el.src = URL.createObjectURL(file);
-                return el;
+                let dataTranster = new DataTransfer();
+                dataTranster.items.add(file);
+                input.files = dataTranster.files;
+                img = new Image();
+                img.src = URL.createObjectURL(file);
+                fragment.append(img);
             }
-            return document.createDocumentFragment();
+            input.oninput = () => {
+                if (input.files && input.files[0]) {
+                    if(img) img.remove();
+                    img = new Image();
+                    img.src = URL.createObjectURL(input.files[0]);
+                    input.after(img);
+                }
+            }
+            return fragment;
+        },
+        getData: id => {
+            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
+            if(file) {
+                firebase.storage.upload(`${id}/${file.name}`, file);
+                return `${id}/${file.name}`;
+            }
+            else return 'undefined';
         }
     },
     audio: {
@@ -129,13 +157,39 @@ const COMPONENT_SPEC = {
             return document.createDocumentFragment();
         },
         input: function ({ file }) {
+            let fragment = document.createDocumentFragment();
+            let input = document.createElement('input');
+            input.setAttribute('type','file');
+            input.setAttribute('accept','audio/*');
+            fragment.append(input);
+            let audio;
             if (file) {
-                let el = document.createElement('audio');
-                el.setAttribute('controls', true);
-                el.src = URL.createObjectURL(file);
-                return el;
+                let dataTranster = new DataTransfer();
+                dataTranster.items.add(file);
+                input.files = dataTranster.files;
+                audio = document.createElement('audio');
+                audio.setAttribute('controls', true);
+                audio.src = URL.createObjectURL(file);
+                fragment.append(audio);
             }
-            return document.createDocumentFragment();
+            input.oninput = () => {
+                if (input.files && input.files[0]) {
+                    if(file) img.remove();
+                    audio = document.createElement('audio');
+                    audio.setAttribute('controls', true);
+                    audio.src = URL.createObjectURL(input.files[0]);
+                    input.after(audio);
+                }
+            }
+            return fragment;
+        },
+        getData: id => {
+            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
+            if(file) {
+                firebase.storage.upload(`${id}/${file.name}`, file);
+                return `${id}/${file.name}`;
+            }
+            else return 'undefined';
         }
     },
     video: {
@@ -144,22 +198,90 @@ const COMPONENT_SPEC = {
             return document.createDocumentFragment();
         },
         input: function ({ file }) {
+            let fragment = document.createDocumentFragment();
+            let input = document.createElement('input');
+            input.setAttribute('type','file');
+            input.setAttribute('accept','video/*');
+            fragment.append(input);
+            let audio;
             if (file) {
-                let el = document.createElement('video');
-                el.setAttribute('controls', true);
-                el.src = URL.createObjectURL(file);
-                return el;
+                let dataTranster = new DataTransfer();
+                dataTranster.items.add(file);
+                input.files = dataTranster.files;
+                audio = document.createElement('video');
+                audio.setAttribute('controls', true);
+                audio.src = URL.createObjectURL(file);
+                fragment.append(audio);
             }
-            return document.createDocumentFragment();
+            input.oninput = () => {
+                if (input.files && input.files[0]) {
+                    if(file) img.remove();
+                    audio = document.createElement('video');
+                    audio.setAttribute('controls', true);
+                    audio.src = URL.createObjectURL(input.files[0]);
+                    input.after(audio);
+                }
+            }
+            return fragment;
+        },
+        getData: id => {
+            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
+            if(file) {
+                firebase.storage.upload(`${id}/${file.name}`, file);
+                return `${id}/${file.name}`;
+            }
+            else return 'undefined';
         }
     },
     table: {
         title: '도표',
-        option: function () {
-            return document.createDocumentFragment();
+        option: function ({ id }) {
+            let div = document.createElement('div');
+
+            let colcountInput = document.createElement('input');
+            colcountInput.setAttribute('type', 'number');
+            colcountInput.setAttribute('min', '1');
+            colcountInput.value = 3;
+            colcountInput.oninput = () => {
+                if (colcountInput.value < 1) colcountInput.value = 1;
+                document.querySelector(`#${id} editable-table`).colcount = colcountInput.value;
+            }
+
+            let colContainer = document.createElement('div');
+            colContainer.append(colcountInput);
+            colContainer.classList.add('component__option__input');
+
+            let rowcountInput = document.createElement('input');
+            rowcountInput.setAttribute('type', 'number');
+            rowcountInput.setAttribute('min', '1');
+            rowcountInput.value = 3;
+            rowcountInput.oninput = () => {
+                if (rowcountInput.value < 1) rowcountInput.value = 1;
+                document.querySelector(`#${id} editable-table`).rowcount = rowcountInput.value;
+            }
+
+            let rowContainer = document.createElement('div');
+            rowContainer.append(rowcountInput);
+            rowContainer.classList.add('component__option__input');
+
+            div.append(colContainer);
+            div.append(document.createTextNode('x'));
+            div.append(rowContainer);
+
+            div.style.marginTop = '2rem';
+            return div;
         },
         input: function () {
-            return document.createElement('editable-table');
+            let el = document.createElement('editable-table');
+            el.style.marginTop = '2rem';
+            return el;
+        },
+        getData: id => {
+            return {
+                rowclount: document.querySelectorAll(`#${id} .component__option__input input`)[1].value,
+                header: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table input`),cell => cell.value),
+                cells: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table [contenteditable]`),cell => cell.innerHTML)
+            };
         }
     },
     title: {
@@ -172,6 +294,9 @@ const COMPONENT_SPEC = {
             element.setAttribute('contenteditable', "plaintext-only");
             element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
             return element;
+        },
+        getData: id => {
+            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
         }
     },
     seperator: {
@@ -181,6 +306,9 @@ const COMPONENT_SPEC = {
         },
         input: function () {
             return document.createDocumentFragment();
+        },
+        getData: id => {
+            return '';
         }
     },
     summury: {
@@ -190,6 +318,9 @@ const COMPONENT_SPEC = {
         },
         input: function () {
             return document.createDocumentFragment();
+        },
+        getData: id => {
+            return '';
         }
     },
     caption: {
@@ -199,6 +330,24 @@ const COMPONENT_SPEC = {
         },
         input: function () {
             return document.createDocumentFragment();
+        },
+        getData: id => {
+            return '';
+        }
+    },
+    인용: {
+        title: '인용',
+        option: function () {
+            return document.createDocumentFragment();
+        },
+        input: function () {
+            let element = document.createElement('div');
+            element.setAttribute('contenteditable', "plaintext-only");
+            element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
+            return element;
+        },
+        getData: id => {
+            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
         }
     },
 }
@@ -251,24 +400,27 @@ customElements.define('editable-table', class extends HTMLElement {
     _beforeInit = true;
     _rowcount = 0;
     _colcount = 0;
+    _headers;
     _rows = [];
     set rowcount(newValue) {
         if (this._beforeInit) {
-            let row = this._rows[0] = this.getRow();
-            for (let i = 0; i < this._colcount; i++) row.append(this.getCell());
-            this.append(row);
+            let _headers = this._headers = this.getRow();
+            for (let i = 0; i < this._colcount; i++) _headers.append(this.getCell({ header: true }));
+            this.append(_headers);
         }
         if (newValue > this._rowcount) {
             while (newValue > this._rowcount) {
-                this._rowcount++;
                 let row = this._rows[this._rowcount] = this.getRow();
-                for (let i = 0; i < this._colcount; i++) row.append(this.getCell());
+                for (let i = 0; i < this._colcount; i++) {
+                    let cell = this.getCell();
+                    cell.style.width = this._headers.children[i].style.width;
+                    row.append(cell);
+                }
                 this.append(row);
+                this._rowcount++;
             }
         } else if (newValue < this._rowcount) {
-            for (let i = newValue; i < this._rowcount; i++) {
-                this._rows[i].remove();
-            }
+            for (let i = newValue; i < this._rowcount; i++) this._rows[i].remove();
             this._rows.splice(newValue, this._rowcount - newValue);
         }
         this._rowcount = newValue;
@@ -278,16 +430,14 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     set colcount(newValue) {
         if (newValue > this._colcount) {
+            for (let i = this._colcount; i < newValue; i++) this._headers.append(this.getCell({ header: true }));
             for (let row of this._rows) {
-                for (let i = this._colcount; i < newValue; i++) {
-                    row.append(this.getCell());
-                }
+                for (let i = this._colcount; i < newValue; i++) row.append(this.getCell());
             }
         } else if (newValue < this._colcount) {
+            for (let i = newValue; i < this._colcount; i++) this._headers.lastChild.remove();
             for (let row of this._rows) {
-                for (let i = newValue; i < this._colcount; i++) {
-                    row.lastChild.remove();
-                }
+                for (let i = newValue; i < this._colcount; i++) row.lastChild.remove();
             }
         }
         this._colcount = newValue;
@@ -311,28 +461,50 @@ customElements.define('editable-table', class extends HTMLElement {
             this._beforeInit = false;
         }
     }
-    getCell() {
+    getCell(option = {}) {
+        let { header } = option;
         let cell = document.createElement('div');
         cell.classList.add('editable-table__cell');
-        let cellInput = document.createElement('input');
-        cellInput.setAttribute('type', 'text');
+        let cellInput;
+        if (header) {
+            cellInput = document.createElement('input');
+            cellInput.setAttribute('type', 'number');
+            cellInput.setAttribute('min', 1);
+            cellInput.setAttribute('step', 1);
+            cellInput.oninput = () => {
+                let v = parseFloat(cellInput.value);
+                let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
+                cell.style.width = `${v}rem`;
+                for (let row of this._rows) row.children[idx].style.width = `${v}rem`;
+            }
+            cellInput.value = 20;
+        } else {
+            cellInput = document.createElement('div');
+            cellInput.setAttribute('contenteditable', 'plaintext-only');
+        }
         cell.append(cellInput);
         return cell;
     }
     getRow() {
         let row = document.createElement('div');
         row.classList.add('editable-table__row');
-
-        let rowSize = document.createElement('div');
-        rowSize.classList.add('editable-table__cell');
-
-        let rowSizeInput = document.createElement('input');
-        rowSizeInput.setAttribute('type', 'number');
-        rowSizeInput.setAttribute('min', 0);
-        rowSizeInput.setAttribute('step', 0.1);
-        rowSize.append(rowSizeInput);
-
-        row.append(rowSize);
         return row;
     }
 });
+
+function submit(){
+    firebase.post.insertOne({
+        board_name: main__header__title.value,
+        category: post_categories.value,
+        title: post_menu.value,
+        contents: Array.from(document.getElementsByClassName('component')).map(c => {return {
+            type: c.classList[1],
+            value: COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
+        };}),
+        hidden: false,
+        use: true,
+        timestamp: new Date(upload_datetime.value)
+    })
+    .then(console.log)
+    .error(console.error);
+}
