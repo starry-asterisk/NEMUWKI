@@ -25,33 +25,7 @@ const db = getFirestore(app);
 const storage = getStorage(app, "gs://nemuwiki-f3a72.appspot.com");
 
 window.addEventListener('load', async function () {
-
-    let querySnapshot = await getDocs(collection(db, "boardList"));
-    querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
-
-    querySnapshot = await getDocs(collection(db, "categories"));
-    querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
-
     firebase.post = {
-        insertOne: async data => {
-            try {
-                if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
-                const docRef = await addDoc(collection(db, "postList"), {
-                    board_name: "",
-                    category: "",
-                    title: "",
-                    contents: [],
-                    hidden: false,
-                    use: true,
-                    timestamp: Timestamp.fromDate(new Date()),
-                    ...data
-                });
-                console.log("Document written with ID: ", docRef.id);
-                return docRef;
-            } catch (e) {
-                console.error("Error adding document: ", e);
-            }
-        },
         list: async () => {
             let query_result = query(collection(db, "postList"), orderBy("timestamp"), limit(25));
             let documentSnapshots = await getDocs(query_result);
@@ -70,11 +44,9 @@ window.addEventListener('load', async function () {
         }
     };
 
-    firebase.storage = {
-        getUrl: async fileName => await getDownloadURL(ref(storage, fileName)),
-        delete: async fileName => await deleteObject(ref(storage, fileName)),
-        upload: async (fileName, file) => await uploadBytes(ref(storage, fileName), file),
-        uploadResumable: (fileName, file) => uploadBytesResumable(ref(storage, fileName), file)
-    };
+    let {docs, getNext} = await firebase.post.list();
+    for(let doc of docs) {
+        let data = doc.data();
+        console.log(data);
+    }
 });
-
