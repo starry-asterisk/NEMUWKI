@@ -25,13 +25,6 @@ const db = getFirestore(app);
 const storage = getStorage(app, "gs://nemuwiki-f3a72.appspot.com");
 
 window.addEventListener('load', async function () {
-
-    let querySnapshot = await getDocs(collection(db, "boardList"));
-    querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
-
-    querySnapshot = await getDocs(collection(db, "categories"));
-    querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
-
     firebase.post = {
         insertOne: async data => {
             try {
@@ -76,5 +69,23 @@ window.addEventListener('load', async function () {
         upload: async (fileName, file) => await uploadBytes(ref(storage, fileName), file),
         uploadResumable: (fileName, file) => uploadBytesResumable(ref(storage, fileName), file)
     };
+
+    let querySnapshot;
+
+    if(typeof input_menu != 'undefined'){
+        querySnapshot = await getDocs(collection(db, "boardList"));
+        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
+    }
+
+    if(typeof input_categories != 'undefined'){
+        querySnapshot = await getDocs(collection(db, "categories"));
+        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
+    }
+
+    let {docs, getNext} = await firebase.post.list();
+    for(let doc of docs) {
+        let data = doc.data();
+        console.log(data);
+    }
 });
 

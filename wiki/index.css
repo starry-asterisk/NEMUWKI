@@ -89,6 +89,7 @@ header > * {
 .header__logo {
     line-height: 5rem;
     font-family: "headerFont";
+    cursor: pointer;
 }
 
 main {
@@ -242,11 +243,11 @@ input:focus + .input_suggest {
 .input_container:focus-within {
     outline: 0.2rem solid var(--accent);
 }
-.input_container:has(input:valid) {
+.input_container:has(input:user-valid) {
     outline: 0.2rem solid var(--valid);
     padding-left: 1rem;
 }
-.input_container:has(input:user-invalid) {
+.input_container:has(input:invalid) {
     outline: 0.2rem solid var(--invalid);
     padding-left: 1rem;
 }
@@ -255,11 +256,11 @@ input:focus + .input_suggest {
     font-family:"Material Design Icons";
     font-size: 2.5rem;
 }
-.input_container:has(input:valid)::before {
+.input_container:has(input:user-valid)::before {
     content: "\F05E1";
     color: var(--valid);
 }
-.input_container:has(input:user-invalid)::before {
+.input_container:has(input:invalid)::before {
     content: "\F0028";
     color: var(--invalid);
 }
@@ -268,7 +269,7 @@ input:focus + .input_suggest {
     left: 0;
     transition: padding 200ms;
 }
-.input_container input:valid, .input_container input:user-invalid {
+.input_container input:user-valid, .input_container input:invalid {
     padding-left: 4rem;
 }
 

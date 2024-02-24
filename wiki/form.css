@@ -1,27 +1,35 @@
 .main__header {
     padding: 2rem 0;
 }
+
 .main__header__title {
     margin-bottom: 1rem;
 }
+
 .main__header__title:has(input:invalid) {
     height: 5rem;
     padding-left: 2rem;
 }
+
 .main__header__title:has(input:invalid)::before {
+    position: absolute;
     content: "\F0028";
     color: var(--invalid);
-    font-family:"Material Design Icons";
+    font-family: "Material Design Icons";
 }
-.main__header__title > input {
+
+.main__header__title>input {
     transition: 200ms padding;
 }
-.main__header__title > input:invalid {
+
+.main__header__title>input:invalid {
     padding-left: 8rem;
 }
+
 .main__contents {
     padding: 0;
 }
+
 .main__contents:empty::after {
     content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
     position: absolute;
@@ -33,27 +41,35 @@
     text-align: center;
     line-height: 40rem;
 }
-footer:hover, .component:hover {
+
+footer:hover,
+.component:hover {
     background-color: var(--background-dark);
 }
+
 .main__contents:hover {
     background-color: transparent;
 }
+
 .component {
     border-top: 0.1rem solid var(--border);
     padding: 2rem 4rem;
     min-height: 10.5rem;
 }
-.component > p {
+
+.component>p {
     font-size: 3rem;
 }
-.component > *:not(p) {    
+
+.component>* {
     max-width: calc(100% - 5rem);
 }
+
 .component audio {
     min-width: calc(70% - 5rem);
     margin-top: 1rem;
 }
+
 .component__remove_btn {
     position: absolute;
     top: 2rem;
@@ -66,39 +82,49 @@ footer:hover, .component:hover {
     background-color: var(--accent);
     font-size: 3rem;
 }
+
 .component__remove_btn:hover {
     opacity: 0.7;
 }
+
 .component__remove_btn:active {
     background: var(--invalid);
     opacity: 1;
 }
-.component_list > li {
+
+.component_list>li {
     padding-left: var(--block-padding);
 }
-aside > :first-child {
+
+aside> :first-child {
     transition: 400ms margin-top;
 }
+
 editable-table {
     display: inline-block;
     border: 0.1rem solid black;
 }
+
 .editable-table__row {
     display: flex;
     flex-direction: row;
     min-height: 5rem;
 }
-.editable-table__row + .editable-table__row {
+
+.editable-table__row+.editable-table__row {
     border-top: 0.1rem solid black;
 }
+
 .editable-table__row:first-child {
     background-color: var(--background-dark);
 }
+
 .editable-table__cell {
     box-sizing: content-box;
     width: 20rem;
 }
-.editable-table__cell + .editable-table__cell {
+
+.editable-table__cell+.editable-table__cell {
     border-left: 0.1rem solid black;
 }
 
@@ -109,14 +135,83 @@ editable-table {
     margin: 0 1rem;
     border: 1px solid black;
 }
+
 .component__option__input:first-child {
     margin-left: 0;
 }
-.component__option__input > input {
+
+.component__option__input>input {
     padding-right: 0;
 }
-editable-table [contenteditable]{
+
+editable-table [contenteditable] {
     width: 100%;
     height: 100%;
     padding: 1.25rem 2rem;
+}
+
+.component__execList {
+    line-height: 1.5em;
+    background-color: #edf2fa;
+    padding: 0 1.75rem;
+    border-radius: 1.75rem;
+    margin: 1rem 0;
+}
+
+.component__execList>button,
+.input_color {
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 1.5rem;
+    overflow: hidden;
+}
+
+input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.input_color>input {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1.3rem;
+}
+
+.input_color::before {
+    z-index: 2;
+    position: relative;
+}
+
+.component__execList>input[type="number"] {
+    padding: 0.5rem;
+    width: 5rem;
+    text-align: center;
+}
+
+.component__execList>input[type="number"]::-webkit-outer-spin-button,
+.component__execList>input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    text-align: center;
+}
+
+.component__execList>input[type="number"][type=number] {
+    -moz-appearance: textfield;
+}
+.separator::before {
+    content: '|';
 }

@@ -51,17 +51,12 @@ function createComponent(type, option = {}) {
 
     let spec = COMPONENT_SPEC[type];
 
-    let component = document.createElement('div');
-    component.setAttribute('id', id);
-    component.setAttribute('draggable', true);
-    component.classList.add('component', type);
+    let component = createElement('div', { attrs: { class: `component ${type}`, draggable: true, id } });
 
-    let title = document.createElement('p');
-    title.innerHTML = spec.title;
+    let title = createElement('p', { innerHTML: spec.title });
     component.append(title);
 
-    let component__remove_btn = document.createElement('button');
-    component__remove_btn.classList.add('component__remove_btn', 'mdi', 'mdi-trash-can');
+    let component__remove_btn = createElement('button', { attrs: { class: 'component__remove_btn mdi mdi-trash-can' } });
     component.append(component__remove_btn);
 
     component.append(spec.option(option));
@@ -96,17 +91,39 @@ function createComponent(type, option = {}) {
     return component;
 }
 
+let lastSelection;
+
 const COMPONENT_SPEC = {
     textbox: {
         title: '텍스트 박스',
-        option: function () {
-            return document.createDocumentFragment();
+        option: () => {
+            let div = createElement('div', { attrs: { class: 'component__execList' } });
+            div.append(textEditorButtonsFrag());
+            return div;
         },
-        input: function () {
-            let element = document.createElement('div');
-            element.setAttribute('contenteditable', "plaintext-only");
-            element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
-            return element;
+        input: () => {
+            return createElement('div', {
+                attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요' },
+                on: {
+                    ondragstart: e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    },
+                    blur: () => {
+                        let s = window.getSelection();
+                        lastSelection = {
+                            anchorNode: s.anchorNode,
+                            anchorOffset: s.anchorOffset,
+                            focusNode: s.focusNode,
+                            focusOffset: s.focusOffset,
+                        };
+                    },
+                    paste: e => {
+                        e.preventDefault();
+                        document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
+                    }
+                }
+            });
         },
         getData: id => {
             return document.querySelector(`#${id} [contenteditable]`).innerHTML;
@@ -114,37 +131,31 @@ const COMPONENT_SPEC = {
     },
     image: {
         title: '이미지',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function ({ file }) {
-            let fragment = document.createDocumentFragment();
-            let input = document.createElement('input');
-            input.setAttribute('type','file');
-            input.setAttribute('accept','image/*');
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: ({ file }, mediaTytpe = 'image') => {
+            let tagName = mediaTytpe == 'image' ? 'img' : mediaTytpe;
+            let media, fragment = document.createDocumentFragment();
+            let input = createElement('input', { attrs: { type: 'file', accept: `${mediaTytpe}/*` } });
+            input.oninput = () => {
+                console.log(mediaTytpe, input.files, file);
+                if (input.files && input.files[0]) {
+                    if (media) media.remove();
+                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: URL.createObjectURL(input.files[0]) } });
+                    input.after(media);
+                }
+            }
             fragment.append(input);
-            let img;
             if (file) {
                 let dataTranster = new DataTransfer();
                 dataTranster.items.add(file);
                 input.files = dataTranster.files;
-                img = new Image();
-                img.src = URL.createObjectURL(file);
-                fragment.append(img);
-            }
-            input.oninput = () => {
-                if (input.files && input.files[0]) {
-                    if(img) img.remove();
-                    img = new Image();
-                    img.src = URL.createObjectURL(input.files[0]);
-                    input.after(img);
-                }
+                input.oninput();
             }
             return fragment;
         },
         getData: id => {
             let file = document.querySelector(`#${id} input[type="file"]`).files[0];
-            if(file) {
+            if (file) {
                 firebase.storage.upload(`${id}/${file.name}`, file);
                 return `${id}/${file.name}`;
             }
@@ -153,147 +164,60 @@ const COMPONENT_SPEC = {
     },
     audio: {
         title: '음악',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function ({ file }) {
-            let fragment = document.createDocumentFragment();
-            let input = document.createElement('input');
-            input.setAttribute('type','file');
-            input.setAttribute('accept','audio/*');
-            fragment.append(input);
-            let audio;
-            if (file) {
-                let dataTranster = new DataTransfer();
-                dataTranster.items.add(file);
-                input.files = dataTranster.files;
-                audio = document.createElement('audio');
-                audio.setAttribute('controls', true);
-                audio.src = URL.createObjectURL(file);
-                fragment.append(audio);
-            }
-            input.oninput = () => {
-                if (input.files && input.files[0]) {
-                    if(file) img.remove();
-                    audio = document.createElement('audio');
-                    audio.setAttribute('controls', true);
-                    audio.src = URL.createObjectURL(input.files[0]);
-                    input.after(audio);
-                }
-            }
-            return fragment;
-        },
-        getData: id => {
-            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
-            if(file) {
-                firebase.storage.upload(`${id}/${file.name}`, file);
-                return `${id}/${file.name}`;
-            }
-            else return 'undefined';
-        }
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: option => COMPONENT_SPEC.image.input(option, 'audio'),
+        getData: id => COMPONENT_SPEC.image.getData(id)
     },
     video: {
         title: '영상',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function ({ file }) {
-            let fragment = document.createDocumentFragment();
-            let input = document.createElement('input');
-            input.setAttribute('type','file');
-            input.setAttribute('accept','video/*');
-            fragment.append(input);
-            let audio;
-            if (file) {
-                let dataTranster = new DataTransfer();
-                dataTranster.items.add(file);
-                input.files = dataTranster.files;
-                audio = document.createElement('video');
-                audio.setAttribute('controls', true);
-                audio.src = URL.createObjectURL(file);
-                fragment.append(audio);
-            }
-            input.oninput = () => {
-                if (input.files && input.files[0]) {
-                    if(file) img.remove();
-                    audio = document.createElement('video');
-                    audio.setAttribute('controls', true);
-                    audio.src = URL.createObjectURL(input.files[0]);
-                    input.after(audio);
-                }
-            }
-            return fragment;
-        },
-        getData: id => {
-            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
-            if(file) {
-                firebase.storage.upload(`${id}/${file.name}`, file);
-                return `${id}/${file.name}`;
-            }
-            else return 'undefined';
-        }
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: option => COMPONENT_SPEC.image.input(option, 'video'),
+        getData: id => COMPONENT_SPEC.image.getData(id)
     },
     table: {
         title: '도표',
-        option: function ({ id }) {
-            let div = document.createElement('div');
+        option: ({ id }) => {
+            let div = createElement('div', { styles: { 'margin-top': '2rem' } });
+            let colContainer = createElement('div', { attrs: { class: 'component__option__input col' } });
+            let rowContainer = createElement('div', { attrs: { class: 'component__option__input row' } });
+            let colcountInput = createElement('input', { attrs: { type: 'number', min: 1 }, value: 3 });
+            let rowcountInput = createElement('input', { attrs: { type: 'number', min: 1 }, value: 3 });
 
-            let colcountInput = document.createElement('input');
-            colcountInput.setAttribute('type', 'number');
-            colcountInput.setAttribute('min', '1');
-            colcountInput.value = 3;
-            colcountInput.oninput = () => {
-                if (colcountInput.value < 1) colcountInput.value = 1;
-                document.querySelector(`#${id} editable-table`).colcount = colcountInput.value;
-            }
-
-            let colContainer = document.createElement('div');
             colContainer.append(colcountInput);
-            colContainer.classList.add('component__option__input');
-
-            let rowcountInput = document.createElement('input');
-            rowcountInput.setAttribute('type', 'number');
-            rowcountInput.setAttribute('min', '1');
-            rowcountInput.value = 3;
-            rowcountInput.oninput = () => {
-                if (rowcountInput.value < 1) rowcountInput.value = 1;
-                document.querySelector(`#${id} editable-table`).rowcount = rowcountInput.value;
-            }
-
-            let rowContainer = document.createElement('div');
             rowContainer.append(rowcountInput);
-            rowContainer.classList.add('component__option__input');
 
             div.append(colContainer);
             div.append(document.createTextNode('x'));
             div.append(rowContainer);
 
-            div.style.marginTop = '2rem';
+            colcountInput.oninput = () => {
+                if (colcountInput.value < 1) colcountInput.value = 1;
+                document.querySelector(`#${id} editable-table`).colcount = colcountInput.value;
+            }
+
+            rowcountInput.oninput = () => {
+                if (rowcountInput.value < 1) rowcountInput.value = 1;
+                document.querySelector(`#${id} editable-table`).rowcount = rowcountInput.value;
+            }
+
             return div;
         },
-        input: function () {
-            let el = document.createElement('editable-table');
-            el.style.marginTop = '2rem';
-            return el;
+        input: () => {
+            return createElement('editable-table', { styles: { 'margin-top': '2rem' } });
         },
         getData: id => {
             return {
-                rowclount: document.querySelectorAll(`#${id} .component__option__input input`)[1].value,
-                header: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table input`),cell => cell.value),
-                cells: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table [contenteditable]`),cell => cell.innerHTML)
+                rowclount: document.querySelector(`#${id} .component__option__input.row input`).value,
+                header: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table input`), cell => cell.value),
+                cells: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table [contenteditable]`), cell => cell.innerHTML)
             };
         }
     },
     title: {
         title: '소제목',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function () {
-            let element = document.createElement('div');
-            element.setAttribute('contenteditable', "plaintext-only");
-            element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
-            return element;
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: () => {
+            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' } });
         },
         getData: id => {
             return document.querySelector(`#${id} [contenteditable]`).innerHTML;
@@ -301,55 +225,43 @@ const COMPONENT_SPEC = {
     },
     seperator: {
         title: '구분선',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function () {
-            return document.createDocumentFragment();
-        },
-        getData: id => {
-            return '';
-        }
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: option => COMPONENT_SPEC.default.input(option),
+        getData: id => COMPONENT_SPEC.default.getData(id)
     },
     summury: {
         title: '개요',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function () {
-            return document.createDocumentFragment();
-        },
-        getData: id => {
-            return '';
-        }
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: option => COMPONENT_SPEC.default.input(option),
+        getData: id => COMPONENT_SPEC.default.getData(id)
     },
     caption: {
         title: '캡션',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function () {
-            return document.createDocumentFragment();
-        },
-        getData: id => {
-            return '';
-        }
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: option => COMPONENT_SPEC.default.input(option),
+        getData: id => COMPONENT_SPEC.default.getData(id)
     },
-    인용: {
+    quotation: {
         title: '인용',
-        option: function () {
-            return document.createDocumentFragment();
-        },
-        input: function () {
-            let element = document.createElement('div');
-            element.setAttribute('contenteditable', "plaintext-only");
-            element.setAttribute('placeholder', "여기에 텍스트를 입력하세요");
-            return element;
+        option: option => COMPONENT_SPEC.default.option(option),
+        input: () => {
+            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' } });
         },
         getData: id => {
             return document.querySelector(`#${id} [contenteditable]`).innerHTML;
         }
     },
+    default: {
+        option: () => {
+            return document.createDocumentFragment();
+        },
+        input: () => {
+            return document.createDocumentFragment();
+        },
+        getData: id => {
+            return '';
+        }
+    }
 }
 
 window.addEventListener('load', function () {
@@ -360,11 +272,14 @@ window.addEventListener('load', function () {
     let component_list = document.querySelector('.component_list');
     for (let specname in COMPONENT_SPEC) {
         let spec = COMPONENT_SPEC[specname];
-        let li = document.createElement('li');
-        li.setAttribute('type', specname);
-        li.setAttribute('draggable', true);
+        let li = createElement('li', {
+            attrs: {
+                type: specname,
+                draggable: true
+            },
+            innerHTML: spec.title
+        });
         li.ondragstart = dragstart;
-        li.innerHTML = spec.title;
         component_list.append(li);
     }
     let aside_firstChild = document.querySelector('aside > :first-child');
@@ -377,23 +292,11 @@ window.addEventListener('load', function () {
 });
 
 function addSuggest(data, input) {
-    let li = document.createElement('li');
-    li.setAttribute('value', data.name);
+    let li = createElement('li', { attrs: { value: data.name } });
     li.onmousedown = () => {
-        li.parentNode.previousElementSibling.value = li.getAttribute('value');
+        li.parentNode.previousElementSibling.value = data.name;
     }
     input.querySelector('.input_suggest').append(li);
-}
-
-function test() {
-    let input = main__header__title.querySelector('input');
-    input.focus();
-    input.dispatchEvent(new Event("invalid"));
-    input.dispatchEvent(new Event("input"));
-    input.dispatchEvent(new Event("focus"));
-    input.dispatchEvent(new Event("change"));
-    input.setCustomValidity('ha-ha');
-    input.reportValidity();
 }
 
 customElements.define('editable-table', class extends HTMLElement {
@@ -463,48 +366,288 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     getCell(option = {}) {
         let { header } = option;
-        let cell = document.createElement('div');
-        cell.classList.add('editable-table__cell');
+        let cell = createElement('div', { attrs: { class: 'editable-table__cell' } });
         let cellInput;
         if (header) {
-            cellInput = document.createElement('input');
-            cellInput.setAttribute('type', 'number');
-            cellInput.setAttribute('min', 1);
-            cellInput.setAttribute('step', 1);
+            cellInput = createElement('input', {
+                attrs: { type: 'number', min: 1, step: 1 },
+                value: 20
+            });
             cellInput.oninput = () => {
                 let v = parseFloat(cellInput.value);
                 let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
                 cell.style.width = `${v}rem`;
                 for (let row of this._rows) row.children[idx].style.width = `${v}rem`;
             }
-            cellInput.value = 20;
         } else {
-            cellInput = document.createElement('div');
-            cellInput.setAttribute('contenteditable', 'plaintext-only');
+            cellInput = createElement('div', { attrs: { contenteditable: 'plaintext-only' } });
         }
         cell.append(cellInput);
         return cell;
     }
     getRow() {
-        let row = document.createElement('div');
-        row.classList.add('editable-table__row');
-        return row;
+        return createElement('div', { attrs: { class: 'editable-table__row' } });
     }
 });
 
-function submit(){
+function submit() {
+    if (!validate(main__header__title)) return;
+    if (!validate(post_categories)) return;
+    if (!validate(post_menu)) return;
     firebase.post.insertOne({
         board_name: main__header__title.value,
         category: post_categories.value,
         title: post_menu.value,
-        contents: Array.from(document.getElementsByClassName('component')).map(c => {return {
-            type: c.classList[1],
-            value: COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
-        };}),
+        contents: Array.from(document.getElementsByClassName('component')).map(c => {
+            return {
+                type: c.classList[1],
+                value: COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
+            };
+        }),
         hidden: false,
         use: true,
         timestamp: new Date(upload_datetime.value)
     })
-    .then(console.log)
-    .error(console.error);
+        .then(console.log)
+        .error(console.error);
+}
+
+function validate(input) {
+    if (input.value == undefined || input.value == null || input.value == NaN || input.value == '') input.setCustomValidity('텍스트를 입력해주세요');
+    else input.setCustomValidity('');
+    return input.checkValidity();
+}
+
+function createElement(tagName, option) {
+    return createElementPrototype(tagName || 'div', option || {});
+}
+
+function createElementPrototype(tagName, {
+    styles = {},
+    attrs = {},
+    on = {},
+    value,
+    innerHTML
+}) {
+    let el = document.createElement(tagName);
+
+    for (let namespace in styles) el.style.setProperty(namespace, styles[namespace]);
+    for (let namespace in attrs) el.setAttribute(namespace, attrs[namespace]);
+    for (let namespace in on) el[`on${namespace}`] = on[namespace];
+    console.log(on);
+    if (innerHTML) el.innerHTML = innerHTML;
+    if (value) el.value = value;
+
+    return el;
+}
+
+
+
+var commands = [{
+    cmd: "backColor",
+    icon: "format-color-highlight",
+    val: "#00ffff",
+    input: "color",
+    desc: "글씨에 형광펜 효과를 줍니다."
+},
+{},
+{
+    cmd: "bold",
+    icon: "format-bold",
+    desc: "굵은 글씨 효과"
+},
+{
+    cmd: "italic",
+    icon: "format-italic",
+    desc: "기울임 꼴"
+},
+{
+    cmd: "strikeThrough",
+    icon: "format-strikethrough",
+    desc: "취소선 효과"
+},
+{
+    cmd: "underline",
+    icon: "format-underline",
+    desc: "밑줄 효과"
+},
+{},
+{
+    cmd: "fontSize",
+    val: "20",
+    input: "number",
+    desc: "폰트 사이즈를 지정합니다. 기본값은 20px입니다."
+},
+{},
+{
+    cmd: "justifyLeft",
+    icon: "format-align-left",
+    desc: "좌측 정렬"
+},
+{
+    cmd: "justifyCenter",
+    icon: "format-align-center",
+    desc: "가운데 정렬"
+},
+{
+    cmd: "justifyRight",
+    icon: "format-align-right",
+    desc: "우측 정렬"
+},
+{},
+{
+    cmd: "formatBlock",
+    icon: "format-quote-close",
+    val: "<blockquote>",
+    desc: "인용 하기"
+},
+{
+    cmd: "createLink",
+    val: "https://twitter.com/netsi1964",
+    icon: "link-variant",
+    desc: "링크 생성"
+},
+{
+    cmd: "unlink",
+    icon: "link-variant-off",
+    desc: "링크 삭제"
+},
+{
+    cmd: "removeFormat",
+    icon: "format-clear",
+    desc: "서식 지우기"
+},
+{
+    cmd: "selectAll",
+    icon: "select-all",
+    desc: "전체 선택하기"
+},
+{
+    cmd: "undo",
+    icon: "undo",
+    desc: "되돌리기"
+},
+{
+    cmd: "redo",
+    icon: "redo",
+    desc: "다시하기"
+}];
+
+
+function supported(cmd) {
+    var css = !!document.queryCommandSupported(cmd.cmd) ? "btn-succes" : "btn-error";
+    return css;
+};
+
+function icon(cmd) {
+    return typeof cmd.icon !== "undefined" ? "fa fa-" + cmd.icon : "";
+};
+
+function textEditorButtonsFrag() {
+    let frag = document.createDocumentFragment();
+
+    for (let command of commands) {
+        let input;
+        if (typeof command.cmd == "undefined") frag.append(createElement('span', { attrs: { class: 'separator' } }))
+        if (!document.queryCommandSupported(command.cmd)) continue;
+        if (typeof command.input !== "undefined") {
+            switch (command.input) {
+                case 'number':
+                    input = createElement('input', {
+                        attrs: {
+                            title: command.desc,
+                            type: 'number',
+                            min: 12,
+                            step: 1
+                        },
+                        on: {
+                            change: e => {
+                                if (e != undefined) {
+                                    let selection = window.getSelection();
+                                    let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
+                                    var range = document.createRange();
+                                    range.setStart(anchorNode, anchorOffset);
+                                    range.setEnd(focusNode, focusOffset);
+                                    selection.removeAllRanges();
+                                    selection.addRange(range);
+                                }
+                                document.execCommand("styleWithCSS", 0, true);
+                                document.execCommand(command.cmd, false, "7");
+                                for (let font of document.querySelectorAll('[style*="xxx-large"]')) {
+                                    font.style.fontSize = `${input.value / 10}rem` || "2rem";
+                                }
+                            }
+                        },
+                        value: 20
+                    });
+                    let plusButton = createElement('button', {
+                        attrs: {
+                            title: command.desc,
+                            class: `mdi mdi-plus-thick`
+                        },
+                        on: {
+                            click: () => {
+                                input.value = parseInt(input.value) + 1;
+                                input.onchange();
+                            }
+                        }
+                    });
+                    let minusButton = createElement('button', {
+                        attrs: {
+                            title: command.desc,
+                            class: `mdi mdi-minus-thick`
+                        },
+                        on: {
+                            click: () => {
+                                input.value = parseInt(input.value) - 1;
+                                input.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    });
+                    frag.append(plusButton);
+                    frag.append(input);
+                    frag.append(minusButton);
+                    break;
+                case 'color':
+                    let label = createElement('label', { attrs: { class: 'mdi mdi-format-color-highlight input_color' } });
+                    input = createElement('input', {
+                        attrs: {
+                            title: command.desc,
+                            type: 'color'
+                        },
+                        on: {
+                            input: () => {
+                                document.execCommand("styleWithCSS", 0, true);
+                                document.execCommand(command.cmd, false, input.value || command.val);
+                            },
+                            focus: () => {
+                                document.execCommand("styleWithCSS", 0, true);
+                                document.execCommand(command.cmd, false, input.value || command.val);
+                            }
+                        },
+                        value: command.val
+                    });
+                    label.append(input);
+                    frag.append(label);
+                    break;
+            }
+        } else {
+            frag.append(createElement('button', {
+                attrs: {
+                    title: command.desc,
+                    class: `mdi mdi-${command.icon}`
+                },
+                on: {
+                    click: () => {
+                        val = typeof command.val !== "undefined" ? command.val : "";
+                        console.log(command);
+                        document.execCommand("styleWithCSS", 0, true);
+                        document.execCommand(command.cmd, false, val || "");
+                    }
+                }
+            }));
+        }
+    }
+
+    return frag;
 }
