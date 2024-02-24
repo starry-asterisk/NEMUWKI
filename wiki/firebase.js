@@ -72,20 +72,22 @@ window.addEventListener('load', async function () {
 
     let querySnapshot;
 
-    if(typeof input_menu != 'undefined'){
+    if (typeof input_menu != 'undefined') {
         querySnapshot = await getDocs(collection(db, "boardList"));
         querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
     }
 
-    if(typeof input_categories != 'undefined'){
+    if (typeof input_categories != 'undefined') {
         querySnapshot = await getDocs(collection(db, "categories"));
         querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
     }
 
-    let {docs, getNext} = await firebase.post.list();
-    for(let doc of docs) {
-        let data = doc.data();
-        console.log(data);
+    if (typeof post_list != 'undefined') {
+        let { docs, getNext } = await firebase.post.list();
+        for (let doc of docs) {
+            let data = doc.data();
+            addPost(data);
+        }
     }
 });
 

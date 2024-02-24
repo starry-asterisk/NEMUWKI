@@ -6,7 +6,9 @@
         <link rel="stylesheet" href="index.css" type="text/css" />
         <link rel="stylesheet" href="post.css" type="text/css" />
         <script src="index.js"></script>
-        <script type="module" src="post.js"></script>
+        <script src="index.js"></script>
+        <script src="post.js"></script>
+        <script type="module" src="firebase.js"></script>
         <title>위키</title>
     </head>
     <body>
@@ -17,14 +19,14 @@
             <div class="main__header">
                 <div class="main__header__title">네무위키:대문</div>
                 <div class="main__header__timestamp">2024-02-13 14:25:59</div>
-                <div class="main__header__toolbox">
+                <div class="main__header__toolbox" style="display: none;">
                     <button>1</button>
                     <button>2</button>
                     <button>3</button>
                     <button>4</button>
                 </div>
             </div>
-            <div class="main__contents">
+            <div class="main__contents" id="post_list">
             </div>
             <footer>
                 이 저작물은 토끼마음대로에 따라 이용할 수 있습니다. (단, 라이선스가 명시된 일부 문서 및 삽화 포함)
