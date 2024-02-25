@@ -168,14 +168,14 @@ aside > * > * {
     padding: 0 var(--block-padding);
 }
 aside > * > p:first-child {
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin-bottom: 1rem;
 }
 
 
 @media (max-width: 500px) {
     .main__contents, .main__header {
-        zoom: 0.5;
+        zoom: 0.65;
     }
 }
 
@@ -318,6 +318,8 @@ button.normal:active, button.danger:active {
 }
 
 editable-table {
+    overflow-x: auto;
+    max-width: 100%;
     display: inline-block;
     border: 0.1rem solid var(--border2);
 }
@@ -328,12 +330,13 @@ editable-table {
     min-height: 5rem;
 }
 
-.editable-table__row+.editable-table__row {
+.editable-table__row+.editable-table__row > .editable-table__cell {
     border-top: 0.1rem solid var(--border2);
 }
 
 .editable-table__cell {
     box-sizing: content-box;
+    min-width: 20rem;
     width: 20rem;
 }
 

@@ -128,7 +128,7 @@ customElements.define('editable-table', class extends HTMLElement {
                 let v = parseFloat(cellInput.value);
                 let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
                 cell.style.width = `${v}rem`;
-                for (let row of this._rows) row.children[idx].style.width = `${v}rem`;
+                for (let row of this._rows) row.children[idx].setStyles({width: `${v}rem`, 'min-width':`${v}rem`});
             }
         } else {
             cellInput = createElement('div', { attrs: { contenteditable: this._readonly?false:'plaintext-only' } });

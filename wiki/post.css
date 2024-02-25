@@ -34,7 +34,20 @@
 .main__contents > .video > video {
     max-width: 100%;
 } 
-.main__contents > .board_list > div {
+.main__contents > .board_list_1 > div {
     padding: 1rem;
     border-bottom: 0.1rem solid var(--border2);
+}
+.main__contents > .board_list_2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.main__contents > .board_list_2 > div {
+    text-align: center;
+}
+.main__contents > .board_list_2 > div >img {
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: top center;
+    width: 100%;
 }

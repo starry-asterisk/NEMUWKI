@@ -86,7 +86,17 @@ footer:hover,
 }
 
 .component_list>li {
-    padding-left: var(--block-padding);
+    padding: 1rem var(--block-padding);
+}
+.component_list button {
+    border-radius: 50%;
+    margin-top: -0.5rem;
+    margin-right: -0.5rem;
+    margin-left: 2rem;
+    height: 3.5rem;
+    width: 3.5rem;
+    background: var(--accent);
+    color: white
 }
 
 aside> :first-child {

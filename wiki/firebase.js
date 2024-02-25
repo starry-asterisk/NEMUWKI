@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, startAfter, limit, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, startAfter, limit, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -47,15 +47,22 @@ window.addEventListener('load', async function () {
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
         selectOne: async id => await getDoc(doc(db, "postList", id)),
-        list: async () => {
-            let query_result = query(collection(db, "postList"), orderBy("timestamp"), limit(25));
+        list: async (keyword = '', field = 'title') => {
+            let query_result = query(
+                collection(db, "postList"),
+                where(field, '>=', keyword),
+                where(field, '<=', keyword + "\uf8ff"),
+                limit(25)
+            );
             let documentSnapshots = await getDocs(query_result);
 
             return {
                 docs: documentSnapshots.docs,
                 getNext: async (docs = documentSnapshots.docs) => {
-                    query_result = query(collection(db, "postList"),
-                        orderBy("timestamp"),
+                    query_result = query(
+                        collection(db, "postList"),
+                        where(field, '>=', keyword),
+                        where(field, '<=', keyword + "\uf8ff"),
                         startAfter(docs[docs.length - 1]),
                         limit(25));
                     documentSnapshots = await getDocs(query_result);

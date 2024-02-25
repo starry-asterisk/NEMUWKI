@@ -347,6 +347,7 @@ window.addEventListener('load', function () {
     let component_list = document.querySelector('.component_list');
     for (let specname in COMPONENT_SPEC) {
         let spec = COMPONENT_SPEC[specname];
+        if(spec.title == undefined) continue;
         let li = createElement('li', {
             attrs: {
                 type: specname,
@@ -354,7 +355,16 @@ window.addEventListener('load', function () {
             },
             innerHTML: spec.title
         });
+
+        let add_btn = createElement('button',{attrs: {
+            class: 'mdi mdi-plus'
+        },on: {
+            click: ()=>{
+                main__contents.append(createComponent(specname));
+            }
+        }});
         li.ondragstart = dragstart;
+        li.append(add_btn);
         component_list.append(li);
     }
     let aside_firstChild = document.querySelector('aside > :first-child');
