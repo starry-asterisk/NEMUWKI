@@ -173,6 +173,12 @@ aside > * > p:first-child {
 }
 
 
+@media (max-width: 500px) {
+    .main__contents, .main__header {
+        zoom: 0.5;
+    }
+}
+
 @media (max-width: 1000px) {
     body {
         flex-direction: column;
@@ -187,9 +193,6 @@ aside > * > p:first-child {
     }
     aside > div:first-child {
         margin-top: unset !important;
-    }
-    .main__contents, .main__header {
-        zoom: 0.7;
     }
 }
 
