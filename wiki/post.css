@@ -1,3 +1,40 @@
 .main__header {
-    padding: 0 2rem;
+    padding: 2rem;
+}
+.main__contents > .title {
+    font-size: 1.5em;
+    padding: 1rem;
+    border-bottom: 0.1rem solid var(--border2);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+.main__contents > .seperator {
+    border-bottom: 0.1rem solid var(--border2);
+    margin-bottom: 3rem;
+    padding-top: 2rem;
+}
+.main__contents > div {
+    margin-bottom: 1rem;
+}
+.main__contents > .summury {
+    display: flex;
+    flex-direction: column;
+    padding: 1.2rem 2rem 1.8rem 1.4rem;
+    border: 0.1rem solid var(--border2);
+}
+.main__contents > .summury::before {
+    content: '목차';
+    font-size: 1.3em;
+    margin-bottom: 1.2rem;
+}
+.main__contents > .summury > a {
+    margin-left: 2rem;
+}
+.main__contents > .image > img,
+.main__contents > .video > video {
+    max-width: 100%;
+} 
+.main__contents > .board_list > div {
+    padding: 1rem;
+    border-bottom: 0.1rem solid var(--border2);
 }

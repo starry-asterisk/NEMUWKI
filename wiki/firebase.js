@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, Timestamp, query, orderBy, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, startAfter, limit, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,13 +23,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app, "gs://nemuwiki-f3a72.appspot.com");
+const auth = getAuth();
 
 window.addEventListener('load', async function () {
     firebase.post = {
         insertOne: async data => {
             try {
                 if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
-                const docRef = await addDoc(collection(db, "postList"), {
+                return await addDoc(collection(db, "postList"), {
                     board_name: "",
                     category: "",
                     title: "",
@@ -39,22 +40,23 @@ window.addEventListener('load', async function () {
                     timestamp: Timestamp.fromDate(new Date()),
                     ...data
                 });
-                console.log("Document written with ID: ", docRef.id);
-                return docRef;
             } catch (e) {
                 console.error("Error adding document: ", e);
             }
         },
+        deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
+        updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
+        selectOne: async id => await getDoc(doc(db, "postList", id)),
         list: async () => {
             let query_result = query(collection(db, "postList"), orderBy("timestamp"), limit(25));
             let documentSnapshots = await getDocs(query_result);
 
             return {
                 docs: documentSnapshots.docs,
-                getNext: async () => {
+                getNext: async (docs = documentSnapshots.docs) => {
                     query_result = query(collection(db, "postList"),
                         orderBy("timestamp"),
-                        startAfter(documentSnapshots.docs[documentSnapshots.docs.length - 1]),
+                        startAfter(docs[docs.length - 1]),
                         limit(25));
                     documentSnapshots = await getDocs(query_result);
                     return documentSnapshots.docs;
@@ -63,6 +65,45 @@ window.addEventListener('load', async function () {
         }
     };
 
+    firebase.board = {
+        insertOne: async data => {
+            try {
+                return await addDoc(collection(db, "boardList"), {
+                    hidden: false,
+                    type: 0,
+                    name: "",
+                    depth: 1,
+                    parent: "",
+                    use: true,
+                    ...data
+                });
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        },
+        deleteOne: async id => await deleteDoc(doc(db, "boardList", id)),
+        updateOne: async (id, data) => await updateDoc(doc(db, "boardList", id), data),
+        list: async () => await getDocs(collection(db, "boardList"))
+    }
+
+    firebase.categories = {
+        insertOne: async data => {
+            try {
+                return await addDoc(collection(db, "categories"), {
+                    hidden: false,
+                    name: "",
+                    use: true,
+                    ...data
+                });
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        },
+        deleteOne: async id => await deleteDoc(doc(db, "categories", id)),
+        updateOne: async (id, data) => await updateDoc(doc(db, "categories", id), data),
+        list: async () => await getDocs(collection(db, "categories"))
+    }
+
     firebase.storage = {
         getUrl: async fileName => await getDownloadURL(ref(storage, fileName)),
         delete: async fileName => await deleteObject(ref(storage, fileName)),
@@ -70,24 +111,33 @@ window.addEventListener('load', async function () {
         uploadResumable: (fileName, file) => uploadBytesResumable(ref(storage, fileName), file)
     };
 
+    firebase.auth = {
+        login: async (email, password) => await signInWithEmailAndPassword(auth, email, password),
+        logout: async () => await signOut(auth),
+        check: async (signInCallback, signOutCallback) => onAuthStateChanged(auth, (user) => {
+            if (user) {
+                signInCallback(user);
+            } else {
+                signOutCallback();
+            }
+        }),
+        signup: async (email, password) => await createUserWithEmailAndPassword(auth, email, password)
+    }
+
     let querySnapshot;
 
     if (typeof input_menu != 'undefined') {
-        querySnapshot = await getDocs(collection(db, "boardList"));
+        querySnapshot = await firebase.board.list();
         querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
     }
 
     if (typeof input_categories != 'undefined') {
-        querySnapshot = await getDocs(collection(db, "categories"));
+        querySnapshot = await firebase.categories.list();
         querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
     }
 
-    if (typeof post_list != 'undefined') {
-        let { docs, getNext } = await firebase.post.list();
-        for (let doc of docs) {
-            let data = doc.data();
-            addPost(data);
-        }
+    if (typeof firebaseLoadCallback == 'function') {
+        firebaseLoadCallback();
     }
 });
 

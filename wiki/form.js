@@ -1,4 +1,47 @@
 let main__contents;
+let post_id;
+
+async function firebaseLoadCallback() {
+    firebase.auth.check(()=>{},()=>{
+        alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
+        location.href=ROOT_PATH;
+    });
+    let params = new URLSearchParams(document.location.search);
+    if (post_id = params.get("post")) {
+        let doc = await firebase.post.selectOne(post_id);
+        let data = doc.data();
+        let button = createElement('button', {
+            attrs: { class: 'danger' },
+            on: { click: function () { remove(button) } },
+            innerHTML: '삭제하기'
+        });
+
+        buildPost(data);
+        document.querySelector('aside').append(button);
+    }
+}
+function buildPost(data) {
+    let {
+        title,
+        board_name,
+        category,
+        timestamp,
+        contents
+    } = data;
+
+    main__header__title.value = title;
+    upload_datetime.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
+    post_categories.value = category;
+    post_menu.value = board_name;
+
+    for (let content of contents) {
+        if (typeof content.value == 'string') {
+            content.value = { value: content.value };
+        }
+        main__contents.append(createComponent(content.type, content.value));
+    }
+}
+
 function drop(e) {
     e.preventDefault();
     let files = e.dataTransfer.files || e.dataTransfer.items;
@@ -101,7 +144,7 @@ const COMPONENT_SPEC = {
             div.append(textEditorButtonsFrag());
             return div;
         },
-        input: () => {
+        input: ({ value = '' }) => {
             return createElement('div', {
                 attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요' },
                 on: {
@@ -122,7 +165,8 @@ const COMPONENT_SPEC = {
                         e.preventDefault();
                         document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
                     }
-                }
+                },
+                innerHTML: value
             });
         },
         getData: id => {
@@ -132,15 +176,17 @@ const COMPONENT_SPEC = {
     image: {
         title: '이미지',
         option: option => COMPONENT_SPEC.default.option(option),
-        input: ({ file }, mediaTytpe = 'image') => {
+        input: ({ file, value }, mediaTytpe = 'image') => {
             let tagName = mediaTytpe == 'image' ? 'img' : mediaTytpe;
             let media, fragment = document.createDocumentFragment();
             let input = createElement('input', { attrs: { type: 'file', accept: `${mediaTytpe}/*` } });
-            input.oninput = () => {
-                console.log(mediaTytpe, input.files, file);
+            input.oninput = async (e, value) => {
                 if (input.files && input.files[0]) {
                     if (media) media.remove();
                     media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: URL.createObjectURL(input.files[0]) } });
+                    input.after(media);
+                } else if (value) {
+                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: await firebase.storage.getUrl(value) } });
                     input.after(media);
                 }
             }
@@ -151,13 +197,21 @@ const COMPONENT_SPEC = {
                 input.files = dataTranster.files;
                 input.oninput();
             }
+            if (value) {
+                let inputHidden = createElement('input', { attrs: { type: 'hidden' }, value });
+                input.after(inputHidden);
+                input.oninput(undefined, value);
+            }
             return fragment;
         },
         getData: id => {
             let file = document.querySelector(`#${id} input[type="file"]`).files[0];
+            let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
             if (file) {
                 firebase.storage.upload(`${id}/${file.name}`, file);
                 return `${id}/${file.name}`;
+            } else if (value) {
+                return value;
             }
             else return 'undefined';
         }
@@ -176,7 +230,7 @@ const COMPONENT_SPEC = {
     },
     table: {
         title: '도표',
-        option: ({ id }) => {
+        option: ({ id, rowcount, header }) => {
             let div = createElement('div', { styles: { 'margin-top': '2rem' } });
             let colContainer = createElement('div', { attrs: { class: 'component__option__input col' } });
             let rowContainer = createElement('div', { attrs: { class: 'component__option__input row' } });
@@ -200,14 +254,26 @@ const COMPONENT_SPEC = {
                 document.querySelector(`#${id} editable-table`).rowcount = rowcountInput.value;
             }
 
+            if (rowcount) rowcountInput.value = rowcount;
+            if (header) colcountInput.value = header.length;
+
             return div;
         },
-        input: () => {
-            return createElement('editable-table', { styles: { 'margin-top': '2rem' } });
+        input: ({ rowcount, header, cells }) => {
+            let table = createElement('editable-table', { styles: { 'margin-top': '2rem' } });
+            if (rowcount) table.rowcount = rowcount;
+            if (header) table.colcount = header.length;
+            if (cells) table.loadData(cells);
+            if (header) for (let index in header) {
+                let input = table.headers.children[index].firstChild;
+                input.value = parseFloat(header[index]);
+                input.oninput();
+            }
+            return table;
         },
         getData: id => {
             return {
-                rowclount: document.querySelector(`#${id} .component__option__input.row input`).value,
+                rowcount: document.querySelector(`#${id} .component__option__input.row input`).value,
                 header: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table input`), cell => cell.value),
                 cells: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table [contenteditable]`), cell => cell.innerHTML)
             };
@@ -215,12 +281,31 @@ const COMPONENT_SPEC = {
     },
     title: {
         title: '소제목',
-        option: option => COMPONENT_SPEC.default.option(option),
-        input: () => {
-            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' } });
+        option: ({ depth = 1 }) => {
+            let frag = document.createDocumentFragment();
+            let label = document.createTextNode('목차 깊이');
+            let container = createElement('div', { attrs: { class: 'component__option__input depth' } });
+            let depth_input = createElement('input', {
+                attrs: {
+                    type: 'number',
+                    max: 6,
+                    min: 1,
+                    step: 1
+                },
+                value: depth
+            });
+            frag.append(label);
+            frag.append(container);
+            frag.append(createElement('br'));
+            frag.append(createElement('br'));
+            container.append(depth_input);
+            return frag;
+        },
+        input: ({ text = '' }) => {
+            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' }, innerHTML: text });
         },
         getData: id => {
-            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
+            return { text: document.querySelector(`#${id} [contenteditable]`).innerHTML, depth: document.querySelector(`#${id} .depth>input`).value || 1 };
         }
     },
     seperator: {
@@ -236,20 +321,10 @@ const COMPONENT_SPEC = {
         getData: id => COMPONENT_SPEC.default.getData(id)
     },
     caption: {
-        title: '캡션',
+        title: '틀',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
         getData: id => COMPONENT_SPEC.default.getData(id)
-    },
-    quotation: {
-        title: '인용',
-        option: option => COMPONENT_SPEC.default.option(option),
-        input: () => {
-            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' } });
-        },
-        getData: id => {
-            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
-        }
     },
     default: {
         option: () => {
@@ -299,105 +374,23 @@ function addSuggest(data, input) {
     input.querySelector('.input_suggest').append(li);
 }
 
-customElements.define('editable-table', class extends HTMLElement {
-    _beforeInit = true;
-    _rowcount = 0;
-    _colcount = 0;
-    _headers;
-    _rows = [];
-    set rowcount(newValue) {
-        if (this._beforeInit) {
-            let _headers = this._headers = this.getRow();
-            for (let i = 0; i < this._colcount; i++) _headers.append(this.getCell({ header: true }));
-            this.append(_headers);
-        }
-        if (newValue > this._rowcount) {
-            while (newValue > this._rowcount) {
-                let row = this._rows[this._rowcount] = this.getRow();
-                for (let i = 0; i < this._colcount; i++) {
-                    let cell = this.getCell();
-                    cell.style.width = this._headers.children[i].style.width;
-                    row.append(cell);
-                }
-                this.append(row);
-                this._rowcount++;
-            }
-        } else if (newValue < this._rowcount) {
-            for (let i = newValue; i < this._rowcount; i++) this._rows[i].remove();
-            this._rows.splice(newValue, this._rowcount - newValue);
-        }
-        this._rowcount = newValue;
-    }
-    get rowcount() {
-        return this._rowcount;
-    }
-    set colcount(newValue) {
-        if (newValue > this._colcount) {
-            for (let i = this._colcount; i < newValue; i++) this._headers.append(this.getCell({ header: true }));
-            for (let row of this._rows) {
-                for (let i = this._colcount; i < newValue; i++) row.append(this.getCell());
-            }
-        } else if (newValue < this._colcount) {
-            for (let i = newValue; i < this._colcount; i++) this._headers.lastChild.remove();
-            for (let row of this._rows) {
-                for (let i = newValue; i < this._colcount; i++) row.lastChild.remove();
-            }
-        }
-        this._colcount = newValue;
-    }
-    get colcount() {
-        return this._colcount;
-    }
-    constructor() {
-        super();
-    }
-    attributeChangedCallback(name, oldValue, newValue) {
-        console.log(
-            `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
-        );
-        this[name.toLowerCase()] = newValue;
-    }
-    connectedCallback() {
-        if (this._beforeInit) {
-            this.rowcount = 3;
-            this.colcount = 3;
-            this._beforeInit = false;
-        }
-    }
-    getCell(option = {}) {
-        let { header } = option;
-        let cell = createElement('div', { attrs: { class: 'editable-table__cell' } });
-        let cellInput;
-        if (header) {
-            cellInput = createElement('input', {
-                attrs: { type: 'number', min: 1, step: 1 },
-                value: 20
-            });
-            cellInput.oninput = () => {
-                let v = parseFloat(cellInput.value);
-                let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
-                cell.style.width = `${v}rem`;
-                for (let row of this._rows) row.children[idx].style.width = `${v}rem`;
-            }
-        } else {
-            cellInput = createElement('div', { attrs: { contenteditable: 'plaintext-only' } });
-        }
-        cell.append(cellInput);
-        return cell;
-    }
-    getRow() {
-        return createElement('div', { attrs: { class: 'editable-table__row' } });
-    }
-});
-
-function submit() {
+function remove(button) {
+    if (!confirm('정말로 삭제 하시겠습니까?')) return;
+    button.setAttribute('disabled', true);
+    firebase.post.deleteOne(post_id)
+        .then(() => location.href = ROOT_PATH)
+        .catch(errorHandler);
+}
+function submit(button) {
+    if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
     if (!validate(main__header__title)) return;
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
-    firebase.post.insertOne({
-        board_name: main__header__title.value,
+    button.setAttribute('disabled', true);
+    let data = {
+        board_name: post_menu.value,
         category: post_categories.value,
-        title: post_menu.value,
+        title: main__header__title.value,
         contents: Array.from(document.getElementsByClassName('component')).map(c => {
             return {
                 type: c.classList[1],
@@ -407,9 +400,28 @@ function submit() {
         hidden: false,
         use: true,
         timestamp: new Date(upload_datetime.value)
-    })
-        .then(console.log)
-        .error(console.error);
+    };
+    if(post_id){
+        firebase.post.updateOne(post_id, data)
+        .then(() => {
+            location.href = `${ROOT_PATH}?post=${post_id}`})
+        .catch(errorHandler);
+    }else {
+        firebase.post.insertOne(data)
+        .then(ref => {
+            if(ref == undefined) {
+                alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+                location.href = ROOT_PATH;
+                return;
+            }
+            location.href = `${ROOT_PATH}?post=${ref.id}`;
+        })
+        .catch(e => {
+            alert('ERROR::저장에 실패했습니다::');
+            console.error(e);
+        });
+    }
+    
 }
 
 function validate(input) {
@@ -479,9 +491,17 @@ var commands = [{
 },
 {
     cmd: "createLink",
-    val: "https://twitter.com/netsi1964",
     icon: "link-variant",
-    desc: "링크 생성"
+    desc: "링크 생성",
+    prompt: '생성할 링크를 입력해 주세요.',
+    conv_fn: val => val.startsWith('http') ? val : 'http://' + val
+},
+{
+    cmd: "insertImage",
+    icon: "image-plus",
+    prompt: '이미지 링크를 입력해 주세요.',
+    desc: "링크 기반 이미지 삽입",
+    conv_fn: val => val.startsWith('http') ? val : 'http://' + val
 },
 {
     cmd: "unlink",
@@ -615,8 +635,8 @@ function textEditorButtonsFrag() {
                 },
                 on: {
                     click: () => {
-                        val = typeof command.val !== "undefined" ? command.val : "";
-                        console.log(command);
+                        val = command.val || "";
+                        if (command.prompt) val = command.conv_fn(prompt(command.prompt));
                         document.execCommand("styleWithCSS", 0, true);
                         document.execCommand(command.cmd, false, val || "");
                     }

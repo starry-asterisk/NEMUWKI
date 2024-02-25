@@ -1,11 +1,3 @@
-.main__header {
-    padding: 2rem 0;
-}
-
-.main__header__title {
-    margin-bottom: 1rem;
-}
-
 .main__header__title:has(input:invalid) {
     height: 5rem;
     padding-left: 2rem;
@@ -28,6 +20,7 @@
 
 .main__contents {
     padding: 0;
+    padding-bottom: 15rem;
 }
 
 .main__contents:empty::after {
@@ -100,54 +93,9 @@ aside> :first-child {
     transition: 400ms margin-top;
 }
 
-editable-table {
-    display: inline-block;
-    border: 0.1rem solid black;
-}
-
-.editable-table__row {
-    display: flex;
-    flex-direction: row;
-    min-height: 5rem;
-}
-
-.editable-table__row+.editable-table__row {
-    border-top: 0.1rem solid black;
-}
 
 .editable-table__row:first-child {
     background-color: var(--background-dark);
-}
-
-.editable-table__cell {
-    box-sizing: content-box;
-    width: 20rem;
-}
-
-.editable-table__cell+.editable-table__cell {
-    border-left: 0.1rem solid black;
-}
-
-.component__option__input {
-    display: inline-block;
-    width: 6rem;
-    height: 4rem;
-    margin: 0 1rem;
-    border: 1px solid black;
-}
-
-.component__option__input:first-child {
-    margin-left: 0;
-}
-
-.component__option__input>input {
-    padding-right: 0;
-}
-
-editable-table [contenteditable] {
-    width: 100%;
-    height: 100%;
-    padding: 1.25rem 2rem;
 }
 
 .component__execList {
