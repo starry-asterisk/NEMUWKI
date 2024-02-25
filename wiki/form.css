@@ -96,7 +96,7 @@ footer:hover,
     height: 3.5rem;
     width: 3.5rem;
     background: var(--accent);
-    color: white
+    color: white;
 }
 
 aside> :first-child {
