@@ -185,9 +185,11 @@ aside > * > p:first-child {
     aside {
         width: auto;
     }
-
     aside > div:first-child {
         margin-top: unset !important;
+    }
+    .main__contents, .main__header {
+        zoom: 0.7;
     }
 }
 
