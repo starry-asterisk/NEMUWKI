@@ -180,10 +180,14 @@ aside > * > p:first-child {
     main {
         max-width: unset;
         min-width: unset;
-        margin: 7rem 2rem 2rem 2rem;
+        margin: 0 2rem 2rem 2rem;
     }
     aside {
         width: auto;
+    }
+
+    aside > div:first-child {
+        margin-top: unset !important;
     }
 }
 

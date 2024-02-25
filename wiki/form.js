@@ -315,7 +315,7 @@ const COMPONENT_SPEC = {
         getData: id => COMPONENT_SPEC.default.getData(id)
     },
     summury: {
-        title: '개요',
+        title: '목차',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
         getData: id => COMPONENT_SPEC.default.getData(id)
