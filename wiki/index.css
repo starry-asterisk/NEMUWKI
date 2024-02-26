@@ -444,9 +444,9 @@ body.loading aside > *::after {
 }
 body.loading::after, body.loading::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: calc(50% - 10vw);
-    margin: auto;
+    left: calc(50% - 10vw);
     width: 20vw;
     height: 20vw;
     border-radius: 50%;
@@ -475,5 +475,16 @@ body.loading::before {
     }
     100% {
         transform: rotate(-360deg);
+    }
+}
+@keyframes gradient {
+    0% {
+        background: linear-gradient(135deg, 0% var(--border), 0% var(--border2), 0% var(--border));
+    }
+    50% {
+        background: linear-gradient(135deg, 0% var(--border), 50% var(--border2), 100% var(--border));
+    }
+    100% {
+        background: linear-gradient(135deg, 100% var(--border), 100% var(--border2), 100% var(--border));
     }
 }
