@@ -49,7 +49,7 @@ customElements.define('editable-table', class extends HTMLElement {
         this._headers.style.display = bool ? 'none' : 'block';
         for (let row of this._rows) {
             for (let cell of row.children) {
-                cell.firstChild.setAttribute('contenteidtable', bool ? false : 'plaintext-only');
+                cell.firstChild.setAttribute('contenteditable', bool ? false : 'plaintext-only');
             }
         }
     }
@@ -181,4 +181,34 @@ function errorHandler(error) {
             console.error(errorCode, errorMessage);
             break;
     }
+}
+
+function getTreeFromBoardList(arr) {
+    let depth_sorted = {};
+    let tree = [];
+    let max_depth;
+    for (let child of arr) {
+        if (depth_sorted[child.depth] == undefined) depth_sorted[child.depth] = [];
+        depth_sorted[child.depth].push(child);
+    }
+    max_depth = Math.max.apply(undefined,Object.keys(depth_sorted));
+
+    for(let d = max_depth;d > 0;d--){
+        let parent_arr = depth_sorted[d - 1] || [];
+        let child_arr = depth_sorted[d] || [];
+        if(parent_arr.length < 1){
+            for(let child of child_arr) tree.unshift(child);
+        }else{
+            for(let child of child_arr){
+                let parent = parent_arr.find(parent => parent.name == child.parent);
+                if(parent == undefined) tree.unshift(child);
+                else {
+                    if(parent.child == undefined) parent.child = []
+                    parent.child.push(child);
+                }
+            }
+        }
+    }
+
+    return tree;
 }

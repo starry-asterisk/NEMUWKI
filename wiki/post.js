@@ -9,7 +9,7 @@ async function firebaseLoadCallback() {
     firebase.auth.check(user => {
         let upload = createElement('button', { innerHTML: '글쓰기', attrs: {class: 'normal'}});
         let logout = createElement('button', { innerHTML: '로그아웃', attrs: {class: 'normal'}, styles: {'margin-top':'1rem'}});
-        let button_container = createElement('div',{styles:{margin: '1rem'}});
+        let button_container = createElement('div');
         button_container.append(upload);
         button_container.append(logout);
         user_area.append(button_container);
@@ -29,7 +29,7 @@ async function firebaseLoadCallback() {
         let password_container = email_container.cloneNode();
         let password_container_re = email_container.cloneNode();
 
-        let button_container = createElement('div',{styles:{margin: '1rem'}});
+        let button_container = createElement('div');
 
         let submit_login = createElement('button', { innerHTML: '로그인', attrs: {class: 'normal'} });
         let submit_signup = createElement('button', { innerHTML: '가입하기', styles:{display: 'none'}, attrs: {class: 'normal'} });
@@ -82,6 +82,8 @@ async function firebaseLoadCallback() {
         password_container_re.setStyles({ display: 'none' });
 
         password_re.oninput = () => validate(password_re, password, 'password');
+
+        document.body.classList.add('non-auth');
     });
 
     if (params.get("post")) {
@@ -219,13 +221,11 @@ function buildPost(data) {
 
     for (let title of component_list['title'] || []) {
         let toggle = true;
-        console.log(title);
         title.onclick = () => {
             toggle = !toggle;
+            toggle?title.classList.remove('fold'):title.classList.add('fold');
             let next = title.nextElementSibling;
-            console.log(next);
             while (next != undefined && !next.classList.contains('title') && !next.classList.contains('seperator')) {
-                console.log(next);
                 next.style.display = toggle ? 'block' : 'none';
                 next = next.nextElementSibling;
             }
@@ -316,4 +316,14 @@ const COMPONENT_SPEC = {
 
         return frag;
     }
+}
+
+function main__fold(target){
+    target.classList.toggle('fold');
+    if(target.classList.contains('fold'))target.nextElementSibling.style.display = 'none';
+    else target.nextElementSibling.style.removeProperty('display');
+}
+
+function goRandom(){
+    firebase.post.random().then(id=>location.href=`${ROOT_PATH}?post=${id}`);
 }

@@ -13,6 +13,7 @@
     <body>
         <header>
             <span class="header__logo" onclick="goHome()">네무위키</span>
+            <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
         </header>
         <main>
             <div class="main__header">
@@ -21,8 +22,8 @@
                 <div class="main__header__toolbox" style="display: none;"></div>
             </div>
             <div class="main__contents" id="post_list">
-                <div class="title" id="total">전체 문서</div>
-                <div class="title" id="people">인물</div>
+                <div class="title" id="total" onclick="main__fold(this)">전체 문서</div>
+                <div class="title" id="people" onclick="main__fold(this)">인물</div>
             </div>
             <footer>
                 이 저작물은 토끼마음대로에 따라 이용할 수 있습니다. (단, 라이선스가 명시된 일부 문서 및 삽화 포함)

@@ -87,6 +87,14 @@ header > * {
     margin-right: 2rem;
 }
 
+header > .right {
+    float: right;
+    margin-left: 2rem;
+    line-height: 5rem;
+    cursor: pointer;
+    font-size: 3rem;
+}
+
 .header__logo {
     line-height: 5rem;
     font-family: "headerFont";
@@ -128,8 +136,8 @@ main {
     border-radius: 1rem;
     border: 0.1rem solid var(--border2);
 }
-.main__header__toolbox:empty {
-    display: none;
+.main__header__toolbox:empty, .non-auth .main__header__toolbox {
+    display: none !important;
 }
 .main__header__toolbox > button {
     min-width: 5rem;

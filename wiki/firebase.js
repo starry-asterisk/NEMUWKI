@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, startAfter, limit, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, startAt, limit, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -27,6 +27,17 @@ const auth = getAuth();
 
 window.addEventListener('load', async function () {
     firebase.post = {
+        random: async () => {
+            let postRef = collection(db, "postList");
+            let count = Math.min((await getCountFromServer(postRef)).data().count, 100);
+            let random = Math.round(Math.random() * (count - 1));
+            let result = await getDocs(query(
+                collection(db, "postList"),
+                orderBy('timestamp'),
+                limit(count)
+            ));
+            return result.docs[random].id;
+        },
         insertOne: async data => {
             try {
                 if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);

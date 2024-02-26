@@ -8,6 +8,20 @@
     margin-top: 3rem;
     margin-bottom: 1rem;
 }
+.main__contents > .title.fold {
+    opacity: 0.8;
+}
+.main__contents > .title::before {
+    content: '\F0140';
+    font-family: "Material Design Icons";
+    display: inline-block;
+    line-height: 3.5rem;
+    height: 3.5rem;
+    width: 3.5rem;
+}
+.main__contents > .title.fold::before {
+    content: '\F0142';
+}
 .main__contents > .seperator {
     border-bottom: 0.1rem solid var(--border2);
     margin-bottom: 3rem;
@@ -41,13 +55,21 @@
 .main__contents > .board_list_2 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-left: 1px solid #aaa;
+}
+.main__contents > .board_list_2 > div:nth-child(-n + 4) {
+    border-top: 1px solid #aaa;
 }
 .main__contents > .board_list_2 > div {
     text-align: center;
+    border-right: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    padding: 0.2rem;
 }
 .main__contents > .board_list_2 > div >img {
     aspect-ratio: 1;
     object-fit: cover;
     object-position: top center;
     width: 100%;
+    margin-bottom: 0.5rem;
 }
