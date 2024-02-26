@@ -47,16 +47,16 @@ async function firebaseLoadCallback() {
         });
 
         submit_login.onclick = ()=>{
-            if(validate(email, undefined, 'email')) return;
-            if(validate(password, undefined, 'password')) return;
+            if(!validate(email, undefined, 'email')) return;
+            if(!validate(password, undefined, 'password')) return;
             firebase.auth.login(email.value, password.value)
             .then(e=>location.reload())
             .catch(errorHandler);
         }
         submit_signup.onclick = ()=>{
-            if(validate(email, undefined, 'email')) return;
-            if(validate(password, undefined, 'password')) return;
-            if(validate(password, password_re, 'password')) return;
+            if(!validate(email, undefined, 'email')) return;
+            if(!validate(password, undefined, 'password')) return;
+            if(!validate(password, password_re, 'password')) return;
             firebase.auth.signup(email.value, password.value)
             .then(e=>{
                 alert('회원 가입완료 되었습니다. 로그인 해주세요.');
@@ -169,7 +169,7 @@ function validate(input, input_2, type = 'text') {
             }
         }
     }
-    input.checkValidity();
+    return input.checkValidity();
 }
 
 function addPost(data, id) {
@@ -187,6 +187,7 @@ function addPost2(data, id) {
     
     let urlObj = data.contents.find(content=>content.type == 'image');
     if(urlObj) firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+    else img.src = '[ no image ]';
     
     item.onclick = () => {
         location.href = `${ROOT_PATH}?post=${id}`;
@@ -231,7 +232,7 @@ function buildPost(data) {
         }
     }
 
-    let summury = component_list['summury'][0];
+    let summury = component_list['summury']?component_list['summury'][0]:undefined;
     if (summury) {
         summury.setAttribute('id', 'summary');
         let title_list = component_list['title'];

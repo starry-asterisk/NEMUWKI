@@ -6,9 +6,9 @@ HTMLElement.prototype.setStyles = function (obj) {
 
 let firebase = {};
 const ROOT_PATH = './';
-function addSuggest(){}
+function addSuggest() { }
 
-function goHome(){location.href=ROOT_PATH}
+function goHome() { location.href = ROOT_PATH }
 
 function createElement(tagName, option) {
     return createElementPrototype(tagName || 'div', option || {});
@@ -41,19 +41,19 @@ customElements.define('editable-table', class extends HTMLElement {
     _headers;
     _rows = [];
     _readonly = false;
-    get headers(){
+    get headers() {
         return this._headers;
     }
     set readonly(bool) {
         this._readonly = bool;
-        this._headers.style.display = bool?'none':'block';
-        for(let row of this._rows){
-            for(let cell of row.children){
-                cell.firstChild.setAttribute('contenteidtable',bool?false:'plaintext-only');
+        this._headers.style.display = bool ? 'none' : 'block';
+        for (let row of this._rows) {
+            for (let cell of row.children) {
+                cell.firstChild.setAttribute('contenteidtable', bool ? false : 'plaintext-only');
             }
         }
     }
-    get readonly(){
+    get readonly() {
         return this._readonly;
     }
     set rowcount(newValue) {
@@ -128,10 +128,10 @@ customElements.define('editable-table', class extends HTMLElement {
                 let v = parseFloat(cellInput.value);
                 let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
                 cell.style.width = `${v}rem`;
-                for (let row of this._rows) row.children[idx].setStyles({width: `${v}rem`, 'min-width':`${v}rem`});
+                for (let row of this._rows) row.children[idx].setStyles({ width: `${v}rem`, 'min-width': `${v}rem` });
             }
         } else {
-            cellInput = createElement('div', { attrs: { contenteditable: this._readonly?false:'plaintext-only' } });
+            cellInput = createElement('div', { attrs: { contenteditable: this._readonly ? false : 'plaintext-only' } });
         }
         cell.append(cellInput);
         return cell;
@@ -139,9 +139,9 @@ customElements.define('editable-table', class extends HTMLElement {
     getRow() {
         return createElement('div', { attrs: { class: 'editable-table__row' } });
     }
-    loadData(arr){
-        for(let row of this._rows){
-            for(let cell of row.children){
+    loadData(arr) {
+        for (let row of this._rows) {
+            for (let cell of row.children) {
                 cell.firstChild.innerHTML = arr.shift();
             }
         }
@@ -149,24 +149,36 @@ customElements.define('editable-table', class extends HTMLElement {
 });
 
 
-function testLogin(){
-    firebase.auth.login(prompt('email?'),prompt('password?')).then((userCredential) => {
+function testLogin() {
+    firebase.auth.login(prompt('email?'), prompt('password?')).then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
         // ...
         console.info(userCredential, user);
-      })
-      .catch(errorHandler);
+    })
+        .catch(errorHandler);
 }
 
-function errorHandler(error){
+function errorHandler(error) {
     const errorCode = error.code;
     const errorMessage = error.message;
-    if(errorCode == 'permission-denied'){
-        alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
-        location.href = ROOT_PATH;
-    }else{
-        alert('알 수 없는 오류가 발생했습니다');
-        console.error(errorCode, errorMessage);
+    switch (errorCode) {
+        case 'permission-denied':
+            alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+            location.href = ROOT_PATH;
+            break;
+        case 'auth/invalid-email':
+            alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
+            break;
+        case 'auth/missing-password':
+            alert('패스워드를 입력해주세요.');
+            break;
+        case 'auth/invalid-credential':
+            alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
+            break;
+        default:
+            alert(`오류가 발생했습니다::${errorCode}:`);
+            console.error(errorCode, errorMessage);
+            break;
     }
 }
