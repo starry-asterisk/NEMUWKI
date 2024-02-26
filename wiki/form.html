@@ -38,8 +38,12 @@
                 <input type="text" placeholder="메뉴" name="post_menu" id="post_menu" oninput="validate(this)"/>
                 <ul class="input_suggest"></ul>
             </div>
+            <div id="input_template" class="input_container no-validity">
+                <input type="button" value="--템플릿 선택--" style="text-align:left;"/>
+                <ul class="input_suggest"></ul>
+            </div>
             <div style="user-select: none;">
-                <p>컴포넌트</p>
+                <p onclick="this.classList.toggle('fold')">컴포넌트</p>
                 <ul class="component_list"></ul>
             </div>
             <button class="normal" onclick="submit(this)">게시하기</button>

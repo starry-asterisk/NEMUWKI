@@ -58,9 +58,10 @@ window.addEventListener('load', async function () {
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
         selectOne: async id => await getDoc(doc(db, "postList", id)),
-        list: async (keyword = '', field = 'title') => {
+        list: async (keyword = '', field = 'title', hidden = false) => {
             let query_result = query(
                 collection(db, "postList"),
+                where('hidden', '==', hidden),
                 where(field, '>=', keyword),
                 where(field, '<=', keyword + "\uf8ff"),
                 limit(25)
@@ -72,6 +73,7 @@ window.addEventListener('load', async function () {
                 getNext: async (docs = documentSnapshots.docs) => {
                     query_result = query(
                         collection(db, "postList"),
+                        where('hidden', '==', hidden),
                         where(field, '>=', keyword),
                         where(field, '<=', keyword + "\uf8ff"),
                         startAfter(docs[docs.length - 1]),

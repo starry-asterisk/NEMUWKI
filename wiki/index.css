@@ -426,7 +426,7 @@ body.loading aside > *::after {
     left: 0;
     width: 80%;
     height: 100%;
-    background-color: var(--border2);
+    background-color: var(--background);
     z-index: 1;
     opacity:1;
 }
@@ -442,13 +442,14 @@ body.loading .main__contents::after {
 body.loading aside > *::after {
     width: 100%;
 }
+/*
 body.loading::after, body.loading::before {
     content: '';
     position: fixed;
-    top: calc(50% - 10vw);
-    left: calc(50% - 10vw);
-    width: 20vw;
-    height: 20vw;
+    top: calc(50% - 10rem);
+    left: calc(50% - 10rem);
+    width: 20rem;
+    height: 20rem;
     border-radius: 50%;
     border: 3vw solid var(--accent);
     opacity: 0.3;
@@ -461,6 +462,7 @@ body.loading::before {
     border-color: white;
     animation: rotate_r 2s infinite;
 }
+*/
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
@@ -477,14 +479,11 @@ body.loading::before {
         transform: rotate(-360deg);
     }
 }
-@keyframes gradient {
-    0% {
-        background: linear-gradient(135deg, 0% var(--border), 0% var(--border2), 0% var(--border));
-    }
-    50% {
-        background: linear-gradient(135deg, 0% var(--border), 50% var(--border2), 100% var(--border));
-    }
-    100% {
-        background: linear-gradient(135deg, 100% var(--border), 100% var(--border2), 100% var(--border));
-    }
+
+.fold {
+    opacity: 0.4;
+    margin-bottom: 0 !important;
+}
+.fold + * {
+    display: none;
 }

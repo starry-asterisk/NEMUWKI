@@ -2,9 +2,9 @@ let main__contents;
 let post_id;
 
 async function firebaseLoadCallback() {
-    firebase.auth.check(()=>{},()=>{
+    firebase.auth.check(() => { }, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
-        location.href=ROOT_PATH;
+        location.href = ROOT_PATH;
     });
     let params = new URLSearchParams(document.location.search);
     if (post_id = params.get("post")) {
@@ -19,6 +19,21 @@ async function firebaseLoadCallback() {
         buildPost(data);
         document.querySelector('aside').append(button);
     }
+
+    firebase.post.list('template', 'board_name', true)
+        .then(datas => {
+            for (let doc of datas.docs) {
+                let data = doc.data();
+                let li = createElement('li', { attrs: { value: data.title } });
+                li.onmousedown = () => {
+                    li.parentNode.previousElementSibling.value = data.title;
+                    buildPost(data);
+                    post_menu.value = '';
+                }
+                input_template.querySelector('.input_suggest').append(li);
+            }
+        })
+        .catch(errorHandler);
 }
 function buildPost(data) {
     let {
@@ -347,7 +362,7 @@ window.addEventListener('load', function () {
     let component_list = document.querySelector('.component_list');
     for (let specname in COMPONENT_SPEC) {
         let spec = COMPONENT_SPEC[specname];
-        if(spec.title == undefined) continue;
+        if (spec.title == undefined) continue;
         let li = createElement('li', {
             attrs: {
                 type: specname,
@@ -356,13 +371,15 @@ window.addEventListener('load', function () {
             innerHTML: spec.title
         });
 
-        let add_btn = createElement('button',{attrs: {
-            class: 'mdi mdi-plus'
-        },on: {
-            click: ()=>{
-                main__contents.append(createComponent(specname));
+        let add_btn = createElement('button', {
+            attrs: {
+                class: 'mdi mdi-plus'
+            }, on: {
+                click: () => {
+                    main__contents.append(createComponent(specname));
+                }
             }
-        }});
+        });
         li.ondragstart = dragstart;
         li.append(add_btn);
         component_list.append(li);
@@ -407,31 +424,32 @@ function submit(button) {
                 value: COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
             };
         }),
-        hidden: false,
+        hidden: post_menu.value == 'template',
         use: true,
         timestamp: new Date(upload_datetime.value)
     };
-    if(post_id){
+    if (post_id) {
         firebase.post.updateOne(post_id, data)
-        .then(() => {
-            location.href = `${ROOT_PATH}?post=${post_id}`})
-        .catch(errorHandler);
-    }else {
+            .then(() => {
+                location.href = `${ROOT_PATH}?post=${post_id}`
+            })
+            .catch(errorHandler);
+    } else {
         firebase.post.insertOne(data)
-        .then(ref => {
-            if(ref == undefined) {
-                alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
-                location.href = ROOT_PATH;
-                return;
-            }
-            location.href = `${ROOT_PATH}?post=${ref.id}`;
-        })
-        .catch(e => {
-            alert('ERROR::저장에 실패했습니다::');
-            console.error(e);
-        });
+            .then(ref => {
+                if (ref == undefined) {
+                    alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+                    location.href = ROOT_PATH;
+                    return;
+                }
+                location.href = `${ROOT_PATH}?post=${ref.id}`;
+            })
+            .catch(e => {
+                alert('ERROR::저장에 실패했습니다::');
+                console.error(e);
+            });
     }
-    
+
 }
 
 function validate(input) {

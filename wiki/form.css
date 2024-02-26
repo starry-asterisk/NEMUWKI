@@ -91,6 +91,7 @@ footer:hover,
 .component_list button {
     border-radius: 50%;
     margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
     margin-right: -0.5rem;
     margin-left: 2rem;
     height: 3.5rem;
