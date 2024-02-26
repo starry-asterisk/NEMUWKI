@@ -219,11 +219,11 @@ const COMPONENT_SPEC = {
             }
             return fragment;
         },
-        getData: id => {
+        getData: async id => {
             let file = document.querySelector(`#${id} input[type="file"]`).files[0];
             let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
             if (file) {
-                firebase.storage.upload(`${id}/${file.name}`, file);
+                await firebase.storage.upload(`${id}/${file.name}`, file);
                 return `${id}/${file.name}`;
             } else if (value) {
                 return value;
@@ -408,22 +408,24 @@ function remove(button) {
         .then(() => location.href = ROOT_PATH)
         .catch(errorHandler);
 }
-function submit(button) {
+async function submit(button) {
     if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
     if (!validate(main__header__title)) return;
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
+    let contents = [];
+    for(let c of document.getElementsByClassName('component')){
+        contents.push({
+            type: c.classList[1],
+            value: await COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
+        });
+    }
     let data = {
         board_name: post_menu.value,
         category: post_categories.value,
         title: main__header__title.value,
-        contents: Array.from(document.getElementsByClassName('component')).map(c => {
-            return {
-                type: c.classList[1],
-                value: COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
-            };
-        }),
+        contents: contents,
         hidden: post_menu.value == 'template',
         use: true,
         timestamp: new Date(upload_datetime.value)
