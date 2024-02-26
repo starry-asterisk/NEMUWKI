@@ -1,4 +1,5 @@
 async function firebaseLoadCallback() {
+    document.body.classList.add('loading');
     let params = new URLSearchParams(document.location.search);
 
     search.onkeydown = ({key}) => {
@@ -152,6 +153,7 @@ async function firebaseLoadCallback() {
             if(people_.docs.length < 25) load_more2.setStyles({display: 'none'});
         }
     }
+    document.body.classList.remove('loading');
 }
 
 function validate(input, input_2, type = 'text') {

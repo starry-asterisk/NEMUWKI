@@ -63,7 +63,6 @@ header {
     right: 0;
     height: 5rem;
     z-index: 10;
-    min-width: 40rem;
     max-width: 126rem;
     padding: 0 2rem;
     margin: auto;
@@ -155,7 +154,7 @@ main {
     padding: var(--block-padding);
 }
 
-.main__contents:hover, footer:hover {
+.main__contents > div:hover, .main__header:hover, footer:hover {
     background-color: var(--background-dark);
 }
 
@@ -195,9 +194,13 @@ aside > * > p:first-child {
         max-width: unset;
         min-width: unset;
         margin: 0 2rem 2rem 2rem;
+        padding-right: 1rem;
+        border-right: none;
     }
     aside {
         width: auto;
+        margin-left: 3rem;
+        margin-right: 3rem;
     }
     aside > div:first-child {
         margin-top: unset !important;
@@ -207,7 +210,7 @@ aside > * > p:first-child {
 footer {
     font-size: 1.5rem;
     padding: 0 1rem;
-    height: 15rem;
+    min-height: 15rem;
     white-space: pre-line;
     text-align: right;
 }
@@ -268,11 +271,11 @@ input:focus + .input_suggest {
 .input_container:focus-within {
     outline: 0.2rem solid var(--accent);
 }
-.input_container:has(input:user-valid) {
+.input_container:not(.no-validity):has(input:user-valid) {
     outline: 0.2rem solid var(--valid);
     padding-left: 1rem;
 }
-.input_container:has(input:invalid) {
+.input_container:not(.no-validity):has(input:invalid) {
     outline: 0.2rem solid var(--invalid);
     padding-left: 1rem;
 }
@@ -281,11 +284,11 @@ input:focus + .input_suggest {
     font-family:"Material Design Icons";
     font-size: 2.5rem;
 }
-.input_container:has(input:user-valid)::before {
+.input_container:not(.no-validity):has(input:user-valid)::before {
     content: "\F05E1";
     color: var(--valid);
 }
-.input_container:has(input:invalid)::before {
+.input_container:not(.no-validity):has(input:invalid)::before {
     content: "\F0028";
     color: var(--invalid);
 }
@@ -294,8 +297,11 @@ input:focus + .input_suggest {
     left: 0;
     transition: padding 200ms;
 }
-.input_container input:user-valid, .input_container input:invalid {
+.input_container:not(.no-validity) input:user-valid, .input_container:not(.no-validity) input:invalid {
     padding-left: 4rem;
+}
+.input_container > input {
+    border-radius: inherit;
 }
 
 button{
@@ -403,4 +409,71 @@ img::after {
     border: 0.1rem solid #aaa;
     color: #aaa;
     font-family: "Material Design Icons";
+}
+
+body.loading .main__header__title::after,
+body.loading .main__header__timestamp::after,
+body.loading .main__contents::after,
+body.loading aside > *::after {
+    content: '';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "headerFont";
+    font-size: 4em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80%;
+    height: 100%;
+    background-color: var(--border2);
+    z-index: 1;
+    opacity:1;
+}
+body.loading .main__header__timestamp::after {
+    width: 40%;
+}
+body.loading .main__contents::after {
+    top: 2rem;
+    left: 2rem;
+    width: calc(100% - 4rem);
+    height: calc(100% - 4rem);
+}
+body.loading aside > *::after {
+    width: 100%;
+}
+body.loading::after, body.loading::before {
+    content: '';
+    position: absolute;
+    top: calc(50% - 10vw);
+    margin: auto;
+    width: 20vw;
+    height: 20vw;
+    border-radius: 50%;
+    border: 3vw solid var(--accent);
+    opacity: 0.3;
+    z-index: 10;
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    animation: rotate 1s infinite;
+}
+body.loading::before {
+    border-color: white;
+    animation: rotate_r 2s infinite;
+}
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes rotate_r {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
 }
