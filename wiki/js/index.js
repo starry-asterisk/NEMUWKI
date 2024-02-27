@@ -163,7 +163,7 @@ async function firebaseLoadCallback() {
         let load_more2 = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
         let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
 
-        let people_ = await firebase.post.list('인물', 'board_name');
+        let people_ = await firebase.post.list('인물', 'category');
 
         search.value = keyword;
 
