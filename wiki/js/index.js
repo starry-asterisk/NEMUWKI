@@ -1,24 +1,28 @@
+
+
 async function firebaseLoadCallback() {
     document.body.classList.add('loading');
+
+    main__contents = document.querySelector('.main__contents');
     let params = new URLSearchParams(document.location.search);
 
-    search.onkeydown = ({key}) => {
-        if(key.toLowerCase() != 'enter') return;
+    search.onkeydown = ({ key }) => {
+        if (key.toLowerCase() != 'enter') return;
         location.href = `${ROOT_PATH}?keyword=${search.value || ''}`
     }
 
     firebase.auth.check(user => {
-        let upload = createElement('button', { innerHTML: '글쓰기', attrs: {class: 'normal'}});
-        let logout = createElement('button', { innerHTML: '로그아웃', attrs: {class: 'normal'}, styles: {'margin-top':'1rem'}});
+        let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
+        let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
         let button_container = createElement('div');
         button_container.append(upload);
         button_container.append(logout);
         user_area.append(button_container);
-        upload.onclick = ()=> location.href='./form.html';
+        upload.onclick = () => location.href = './form.html';
         logout.onclick = () => {
             firebase.auth.logout()
-            .then(e=>location.reload())
-            .catch(errorHandler);
+                .then(e => location.reload())
+                .catch(errorHandler);
         }
     }, () => {
         let loginMode = true;
@@ -32,39 +36,41 @@ async function firebaseLoadCallback() {
 
         let button_container = createElement('div');
 
-        let submit_login = createElement('button', { innerHTML: '로그인', attrs: {class: 'normal'} });
-        let submit_signup = createElement('button', { innerHTML: '가입하기', styles:{display: 'none'}, attrs: {class: 'normal'} });
+        let submit_login = createElement('button', { innerHTML: '로그인', attrs: { class: 'normal' } });
+        let submit_signup = createElement('button', { innerHTML: '가입하기', styles: { display: 'none' }, attrs: { class: 'normal' } });
         let a_signup = createElement('a', {
             innerHTML: '가입하기',
             attrs: { href: '#' },
-            styles: {display: 'block', 'text-align': 'center'},
-            on: {click: ()=>{
-                loginMode = !loginMode;
-                submit_login.setStyles({ display: loginMode?'block':'none' });
-                submit_signup.setStyles({ display: loginMode?'none':'block' });
-                password_container_re.setStyles({ display: loginMode?'none':'block' });
-                a_signup.innerHTML = loginMode?'가입하기':'로그인';
-            }}
+            styles: { display: 'block', 'text-align': 'center' },
+            on: {
+                click: () => {
+                    loginMode = !loginMode;
+                    submit_login.setStyles({ display: loginMode ? 'block' : 'none' });
+                    submit_signup.setStyles({ display: loginMode ? 'none' : 'block' });
+                    password_container_re.setStyles({ display: loginMode ? 'none' : 'block' });
+                    a_signup.innerHTML = loginMode ? '가입하기' : '로그인';
+                }
+            }
         });
 
-        submit_login.onclick = ()=>{
-            if(!validate(email, undefined, 'email')) return;
-            if(!validate(password, undefined, 'password')) return;
+        submit_login.onclick = () => {
+            if (!validate(email, undefined, 'email')) return;
+            if (!validate(password, undefined, 'password')) return;
             firebase.auth.login(email.value, password.value)
-            .then(e=>location.reload())
-            .catch(errorHandler);
+                .then(e => location.reload())
+                .catch(errorHandler);
         }
-        submit_signup.onclick = ()=>{
-            if(!validate(email, undefined, 'email')) return;
-            if(!validate(password, undefined, 'password')) return;
-            if(!validate(password, password_re, 'password')) return;
+        submit_signup.onclick = () => {
+            if (!validate(email, undefined, 'email')) return;
+            if (!validate(password, undefined, 'password')) return;
+            if (!validate(password, password_re, 'password')) return;
             firebase.auth.signup(email.value, password.value)
-            .then(e=>{
-                alert('회원 가입완료 되었습니다. 로그인 해주세요.');
-                location.reload();
-            })
-            .catch(errorHandler);
-            
+                .then(e => {
+                    alert('회원 가입완료 되었습니다. 로그인 해주세요.');
+                    location.reload();
+                })
+                .catch(errorHandler);
+
         }
 
         email_container.append(email);
@@ -87,10 +93,28 @@ async function firebaseLoadCallback() {
         document.body.classList.add('non-auth');
     });
 
+    let tree = getTreeFromBoardList((await firebase.board.list()).docs.map(doc => doc.data()));
+    let pathFromBoard = [];
+
+    for (let child of tree || []) stripe(child);
+
+    function stripe(data, prefix = []) {
+        prefix.push(data.name);
+        pathFromBoard[data.name] =  prefix.join(' > ');
+        for (let child of data.child || []) stripe(child, prefix.slice());
+    }
+
     if (params.get("post")) {
-        post_list.innerHTML = '';
+        main__contents.innerHTML = '';
         let doc = await firebase.post.selectOne(params.get("post"));
         let data = doc.data();
+
+        let old_visited_index = visited.indexOf(`${post_id}:${data.title}:${data.board_name}`);
+        if (old_visited_index > -1) visited.splice(old_visited_index, 1);
+        visited.unshift(`${post_id}:${data.title}:${data.board_name}`);
+        visited.splice(VISITED_MAX);
+        localStorage.setItem('visited', visited);
+
         buildPost(data);
         document.querySelector('.main__header__toolbox')
             .setStyles({ display: 'flex' })
@@ -101,16 +125,23 @@ async function firebaseLoadCallback() {
                     }
                 }
             }))
-    } else if (typeof post_list != 'undefined') {
+    } else {
+        main__header__timestamp.innerHTML = new Date().toLocaleString();
+        setTimeout(() => {
+            setInterval(() => {
+                main__header__timestamp.innerHTML = new Date().toLocaleString();
+            }, 1000);
+        }, 1000 - new Date().getMilliseconds());
+
         let keyword = params.get('keyword') || '';
-        let load_more = createElement('button', { innerHTML: 'load more', attrs: {class: 'normal'}, styles: {margin: 'auto'} });
-        let board_list = createElement('div', { attrs: {class: 'board_list_1'} });
-        
+        let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
+        let board_list = createElement('div', { attrs: { class: 'board_list_1' } });
+
         let { docs, getNext } = await firebase.post.list(keyword);
-        
+
         search.value = keyword;
 
-        load_more.onclick = async ()=>{
+        load_more.onclick = async () => {
             docs = await getNext(docs);
             load();
         }
@@ -120,22 +151,23 @@ async function firebaseLoadCallback() {
 
         load();
 
-        function load(){
+        function load() {
             for (let doc of docs) {
                 let data = doc.data();
+                data.board_name = pathFromBoard[data.board_name];
                 board_list.append(addPost(data, doc.id));
             }
-            if(docs.length < 25) load_more.setStyles({display: 'none'});
+            if (docs.length < 25) load_more.setStyles({ display: 'none' });
         }
 
-        let load_more2 = createElement('button', { innerHTML: 'load more', attrs: {class: 'normal'}, styles: {margin: 'auto'} });
-        let board_list_2 = createElement('div', { attrs: {class: 'board_list_2'} });
-        
-        let people_ = await firebase.post.list('인물','board_name');
-        
+        let load_more2 = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
+        let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
+
+        let people_ = await firebase.post.list('인물', 'board_name');
+
         search.value = keyword;
 
-        load_more2.onclick = async ()=>{
+        load_more2.onclick = async () => {
             people.docs = await people_.getNext(people_.docs);
             people_();
         }
@@ -145,14 +177,24 @@ async function firebaseLoadCallback() {
 
         load2();
 
-        function load2(){
+        function load2() {
             for (let doc of people_.docs) {
                 let data = doc.data();
                 board_list_2.append(addPost2(data, doc.id));
             }
-            if(people_.docs.length < 25) load_more2.setStyles({display: 'none'});
+            if (people_.docs.length < 25) load_more2.setStyles({ display: 'none' });
         }
     }
+
+
+    for (let str of visited) {
+        let [visited_id, title, board_name] = str.split(':');
+        let li = createElement('li');
+        let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name]} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
+        li.append(li_a);
+        recent_post.append(li);
+    }
+
     document.body.classList.remove('loading');
 }
 
@@ -177,7 +219,7 @@ function validate(input, input_2, type = 'text') {
 }
 
 function addPost(data, id) {
-    let item = createElement('div', { innerHTML: `${data.board_name}/${data.title}` });
+    let item = createElement('div', { attrs: { board_name: data.board_name, title: data.title } });
     item.onclick = () => {
         location.href = `${ROOT_PATH}?post=${id}`;
     }
@@ -188,11 +230,11 @@ function addPost2(data, id) {
     let img = createElement('img');
 
     item.prepend(img);
-    
-    let urlObj = data.contents.find(content=>content.type == 'image');
-    if(urlObj) firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+
+    let urlObj = data.contents.find(content => content.type == 'image');
+    if (urlObj) firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
     else img.src = '[ no image ]';
-    
+
     item.onclick = () => {
         location.href = `${ROOT_PATH}?post=${id}`;
     }
@@ -218,14 +260,14 @@ function buildPost(data) {
         let div = createElement('div', { attrs: { class: content.type } });
         div.append(COMPONENT_SPEC[content.type](content.value));
         component_list[content.type].push(div);
-        post_list.append(div);
+        main__contents.append(div);
     }
 
     for (let title of component_list['title'] || []) {
         let toggle = true;
         title.onclick = () => {
             toggle = !toggle;
-            toggle?title.classList.remove('fold'):title.classList.add('fold');
+            toggle ? title.classList.remove('fold') : title.classList.add('fold');
             let next = title.nextElementSibling;
             while (next != undefined && !next.classList.contains('title') && !next.classList.contains('seperator')) {
                 next.style.display = toggle ? 'block' : 'none';
@@ -234,7 +276,7 @@ function buildPost(data) {
         }
     }
 
-    let summury = component_list['summury']?component_list['summury'][0]:undefined;
+    let summury = component_list['summury'] ? component_list['summury'][0] : undefined;
     if (summury) {
         summury.setAttribute('id', 'summary');
         let title_list = component_list['title'];
@@ -288,7 +330,7 @@ const COMPONENT_SPEC = {
         return frag;
     },
     image: (value, mediaTytpe = 'img') => {
-        let media = createElement(mediaTytpe, { attrs: { controls: mediaTytpe != 'img', src: firebase.storage.getUrl(value) } });
+        let media = createElement(mediaTytpe, { attrs: { controls: mediaTytpe != 'img' } });
 
         firebase.storage.getUrl(value).then(url => media.src = url);
 
@@ -320,12 +362,6 @@ const COMPONENT_SPEC = {
     }
 }
 
-function main__fold(target){
-    target.classList.toggle('fold');
-    if(target.classList.contains('fold'))target.nextElementSibling.style.display = 'none';
-    else target.nextElementSibling.style.removeProperty('display');
-}
-
-function goRandom(){
-    firebase.post.random().then(id=>location.href=`${ROOT_PATH}?post=${id}`);
+function goRandom() {
+    firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`);
 }

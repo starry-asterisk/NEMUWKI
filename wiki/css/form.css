@@ -88,6 +88,7 @@ footer:hover,
 .component_list>li {
     padding: 1rem var(--block-padding);
 }
+
 .component_list button {
     border-radius: 50%;
     margin-top: -0.5rem;
@@ -171,6 +172,7 @@ input[type="color"]::-webkit-color-swatch {
 .component__execList>input[type="number"][type=number] {
     -moz-appearance: textfield;
 }
+
 .separator::before {
     content: '|';
 }

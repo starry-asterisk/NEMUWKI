@@ -4,11 +4,6 @@ HTMLElement.prototype.setStyles = function (obj) {
     return this;
 }
 
-let firebase = {};
-const ROOT_PATH = './';
-function addSuggest() { }
-
-function goHome() { location.href = ROOT_PATH }
 
 function createElement(tagName, option) {
     return createElementPrototype(tagName || 'div', option || {});
@@ -149,16 +144,15 @@ customElements.define('editable-table', class extends HTMLElement {
     }
 });
 
-
-function testLogin() {
-    firebase.auth.login(prompt('email?'), prompt('password?')).then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        // ...
-        console.info(userCredential, user);
-    })
-        .catch(errorHandler);
+function addSuggest(data, input) {
+    let li = createElement('li', { attrs: { value: data.path || data.name } });
+    li.onmousedown = () => {
+        li.parentNode.previousElementSibling.value = data.path || data.name;
+    }
+    input.querySelector('.input_suggest').append(li);
 }
+
+function goHome() { location.href = ROOT_PATH }
 
 function errorHandler(error) {
     const errorCode = error.code;
@@ -192,19 +186,19 @@ function getTreeFromBoardList(arr) {
         if (depth_sorted[child.depth] == undefined) depth_sorted[child.depth] = [];
         depth_sorted[child.depth].push(child);
     }
-    max_depth = Math.max.apply(undefined,Object.keys(depth_sorted));
+    max_depth = Math.max.apply(undefined, Object.keys(depth_sorted));
 
-    for(let d = max_depth;d > 0;d--){
+    for (let d = max_depth; d > 0; d--) {
         let parent_arr = depth_sorted[d - 1] || [];
         let child_arr = depth_sorted[d] || [];
-        if(parent_arr.length < 1){
-            for(let child of child_arr) tree.unshift(child);
-        }else{
-            for(let child of child_arr){
+        if (parent_arr.length < 1) {
+            for (let child of child_arr) tree.unshift(child);
+        } else {
+            for (let child of child_arr) {
                 let parent = parent_arr.find(parent => parent.name == child.parent);
-                if(parent == undefined) tree.unshift(child);
+                if (parent == undefined) tree.unshift(child);
                 else {
-                    if(parent.child == undefined) parent.child = []
+                    if (parent.child == undefined) parent.child = []
                     parent.child.push(child);
                 }
             }
@@ -212,4 +206,24 @@ function getTreeFromBoardList(arr) {
     }
 
     return tree;
+}
+
+function fold(target) {
+    target.classList.toggle('fold');
+    if (target.classList.contains('fold')) target.nextElementSibling.style.display = 'none';
+    else target.nextElementSibling.style.removeProperty('display');
+}
+
+const DEVELOPER_MODE = false;
+const ROOT_PATH = './';
+const VISITED_MAX = 5;
+let visited = localStorage.getItem('visited')?localStorage.getItem('visited').split(','):[];
+let params = new URLSearchParams(document.location.search);
+let firebase = {};
+let main__contents;
+
+let post_id = params.get('post');
+
+window.onload = function () {
+    document.body.setAttribute('developerMode', DEVELOPER_MODE);
 }

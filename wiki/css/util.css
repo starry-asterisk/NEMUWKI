@@ -4,7 +4,7 @@
 */
 @font-face {
     font-family: "headerFont";
-    src: url("./Yeongdeok\ Snow Crab.ttf")format("truetype");
+    src: url("../font/Yeongdeok\ Snow Crab.ttf")format("truetype");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -12,7 +12,7 @@
 
 @font-face {
     font-family: "mainFont";
-    src: url("./Yeongdeok\ Sea.ttf")format("truetype");
+    src: url("../font/Yeongdeok\ Sea.ttf")format("truetype");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -45,7 +45,9 @@
     outline: none;
 }
 
-li {list-style: none;}
+li {
+    list-style: none;
+}
 
 body {
     display: flex;
@@ -81,12 +83,12 @@ header::before {
 
 }
 
-header > * {
+header>* {
     float: left;
     margin-right: 2rem;
 }
 
-header > .right {
+header>.right {
     float: right;
     margin-left: 2rem;
     line-height: 5rem;
@@ -115,37 +117,44 @@ main {
 .main__header {
     padding: 2rem 0;
 }
+
 .main__header__title {
     font-weight: 600;
     font-size: 5rem;
     height: 5rem;
     margin-bottom: 1rem;
 }
+
 .main__header__timestamp {
     font-size: 1.7rem;
     height: 1.7rem;
 }
+
 .main__header__toolbox {
     position: absolute;
     right: 1rem;
-    top:2rem;
+    top: 2rem;
     display: flex;
     flex-direction: row;
     height: 5rem;
     border-radius: 1rem;
     border: 0.1rem solid var(--border2);
 }
-.main__header__toolbox:empty, .non-auth .main__header__toolbox {
+
+.main__header__toolbox:empty,
+.non-auth .main__header__toolbox {
     display: none !important;
 }
-.main__header__toolbox > button {
+
+.main__header__toolbox>button {
     min-width: 5rem;
     background: none;
     color: #555;
     padding: 0 1.2rem;
     font-family: inherit;
 }
-.main__header__toolbox > button + button {
+
+.main__header__toolbox>button+button {
     border-left: 0.1rem solid var(--border2);
 }
 
@@ -154,7 +163,9 @@ main {
     padding: var(--block-padding);
 }
 
-.main__contents > div:hover, .main__header:hover, footer:hover {
+.main__contents>div:hover,
+.main__header:hover,
+footer:hover {
     background-color: var(--background-dark);
 }
 
@@ -163,25 +174,33 @@ aside {
     width: 32rem;
 }
 
-aside > * {
+aside>* {
     padding: var(--block-padding) 0;
     background-color: var(--background-dark);
     border-radius: var(--border-radius);
 }
-aside > * + * {
+
+aside>*+* {
     margin-top: 2rem;
 }
-aside > * > * {
+
+aside>*>* {
     padding: 0 var(--block-padding);
 }
-aside > * > p:first-child {
+
+aside>*>p:first-child {
     font-size: 1.2em;
     margin-bottom: 1rem;
+    margin-top: -2rem;
+    padding: 1.5rem var(--block-padding) 1rem;
+    border-bottom: 1px solid var(--border2);
 }
 
 
 @media (max-width: 500px) {
-    .main__contents, .main__header {
+
+    .main__contents,
+    .main__header {
         zoom: 0.65;
     }
 }
@@ -190,6 +209,7 @@ aside > * > p:first-child {
     body {
         flex-direction: column;
     }
+
     main {
         max-width: unset;
         min-width: unset;
@@ -197,12 +217,14 @@ aside > * > p:first-child {
         padding-right: 1rem;
         border-right: none;
     }
+
     aside {
         width: auto;
         margin-left: 3rem;
         margin-right: 3rem;
     }
-    aside > div:first-child {
+
+    aside>div:first-child {
         margin-top: unset !important;
     }
 }
@@ -215,11 +237,14 @@ footer {
     text-align: right;
 }
 
+footer::after {
+    content: "\A이 저작물은 토끼마음대로에 따라 이용할 수 있습니다. (단, 라이선스가 명시된 일부 문서 및 삽화 포함)\A기여하신 문서의 저작권은 각 기여자에게 있으며, 각 기여자는 기여하신 부분의 저작권을 갖습니다.\A\A네무위키는 백과사전이 아니며 검증되지 않았거나, 편향적이거나, 잘못된 서술이 있을 수 있습니다.\A네무위키는 위키위키입니다. 여러분이 직접 문서를 고칠 수 있으며, 다른 사람의 의견을 원할 경우 직접 토론을 발제할 수 있습니다.\A";
+}
 
 
 
-
-input, textarea {
+input,
+textarea {
     width: 100%;
     height: 100%;
     background: none;
@@ -229,10 +254,12 @@ input, textarea {
     padding: 0 2rem;
     font-family: inherit;
 }
-input:not(:focus) + .input_suggest {
+
+input:not(:focus)+.input_suggest {
     display: none !important;
 }
-input:focus + .input_suggest {
+
+input:focus+.input_suggest {
     display: block;
     position: absolute;
     top: 100%;
@@ -245,16 +272,20 @@ input:focus + .input_suggest {
     z-index: 10;
     box-shadow: 0 0 1rem 0 #4b749933;
 }
-.input_suggest > li {
+
+.input_suggest>li {
     padding: 1rem;
 }
-.input_suggest > li + li {
+
+.input_suggest>li+li {
     border-top: 0.1rem solid var(--border)
 }
-.input_suggest > li[value]:empty::after {
+
+.input_suggest>li[value]:empty::after {
     content: attr(value);
 }
-.input_suggest > li:hover {
+
+.input_suggest>li:hover {
     background-color: var(--background-dark);
 }
 
@@ -262,52 +293,65 @@ input:focus + .input_suggest {
     content: attr(placeholder);
     opacity: 0.5;
 }
+
 .input_container {
     height: 4rem;
     line-height: 4rem;
     padding: 0 2rem;
     transition: outline 200ms;
 }
+
 .input_container:focus-within {
     outline: 0.2rem solid var(--accent);
 }
+
 .input_container:not(.no-validity):has(input:user-valid) {
     outline: 0.2rem solid var(--valid);
     padding-left: 1rem;
 }
+
 .input_container:not(.no-validity):has(input:invalid) {
     outline: 0.2rem solid var(--invalid);
     padding-left: 1rem;
 }
+
 .input_container::before {
     content: "";
-    font-family:"Material Design Icons";
+    font-family: "Material Design Icons";
     font-size: 2.5rem;
 }
+
 .input_container:not(.no-validity):has(input:user-valid)::before {
     content: "\F05E1";
     color: var(--valid);
 }
+
 .input_container:not(.no-validity):has(input:invalid)::before {
     content: "\F0028";
     color: var(--invalid);
 }
+
 .input_container input {
     position: absolute;
     left: 0;
     transition: padding 200ms;
 }
-.input_container:not(.no-validity) input:user-valid, .input_container:not(.no-validity) input:invalid {
+
+.input_container:not(.no-validity) input:user-valid,
+.input_container:not(.no-validity) input:invalid {
     padding-left: 4rem;
 }
-.input_container > input {
+
+.input_container>input {
     border-radius: inherit;
 }
 
-button{
+button {
     cursor: pointer;
 }
-button.normal, button.danger {
+
+button.normal,
+button.danger {
     display: block;
     width: 100%;
     max-width: 32rem;
@@ -320,14 +364,18 @@ button.normal, button.danger {
     font-family: inherit;
     font-size: 2.5rem;
 }
+
 button.danger {
     background: var(--invalid);
 }
-button.normal:hover, button.danger:hover {
+
+button.normal:hover,
+button.danger:hover {
     opacity: 1;
 }
 
-button.normal:active, button.danger:active {
+button.normal:active,
+button.danger:active {
     opacity: 0.6;
 }
 
@@ -344,7 +392,7 @@ editable-table {
     min-height: 5rem;
 }
 
-.editable-table__row+.editable-table__row > .editable-table__cell {
+.editable-table__row+.editable-table__row>.editable-table__cell {
     border-top: 0.1rem solid var(--border2);
 }
 
@@ -414,7 +462,7 @@ img::after {
 body.loading .main__header__title::after,
 body.loading .main__header__timestamp::after,
 body.loading .main__contents::after,
-body.loading aside > *::after {
+body.loading aside>*::after {
     content: '';
     display: flex;
     align-items: center;
@@ -428,20 +476,24 @@ body.loading aside > *::after {
     height: 100%;
     background-color: var(--background);
     z-index: 1;
-    opacity:1;
+    opacity: 1;
 }
+
 body.loading .main__header__timestamp::after {
     width: 40%;
 }
+
 body.loading .main__contents::after {
     top: 2rem;
     left: 2rem;
     width: calc(100% - 4rem);
     height: calc(100% - 4rem);
 }
-body.loading aside > *::after {
+
+body.loading aside>*::after {
     width: 100%;
 }
+
 /*
 body.loading::after, body.loading::before {
     content: '';
@@ -467,14 +519,17 @@ body.loading::before {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
 }
+
 @keyframes rotate_r {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(-360deg);
     }
@@ -484,6 +539,7 @@ body.loading::before {
     opacity: 0.4;
     margin-bottom: 0 !important;
 }
-.fold + * {
-    display: none;
+
+body[developerMode="true"] img {
+    opacity: 0;
 }

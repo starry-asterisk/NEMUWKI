@@ -26,17 +26,17 @@ const storage = getStorage(app, "gs://nemuwiki-f3a72.appspot.com");
 const auth = getAuth();
 
 window.addEventListener('load', async function () {
+    //문서
     firebase.post = {
         random: async () => {
-            let postRef = collection(db, "postList");
-            let count = Math.min((await getCountFromServer(postRef)).data().count, 100);
-            let random = Math.round(Math.random() * (count - 1));
+            let count = Math.min((await getCountFromServer(collection(db, "postList"))).data().count, 100);
             let result = await getDocs(query(
                 collection(db, "postList"),
+                where('hidden', '==', false),
                 orderBy('timestamp'),
                 limit(count)
             ));
-            return result.docs[random].id;
+            return result.docs[Math.round(Math.random() * (result.docs.length - 1))].id;
         },
         insertOne: async data => {
             try {
@@ -85,6 +85,7 @@ window.addEventListener('load', async function () {
         }
     };
 
+    //분류명
     firebase.board = {
         insertOne: async data => {
             try {
@@ -106,6 +107,7 @@ window.addEventListener('load', async function () {
         list: async () => await getDocs(collection(db, "boardList"))
     }
 
+    //카테고리
     firebase.categories = {
         insertOne: async data => {
             try {
@@ -124,6 +126,7 @@ window.addEventListener('load', async function () {
         list: async () => await getDocs(collection(db, "categories"))
     }
 
+    //저장소
     firebase.storage = {
         getUrl: async fileName => await getDownloadURL(ref(storage, fileName)),
         delete: async fileName => await deleteObject(ref(storage, fileName)),
@@ -131,31 +134,18 @@ window.addEventListener('load', async function () {
         uploadResumable: (fileName, file) => uploadBytesResumable(ref(storage, fileName), file)
     };
 
+    //인증
     firebase.auth = {
         login: async (email, password) => await signInWithEmailAndPassword(auth, email, password),
         logout: async () => await signOut(auth),
         check: async (signInCallback, signOutCallback) => onAuthStateChanged(auth, (user) => {
-            if (user) {
-                signInCallback(user);
-            } else {
-                signOutCallback();
-            }
+            if (user) signInCallback(user); 
+            else signOutCallback();
         }),
         signup: async (email, password) => await createUserWithEmailAndPassword(auth, email, password)
     }
 
-    let querySnapshot;
-
-    if (typeof input_menu != 'undefined') {
-        querySnapshot = await firebase.board.list();
-        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_menu));
-    }
-
-    if (typeof input_categories != 'undefined') {
-        querySnapshot = await firebase.categories.list();
-        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
-    }
-
+    //초기화 callback
     if (typeof firebaseLoadCallback == 'function') {
         firebaseLoadCallback();
     }

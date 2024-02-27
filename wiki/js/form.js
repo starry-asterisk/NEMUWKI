@@ -1,11 +1,36 @@
-let main__contents;
-let post_id;
-
 async function firebaseLoadCallback() {
     firebase.auth.check(() => { }, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
+        return;
     });
+
+    let querySnapshot;
+
+    if (typeof input_menu != 'undefined') {
+        querySnapshot = await firebase.board.list();
+        let tree = getTreeFromBoardList(querySnapshot.docs.map(doc => doc.data()));
+        let striped_menu = [];
+
+        for (let child of tree || []) stripe(child);
+
+        function stripe(data, prefix = [], depth = 0) {
+            prefix.push(data.name);
+            striped_menu.push({ path: prefix.join(' > '), depth, name: data.name });
+            for (let child of data.child || []) stripe(child, prefix.slice());
+        }
+
+        striped_menu.sort((v1, v2) => v1.path.localeCompare(v2.path));
+
+        for (let data of striped_menu) addSuggest(data, input_menu);
+    }
+
+    if (typeof input_categories != 'undefined') {
+        querySnapshot = await firebase.categories.list();
+        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
+    }
+
+
     let params = new URLSearchParams(document.location.search);
     if (post_id = params.get("post")) {
         let doc = await firebase.post.selectOne(post_id);
@@ -45,7 +70,7 @@ function buildPost(data) {
     } = data;
 
     main__header__title.value = title;
-    upload_datetime.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
+    main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
     post_categories.value = category;
     post_menu.value = board_name;
 
@@ -82,18 +107,6 @@ function dropfile(files) {
                 break;
         }
     });
-
-    /*
-    if (ev.dataTransfer.items) {
-        // Use DataTransferItemList interface to access the file(s)
-        [...items].forEach((item, i) => {
-            // If dropped items aren't files, reject them
-            if (item.kind === "file") {
-                const file = item.getAsFile();
-                console.log(`… file[${i}].name = ${file.name}`);
-            }
-        });
-    }*/
 }
 function dragover(e) {
     e.preventDefault();
@@ -390,16 +403,8 @@ window.addEventListener('load', function () {
 
     let date = new Date();
     date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
-    upload_datetime.value = date.toISOString().split('.')[0];
+    main__header__timestamp.value = date.toISOString().split('.')[0];
 });
-
-function addSuggest(data, input) {
-    let li = createElement('li', { attrs: { value: data.name } });
-    li.onmousedown = () => {
-        li.parentNode.previousElementSibling.value = data.name;
-    }
-    input.querySelector('.input_suggest').append(li);
-}
 
 function remove(button) {
     if (!confirm('정말로 삭제 하시겠습니까?')) return;
@@ -415,20 +420,20 @@ async function submit(button) {
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
     let contents = [];
-    for(let c of document.getElementsByClassName('component')){
+    for (let c of document.getElementsByClassName('component')) {
         contents.push({
             type: c.classList[1],
             value: await COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
         });
     }
     let data = {
-        board_name: post_menu.value,
+        board_name: post_menu.value.split(' > ').pop(),
         category: post_categories.value,
         title: main__header__title.value,
         contents: contents,
         hidden: post_menu.value == 'template',
         use: true,
-        timestamp: new Date(upload_datetime.value)
+        timestamp: new Date(main__header__timestamp.value)
     };
     if (post_id) {
         firebase.post.updateOne(post_id, data)

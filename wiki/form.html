@@ -1,52 +1,53 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="materialdesignicons.min.css" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="index.css">
-        <link rel="stylesheet" href="form.css">
-        <script src="index.js"></script>
-        <script src="form.js"></script>
-        <script type="module" src="firebase.js"></script>
-        <title>위키</title>
-    </head>
-    <body>
-        <header>
-            <span class="header__logo" onclick="goHome()">네무위키</span>
-        </header>
-        <main>
-            <div class="main__header">
-                <div class="main__header__title"><input type="text" placeholder="제목" name="post_title" id="main__header__title" oninput="validate(this)"/></div>
-                <div class="main__header__timestamp"><input type="datetime-local" title="업로드 시간" id="upload_datetime"/></div>
-                <div class="main__header__toolbox"></div>
-            </div>
-            <div class="main__contents"></div>
-            <footer>
-                이 저작물은 토끼마음대로에 따라 이용할 수 있습니다. (단, 라이선스가 명시된 일부 문서 및 삽화 포함)
-                기여하신 문서의 저작권은 각 기여자에게 있으며, 각 기여자는 기여하신 부분의 저작권을 갖습니다.
-                
-                네무위키는 백과사전이 아니며 검증되지 않았거나, 편향적이거나, 잘못된 서술이 있을 수 있습니다.
-                네무위키는 위키위키입니다. 여러분이 직접 문서를 고칠 수 있으며, 다른 사람의 의견을 원할 경우 직접 토론을 발제할 수 있습니다.
-            </footer>
-        </main>
-        <aside>
-            <div id="input_categories" class="input_container">
-                <input type="text" placeholder="카테고리" name="post_categories" id="post_categories" oninput="validate(this)"/>
-                <ul class="input_suggest"></ul>
-            </div>
-            <div id="input_menu" class="input_container">
-                <input type="text" placeholder="메뉴" name="post_menu" id="post_menu" oninput="validate(this)"/>
-                <ul class="input_suggest"></ul>
-            </div>
-            <div id="input_template" class="input_container no-validity">
-                <input type="button" value="--템플릿 선택--" style="text-align:left;"/>
-                <ul class="input_suggest"></ul>
-            </div>
-            <div style="user-select: none;">
-                <p onclick="this.classList.toggle('fold')">컴포넌트</p>
-                <ul class="component_list"></ul>
-            </div>
-            <button class="normal" onclick="submit(this)">게시하기</button>
-        </aside>
-    </body>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css" />
+    <link rel="stylesheet" href="css/util.css" type="text/css" />
+    <link rel="stylesheet" href="css/form.css" type="text/css" />
+    <script src="js/util.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/firebase.js" type="module"></script>
+    <title>위키</title>
+</head>
+
+<body>
+    <header>
+        <span class="header__logo" onclick="goHome()">네무위키</span>
+        <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
+    </header>
+    <main>
+        <div class="main__header">
+            <div class="main__header__title"><input id="main__header__title" type="text" placeholder="제목"
+                    name="post_title" oninput="validate(this)" /></div>
+            <div class="main__header__timestamp"><input id="main__header__timestamp" type="datetime-local"
+                    title="업로드 시간" /></div>
+            <div class="main__header__toolbox"></div>
+        </div>
+        <div class="main__contents"></div>
+        <footer></footer>
+    </main>
+    <aside>
+        <div id="input_categories" class="input_container">
+            <input type="text" placeholder="카테고리" name="post_categories" id="post_categories"
+                oninput="validate(this)" />
+            <ul class="input_suggest"></ul>
+        </div>
+        <div id="input_menu" class="input_container">
+            <input type="text" placeholder="메뉴" name="post_menu" id="post_menu" oninput="validate(this)" />
+            <ul class="input_suggest"></ul>
+        </div>
+        <div id="input_template" class="input_container no-validity">
+            <input type="button" value="--템플릿 선택--" style="text-align:left;" />
+            <ul class="input_suggest"></ul>
+        </div>
+        <div style="user-select: none;">
+            <p onclick="fold(this)">컴포넌트</p>
+            <ul class="component_list"></ul>
+        </div>
+        <button class="normal" onclick="submit(this)">게시하기</button>
+    </aside>
+</body>
+
 </html>
