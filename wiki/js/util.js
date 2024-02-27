@@ -1,9 +1,7 @@
 HTMLElement.prototype.setStyles = function (obj) {
-    if (obj == undefined) console.error('Arguments 0 is undefined or null');
-    else for (let name in obj) this.style.setProperty(name, obj[name]);
+    for (let name in obj) this.style.setProperty(name, obj[name]);
     return this;
 }
-
 
 function createElement(tagName, option) {
     return createElementPrototype(tagName || 'div', option || {});
@@ -33,9 +31,17 @@ customElements.define('editable-table', class extends HTMLElement {
     _beforeInit = true;
     _rowcount = 0;
     _colcount = 0;
+    _colsize = [];
     _headers;
     _rows = [];
     _readonly = false;
+    _fragment;
+    get fragment() {
+        return this._beforeInit ? this._fragment : this;
+    }
+    set fragment(frag) {
+        this._fragment = frag;
+    }
     get headers() {
         return this._headers;
     }
@@ -52,40 +58,29 @@ customElements.define('editable-table', class extends HTMLElement {
         return this._readonly;
     }
     set rowcount(newValue) {
-        if (this._beforeInit) {
-            this._beforeInit = false;
-            let _headers = this._headers = this.getRow();
-            for (let i = 0; i < this._colcount; i++) _headers.append(this.getCell({ header: true }));
-            this.append(_headers);
-        }
-        if (newValue > this._rowcount) {
-            while (newValue > this._rowcount) {
-                let row = this._rows[this._rowcount] = this.getRow();
-                for (let i = 0; i < this._colcount; i++) {
-                    let cell = this.getCell();
-                    cell.style.width = this._headers.children[i].style.width;
-                    row.append(cell);
-                }
-                this.append(row);
-                this._rowcount++;
+        let frag = this.fragment;
+        if (newValue > frag.children.length - 1) while (newValue > frag.children.length - 1) {
+            this._rows.push(this.addRow());
+            for (let i = 0; i < this._colcount; i++) {
+                this.addCell(frag.lastChild).style.width = this._headers.children[i].style.width;
             }
-        } else if (newValue < this._rowcount) {
-            for (let i = newValue; i < this._rowcount; i++) this._rows[i].remove();
-            this._rows.splice(newValue, this._rowcount - newValue);
+        } else if (newValue < frag.children.length - 1) {
+            console.log(frag);
+            for (; newValue < frag.children.length - 1;) frag.lastChild.remove();
+            this._rows.length = newValue;
         }
-        this._rowcount = newValue;
     }
     get rowcount() {
-        return this._rowcount;
+        return this.fragment.children.length - 1;
     }
     set colcount(newValue) {
         if (newValue > this._colcount) {
-            for (let i = this._colcount; i < newValue; i++) this._headers.append(this.getCell({ header: true }));
+            for (; newValue > this._headers.children.length;) this.addCell(this._headers, { header: true });
             for (let row of this._rows) {
-                for (let i = this._colcount; i < newValue; i++) row.append(this.getCell());
+                for (let i = this._colcount; i < newValue; i++) this.addCell(row);
             }
         } else if (newValue < this._colcount) {
-            for (let i = newValue; i < this._colcount; i++) this._headers.lastChild.remove();
+            for (; newValue < this._headers.children.length;) this._headers.lastChild.remove();
             for (let row of this._rows) {
                 for (let i = newValue; i < this._colcount; i++) row.lastChild.remove();
             }
@@ -97,43 +92,49 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     constructor() {
         super();
+        this.fragment = document.createDocumentFragment();
+        this._headers = this.addRow();
+    }
+    static get observedAttributes() {
+        return ['rowcount', 'colcount'];
     }
     attributeChangedCallback(name, oldValue, newValue) {
-        console.log(
-            `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
-        );
+        if (oldValue == newValue) return;
         this[name.toLowerCase()] = newValue;
     }
     connectedCallback() {
         if (this._beforeInit) {
-            this.rowcount = 3;
-            this.colcount = 3;
+            this._beforeInit = false;
+            this.append(this._fragment);
         }
     }
-    getCell(option = {}) {
+    addCell(row, option = {}) {
         let { header } = option;
-        let cell = createElement('div', { attrs: { class: 'editable-table__cell' } });
-        let cellInput;
-        if (header) {
-            cellInput = createElement('input', {
-                attrs: { type: 'number', min: 1, step: 1 },
-                value: 20
-            });
-            cellInput.oninput = () => {
-                let v = parseFloat(cellInput.value);
-                let idx = Array.prototype.findIndex.call(cell.parentNode.children, node => node == cell);
-                cell.style.width = `${v}rem`;
-                this.headers.children[idx].setStyles({ width: `${v}rem`, 'min-width': `${v}rem` });
-                for (let row of this._rows) row.children[idx].setStyles({ width: `${v}rem`, 'min-width': `${v}rem` });
-            }
-        } else {
-            cellInput = createElement('div', { attrs: { contenteditable: this._readonly ? false : 'plaintext-only' } });
-        }
-        cell.append(cellInput);
+        let index = row.children.length;
+        if (header) this._colsize[index] = 20;
+        let cell = createElement('div', {
+            attrs: { class: 'editable-table__cell' },
+            styles: { width: `${this._colsize[index]}rem`, 'min-width': `${this._colsize[index]}rem` }
+        });
+        cell.append(header ? createElement('input', {
+            attrs: { type: 'number', min: 1, step: 1 },
+            on: {
+                input: e => {
+                    let v = parseFloat(cell.lastChild.value);
+                    this._colsize[index] = v;
+                    for (let row of this.fragment.children) row.children[index].setStyles({ width: `${v}rem`, 'min-width': `${v}rem` });
+                }
+            },
+            value: 20
+        }) : createElement('div', {
+            attrs: { contenteditable: this._readonly ? false : 'plaintext-only' }
+        }));
+        row.append(cell);
         return cell;
     }
-    getRow() {
-        return createElement('div', { attrs: { class: 'editable-table__row' } });
+    addRow() {
+        this.fragment.append(createElement('div', { attrs: { class: 'editable-table__row' } }));
+        return this.fragment.lastChild;
     }
     loadData(arr) {
         for (let row of this._rows) {
@@ -217,7 +218,7 @@ function fold(target) {
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const VISITED_MAX = 5;
-let visited = localStorage.getItem('visited')?localStorage.getItem('visited').split(','):[];
+let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};
 let main__contents;

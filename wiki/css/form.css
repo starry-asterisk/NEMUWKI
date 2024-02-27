@@ -106,7 +106,7 @@ aside> :first-child {
 }
 
 
-.editable-table__row:first-child {
+.editable-table__row:first-child > * {
     background-color: var(--background-dark);
 }
 

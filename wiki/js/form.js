@@ -288,9 +288,10 @@ const COMPONENT_SPEC = {
             return div;
         },
         input: ({ rowcount, header, cells }) => {
-            let table = createElement('editable-table', { styles: { 'margin-top': '2rem' } });
-            if (rowcount) table.rowcount = rowcount;
-            if (header) table.colcount = header.length;
+            let table = createElement('editable-table', { 
+                styles: { 'margin-top': '2rem' }, 
+                attrs: { rowcount: rowcount || 3, colcount: header?.length || 3}
+            });
             if (cells) table.loadData(cells);
             if (header) for (let index in header) {
                 let input = table.headers.children[index].firstChild;
