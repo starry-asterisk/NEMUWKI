@@ -84,7 +84,9 @@ footer:hover,
     background: var(--invalid);
     opacity: 1;
 }
-
+.component_list {
+    user-select: none;
+}
 .component_list>li {
     padding: 1rem var(--block-padding);
 }

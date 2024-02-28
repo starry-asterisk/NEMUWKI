@@ -1,3 +1,44 @@
+window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
+
+window.addEventListener('load', function () {;
+    init_componentList();
+    init_timestamp();
+});
+
+function init_timestamp(){
+    let date = new Date();
+    date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
+    main__header__timestamp.value = date.toISOString().split('.')[0];
+}
+
+function init_componentList(){
+    let component_list = document.querySelector('.component_list');
+    for (let specname in COMPONENT_SPEC) {
+        let spec = COMPONENT_SPEC[specname];
+        if (spec.title == undefined) continue;
+        let li = createElement('li', {
+            attrs: {
+                type: specname,
+                draggable: true
+            },
+            innerHTML: spec.title
+        });
+
+        let add_btn = createElement('button', {
+            attrs: {
+                class: 'mdi mdi-plus'
+            }, on: {
+                click: () => {
+                    main__contents.append(createComponent(specname));
+                }
+            }
+        });
+        li.ondragstart = dragstart;
+        li.append(add_btn);
+        component_list.append(li);
+    }
+}
+
 async function firebaseLoadCallback() {
     firebase.auth.check(() => { }, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
@@ -5,47 +46,27 @@ async function firebaseLoadCallback() {
         return;
     });
 
-    let querySnapshot;
-
     if (typeof input_menu != 'undefined') {
-        querySnapshot = await firebase.board.list();
-        let tree = getTreeFromBoardList(querySnapshot.docs.map(doc => doc.data()));
-        let striped_menu = [];
-
-        for (let child of tree || []) stripe(child);
-
-        function stripe(data, prefix = [], depth = 0) {
-            prefix.push(data.name);
-            striped_menu.push({ path: prefix.join(' > '), depth, name: data.name });
-            for (let child of data.child || []) stripe(child, prefix.slice());
-        }
-
-        striped_menu.sort((v1, v2) => v1.path.localeCompare(v2.path));
-
-        for (let data of striped_menu) addSuggest(data, input_menu);
+        let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()));
+        for (let data of pathFromBoard) addSuggest(data, input_menu);
     }
 
     if (typeof input_categories != 'undefined') {
-        querySnapshot = await firebase.categories.list();
-        querySnapshot.forEach((doc) => addSuggest(doc.data(), input_categories));
+        (await firebase.categories.list()).forEach((doc) => addSuggest(doc.data(), input_categories));
     }
 
 
-    let params = new URLSearchParams(document.location.search);
-    if (post_id = params.get("post")) {
-        let doc = await firebase.post.selectOne(post_id);
-        let data = doc.data();
-        let button = createElement('button', {
+    if (post_id) {
+        document.querySelector('aside').append(createElement('button', {
             attrs: { class: 'danger' },
-            on: { click: function () { remove(button) } },
+            on: { click: e => { remove(e.target) } },
             innerHTML: '삭제하기'
-        });
+        }));
 
-        buildPost(data);
-        document.querySelector('aside').append(button);
+        buildPost((await firebase.post.selectOne(post_id)).data());
     }
 
-    firebase.post.list('template', 'board_name', true)
+    firebase.post.list({board_name:'template'}, true)
         .then(datas => {
             for (let doc of datas.docs) {
                 let data = doc.data();
@@ -167,11 +188,7 @@ let lastSelection;
 const COMPONENT_SPEC = {
     textbox: {
         title: '텍스트 박스',
-        option: () => {
-            let div = createElement('div', { attrs: { class: 'component__execList' } });
-            div.append(textEditorButtonsFrag());
-            return div;
-        },
+        option: createTextboxOpt,
         input: ({ value = '' }) => {
             return createElement('div', {
                 attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요' },
@@ -368,105 +385,6 @@ const COMPONENT_SPEC = {
     }
 }
 
-window.addEventListener('load', function () {
-    main__contents = document.querySelector('.main__contents');
-    main__contents.ondragover = dragover;
-    main__contents.ondrop = drop;
-
-    let component_list = document.querySelector('.component_list');
-    for (let specname in COMPONENT_SPEC) {
-        let spec = COMPONENT_SPEC[specname];
-        if (spec.title == undefined) continue;
-        let li = createElement('li', {
-            attrs: {
-                type: specname,
-                draggable: true
-            },
-            innerHTML: spec.title
-        });
-
-        let add_btn = createElement('button', {
-            attrs: {
-                class: 'mdi mdi-plus'
-            }, on: {
-                click: () => {
-                    main__contents.append(createComponent(specname));
-                }
-            }
-        });
-        li.ondragstart = dragstart;
-        li.append(add_btn);
-        component_list.append(li);
-    }
-    let aside_firstChild = document.querySelector('aside > :first-child');
-    let html = document.getElementsByTagName('html')[0];
-    window.addEventListener('scroll', () => aside_firstChild.style.marginTop = `${html.scrollTop}px`);
-
-    let date = new Date();
-    date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
-    main__header__timestamp.value = date.toISOString().split('.')[0];
-});
-
-function remove(button) {
-    if (!confirm('정말로 삭제 하시겠습니까?')) return;
-    button.setAttribute('disabled', true);
-    firebase.post.deleteOne(post_id)
-        .then(() => location.href = ROOT_PATH)
-        .catch(errorHandler);
-}
-async function submit(button) {
-    if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
-    if (!validate(main__header__title)) return;
-    if (!validate(post_categories)) return;
-    if (!validate(post_menu)) return;
-    button.setAttribute('disabled', true);
-    let contents = [];
-    for (let c of document.getElementsByClassName('component')) {
-        contents.push({
-            type: c.classList[1],
-            value: await COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
-        });
-    }
-    let data = {
-        board_name: post_menu.value.split(' > ').pop(),
-        category: post_categories.value,
-        title: main__header__title.value,
-        contents: contents,
-        hidden: post_menu.value == 'template',
-        use: true,
-        timestamp: new Date(main__header__timestamp.value)
-    };
-    if (post_id) {
-        firebase.post.updateOne(post_id, data)
-            .then(() => {
-                location.href = `${ROOT_PATH}?post=${post_id}`
-            })
-            .catch(errorHandler);
-    } else {
-        firebase.post.insertOne(data)
-            .then(ref => {
-                if (ref == undefined) {
-                    alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
-                    location.href = ROOT_PATH;
-                    return;
-                }
-                location.href = `${ROOT_PATH}?post=${ref.id}`;
-            })
-            .catch(e => {
-                alert('ERROR::저장에 실패했습니다::');
-                console.error(e);
-            });
-    }
-
-}
-
-function validate(input) {
-    if (input.value == undefined || input.value == null || input.value == NaN || input.value == '') input.setCustomValidity('텍스트를 입력해주세요');
-    else input.setCustomValidity('');
-    return input.checkValidity();
-}
-
-
 var commands = [{
     cmd: "backColor",
     icon: "format-color-highlight",
@@ -565,18 +483,8 @@ var commands = [{
     desc: "다시하기"
 }];
 
-
-function supported(cmd) {
-    var css = !!document.queryCommandSupported(cmd.cmd) ? "btn-succes" : "btn-error";
-    return css;
-};
-
-function icon(cmd) {
-    return typeof cmd.icon !== "undefined" ? "fa fa-" + cmd.icon : "";
-};
-
-function textEditorButtonsFrag() {
-    let frag = document.createDocumentFragment();
+function createTextboxOpt() {
+    let frag = createElement('div', { attrs: { class: 'component__execList' } });
 
     for (let command of commands) {
         let input;
@@ -682,4 +590,58 @@ function textEditorButtonsFrag() {
     }
 
     return frag;
+}
+
+
+function remove(button) {
+    if (!confirm('정말로 삭제 하시겠습니까?')) return;
+    button.setAttribute('disabled', true);
+    firebase.post.deleteOne(post_id)
+        .then(() => location.href = ROOT_PATH)
+        .catch(errorHandler);
+}
+async function submit(button) {
+    if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
+    if (!validate(main__header__title)) return;
+    if (!validate(post_categories)) return;
+    if (!validate(post_menu)) return;
+    button.setAttribute('disabled', true);
+    let contents = [];
+    for (let c of document.getElementsByClassName('component')) {
+        contents.push({
+            type: c.classList[1],
+            value: await COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
+        });
+    }
+    let data = {
+        board_name: post_menu.value.split(' > ').pop(),
+        category: post_categories.value,
+        title: main__header__title.value,
+        contents: contents,
+        hidden: post_menu.value == 'template',
+        use: true,
+        timestamp: new Date(main__header__timestamp.value)
+    };
+    if (post_id) {
+        firebase.post.updateOne(post_id, data)
+            .then(() => {
+                location.href = `${ROOT_PATH}?post=${post_id}`
+            })
+            .catch(errorHandler);
+    } else {
+        firebase.post.insertOne(data)
+            .then(ref => {
+                if (ref == undefined) {
+                    alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+                    location.href = ROOT_PATH;
+                    return;
+                }
+                location.href = `${ROOT_PATH}?post=${ref.id}`;
+            })
+            .catch(e => {
+                alert('ERROR::저장에 실패했습니다::');
+                console.error(e);
+            });
+    }
+
 }

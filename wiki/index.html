@@ -23,14 +23,14 @@
             <div class="main__header__timestamp" id="main__header__timestamp">2024-02-13 14:25:59</div>
             <div class="main__header__toolbox"></div>
         </div>
-        <div class="main__contents">
+        <div class="main__contents" id="main__contents">
             <div class="title" id="total" onclick="fold(this)">전체 문서</div>
             <div class="title" id="people" onclick="fold(this)">인물</div>
         </div>
         <footer></footer>
     </main>
     <aside>
-        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색" id="search" /></div>
+        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색" onkeydown="search(event)"/></div>
         <div>
             <p onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>

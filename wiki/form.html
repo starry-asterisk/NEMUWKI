@@ -25,7 +25,7 @@
                     title="업로드 시간" /></div>
             <div class="main__header__toolbox"></div>
         </div>
-        <div class="main__contents"></div>
+        <div class="main__contents" id="main__contents" ondrop="drop(event)" ondragover="dragover(event)"></div>
         <footer></footer>
     </main>
     <aside>
@@ -42,7 +42,7 @@
             <input type="button" value="--템플릿 선택--" style="text-align:left;" />
             <ul class="input_suggest"></ul>
         </div>
-        <div style="user-select: none;">
+        <div>
             <p onclick="fold(this)">컴포넌트</p>
             <ul class="component_list"></ul>
         </div>

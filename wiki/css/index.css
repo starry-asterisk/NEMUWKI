@@ -143,7 +143,7 @@
     }
 }
 
-div:has(#search) {
+aside > :first-child {
     height: 5rem;
     border-radius: 2.5rem;
 }

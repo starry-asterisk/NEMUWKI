@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, startAt, limit, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, or, and } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -58,26 +58,30 @@ window.addEventListener('load', async function () {
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
         selectOne: async id => await getDoc(doc(db, "postList", id)),
-        list: async (keyword = '', field = 'title', hidden = false) => {
-            let query_result = query(
+        list: async (search = {}, hidden = false) => {
+            let param_base = [
                 collection(db, "postList"),
-                where('hidden', '==', hidden),
-                where(field, '>=', keyword),
-                where(field, '<=', keyword + "\uf8ff"),
-                limit(25)
-            );
+                where('hidden', '==', hidden)
+            ], params;
+            for (let field in search) {
+                if (search[field] == '') continue;
+                param_base.push(where(field, '>=', search[field]));
+                param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+
+            }
+            params = param_base.slice();
+            params.push(limit(25));
+
+            let query_result = query.apply(undefined, params);
             let documentSnapshots = await getDocs(query_result);
 
             return {
                 docs: documentSnapshots.docs,
                 getNext: async (docs = documentSnapshots.docs) => {
-                    query_result = query(
-                        collection(db, "postList"),
-                        where('hidden', '==', hidden),
-                        where(field, '>=', keyword),
-                        where(field, '<=', keyword + "\uf8ff"),
-                        startAfter(docs[docs.length - 1]),
-                        limit(25));
+                    params = param_base.slice();
+                    params.push(startAfter(docs[docs.length - 1]));
+                    params.push(limit(25));
+                    query_result = query.apply(undefined, params);
                     documentSnapshots = await getDocs(query_result);
                     return documentSnapshots.docs;
                 }
@@ -139,9 +143,18 @@ window.addEventListener('load', async function () {
         login: async (email, password) => await signInWithEmailAndPassword(auth, email, password),
         logout: async () => await signOut(auth),
         check: async (signInCallback, signOutCallback) => onAuthStateChanged(auth, (user) => {
-            if (user) signInCallback(user); 
+            if (user) signInCallback(user);
             else signOutCallback();
         }),
+        checkAdmin: (callback) => onAuthStateChanged(auth, async (user) => {
+            let doc;
+            if (user == undefined) return callback(false);
+            if ((doc = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false);
+            if (doc.data().level !== 0) return callback(false);
+            return callback(true);
+        }),
+        setAdmin: async data => {
+        },
         signup: async (email, password) => await createUserWithEmailAndPassword(auth, email, password)
     }
 

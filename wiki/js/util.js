@@ -155,6 +155,10 @@ function addSuggest(data, input) {
 
 function goHome() { location.href = ROOT_PATH }
 
+function goRandom() {
+    firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`);
+}
+
 function errorHandler(error) {
     const errorCode = error.code;
     const errorMessage = error.message;
@@ -179,7 +183,7 @@ function errorHandler(error) {
     }
 }
 
-function getTreeFromBoardList(arr) {
+function board2Tree(arr) {
     let depth_sorted = {};
     let tree = [];
     let max_depth;
@@ -209,19 +213,62 @@ function getTreeFromBoardList(arr) {
     return tree;
 }
 
+function board2Path(arr ,type) {
+    let striped_menu = [];
+    let tree = board2Tree(arr);
+    let stripe = type == 2  ? stripe_2 : stripe_1;
+
+    for (let child of tree || []) stripe(child);
+
+    function stripe_1(data, prefix = [], depth = 0) {
+        prefix.push(data.name);
+        striped_menu.push({ path: prefix.join(' > '), depth, name: data.name });
+        for (let child of data.child || []) stripe(child, prefix.slice());
+    }
+
+    function stripe_2(data, prefix = []) {
+        prefix.push(data.name);
+        striped_menu[data.name] = prefix.join(' > ');
+        for (let child of data.child || []) stripe(child, prefix.slice());
+    }
+
+    striped_menu.sort((v1, v2) => v1.path.localeCompare(v2.path));
+
+    return striped_menu;
+}
+
 function fold(target) {
     target.classList.toggle('fold');
     if (target.classList.contains('fold')) target.nextElementSibling.style.display = 'none';
     else target.nextElementSibling.style.removeProperty('display');
 }
 
-const DEVELOPER_MODE = false;
+function validate(input, input_2, type = 'text') {
+    input.setCustomValidity('not valid');
+    if (input.value != undefined && input.value != '') {
+        if (input_2 == undefined || input.value == input_2.value) {
+            switch (type) {
+                case 'email':
+                    if (/^\S+@\S+$/.test(input.value)) input.setCustomValidity('');
+                    break;
+                case 'password':
+                    if (input.value.length > 7) input.setCustomValidity('');
+                    break;
+                default:
+                    input.setCustomValidity('');
+                    break;
+            }
+        }
+    }
+    return input.checkValidity();
+}
+
+const DEVELOPER_MODE = true;
 const ROOT_PATH = './';
 const VISITED_MAX = 5;
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};
-let main__contents;
 
 let post_id = params.get('post');
 
