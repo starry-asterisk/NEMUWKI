@@ -147,11 +147,11 @@ window.addEventListener('load', async function () {
             else signOutCallback();
         }),
         checkAdmin: (callback) => onAuthStateChanged(auth, async (user) => {
-            let doc;
+            let infos;
             if (user == undefined) return callback(false);
-            if ((doc = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false);
-            if (doc.data().level !== 0) return callback(false);
-            return callback(true);
+            if ((infos = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false);
+            if (infos.data().level !== 0) return callback(false);
+            return callback(true, user);
         }),
         setAdmin: async data => {
         },

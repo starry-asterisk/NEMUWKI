@@ -263,7 +263,7 @@ function validate(input, input_2, type = 'text') {
     return input.checkValidity();
 }
 
-const DEVELOPER_MODE = true;
+const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const VISITED_MAX = 5;
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
