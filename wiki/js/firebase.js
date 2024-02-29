@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, or, and } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, or, and } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -24,8 +24,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app, "gs://nemuwiki-f3a72.appspot.com");
 const auth = getAuth();
+let authListner;
 
 window.addEventListener('load', async function () {
+
     //문서
     firebase.post = {
         random: async () => {
@@ -142,24 +144,64 @@ window.addEventListener('load', async function () {
     firebase.auth = {
         login: async (email, password) => await signInWithEmailAndPassword(auth, email, password),
         logout: async () => await signOut(auth),
-        check: async (signInCallback, signOutCallback) => onAuthStateChanged(auth, (user) => {
-            if (user) signInCallback(user);
-            else signOutCallback();
-        }),
-        checkAdmin: (callback) => onAuthStateChanged(auth, async (user) => {
-            try {
-                let infos;
-                if (user == undefined) return callback(false, user);
-                if ((infos = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false, user);
-                if (infos.data().level !== 0) return callback(false, user);
-                return callback(true, user);
-            } catch (e) {
-                errorHandler(e);
-            }
-        }),
+        check: (signInCallback, signOutCallback) => {
+            if (typeof authListner == 'function') authListner();
+            authListner = onAuthStateChanged(auth, (user) => {
+                if (user) signInCallback(user);
+                else signOutCallback();
+            });
+        },
+        checkAdmin: (callback) => {
+            if (typeof authListner == 'function') authListner();
+            authListner = onAuthStateChanged(auth, async (user) => {
+                try {
+                    console.log(1);
+                    let infos;
+                    if (user == undefined) return callback(false, user);
+                    if ((infos = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false, user);
+                    if (infos.data().level !== 0) return callback(false, user);
+                    return callback(true, user);
+                } catch (e) {
+                    errorHandler(e);
+                }
+            });
+        },
         setAdmin: async data => {
         },
-        signup: async (email, password) => await createUserWithEmailAndPassword(auth, email, password)
+        signup: async (email, password) => {
+            let creditional = await createUserWithEmailAndPassword(auth, email, password);
+            let user = creditional?.user;
+            if (user == undefined) throw { code: 'signup failed...' };
+            await setDoc(doc(db, "users", user.uid), {
+                email: email,
+                level: 5
+            });
+            return user;
+        },
+        users: (search = {}) => {
+            let param_base = [
+                collection(db, "users")
+            ], params, documentSnapshots, isEnd = false;
+            for (let field in search) {
+                if (search[field] == '') continue;
+                param_base.push(where(field, '>=', search[field]));
+                param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+
+            }
+
+            return {
+                next: async (docs = documentSnapshots?.docs) => {
+                    if(isEnd) return [];
+                    params = param_base.slice();
+                    if(docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                    params.push(limit(25));
+                    documentSnapshots = await getDocs(query.apply(undefined, params));
+                    if(documentSnapshots.docs.length < 25) isEnd = true;
+                    return documentSnapshots.docs;
+                }
+            }
+        },
+        updateUser: async (id, data) => await updateDoc(doc(db, "users", id), data),
     }
 
     //초기화 callback

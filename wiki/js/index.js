@@ -9,6 +9,7 @@ async function firebaseLoadCallback() {
     document.body.classList.add('loading');
 
     firebase.auth.check(user => {
+        user_area.innerHTML = '';
         let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
         let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
         let button_container = createElement();
@@ -18,10 +19,10 @@ async function firebaseLoadCallback() {
         upload.onclick = () => location.href = './form.html';
         logout.onclick = () => {
             firebase.auth.logout()
-                .then(e => location.reload())
                 .catch(errorHandler);
         }
     }, () => {
+        user_area.innerHTML = '';
         let loginMode = true;
         let email = createElement('input', { attrs: { type: 'text', name: 'email', placeholder: '이메일' } });
         let password = createElement('input', { attrs: { type: 'password', name: 'password', placeholder: '비밀번호' } });
@@ -54,7 +55,6 @@ async function firebaseLoadCallback() {
             if (!validate(email, undefined, 'email')) return;
             if (!validate(password, undefined, 'password')) return;
             firebase.auth.login(email.value, password.value)
-                .then(e => location.reload())
                 .catch(errorHandler);
         }
         submit_signup.onclick = () => {
@@ -62,10 +62,7 @@ async function firebaseLoadCallback() {
             if (!validate(password, undefined, 'password')) return;
             if (!validate(password, password_re, 'password')) return;
             firebase.auth.signup(email.value, password.value)
-                .then(e => {
-                    alert('회원 가입완료 되었습니다. 로그인 해주세요.');
-                    location.reload();
-                })
+                .then(creditional => creditional && alert('회원 가입완료 되었습니다.'))
                 .catch(errorHandler);
 
         }

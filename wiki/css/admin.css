@@ -289,8 +289,8 @@ tab.minimize:not([class*="minimize maximize"]) {
 }
 
 tab.maximize:not([class*="maximize minimize"]) {
-    min-width: 60rem;
-    max-width: 100rem;
+    min-width: 64rem;
+    max-width: 64rem;
     flex: 1;
 }
 
@@ -329,6 +329,7 @@ tab.maximize:not([class*="maximize minimize"]) {
 .tab__maximize::before {
     content: '\F05AF';
 }
+
 .maximize:not([class*="maximize minimize"]) .tab__maximize::before {
     content: '\F05B2';
 }
@@ -347,6 +348,7 @@ tab.maximize:not([class*="maximize minimize"]) {
     background-color: var(--border);
     border-color: var(--border);
 }
+
 .tab__search[title]::before {
     content: attr(title);
     position: fixed !important;
@@ -366,6 +368,7 @@ tab.maximize:not([class*="maximize minimize"]) {
         max-width: calc(100% - 2rem);
         scroll-snap-align: center;
     }
+
     main>section {
         scroll-snap-type: x mandatory;
     }
@@ -374,6 +377,7 @@ tab.maximize:not([class*="maximize minimize"]) {
 .maximize:not([class*="maximize minimize"]) .tab__search {
     margin-left: auto;
 }
+
 .maximize:not([class*="maximize minimize"]) .tab__search::before {
     width: auto;
 
@@ -384,8 +388,57 @@ tab.maximize:not([class*="maximize minimize"]) {
 }
 
 .list__item {
+    display: flex;
     height: 5rem;
+    line-height: 5rem;
     border-bottom: 0.1rem solid var(--border);
+}
+
+.list__item>span {
+    font-size: 1.3rem;
+    text-align: center;
+    padding: 0;
+    max-width: 0;
+    overflow: hidden;
+    transition: 200ms padding, 200ms max-width;
+    --width: 25rem;
+}
+
+tab.maximize .list__item>span,
+.list__item>span.always {
+    flex: 1;
+    padding: 0 1.5rem;
+    max-width: var(--width);
+    min-width: var(--width);
+}
+
+.list__item.header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2;
+    border-bottom-color: var(--border2);
+}
+
+.list__item.header>span {
+    font-weight: 600;
+}
+
+.list__item__photo {
+    --width: 9rem !important;
+}
+
+.list__item__photo>img {
+    margin: 0.7rem auto;
+    height: 3.6rem;
+    width: 3.6rem;
+    border-radius: 50%;
+    background-color: var(--border2);
+    opacity: 0.5;
+}
+
+.list__item__level {
+    --width: 5rem !important;
 }
 
 .list__item:hover {
@@ -421,4 +474,3 @@ tab.maximize:not([class*="maximize minimize"]) {
     border-bottom: 0.1rem solid var(--border2);
     margin-bottom: 2rem;
 }
-

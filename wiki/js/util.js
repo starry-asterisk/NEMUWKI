@@ -179,6 +179,12 @@ function errorHandler(error) {
         case 'auth/invalid-credential':
             alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
             break;
+        case 'auth/email-already-in-use':
+            alert('이미 사용중인 이메일입니다.');
+            break;
+        case 'auth/weak-password':
+            alert('취약한 비밀번호 입니다.');
+            break;
         default:
             alert(`오류가 발생했습니다::${errorCode}:`);
             console.error(errorCode, errorMessage);

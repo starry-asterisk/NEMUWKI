@@ -14,29 +14,31 @@ async function firebaseLoadCallback() {
 }
 
 window.addEventListener('load', () => {
-    email.oninput = () => div_validate(email);
-    password.oninput = () => div_validate(password);
+    email.oninput = e => div_validate(email);
+    password.oninput = e => div_validate(password);
+    email.onkeydown = e => divInputHandler(e);
+    password.onkeydown = e => divInputHandler(e, login);
 });
 
+function divInputHandler(e, submit = () => { }) {
+    if (e.key == 'Enter') {
+        e.preventDefault();
+        submit();
+        return false;
+    }
+}
+
 function login() {
-    if (!div_validate(email, undefined, 'email')) return;
-    if (!div_validate(password, undefined, 'password')) return;
+    if (!div_validate(email, undefined, 'email')) return email.focus();
+    if (!div_validate(password, undefined, 'password')) return password.focus();
     firebase.auth.login(email.innerHTML, password.innerHTML)
         .then(user => {
             if (user == undefined) throw { code: 'auth/invalid-credential' };
-            firebase.auth.checkAdmin((isAdmin, user) => {
-                if (isAdmin) {
-                    loadAdmin(user);
-                } else {
-                    document.body.setAttribute('state', 'none-auth');
-                    throw { code: 'admin-permission-denied' };
-                }
-            })
         })
         .catch(errorHandler);
 }
 
-function loadAdmin() {
+function loadAdmin(args) {
     document.body.setAttribute('state', 'auth');
     testInit();
 }
@@ -48,6 +50,43 @@ const logger = {
 const TabList = [];
 const TAB_SPEC = {
     user: {
+        alias: '사용자 관리',
+        get cursor() {
+            return firebase.auth.users();
+        },
+        createItem: (option, isHeader = false) => {
+            let data = isHeader || option.data();
+            let item = createElement('div', { attrs: { class: 'list__item' } });
+            let item__photo = createElement('span', { attrs: { class: 'list__item__photo' }, innerHTML: isHeader?'IMAGE':'' });
+    
+            let item__uid = createElement('span', { attrs: { class: 'list__item__uid' }, innerHTML: isHeader?'ID':option.id });
+            let item__email = createElement('span', { attrs: { class: 'list__item__email always' }, innerHTML: isHeader?'EMAIL':data.email });
+            let item__level = createElement('span', { attrs: { class: 'list__item__level always' }, innerHTML: isHeader?'':`${data.level}` });
+
+            item.append(item__photo);
+            item.append(item__uid);
+            item.append(item__email);
+            item.append(item__level);
+
+            if(isHeader) {
+                item.classList.add('header');
+            }else {
+                let item__photo_img = createElement('img');
+                item__photo.append(item__photo_img);
+                item__level.onclick = () => {
+                    if (confirm('권한 레벨을 변경하시겠습니까?')) {
+                        let level = prompt('새로운 권한 레벨 [0-5]');
+                        if(data.level == level || level === null) return;
+                        firebase.auth.updateUser(option.id, { level })
+                            .then(e => {
+                                item__level.innerHTML = data.level = level;
+                            })
+                            .catch(errorHandler);
+                    }
+                };
+            }
+            return item;
+        }
     },
     post: {
 
@@ -66,7 +105,7 @@ const TAB_DEFAULT_SPEC = {
         next: async () => [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
     },
     createItem: option => {
-        return createElement('div',{attrs:{class:'list__item'}});
+        return createElement('div', { attrs: { class: 'list__item' } });
     }
 }
 
@@ -77,7 +116,7 @@ function createTab(type) {
     if (!replication && TabList.find(tab => tab.type == type)) return logger.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
 
     let id = `tab_${Math.floor(Math.random() * 1000000).toString(16)}`;
-    let tab = createElement('tab',{attrs:{id}});
+    let tab = createElement('tab', { attrs: { id } });
     let tab__top_menu = createElement('div', { attrs: { class: 'tab__top_menu' } });
     let tab__top_menu__title = createElement('span', { attrs: { class: 'tab__title' }, innerHTML: alias || type });
     let tab__top_menu__minimize = createElement('button', { attrs: { class: 'tab__minimize icon' }, on: { click: () => tab.switchClass('maximize', 'minimize') } });
@@ -104,13 +143,15 @@ function createTab(type) {
     tab__search.append(tab__search__button_clear);
 
     tab__list.append(tab__list__button);
+    tab__list.prepend(createItem({},true));
 
     load();
 
-    function load(){
+    function load() {
         cursor.next().then(list => {
-            for (let item_data of list) {
-                tab__list__button.before(createItem(item_data));
+            if (list.length < 1) tab__list__button.remove();
+            for (let option of list) {
+                tab__list__button.before(createItem(option));
             }
         });
     }
@@ -139,13 +180,8 @@ HTMLElement.prototype.switchClass = function (oldClass, newClass, replace = fals
 }
 
 function testInit() {
-    console.log(name);
-    for(let spec_name of Object.keys(TAB_SPEC)){
+    for (let spec_name of Object.keys(TAB_SPEC)) {
         workspace.append(createTab(spec_name).el.tab);
     }
 
 }
-
-window.addEventListener('input', e => {
-    console.log(e.target);
-})
