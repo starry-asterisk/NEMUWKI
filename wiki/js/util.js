@@ -167,6 +167,9 @@ function errorHandler(error) {
             alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
             location.href = ROOT_PATH;
             break;
+        case 'admin-permission-denied':
+            alert('접근 가능한 관리자가 아닌 계정으로 로그인 되어있습니다. 다시 로그인 해주세요.');
+            break;
         case 'auth/invalid-email':
             alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
             break;
@@ -213,10 +216,10 @@ function board2Tree(arr) {
     return tree;
 }
 
-function board2Path(arr ,type) {
+function board2Path(arr, type) {
     let striped_menu = [];
     let tree = board2Tree(arr);
-    let stripe = type == 2  ? stripe_2 : stripe_1;
+    let stripe = type == 2 ? stripe_2 : stripe_1;
 
     for (let child of tree || []) stripe(child);
 
@@ -241,6 +244,32 @@ function fold(target) {
     target.classList.toggle('fold');
     if (target.classList.contains('fold')) target.nextElementSibling.style.display = 'none';
     else target.nextElementSibling.style.removeProperty('display');
+}
+
+const INPUT_STATE = {
+    valid: 'valid',
+    invalid: 'invalid'
+}
+
+function div_validate(input, input_2, type = 'text') {
+    let state = INPUT_STATE.invalid;
+    if (input.innerHTML != '' || !input.hasAttribute('required')) {
+        if (input_2 == undefined || input.innerHTML == input_2.innerHTML) {
+            switch (type) {
+                case 'email':
+                    if (/^\S+@\S+$/.test(input.innerHTML)) state = INPUT_STATE.valid;
+                    break;
+                case 'password':
+                    if (input.innerHTML.length > 7) state = INPUT_STATE.valid;
+                    break;
+                default:
+                    state = INPUT_STATE.valid;
+                    break;
+            }
+        }
+    }
+    input.setAttribute('state', state);
+    return state == INPUT_STATE.valid;
 }
 
 function validate(input, input_2, type = 'text') {
