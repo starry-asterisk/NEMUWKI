@@ -76,7 +76,8 @@ function createTab(type) {
     let { replication, createItem, cursor, alias } = { ...TAB_DEFAULT_SPEC, ...TAB_SPEC[type] };
     if (!replication && TabList.find(tab => tab.type == type)) return logger.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
 
-    let tab = createElement('tab');
+    let id = `tab_${Math.floor(Math.random() * 1000000).toString(16)}`;
+    let tab = createElement('tab',{attrs:{id}});
     let tab__top_menu = createElement('div', { attrs: { class: 'tab__top_menu' } });
     let tab__top_menu__title = createElement('span', { attrs: { class: 'tab__title' }, innerHTML: alias || type });
     let tab__top_menu__minimize = createElement('button', { attrs: { class: 'tab__minimize icon' }, on: { click: () => tab.switchClass('maximize', 'minimize') } });
@@ -115,6 +116,7 @@ function createTab(type) {
     }
 
     let data = {
+        id,
         type,
         el: {
             tab, tab__search__input, tab__list
