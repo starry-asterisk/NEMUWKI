@@ -1,7 +1,7 @@
 
 function search({ key }) {
     if (key.toLowerCase() != 'enter') return;
-    location.href = `${ROOT_PATH}?keyword=${search.value || ''}`
+    location.href = `${ROOT_PATH}?keyword=${search_input.value || ''}`
 }
 
 
@@ -125,7 +125,7 @@ async function firebaseLoadCallback() {
 
         let { docs, getNext } = await firebase.post.list({ [field]: keyword });
 
-        search.value = keyword;
+        search_input.value = keyword;
 
         load_more.onclick = async () => {
             docs = await getNext(docs);
@@ -150,8 +150,6 @@ async function firebaseLoadCallback() {
         let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
 
         let people_ = await firebase.post.list({ category: '인물' });
-
-        search.value = keyword;
 
         load_more2.onclick = async () => {
             people.docs = await people_.getNext(people_.docs);
