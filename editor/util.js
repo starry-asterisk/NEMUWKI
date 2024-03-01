@@ -76,6 +76,10 @@ function dev(){
 
 function sleep(delay) { return new Promise(resolve => setTimeout(resolve, delay)); }
 
+function customConfirm(){
+    
+}
+
 function between(min, max, value) {
     return Math.max(Math.min(max, value), min);
 }
