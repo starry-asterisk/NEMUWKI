@@ -64,7 +64,13 @@ async function firebaseLoadCallback() {
             innerHTML: '삭제하기'
         }));
 
-        buildPost((await firebase.post.selectOne(post_id)).data());
+        let data = (await firebase.post.selectOne(post_id)).data();
+
+        if(data == undefined) return errorHandler2(404);
+
+        document.title = `${PAGE_PREFIX}문서 수정 - ${data.title}`;
+
+        buildPost(data);
     }
 
     firebase.post.list({ board_name: 'template' }, true)

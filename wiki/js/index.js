@@ -94,6 +94,10 @@ async function firebaseLoadCallback() {
         let doc = await firebase.post.selectOne(post_id);
         let data = doc.data();
 
+        if(data == undefined) return errorHandler2(404);
+
+        document.title = `${PAGE_PREFIX}${data.board_name} - ${data.title}`;
+
         let old_visited_index = visited.indexOf(`${post_id}:${data.title}:${data.board_name}`);
         if (old_visited_index > -1) visited.splice(old_visited_index, 1);
         visited.unshift(`${post_id}:${data.title}:${data.board_name}`);

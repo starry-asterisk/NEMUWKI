@@ -19,43 +19,23 @@
     <link rel="icon" href="./favicon.png">
     <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="css/util.css" type="text/css" />
-    <link rel="stylesheet" href="css/index.css" type="text/css" />
-    <script src="js/util.js"></script>
-    <script src="js/index.js"></script>
-    <script src="js/firebase.js" type="module"></script>
-    <title>네무위키 :: 메인</title>
+    <title>404 NOT FOUND PAGE</title>
 </head>
 
-<body>
+<body class="loading error">
     <header>
         <span class="header__logo" onclick="goHome()">네무위키</span>
-        <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
     </header>
     <main>
         <div class="main__header">
-            <div class="main__header__title" id="main__header__title">네무위키:대문</div>
-            <div class="main__header__timestamp" id="main__header__timestamp">2024-02-13 14:25:59</div>
-            <div class="main__header__toolbox"></div>
         </div>
         <div class="main__contents" id="main__contents">
-            <div class="title" id="total" onclick="fold(this)">전체 문서</div>
-            <div class="title" id="people" onclick="fold(this)">인물</div>
         </div>
         <footer></footer>
     </main>
     <aside>
-        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
-                onkeydown="search(event, this)" id="search_input" /></div>
-        <div>
-            <p onclick="fold(this)">최근글</p>
-            <ul id="recent_post"></ul>
-        </div>
-        <div>
-            <p onclick="fold(this)">카테고리</p>
-            <ul></ul>
-        </div>
-        <div id="user_area"></div>
     </aside>
+    <error state-code="404">404</error>
 </body>
 
 </html>

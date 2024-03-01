@@ -331,10 +331,20 @@ async function uploadByImgur(file) {
         }*/
 }
 
+function errorHandler2(code){
+    document.body.classList.add('error');
+    document.body.append(createElement('error',{attrs:{
+        'state-code': code,
+    }, innerHTML: code}));
+    document.title = '404 NOT FOUND PAGE';
+    return console.warn('404 NOT FOUND PAGE');
+}
+
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const VISITED_MAX = 5;
 const FILE_UPLOAD_METHOD = 0; // 0 is imgus, 1 is firestorage
+const PAGE_PREFIX = '네무위키 :: ';
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};
