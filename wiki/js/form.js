@@ -255,7 +255,7 @@ const COMPONENT_SPEC = {
             let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
             if (file) {
                 let fileName = `${id}/${file.name}`;
-                if(FILE_UPLOAD_METHOD == 0){
+                if(FILE_UPLOAD_METHOD == 0 && `${file.type}`.startsWith('image')){
                     let result = await uploadByImgur(file);
                     if(result.status === 200){
                         fileName = result.data.link;
