@@ -140,7 +140,7 @@ async function firebaseLoadCallback() {
         function load() {
             for (let doc of docs) {
                 let data = doc.data();
-                data.board_name = pathFromBoard[data.board_name];
+                data.board_name = pathFromBoard[data.board_name] || data.board_name;
                 board_list.append(createType1Item(data, doc.id));
             }
             if (docs.length < 25) load_more.setStyles({ display: 'none' });
@@ -174,7 +174,7 @@ async function firebaseLoadCallback() {
     for (let str of visited) {
         let [visited_id, title, board_name] = str.split(':');
         let li = createElement('li');
-        let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name]} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
+        let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name] || board_name} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
         li.append(li_a);
         recent_post.append(li);
     }
