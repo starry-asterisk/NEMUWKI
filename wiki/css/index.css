@@ -141,6 +141,10 @@
     .main__contents>.board_list_2>div:nth-child(4) {
         border-top: none;
     }
+    
+    main {
+        margin: 0;
+    }
 }
 
 aside > :first-child {
