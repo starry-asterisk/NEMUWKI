@@ -1,17 +1,18 @@
 window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
 
-window.addEventListener('load', function () {;
+window.addEventListener('load', function () {
+    ;
     init_componentList();
     init_timestamp();
 });
 
-function init_timestamp(){
+function init_timestamp() {
     let date = new Date();
     date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
     main__header__timestamp.value = date.toISOString().split('.')[0];
 }
 
-function init_componentList(){
+function init_componentList() {
     let component_list = document.querySelector('.component_list');
     for (let specname in COMPONENT_SPEC) {
         let spec = COMPONENT_SPEC[specname];
@@ -66,7 +67,7 @@ async function firebaseLoadCallback() {
         buildPost((await firebase.post.selectOne(post_id)).data());
     }
 
-    firebase.post.list({board_name:'template'}, true)
+    firebase.post.list({ board_name: 'template' }, true)
         .then(datas => {
             for (let doc of datas.docs) {
                 let data = doc.data();
@@ -231,7 +232,7 @@ const COMPONENT_SPEC = {
                     media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: URL.createObjectURL(input.files[0]) } });
                     input.after(media);
                 } else if (value) {
-                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: await firebase.storage.getUrl(value) } });
+                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: value.startsWith('http') ? value : await firebase.storage.getUrl(value) } });
                     input.after(media);
                 }
             }
@@ -253,8 +254,19 @@ const COMPONENT_SPEC = {
             let file = document.querySelector(`#${id} input[type="file"]`).files[0];
             let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
             if (file) {
-                await firebase.storage.upload(`${id}/${file.name}`, file);
-                return `${id}/${file.name}`;
+                let fileName = `${id}/${file.name}`;
+                if(FILE_UPLOAD_METHOD == 0){
+                    let result = await uploadByImgur(file);
+                    if(result.status === 200){
+                        fileName = result.data.link;
+                    }else{
+                        alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                        if (confirm('다시 시도하겠습니까?')) await firebase.storage.upload(fileName, file);
+                    }
+                }else{
+                    await firebase.storage.upload(fileName, file);
+                }
+                return fileName;
             } else if (value) {
                 return value;
             }
@@ -305,9 +317,9 @@ const COMPONENT_SPEC = {
             return div;
         },
         input: ({ rowcount, header, cells }) => {
-            let table = createElement('editable-table', { 
-                styles: { 'margin-top': '2rem' }, 
-                attrs: { rowcount: rowcount || 3, colcount: header?.length || 3}
+            let table = createElement('editable-table', {
+                styles: { 'margin-top': '2rem' },
+                attrs: { rowcount: rowcount || 3, colcount: header?.length || 3 }
             });
             if (cells) table.loadData(cells);
             if (header) for (let index in header) {

@@ -87,7 +87,7 @@ async function firebaseLoadCallback() {
         document.body.classList.add('non-auth');
     });
 
-    let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()),2);
+    let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()), 2);
 
     if (post_id) {
         main__contents.innerHTML = '';
@@ -206,7 +206,10 @@ function createType2Item(data, id) {
     item.prepend(img);
 
     let urlObj = data.contents.find(content => content.type == 'image');
-    if (urlObj) firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+    if (urlObj?.value) {
+        if (urlObj.value.startsWith('http')) img.src = urlObj.value;
+        else firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+    }
     else img.src = '[ no image ]';
 
     return item;
@@ -303,7 +306,8 @@ const COMPONENT_SPEC = {
     image: (value, mediaTytpe = 'img') => {
         let media = createElement(mediaTytpe, { attrs: { controls: mediaTytpe != 'img' } });
 
-        firebase.storage.getUrl(value).then(url => media.src = url);
+        if (value.startsWith('http')) media.src = value;
+        else firebase.storage.getUrl(value).then(url => media.src = url);
 
         return media;
     },

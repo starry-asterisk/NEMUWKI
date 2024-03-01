@@ -298,9 +298,43 @@ function validate(input, input_2, type = 'text') {
     return input.checkValidity();
 }
 
+async function uploadByImgur(file) {
+    var bodyData = new FormData();
+    bodyData.append("image", file);
+    const response = await fetch('https://api.imgur.com/3/image', {
+        method: "POST",
+        headers: {
+            Authorization: 'Client-ID cfb9241edbf292e',
+            Accept: 'application/json',
+        },
+        body: bodyData,
+    });
+
+    return response.json();
+
+    /*
+      {
+          url: 'https://api.imgur.com/3/image',
+          type: 'POST',
+          headers: {
+            Authorization: auth,
+            Accept: 'application/json'
+          },
+          data: {
+            image: localStorage.dataBase64,
+            type: 'base64'
+          },
+          success: function(result) {
+            var id = result.data.id;
+            window.location = 'https://imgur.com/gallery/' + id;
+          }
+        }*/
+}
+
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const VISITED_MAX = 5;
+const FILE_UPLOAD_METHOD = 0; // 0 is imgus, 1 is firestorage
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};

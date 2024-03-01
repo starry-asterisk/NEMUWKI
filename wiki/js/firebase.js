@@ -73,7 +73,7 @@ window.addEventListener('load', async function () {
             }
             params = param_base.slice();
             params.push(limit(25));
-
+            console.log(params);
             let query_result = query.apply(undefined, params);
             let documentSnapshots = await getDocs(query_result);
 
