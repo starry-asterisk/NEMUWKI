@@ -31,29 +31,8 @@
 
 ::-webkit-scrollbar {
     display: none;
-    width: 1.1rem;
-    height: 1.1rem;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #00000044;
-    border-radius: 0.2rem;
-    border: solid 0.2rem var(--background-dark);
-
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #00000077;
-}
-
-::-webkit-scrollbar-thumb:active {
-    background: #00000088;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-
-}
 
 * {
     margin: 0;

@@ -84,9 +84,11 @@ footer:hover,
     background: var(--invalid);
     opacity: 1;
 }
+
 .component_list {
     user-select: none;
 }
+
 .component_list>li {
     padding: 1rem var(--block-padding);
 }
@@ -108,7 +110,7 @@ aside> :first-child {
 }
 
 
-.editable-table__row:first-child > * {
+.editable-table__row:first-child>* {
     background-color: var(--background-dark);
 }
 
@@ -177,4 +179,53 @@ input[type="color"]::-webkit-color-swatch {
 
 .separator::before {
     content: '|';
+}
+
+@media (max-width: 500px) {
+    main {
+        margin: 0 0 2rem 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .component__execList {
+        white-space: nowrap;
+        overflow-x: auto;
+        padding-top: 1rem;
+        border-radius: 0.2rem;
+        margin-top: 2.5rem;
+        max-width: unset;
+    }
+
+    .component__execList+[contenteditable] {
+        padding-top: 5rem;
+        padding-bottom: 2rem;
+        max-width: unset;
+    }
+
+    .component__execList * {
+        font-size: 2rem !important;
+        line-height: 2rem !important;
+    }
+
+    .component__remove_btn {
+        margin-top: -1rem !important;
+    }
+}
+
+@media (max-width: 1000px) {
+    main {
+        padding-top: 1rem;
+    }
+
+    aside {
+        order: -1;
+        position: sticky;
+        top: -63rem;
+        z-index: 2;
+    }
+
+    .main__contents:empty::after {
+        content: '컴포넌트 목록에서 버튼을 눌러 추가해 보세요!';
+    }
 }

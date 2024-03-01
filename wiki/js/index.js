@@ -4,7 +4,6 @@ function search({ key }) {
     location.href = `${ROOT_PATH}?keyword=${search_input.value || ''}`
 }
 
-
 async function firebaseLoadCallback() {
     document.body.classList.add('loading');
 
@@ -16,7 +15,7 @@ async function firebaseLoadCallback() {
         button_container.append(upload);
         button_container.append(logout);
         user_area.append(button_container);
-        upload.onclick = () => location.href = './form.html';
+        upload.onclick = () => location.href = `${ROOT_PATH}form.html`;
         logout.onclick = () => {
             firebase.auth.logout()
                 .catch(errorHandler);
@@ -88,6 +87,14 @@ async function firebaseLoadCallback() {
     });
 
     let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()), 2);
+
+    console.log(pathFromBoard);
+
+    for(let pathname in pathFromBoard){
+        let li = createElement('li');
+        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name` } }));
+        category_list.append(li);
+    }
 
     if (post_id) {
         main__contents.innerHTML = '';
@@ -174,13 +181,16 @@ async function firebaseLoadCallback() {
         }
     }
 
-
-    for (let str of visited) {
-        let [visited_id, title, board_name] = str.split(':');
-        let li = createElement('li');
-        let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name] || board_name} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
-        li.append(li_a);
-        recent_post.append(li);
+    try {
+        for (let str of visited) {
+            let [visited_id, title, board_name] = str.split(':');
+            let li = createElement('li');
+            let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name] || board_name} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
+            li.append(li_a);
+            recent_post.append(li);
+        }
+    } catch(e) {
+        errorHandler(e);
     }
 
     document.body.classList.remove('loading');
