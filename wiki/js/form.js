@@ -661,7 +661,7 @@ async function submit(button) {
         hidden: post_menu.value == 'template',
         use: true,
         timestamp: new Date(main__header__timestamp.value),
-        athor: author_uid
+        author: author_uid
     };
     if (post_id) {
         firebase.post.updateOne(post_id, data)

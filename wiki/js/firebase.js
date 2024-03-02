@@ -72,6 +72,9 @@ window.addEventListener('load', async function () {
                         param_base.push(where(field, '>=', search[field]));
                         param_base.push(where(field, '<=', search[field] + "\uf8ff"));
                         break;
+                    case 'equal':
+                        param_base.push(where(field, '==', search[field]));
+                        break;
                     default:
                         param_base.push(where(field, operator, search[field]));
                         break;
