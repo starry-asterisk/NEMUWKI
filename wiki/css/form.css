@@ -25,10 +25,7 @@
 
 .main__contents:empty::after {
     content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    display: block;
     margin: 2rem;
     background: var(--background-dark);
     text-align: center;
