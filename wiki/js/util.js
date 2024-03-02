@@ -347,14 +347,16 @@ function modal(mode = 'prompt') {
     let form = createElement('form', { attrs: { method: 'dialog' } });
     let text_input_container = createElement('div', { attrs: { class: 'input_container' } });
     let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
-    let text = createElement('span', { innerHTML: '이메일 인증 하기', styles: {position: 'absolute', 'line-height': '3rem'} });
-    let button_cancel = createElement('button', { value: 'cancel' });
-    let button_confirm = createElement('button', { value: 'default' });
+    let button_cancel = createElement('button', { value: 'cancel', attrs:{class: 'danger no-validity'}  });
+    let button_confirm = createElement('button', { value: 'default', attrs:{class: 'normal'} });
+    let sub_title = createElement('div',{attrs:{class: 'modal__sub_title'},innerHTML: mode=='prompt'?'재설정을 위해 이메일을 입력해주세요.':'버튼을 누르면 인증 메일이 발송됩니다.'});
     document.body.append(container);
+    container.append(sub_title);
     container.append(form);
-    form.append(text_input_container);
-    if (['confirm'].indexOf(mode) > -1) text_input_container.append(text);
-    if (['prompt'].indexOf(mode) > -1) text_input_container.append(text_input);
+    if (['prompt'].indexOf(mode) > -1) {
+        form.append(text_input_container);
+        text_input_container.append(text_input);
+    }
     if (['confirm', 'prompt'].indexOf(mode) > -1) form.append(button_confirm);
     form.append(button_cancel);
     button_confirm.onclick = e => {
@@ -372,6 +374,9 @@ function modal(mode = 'prompt') {
             console.log(result);
             alert('메일이 전송되었습니다.');
             container.close();
+            setTimeout(()=>{
+                container.remove();
+            }, 500);
         })
         .catch(errorHandler);
     }

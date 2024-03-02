@@ -132,6 +132,14 @@
     margin: 1rem 0;
 }
 
+#user_area {
+    text-align: center;
+}
+
+#user_area > * > button {
+    margin: auto;
+}
+
 .profile {
     margin: -2rem 0 0 !important;
     padding: 0;
