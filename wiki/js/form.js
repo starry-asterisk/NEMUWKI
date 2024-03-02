@@ -1,3 +1,5 @@
+let SuggestList = {};
+
 window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
 
 window.addEventListener('load', function () {
@@ -40,6 +42,30 @@ function init_componentList() {
     }
 }
 
+async function loadBoardSuggest() {
+    if (typeof input_menu != 'undefined') {
+        input_menu.querySelector('.input_suggest').innerHTML = '';
+        if (SuggestList['board'] == undefined) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
+        for (let data of board2Path(SuggestList['board'])) addSuggest(data, input_menu);
+
+        let li = createElement('li', { innerHTML: '+ 새로운 메뉴 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
+        li.onmousedown = () => modal('addMenu');
+        input_menu.querySelector('.input_suggest').append(li);
+    }
+}
+
+async function loadCategorySuggest() {
+    if (typeof input_categories != 'undefined') {
+        input_categories.querySelector('.input_suggest').innerHTML = '';
+        if (SuggestList['category'] == undefined) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
+        for (let data of SuggestList['category']) addSuggest(data, input_categories);
+
+        let li = createElement('li', { innerHTML: '+ 새로운 카테고리 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
+        li.onmousedown = () => modal('addCategory');
+        input_categories.querySelector('.input_suggest').append(li);
+    }
+}
+
 async function firebaseLoadCallback() {
     firebase.auth.check(() => { }, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
@@ -47,15 +73,8 @@ async function firebaseLoadCallback() {
         return;
     });
 
-    if (typeof input_menu != 'undefined') {
-        let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()));
-        for (let data of pathFromBoard) addSuggest(data, input_menu);
-    }
-
-    if (typeof input_categories != 'undefined') {
-        (await firebase.categories.list()).forEach((doc) => addSuggest(doc.data(), input_categories));
-    }
-
+    await loadBoardSuggest();
+    await loadCategorySuggest();
 
     if (post_id) {
         document.querySelector('aside').append(createElement('button', {
@@ -66,7 +85,7 @@ async function firebaseLoadCallback() {
 
         let data = (await firebase.post.selectOne(post_id)).data();
 
-        if(data == undefined) return errorHandler2(404);
+        if (data == undefined) return errorHandler2(404);
 
         document.title = `${PAGE_PREFIX}문서 수정 - ${data.title}`;
 
@@ -261,15 +280,15 @@ const COMPONENT_SPEC = {
             let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
             if (file) {
                 let fileName = `${id}/${file.name}`;
-                if(FILE_UPLOAD_METHOD == 0 && `${file.type}`.startsWith('image')){
+                if (FILE_UPLOAD_METHOD == 0 && `${file.type}`.startsWith('image')) {
                     let result = await uploadByImgur(file);
-                    if(result.status === 200){
+                    if (result.status === 200) {
                         fileName = result.data.link;
-                    }else{
+                    } else {
                         alert('Imgur사이트 파일 업로드에 실패했습니다.');
                         if (confirm('다시 시도하겠습니까?')) await firebase.storage.upload(fileName, file);
                     }
-                }else{
+                } else {
                     await firebase.storage.upload(fileName, file);
                 }
                 return fileName;

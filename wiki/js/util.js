@@ -191,8 +191,8 @@ function errorHandler(error) {
             break;
     }
 }
-
-function board2Tree(arr) {
+/* 구버전 필요시 리비전
+function board2Tree__OLD(arr) {
     let depth_sorted = {};
     let tree = [];
     let max_depth;
@@ -219,10 +219,29 @@ function board2Tree(arr) {
         }
     }
 
+    console.log(board2Tree__NEW(arr));
     return tree;
+}*/
+
+function board2Tree(arr) {
+    for(let menu of arr) {
+        if(menu.parent == '') continue;
+        let parent = arr.find(parent => parent.name == menu.parent);
+        if(parent?.child?.length){
+            parent.child.push(menu);
+        } else if(parent){
+            parent.child = [menu];
+        } else {
+            menu.parent = '';
+        }
+    }
+
+    arr = arr.filter(menu => menu.parent == '');
+    return arr;
 }
 
-function board2Path(arr, type) {
+function board2Path(arr_original, type) {
+    let arr = JSON.parse(JSON.stringify(arr_original));
     let striped_menu = [];
     let tree = board2Tree(arr);
     let stripe = type == 2 ? stripe_2 : stripe_1;
@@ -342,50 +361,143 @@ function errorHandler2(code) {
     return console.warn('404 NOT FOUND PAGE');
 }
 
+//이메일 인증 모달
 function modal(mode = 'prompt') {
     let container = createElement('dialog');
     let form = createElement('form', { attrs: { method: 'dialog' } });
-    let text_input_container = createElement('div', { attrs: { class: 'input_container' } });
-    let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
-    let button_cancel = createElement('button', { value: 'cancel', attrs:{class: 'danger no-validity'}  });
-    let button_confirm = createElement('button', { value: 'default', attrs:{class: 'normal'} });
-    let sub_title = createElement('div',{attrs:{class: 'modal__sub_title'},innerHTML: mode=='prompt'?'재설정을 위해 이메일을 입력해주세요.':'버튼을 누르면 인증 메일이 발송됩니다.'});
+    let button_cancel = createElement('button', { value: 'cancel', attrs: { class: 'danger' } });
     document.body.append(container);
-    container.append(sub_title);
     container.append(form);
-    if (['prompt'].indexOf(mode) > -1) {
-        form.append(text_input_container);
-        text_input_container.append(text_input);
-    }
-    if (['confirm', 'prompt'].indexOf(mode) > -1) form.append(button_confirm);
+    form.append(MODAL_TEMPLATE[mode](container));
     form.append(button_cancel);
-    button_confirm.onclick = e => {
-        e.preventDefault();
-        (async () => {
-            if (mode == 'prompt') {
-                if(validate(text_input, undefined, 'email')) {
-                    await firebase.auth.sendPasswordResetEmail(text_input.value);
+    container.showModal();
+}
+
+const MODAL_TEMPLATE = {
+    prompt: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '재설정을 위해 이메일을 입력해주세요.' });
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+        frag.append(sub_title);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        text_input_container.append(text_input);
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            (async () => {
+                if (validate(text_input, undefined, 'email')) await firebase.auth.sendPasswordResetEmail(text_input.value);
+            })()
+                .then(result => {
+                    if (result) console.log(result);
+                    alert('메일이 전송되었습니다.');
+                    container.close();
+                })
+                .catch(errorHandler);
+        }
+        return frag;
+    },
+    confirm: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '버튼을 누르면 인증 메일이 발송됩니다.' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+        frag.append(sub_title);
+        frag.append(button_confirm);
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            (async () => await firebase.auth.sendEmailVerification())()
+                .then(result => {
+                    if (result) console.log(result);
+                    alert('메일이 전송되었습니다.');
+                    container.close();
+                })
+                .catch(errorHandler);
+        }
+        return frag;
+    },
+    addCategory: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 카테고리에 대한 정보를 입력해 주세요.' });
+
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 카테고리' } });
+
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+        frag.append(sub_title);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        text_input_container.append(text_input);
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (text_input.value) {
+                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                    firebase.categories.insertOne({ name: text_input.value })
+                        .then(() => {
+                            alert('카테고리가 추가되었습니다.');
+                            SuggestList['category'].push({ name: text_input.value });
+                            loadCategorySuggest();
+                            container.close();
+                        })
+                        .catch(errorHandler);
                 }
             } else {
-                await firebase.auth.sendEmailVerification();
+                alert('카테고리 명칭을 입력해 주세요.')
             }
-        })()
-        .then(result=>{
-            console.log(result);
-            alert('메일이 전송되었습니다.');
-            container.close();
-            setTimeout(()=>{
-                container.remove();
-            }, 500);
-        })
-        .catch(errorHandler);
+        }
+        return frag;
+    },
+    addMenu: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 메뉴에 대한 정보를 입력해 주세요.' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+        
+        let parent_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let parent_input = createElement('input', { attrs: { type: 'text', placeholder: '상위 메뉴' } });
+        let parent_suggest = createElement('ul', { attrs: { class: 'input_suggest' } });
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 메뉴' } });
+
+        frag.append(sub_title);
+        frag.append(parent_input_container);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        parent_input_container.append(parent_input);
+        parent_input_container.append(parent_suggest);
+        text_input_container.append(text_input);
+
+        if(typeof SuggestList != 'undefined'){
+            for (let data of board2Path(SuggestList['board'] || [])) addSuggest(data, parent_input_container);
+        }
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (text_input.value) {
+                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                    firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
+                        .then(() => {
+                            alert('메뉴가 추가되었습니다.');
+                            SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
+                            loadBoardSuggest();
+                            container.close();
+                        })
+                        .catch(errorHandler);
+                }
+            } else {
+                alert('메뉴 명칭을 입력해 주세요.')
+            }
+        }
+        return frag;
     }
-    container.showModal();
-    return {
-        element: container,
-        append: form.append,
-        show: container.showModal(),
+};
+
+function createElements(arr) {
+    let returnArr = [];
+    for (let name of arr) {
+        returnArr[name] = createElement.apply(undefined, arr[name]);
     }
+    return returnArr;
 }
 
 const DEVELOPER_MODE = false;
