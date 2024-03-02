@@ -9,12 +9,66 @@ async function firebaseLoadCallback() {
 
     firebase.auth.check(user => {
         user_area.innerHTML = '';
+        let profile = createElement('div', { attrs: { class: 'profile' } });
+        let profile__input = createElement('input', { attrs: { type: 'file' } });
+        let profile__label = createElement('label');
+        let profile__photo = createElement('span', { attrs: { class: 'profile__photo' } });
+        let profile__photo__img = createElement('img');
+        let profile__photo__input = createElement('input', { attrs: { type: 'file' } });
+        let profile__photo__label = createElement('label');
+        let profile__email = createElement('div', { innerHTML: user.email, attrs: { class: 'profile__email' } });
+
+        profile.append(profile__label);
+        profile__label.append(profile__input);
+        profile.append(profile__photo);
+        profile__photo.append(profile__photo__img);
+        profile__photo__label.append(profile__photo__input);
+        profile__photo.append(profile__photo__label);
+        user_area.append(profile);
+        user_area.append(profile__email);
+
+        if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' } }));
+        else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--accent)' }, on: { click: () => modal('confirm') } }));
+
         let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
         let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
         let button_container = createElement();
         button_container.append(upload);
         button_container.append(logout);
         user_area.append(button_container);
+
+        firebase.auth.getUser().then(user => {
+            let data = user.data();
+            if (data.banner_url) profile.setStyles({ '--background-url': `url("${data.banner_url}")` });
+            if (data.photo_url) profile__photo__img.src = data.photo_url;
+        });
+
+        profile__photo__input.onchange = async () => {
+            if (profile__photo__input.files.length < 1) return 0;
+            let file = profile__photo__input.files[0];
+            let result = await uploadByImgur(file);
+            if (result.status == 200) {
+                let photo_url = result.data.link;
+                profile__photo__img.src = photo_url;
+                firebase.auth.updateUser(user.uid, { photo_url });
+            } else {
+                alert('프로필 이미지 업로드에 실패했습니다.');
+            }
+        }
+
+        profile__input.onchange = async () => {
+            if (profile__input.files.length < 1) return 0;
+            let file = profile__input.files[0];
+            let result = await uploadByImgur(file);
+            if (result.status == 200) {
+                let banner_url = result.data.link;
+                profile.setStyles({ '--background-url': `url("${banner_url}")` });
+                firebase.auth.updateUser(user.uid, { banner_url });
+            } else {
+                alert('프로필 이미지 업로드에 실패했습니다.');
+            }
+        }
+
         upload.onclick = () => location.href = `${ROOT_PATH}form.html`;
         logout.onclick = () => {
             firebase.auth.logout()
@@ -49,6 +103,14 @@ async function firebaseLoadCallback() {
                 }
             }
         });
+        let a_find_password = createElement('a', {
+            innerHTML: '비밀번호 찾기',
+            attrs: { href: '#' },
+            styles: { display: 'block', 'text-align': 'center' },
+            on: {
+                click: () => modal('prompt')
+            }
+        });
 
         submit_login.onclick = () => {
             if (!validate(email, undefined, 'email')) return;
@@ -78,6 +140,7 @@ async function firebaseLoadCallback() {
         user_area.append(password_container_re);
         user_area.append(button_container);
         user_area.append(a_signup);
+        user_area.append(a_find_password);
 
         password_container_re.setStyles({ display: 'none' });
 
@@ -88,9 +151,7 @@ async function firebaseLoadCallback() {
 
     let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()), 2);
 
-    console.log(pathFromBoard);
-
-    for(let pathname in pathFromBoard){
+    for (let pathname in pathFromBoard) {
         let li = createElement('li');
         li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name` } }));
         category_list.append(li);
@@ -101,7 +162,7 @@ async function firebaseLoadCallback() {
         let doc = await firebase.post.selectOne(post_id);
         let data = doc.data();
 
-        if(data == undefined) return errorHandler2(404);
+        if (data == undefined) return errorHandler2(404);
 
         document.title = `${PAGE_PREFIX}${data.board_name} - ${data.title}`;
 
@@ -189,7 +250,7 @@ async function firebaseLoadCallback() {
             li.append(li_a);
             recent_post.append(li);
         }
-    } catch(e) {
+    } catch (e) {
         errorHandler(e);
     }
 

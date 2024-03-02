@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, or, and } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -73,7 +73,6 @@ window.addEventListener('load', async function () {
             }
             params = param_base.slice();
             params.push(limit(25));
-            console.log(params);
             let query_result = query.apply(undefined, params);
             let documentSnapshots = await getDocs(query_result);
 
@@ -155,7 +154,6 @@ window.addEventListener('load', async function () {
             if (typeof authListner == 'function') authListner();
             authListner = onAuthStateChanged(auth, async (user) => {
                 try {
-                    console.log(1);
                     let infos;
                     if (user == undefined) return callback(false, user);
                     if ((infos = await getDoc(doc(db, "users", user.uid))) == undefined) return callback(false, user);
@@ -165,8 +163,6 @@ window.addEventListener('load', async function () {
                     errorHandler(e);
                 }
             });
-        },
-        setAdmin: async data => {
         },
         signup: async (email, password) => {
             let creditional = await createUserWithEmailAndPassword(auth, email, password);
@@ -201,7 +197,11 @@ window.addEventListener('load', async function () {
                 }
             }
         },
+        getUser: async () => await getDoc(doc(db, "users", auth.currentUser?.uid)),
+        getAuth: () => auth.currentUser,
         updateUser: async (id, data) => await updateDoc(doc(db, "users", id), data),
+        sendPasswordResetEmail: async email => await sendPasswordResetEmail(auth, email),
+        sendEmailVerification: async () => await sendEmailVerification(auth.currentUser)
     }
 
     //초기화 callback

@@ -67,7 +67,6 @@
 
 ::-webkit-scrollbar-track {
     background: transparent;
-
 }
 
 li {
@@ -626,4 +625,59 @@ body.loading::before {
 
 body[developerMode="true"] img {
     opacity: 0;
+}
+
+:modal {
+    border: 0.1rem solid var(--border);
+    border-radius: 0.5rem;
+    min-width: 30rem;
+    min-height: 6rem;
+    margin: auto;
+    padding: 1rem;
+    background-color: var(--background);
+}
+
+:modal form {
+    display: flex;
+}
+
+:modal button {
+    margin: 0.6rem;
+    height: 2.8rem;
+    width: 2.8rem;
+    border-radius: 1.5rem;
+    background-color: transparent;
+    text-align: center;
+    color: #666;
+    font-size: 2.8rem;
+}
+
+:modal button + button {
+    margin-left: 0;
+}
+
+:modal button::before {
+    font-family:"Material Design Icons"
+}
+
+:modal button[value='cancel']::before {
+    content:"\F015A";
+}
+:modal button[value='cancel']:hover::before {
+    color: #880000AA;
+}
+
+:modal button[value='default']::before {
+    content:"\F05E1";
+}
+:modal button[value='default']:hover::before {
+    color: #008800AA;
+}
+
+:modal .input_container {
+    flex: 1;
+    font-size: 1.5rem;
+    height: 3rem;
+    margin: 0.5rem;
+    border-radius: 1.5rem;
 }

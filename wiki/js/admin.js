@@ -73,10 +73,11 @@ const TAB_SPEC = {
             }else {
                 let item__photo_img = createElement('img');
                 item__photo.append(item__photo_img);
+                if(data.photo_url)item__photo_img.src = data.photo_url;
                 item__level.onclick = () => {
                     if (confirm('권한 레벨을 변경하시겠습니까?')) {
-                        let level = prompt('새로운 권한 레벨 [0-5]');
-                        if(data.level == level || level === null) return;
+                        let level = parseInt(prompt('새로운 권한 레벨 [0-5]'));
+                        if(data.level == level || level === NaN) return;
                         firebase.auth.updateUser(option.id, { level })
                             .then(e => {
                                 item__level.innerHTML = data.level = level;

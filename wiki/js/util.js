@@ -331,13 +331,56 @@ async function uploadByImgur(file) {
         }*/
 }
 
-function errorHandler2(code){
+function errorHandler2(code) {
     document.body.classList.add('error');
-    document.body.append(createElement('error',{attrs:{
-        'state-code': code,
-    }, innerHTML: code}));
+    document.body.append(createElement('error', {
+        attrs: {
+            'state-code': code,
+        }, innerHTML: code
+    }));
     document.title = '404 NOT FOUND PAGE';
     return console.warn('404 NOT FOUND PAGE');
+}
+
+function modal(mode = 'prompt') {
+    let container = createElement('dialog');
+    let form = createElement('form', { attrs: { method: 'dialog' } });
+    let text_input_container = createElement('div', { attrs: { class: 'input_container' } });
+    let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
+    let text = createElement('span', { innerHTML: '이메일 인증 하기', styles: {position: 'absolute', 'line-height': '3rem'} });
+    let button_cancel = createElement('button', { value: 'cancel' });
+    let button_confirm = createElement('button', { value: 'default' });
+    document.body.append(container);
+    container.append(form);
+    form.append(text_input_container);
+    if (['confirm'].indexOf(mode) > -1) text_input_container.append(text);
+    if (['prompt'].indexOf(mode) > -1) text_input_container.append(text_input);
+    if (['confirm', 'prompt'].indexOf(mode) > -1) form.append(button_confirm);
+    form.append(button_cancel);
+    button_confirm.onclick = e => {
+        e.preventDefault();
+        (async () => {
+            if (mode == 'prompt') {
+                if(validate(text_input, undefined, 'email')) {
+                    await firebase.auth.sendPasswordResetEmail(text_input.value);
+                }
+            } else {
+                await firebase.auth.sendEmailVerification();
+            }
+        })()
+        .then(result=>{
+            console.log(result);
+            alert('메일이 전송되었습니다.');
+            container.close();
+        })
+        .catch(errorHandler);
+    }
+    container.showModal();
+    return {
+        element: container,
+        append: form.append,
+        show: container.showModal(),
+    }
 }
 
 const DEVELOPER_MODE = false;

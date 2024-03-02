@@ -132,6 +132,80 @@
     margin: 1rem 0;
 }
 
+.profile {
+    margin: -2rem 0 0 !important;
+    padding: 0;
+    aspect-ratio: 2;
+    max-height: 25rem;
+    min-height: 15rem;
+    min-width: 100%;
+    max-width: 100%;
+    --background-url: linear-gradient(to top,#F2DDC4, var(--accent));
+}
+
+.profile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 4rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    background-image: var(--background-url);
+    background-size: cover;
+}
+
+.profile>label:hover::before, .profile__photo>label:hover::before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF33;
+    content: '\F0EDB';
+    font-family: 'Material Design Icons';
+    color: #FFFFFFaa;
+    font-size: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.profile__photo {
+    position: absolute;
+    display: block;
+    height: 7rem;
+    width: 7rem;
+    bottom: 0.5rem;
+    border: 0.4rem solid var(--background-dark);
+    background-color: var(--border2);
+    border-radius: 50%;
+    overflow: hidden;
+    margin-left: calc(50% - 3.5rem)
+}
+
+.profile__photo>img {
+    max-width: 100%;
+}
+.profile__photo input, .profile input {
+    display: none;
+}
+.profile__photo>label, .profile>label {
+    top:0;
+    left:0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.profile>label {
+    height: calc(100% - 4rem);
+}
+.profile__email {
+    margin-top: 0 !important;
+    text-align: center;
+}
+
 
 @media (max-width: 500px) {
     .main__contents>.board_list_2 {
@@ -141,13 +215,13 @@
     .main__contents>.board_list_2>div:nth-child(4) {
         border-top: none;
     }
-    
+
     main {
         margin: 0;
     }
 }
 
-aside > :first-child {
+aside> :first-child {
     height: 5rem;
     border-radius: 2.5rem;
 }
