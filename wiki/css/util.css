@@ -192,27 +192,30 @@ main {
     border: 0.1rem solid var(--border);
     background-color: var(--background-dark);
 }
+
 .main__document_info::before {
     content: '분류:';
     font-size: 1.7rem;
     line-height: 2.8rem;
 }
-.main__document_info > a {
+
+.main__document_info>a {
     color: black;
     font-size: 1.7rem;
     padding: 0 1rem;
     line-height: 2.8rem;
 }
 
-.main__document_info > a + a:not(.category)::before {
+.main__document_info>a+a:not(.category)::before {
     content: '>';
     padding-right: 2rem;
 }
 
-.main__document_info > .category::before {
+.main__document_info>.category::before {
     content: '카테고리:';
 }
-.main__document_info > .category {
+
+.main__document_info>.category {
     border-radius: 1.4rem;
     margin-left: 2rem;
     padding: 0 2rem;
@@ -261,6 +264,7 @@ aside>*>p:first-child {
 @media (max-width: 500px) {
 
     .main__contents,
+    .main__document_info,
     .main__header {
         zoom: 0.65;
     }
@@ -338,10 +342,12 @@ input:focus+.input_suggest {
     max-height: 36.5rem;
     overflow: auto;
 }
+
 input:focus+.input_suggest>*:first-child {
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
 }
+
 input:focus+.input_suggest>*:last-child {
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
@@ -698,14 +704,15 @@ body[developerMode="true"] img {
 }
 
 :modal button::before {
-    font-family:"Material Design Icons"
+    font-family: "Material Design Icons"
 }
+
 :modal button[value='cancel']::before {
-    content:"\F015A";
+    content: "\F015A";
 }
 
 :modal button[value='default']::before {
-    content:"\F05E1";
+    content: "\F05E1";
 }
 
 :modal .input_container {
