@@ -125,7 +125,6 @@ async function firebaseLoadCallback() {
             firebase.auth.signup(email.value, password.value)
                 .then(creditional => creditional && alert('회원 가입완료 되었습니다.'))
                 .catch(errorHandler);
-
         }
 
         email_container.append(email);
@@ -149,11 +148,12 @@ async function firebaseLoadCallback() {
         document.body.classList.add('non-auth');
     });
 
-    let pathFromBoard = board2Path((await firebase.board.list()).docs.map(doc => doc.data()), 2);
+    SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
+    let pathFromBoard = board2Path(SuggestList['board'], 2);
 
     for (let pathname in pathFromBoard) {
         let li = createElement('li');
-        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name` } }));
+        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name_arr&operator=array-contains` } }));
         category_list.append(li);
     }
 
@@ -192,10 +192,11 @@ async function firebaseLoadCallback() {
 
         let keyword = params.get('keyword') || '';
         let field = params.get('field') || 'title';
+        let operator = params.get('operator') || 'contains';
         let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
         let board_list = createElement('div', { attrs: { class: 'board_list_1' } });
 
-        let { docs, getNext } = await firebase.post.list({ [field]: keyword });
+        let { docs, getNext } = await firebase.post.list({ [field]: keyword }, false, operator);
 
         search_input.value = keyword;
 
@@ -294,10 +295,23 @@ function buildPost(data) {
     let {
         title,
         board_name,
+        board_name_arr,
         category,
         timestamp,
         contents
     } = data;
+
+    let path_arr = board_name_arr || board2Path(SuggestList['board']).find(row => row.name == board_name)?.path_arr || [board_name];
+    console.log(path_arr);
+
+    let main__document_info = createElement('div', {attrs: {class: 'main__document_info'}});
+    for(let path of path_arr) {
+        main__document_info.append(createElement('a', {attrs: {href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}`}, innerHTML: path}));
+    }
+
+    main__document_info.append(createElement('a', {attrs: {href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category'}, innerHTML: category}));
+
+    document.querySelector('.main__header').after(main__document_info);
 
     main__header__title.innerHTML = title;
     main__header__timestamp.innerHTML = new Date(1000 * timestamp.seconds).toLocaleString();

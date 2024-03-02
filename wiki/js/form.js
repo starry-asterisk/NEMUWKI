@@ -1,9 +1,8 @@
-let SuggestList = {};
+let author_uid;
 
 window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
 
 window.addEventListener('load', function () {
-    ;
     init_componentList();
     init_timestamp();
 });
@@ -67,7 +66,7 @@ async function loadCategorySuggest() {
 }
 
 async function firebaseLoadCallback() {
-    firebase.auth.check(() => { }, () => {
+    firebase.auth.check(user => {author_uid = author_uid || user.uid}, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
         return;
@@ -113,8 +112,11 @@ function buildPost(data) {
         board_name,
         category,
         timestamp,
-        contents
+        contents,
+        author
     } = data;
+
+    author_uid = author || author_uid;
 
     main__header__title.value = title;
     main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
@@ -652,12 +654,14 @@ async function submit(button) {
     }
     let data = {
         board_name: post_menu.value.split(' > ').pop(),
+        board_name_arr: post_menu.value.split(' > '),
         category: post_categories.value,
         title: main__header__title.value,
         contents: contents,
         hidden: post_menu.value == 'template',
         use: true,
-        timestamp: new Date(main__header__timestamp.value)
+        timestamp: new Date(main__header__timestamp.value),
+        athor: author_uid
     };
     if (post_id) {
         firebase.post.updateOne(post_id, data)

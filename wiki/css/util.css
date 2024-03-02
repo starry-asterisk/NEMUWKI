@@ -183,6 +183,42 @@ main {
     border-left: 0.1rem solid var(--border2);
 }
 
+.main__document_info {
+    display: flex;
+    height: 4rem;
+    margin: 0 2rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 0.1rem solid var(--border);
+    background-color: var(--background-dark);
+}
+.main__document_info::before {
+    content: '분류:';
+    font-size: 1.7rem;
+    line-height: 2.8rem;
+}
+.main__document_info > a {
+    color: black;
+    font-size: 1.7rem;
+    padding: 0 1rem;
+    line-height: 2.8rem;
+}
+
+.main__document_info > a + a:not(.category)::before {
+    content: '>';
+    padding-right: 2rem;
+}
+
+.main__document_info > .category::before {
+    content: '카테고리:';
+}
+.main__document_info > .category {
+    border-radius: 1.4rem;
+    margin-left: 2rem;
+    padding: 0 2rem;
+    background: var(--accent);
+}
+
 .main__contents {
     flex: 1;
     padding: var(--block-padding);

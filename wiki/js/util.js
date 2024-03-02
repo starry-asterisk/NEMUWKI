@@ -250,7 +250,7 @@ function board2Path(arr_original, type) {
 
     function stripe_1(data, prefix = [], depth = 0) {
         prefix.push(data.name);
-        striped_menu.push({ path: prefix.join(' > '), depth, name: data.name });
+        striped_menu.push({ path: prefix.join(' > '), depth, name: data.name, path_arr: prefix.slice() });
         for (let child of data.child || []) stripe(child, prefix.slice());
     }
 
@@ -508,6 +508,7 @@ const PAGE_PREFIX = '네무위키 :: ';
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};
+let SuggestList = {};
 
 let post_id = params.get('post');
 

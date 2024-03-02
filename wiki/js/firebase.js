@@ -60,16 +60,22 @@ window.addEventListener('load', async function () {
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
         selectOne: async id => await getDoc(doc(db, "postList", id)),
-        list: async (search = {}, hidden = false) => {
+        list: async (search = {}, hidden = false, operator = 'contains') => {
             let param_base = [
                 collection(db, "postList"),
                 where('hidden', '==', hidden)
             ], params;
             for (let field in search) {
                 if (search[field] == '') continue;
-                param_base.push(where(field, '>=', search[field]));
-                param_base.push(where(field, '<=', search[field] + "\uf8ff"));
-
+                switch (operator) {
+                    case 'contains':
+                        param_base.push(where(field, '>=', search[field]));
+                        param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+                        break;
+                    default:
+                        param_base.push(where(field, operator, search[field]));
+                        break;
+                }
             }
             params = param_base.slice();
             params.push(limit(25));
@@ -187,12 +193,12 @@ window.addEventListener('load', async function () {
 
             return {
                 next: async (docs = documentSnapshots?.docs) => {
-                    if(isEnd) return [];
+                    if (isEnd) return [];
                     params = param_base.slice();
-                    if(docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                    if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
                     params.push(limit(25));
                     documentSnapshots = await getDocs(query.apply(undefined, params));
-                    if(documentSnapshots.docs.length < 25) isEnd = true;
+                    if (documentSnapshots.docs.length < 25) isEnd = true;
                     return documentSnapshots.docs;
                 }
             }
