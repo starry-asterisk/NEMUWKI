@@ -207,12 +207,14 @@ main {
     padding-bottom: 2rem;
 }
 .main__notice__content {
-    --background-dark: var(--accent);
+    --background-dark: #1d9bf0dd;
     display: block;
     max-height: 0;
     line-height: 3rem;
     padding-bottom: 0;
-    transition: 500ms max-height, 500ms padding;
+    margin: 0 -2.1rem;
+    padding: 0 2rem;
+    transition: 500ms max-height, 500ms padding-bottom;
 }
 
 .main__document_info {
