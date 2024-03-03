@@ -2,144 +2,27 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="./index.css">
-    <link rel="stylesheet" type="text/css" href="./cursor.css">
-    <link rel="stylesheet" type="text/css" href="./game.css">
-    <script src="./index.js"></script>
-    <script src="./cursor.js"></script>
-    <script src="./script.js"></script>
-    <script src="./game/shooting/main.js"></script>
-    <title>블루::아카이브</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta property="og:title" content="네무위키">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="description" content="personal wiki project for NEMU">
+    <meta property="og:description" content="personal wiki project for NEMU">
+    <!--<meta property="og:url" content="">-->
+    <meta property="og:site_name" content="네무위키">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta property="twitter:title" content="네무위키">
+    <!--<link rel="canonical" href="https://starry-asterisk.github.io/">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./wiki/favicon.png">
+    <title>네무위키</title>
+    <script>
+        location.href='./wiki/';
+    </script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="gameContainer" mode="shooting"><img class="logo_img" src="./resource/logo/closed.png">
-            <span class="logo">
-                <font style="color:#2892F9">Blue</font><span style="left:3rem;">
-                    <font class="front">A</font>Archive
-                </span>
-            </span>
-        </div>
-        <div class="momoTalk">
-            <div class="momoTalk__top">
-                <span class="momoTalk__top__logo">
-                    <span class="icon peach"></span>
-                </span>
-                <span class="momoTalk__top__title">MomoTalk</span>
-                <button class="momoTalk__top__close" onclick="app.load('main');">✕</button>
-            </div>
-            <div>
-                <div class="momoTalk__side">
-                    <button class="momoTalk__side__friends">
-                        <span class="icon person"></span>
-                    </button>
-                    <button class="momoTalk__side__messages" data-count="0">
-                        <span class="icon talk"></span>
-                    </button>
-                </div>
-                <div class="momoTalk__list"></div>
-                <div class="momoTalk__detail"></div>
-            </div>
-        </div>
-        <div class="container__choice"></div>
-        <div class="dialog" style="display: none;" mode="opening">
-            <p class="dialog__title">
-                <span class="dialog__title__name"></span>
-                <span class="dialog__title__team"></span>
-            </p>
-            <div class="dialog__contents"></div>
-        </div>
-        <div class="container__object"></div>
-        <div class="topMenu">
-            <span class="topMenu__score" icon="😎">0</span>
-            <span class="topMenu__time" icon="❤️">00:00</span>
-            <button class="topMenu__stop square">ll</button>
-            <button class="topMenu__auto">
-                AUTO
-                <svg class="glowing" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100%" height="100%" rx="0.5rem"></rect>
-                </svg>
-            </button>
-            <button class="topMenu__menu">MENU</button>
-        </div>
-        <div class="mainMenu">
-            <div>
-                <button data-mode="game"><span>임무</span></button>
-                <button data-mode="story"><span>스토리</span></button>
-            </div>
-            <div>
-                <div>
-                    <button data-mode="talk"><span>모모톡</span></button>
-                    <button data-mode="setting"><span>설정</span></button>
-                </div>
-                <button data-link="https://twitter.com/STARRY_ASTERISK"><span>트위터</span></button>
-                <button data-link="http://www.naver.com"><span>소스코드</span></button>
-            </div>
-        </div>
-        <div class="gameMenu">
-            <div class="gameMenu__skillSet">
-                <button class="gameMenu__skillSet__skill" state="empty"></button>
-                <button class="gameMenu__skillSet__skill" state="empty"></button>
-                <button class="gameMenu__skillSet__skill" state="empty"></button>
-            </div>
-            <div class="gameMenu__costGauge">
-                <span class="gameMenu_costGauge__count">0</span>
-                <span class="gameMenu_costGauge__bar" style="--progress: 0.0">
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__slot"></span>
-                    <span class="gameMenu_costGauge__bar__cursor"></span>
-                </span>
-            </div>
-            <div class="gameMenu__control">
-                <button>AUTO</button>
-                <button>▶</button>
-            </div>
-        </div>
-        <!--
-        <dialog open="true">
-            <form method="dialog">
-                
-            <div class="dialog__top">
-                <span class="dialog__top__title">일시정지</span>
-                <button class="dialog__top__close" value="cancel"></button>
-            </div>
-            <div class="dialog__content">
-                <button value="default" onclick="app.load('main')">메인으로</button>
-            </div>
-            </form>
-        </dialog>-->
-        <div class="loading">
-            <span class="loading__triangle"></span>
-            <span class="loading__triangle"></span>
-            <span class="loading__triangle"></span>
-            <span class="loading__triangle"></span>
-            <span class="loading__logo">
-                <img src="shitim.png">
-            </span>
-        </div>
-    </div>
-    <svg xmlns="http://www.w3.org/2000/svg" style="width: 0; height: 0;overflow:hidden;">
-        <defs>
-            <clipPath id="peach" clipPathUnits="objectBoundingBox">
-                <path d="M0.78,0.752 C0.851,0.684,0.895,0.589,0.895,0.484 C0.895,0.339,0.799,0.215,0.689,0.149 C0.524,0.055,0.532,0,0.503,0 S0.482,0.055,0.318,0.149 C0.208,0.215,0.112,0.339,0.112,0.484 C0.112,0.589,0.156,0.684,0.226,0.752 C0.293,0.817,0.54,0.877,0.517,0.607 C0.512,0.543,0.587,0.539,0.55,0.713 C0.533,0.79,0.501,0.807,0.493,0.812 C0.484,0.816,0.484,0.823,0.503,0.826 C0.62,0.84,0.715,0.816,0.78,0.752 M0.172,0.757 C0.172,0.757,0.027,0.814,0,0.949 C0.217,1,0.421,0.937,0.456,0.881 C0.236,0.87,0.172,0.757,0.172,0.757 M0.828,0.757 C0.828,0.757,0.76,0.887,0.544,0.881 C0.579,0.937,0.783,1,1,0.949 C0.973,0.814,0.828,0.757,0.828,0.757" />
-            </clipPath>
-            <clipPath id="person" clipPathUnits="objectBoundingBox">
-                <path d="M0.083,1 S0,1,0,0.917 S0.083,0.583,0.5,0.583 S1,0.833,1,0.917 S0.917,1,0.917,1 M0.5,0.5 A0.25,0.25,0,1,0,0.5,0 A0.25,0.25,0,0,0,0.5,0.5" />
-            </clipPath>
-            <clipPath id="talk" clipPathUnits="objectBoundingBox">
-                <path d="M0,0.131 A0.125,0.131,0,0,1,0.125,0 H0.875 A0.125,0.131,0,0,1,1,0.131 V0.654 A0.125,0.131,0,0,1,0.875,0.785 H0.276 A0.063,0.065,0,0,0,0.232,0.804 L0.053,0.99 A0.031,0.033,0,0,1,0,0.967zm.3125 .25a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0m.25 0a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0m.25 0a.0625 .0625 0 1 0-.0625 0 .0625 .0625 0 0 0 .0625 0" />
-            </clipPath>
-        </defs>
-    </svg>
 </body>
 
 </html>

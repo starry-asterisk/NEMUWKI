@@ -69,7 +69,7 @@ async function firebaseLoadCallback() {
             }
         }
 
-        upload.onclick = () => location.href = `${ROOT_PATH}form.html`;
+        upload.onclick = () => location.href = `${ROOT_PATH}form${SUFFIX}`;
         logout.onclick = () => {
             firebase.auth.logout()
                 .catch(errorHandler);
@@ -178,7 +178,7 @@ async function firebaseLoadCallback() {
             .append(createElement('button', {
                 innerHTML: '수정', on: {
                     click: () => {
-                        location.href = `${ROOT_PATH}form.html?post=${post_id}`;
+                        location.href = `${ROOT_PATH}form${SUFFIX}?post=${post_id}`;
                     }
                 }
             }))

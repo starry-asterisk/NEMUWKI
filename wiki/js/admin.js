@@ -43,6 +43,11 @@ function loadAdmin(args) {
     testInit();
 }
 
+function goAdmin(e) { 
+    if(e) e.preventDefault();
+    location.href=`${ROOT_PATH}admin${SUFFIX}`;
+ }
+
 const logger = {
     ...console
 }

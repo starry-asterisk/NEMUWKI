@@ -502,6 +502,7 @@ function createElements(arr) {
 
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
+const SUFFIX = location.hostname.endsWith('nemuwiki.com')?'':'.html';
 const VISITED_MAX = 5;
 const FILE_UPLOAD_METHOD = 0; // 0 is imgus, 1 is firestorage
 const PAGE_PREFIX = '네무위키 :: ';
