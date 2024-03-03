@@ -207,7 +207,7 @@ main {
     padding-bottom: 2rem;
 }
 .main__notice__content {
-    --background-dark: #1d9bf0dd;
+    --background-dark: #3BA8F2;
     display: block;
     max-height: 0;
     line-height: 3rem;
