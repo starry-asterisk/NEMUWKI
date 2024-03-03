@@ -130,6 +130,7 @@
 
 #user_area>* {
     margin: 1rem 0;
+    text-align: left;
 }
 
 #user_area {

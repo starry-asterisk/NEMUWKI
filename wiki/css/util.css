@@ -167,8 +167,7 @@ main {
     border: 0.1rem solid var(--border2);
 }
 
-.main__header__toolbox:empty,
-.non-auth .main__header__toolbox {
+.main__header__toolbox:empty {
     display: none !important;
 }
 
@@ -182,6 +181,37 @@ main {
 
 .main__header__toolbox>button+button {
     border-left: 0.1rem solid var(--border2);
+}
+
+.main__notice {
+    display: block;
+    min-height: 6rem;
+    margin: 1rem;
+    border: 0.1rem solid #1d9bf0;
+    background: #1d9bf0dd;
+    padding: 0 2rem;
+    color: white;
+    line-height: 6rem;
+    border-radius: 0.5rem;
+}
+
+.main__notice__timestamp {
+    float: right;
+    color: #FFFFFF77;
+}
+
+.main__notice.open .main__notice__content {
+    max-height: 30rem;
+    overflow: auto;
+    padding-bottom: 2rem;
+}
+.main__notice__content {
+    --background-dark: var(--accent);
+    display: block;
+    max-height: 0;
+    line-height: 3rem;
+    padding-bottom: 0;
+    transition: 500ms max-height, 500ms padding;
 }
 
 .main__document_info {

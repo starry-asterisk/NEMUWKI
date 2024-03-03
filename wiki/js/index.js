@@ -74,6 +74,7 @@ async function firebaseLoadCallback() {
             firebase.auth.logout()
                 .catch(errorHandler);
         }
+        document.body.classList.remove('non-auth');
     }, () => {
         user_area.innerHTML = '';
         let loginMode = true;
@@ -241,6 +242,13 @@ async function firebaseLoadCallback() {
             }
             if (people_.docs.length < 25) load_more2.setStyles({ display: 'none' });
         }
+
+        firebase.notice.getNewest().then(ref => {
+            for (let doc of ref.docs) {
+                createNotice(doc.data());
+                break;
+            }
+        }).catch(errorHandler);
     }
 
     try {
@@ -304,12 +312,12 @@ function buildPost(data) {
     let path_arr = board_name_arr || board2Path(SuggestList['board']).find(row => row.name == board_name)?.path_arr || [board_name];
     console.log(path_arr);
 
-    let main__document_info = createElement('div', {attrs: {class: 'main__document_info'}});
-    for(let path of path_arr) {
-        main__document_info.append(createElement('a', {attrs: {href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}`}, innerHTML: path}));
+    let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
+    for (let path of path_arr) {
+        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}` }, innerHTML: path }));
     }
 
-    main__document_info.append(createElement('a', {attrs: {href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category'}, innerHTML: category}));
+    main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category' }, innerHTML: category }));
 
     document.querySelector('.main__header').after(main__document_info);
 

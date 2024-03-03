@@ -121,6 +121,26 @@ window.addEventListener('load', async function () {
         list: async () => await getDocs(collection(db, "boardList"))
     }
 
+    //공지사항
+    firebase.notice = {
+        insertOne: async data => {
+            try {
+                return await addDoc(collection(db, "notice"), {
+                    title: '',
+                    content: '',
+                    timestamp: Timestamp.fromDate(new Date()),
+                    use: true,
+                    ...data
+                });
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        },
+        deleteOne: async id => await deleteDoc(doc(db, "notice", id)),
+        getNewest: async () => await getDocs(query(collection(db, "notice"), where('use', '==', true), orderBy('timestamp'), limit(1))),
+        list: async () => await getDocs(collection(db, "notice"))
+    }
+
     //카테고리
     firebase.categories = {
         insertOne: async data => {

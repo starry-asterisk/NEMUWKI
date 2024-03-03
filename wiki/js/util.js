@@ -224,12 +224,12 @@ function board2Tree__OLD(arr) {
 }*/
 
 function board2Tree(arr) {
-    for(let menu of arr) {
-        if(menu.parent == '') continue;
+    for (let menu of arr) {
+        if (menu.parent == '') continue;
         let parent = arr.find(parent => parent.name == menu.parent);
-        if(parent?.child?.length){
+        if (parent?.child?.length) {
             parent.child.push(menu);
-        } else if(parent){
+        } else if (parent) {
             parent.child = [menu];
         } else {
             menu.parent = '';
@@ -452,7 +452,7 @@ const MODAL_TEMPLATE = {
         let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 메뉴에 대한 정보를 입력해 주세요.' });
         let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
 
-        
+
         let parent_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
         let parent_input = createElement('input', { attrs: { type: 'text', placeholder: '상위 메뉴' } });
         let parent_suggest = createElement('ul', { attrs: { class: 'input_suggest' } });
@@ -467,7 +467,7 @@ const MODAL_TEMPLATE = {
         parent_input_container.append(parent_suggest);
         text_input_container.append(text_input);
 
-        if(typeof SuggestList != 'undefined'){
+        if (typeof SuggestList != 'undefined') {
             for (let data of board2Path(SuggestList['board'] || [])) addSuggest(data, parent_input_container);
         }
 
@@ -500,11 +500,39 @@ function createElements(arr) {
     return returnArr;
 }
 
+function createNotice(data) {
+    let link = createElement('a', { attrs: { class: "main__notice" } });
+    let title = createElement('span', { innerHTML: data.title });
+    let timestamp = createElement('span', { attrs: { class: "main__notice__timestamp" }, innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
+    let content = createElement('span', { attrs: { class: "main__notice__content" }, innerHTML: data.content });
+    link.append(title);
+    link.append(timestamp);
+    link.append(content);
+
+    link.onclick = () => {
+        link.classList.toggle('open');
+    }
+    content.onclick = e => e.stopPropagation();
+
+    document.querySelector('main').firstElementChild.after(link);
+}
+
+function share(destination) {
+    let searchParams = new URLSearchParams();
+    switch (destination) {
+        case 'twitter':
+            searchParams.set("url", location.href);
+            searchParams.set("text", `${document.title}\n`);
+            window.open(`https://twitter.com/intent/post?${searchParams.toString()}`, '_blank').focus();
+            break;
+    }
+}
+
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
-const SUFFIX = location.hostname.endsWith('nemuwiki.com')?'':'.html';
+const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
 const VISITED_MAX = 5;
-const FILE_UPLOAD_METHOD = 0; // 0 is imgus, 1 is firestorage
+const FILE_UPLOAD_METHOD = 0; // 0 is imgur, 1 is firestorage
 const PAGE_PREFIX = '네무위키 :: ';
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
