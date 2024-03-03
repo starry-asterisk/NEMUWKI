@@ -193,6 +193,7 @@ main {
     color: white;
     line-height: 6rem;
     border-radius: 0.5rem;
+    white-space: pre-line;
 }
 
 .main__notice__timestamp {

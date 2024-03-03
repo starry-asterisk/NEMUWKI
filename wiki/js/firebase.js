@@ -136,9 +136,24 @@ window.addEventListener('load', async function () {
                 console.error("Error adding document: ", e);
             }
         },
+        updateOne: async (id, data) => await updateDoc(doc(db, "notice", id), data),
         deleteOne: async id => await deleteDoc(doc(db, "notice", id)),
         getNewest: async () => await getDocs(query(collection(db, "notice"), where('use', '==', true), orderBy('timestamp'), limit(1))),
-        list: async () => await getDocs(collection(db, "notice"))
+        list: () => {
+            let documentSnapshots, isEnd = false;
+
+            return {
+                next: async (docs = documentSnapshots?.docs) => {
+                    if (isEnd) return [];
+                    let params = [collection(db, "notice"),orderBy('timestamp')];
+                    if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                    params.push(limit(25));
+                    documentSnapshots = await getDocs(query.apply(undefined, params));
+                    if (documentSnapshots.docs.length < 25) isEnd = true;
+                    return documentSnapshots.docs;
+                }
+            }
+        }
     }
 
     //카테고리

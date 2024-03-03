@@ -43,10 +43,10 @@ function loadAdmin(args) {
     testInit();
 }
 
-function goAdmin(e) { 
-    if(e) e.preventDefault();
-    location.href=`${ROOT_PATH}admin${SUFFIX}`;
- }
+function goAdmin(e) {
+    if (e) e.preventDefault();
+    location.href = `${ROOT_PATH}admin${SUFFIX}`;
+}
 
 const logger = {
     ...console
@@ -62,27 +62,27 @@ const TAB_SPEC = {
         createItem: (option, isHeader = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
-            let item__photo = createElement('span', { attrs: { class: 'list__item__photo' }, innerHTML: isHeader?'IMAGE':'' });
-    
-            let item__uid = createElement('span', { attrs: { class: 'list__item__uid' }, innerHTML: isHeader?'ID':option.id });
-            let item__email = createElement('span', { attrs: { class: 'list__item__email always' }, innerHTML: isHeader?'EMAIL':data.email });
-            let item__level = createElement('span', { attrs: { class: 'list__item__level always' }, innerHTML: isHeader?'':`${data.level}` });
+            let item__photo = createElement('span', { attrs: { class: 'list__item__photo' }, innerHTML: isHeader ? 'IMAGE' : '' });
+
+            let item__uid = createElement('span', { attrs: { class: 'list__item__uid' }, innerHTML: isHeader ? 'ID' : option.id });
+            let item__email = createElement('span', { attrs: { class: 'list__item__email always flexible' }, innerHTML: isHeader ? 'EMAIL' : data.email });
+            let item__level = createElement('span', { attrs: { class: 'list__item__level always' }, innerHTML: isHeader ? '' : `${data.level}` });
 
             item.append(item__photo);
             item.append(item__uid);
             item.append(item__email);
             item.append(item__level);
 
-            if(isHeader) {
+            if (isHeader) {
                 item.classList.add('header');
-            }else {
+            } else {
                 let item__photo_img = createElement('img');
                 item__photo.append(item__photo_img);
-                if(data.photo_url)item__photo_img.src = data.photo_url;
+                if (data.photo_url) item__photo_img.src = data.photo_url;
                 item__level.onclick = () => {
                     if (confirm('권한 레벨을 변경하시겠습니까?')) {
                         let level = parseInt(prompt('새로운 권한 레벨 [0-5]'));
-                        if(data.level == level || level === NaN) return;
+                        if (data.level == level || level === NaN) return;
                         firebase.auth.updateUser(option.id, { level })
                             .then(e => {
                                 item__level.innerHTML = data.level = level;
@@ -90,6 +90,49 @@ const TAB_SPEC = {
                             .catch(errorHandler);
                     }
                 };
+            }
+            return item;
+        }
+    },
+    notice: {
+        alias: '공지사항 관리',
+        get cursor() {
+            return firebase.notice.list();
+        },
+        createItem: (option, isHeader = false) => {
+            let data = isHeader || option.data();
+            let item = createElement('div', { attrs: { class: 'list__item' } });
+            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' }, innerHTML: isHeader ? 'Title' : data.title });
+            let item__timestamp = createElement('span', { attrs: { class: 'list__item__timestamp' }, innerHTML: isHeader ? 'Created' : new Date(data.timestamp.seconds * 1000).toLocaleString() });
+            let item__use = createElement('span', { attrs: { class: 'list__item__use' }, innerHTML: isHeader ? 'Use' : data.use });
+
+            item.append(item__title);
+            item.append(item__timestamp);
+            item.append(item__use);
+            
+            let item__edit = createElement('div', { attrs: { class: 'list__item__edit' } });
+            let item__edit__textarea = createElement('textarea', { value: data.content });
+            let item__edit__button = createElement('button', { innerHTML: '저장' });
+
+            item__edit.append(item__edit__textarea);
+            item__edit.append(item__edit__button);
+            item.append(item__edit);
+
+            if (isHeader) {
+                item.classList.add('header');
+            } else {
+                item__title.onclick = ()=>{
+                    item.classList.toggle('expand');
+                    item__edit__textarea.value = data.content;
+                }
+                item__edit__button.onclick = ()=>{
+                    firebase.notice.updateOne(option.id, {
+                        content: item__edit__textarea.value
+                    }).then(()=>{
+                        data.content = item__edit__textarea.value;
+                        item.classList.toggle('expand');
+                    }).catch(errorHandler);
+                }
             }
             return item;
         }
@@ -149,7 +192,7 @@ function createTab(type) {
     tab__search.append(tab__search__button_clear);
 
     tab__list.append(tab__list__button);
-    tab__list.prepend(createItem({},true));
+    tab__list.prepend(createItem({}, true));
 
     load();
 

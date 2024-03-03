@@ -390,6 +390,48 @@ tab.maximize:not([class*="maximize minimize"]) {
     height: 5rem;
     line-height: 5rem;
     border-bottom: 0.1rem solid var(--border);
+    transition: padding-bottom 400ms, height 400ms;
+    padding-bottom: 0;
+}
+.list__item.expand {
+    height: 25rem;
+    padding-bottom: 20rem;
+}
+
+.list__item__edit {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 5rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+.list__item__edit textarea {
+    resize: none;
+    overflow: auto;
+    padding: 1rem;
+    border-top: 0.1rem solid var(--border2);
+    font-family: inherit;
+    font-size: 1.3rem;
+    flex: 1;
+}
+
+.list__item__edit button {
+    background: white;
+    height: 4rem;
+    border: 0.1rem solid var(--border2);
+    border-radius: 2rem;
+    margin: 1rem auto;
+    width: 15rem;
+    cursor: pointer;
+}
+.list__item__edit button:hover {
+    opacity: 0.7;
+}
+.list__item__edit button:active {
+    background: none;
 }
 
 .list__item>span {
@@ -433,14 +475,17 @@ tab.maximize .list__item>span,
     border-radius: 50%;
     background-color: var(--border2);
 }
-
-.list__item__email {
+.list__item>span.flexible {
     max-width: unset !important;
     min-width: unset !important;
 }
 
 .list__item__level {
     --width: 5rem !important;
+}
+
+.list__item__use {
+    --width: 8rem !important;
 }
 
 .list__item:hover {
