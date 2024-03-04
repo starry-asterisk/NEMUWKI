@@ -388,9 +388,11 @@ function buildPost(data) {
                         }
                     }
                 });
+
+            let marginTop = (title_list[index].getBoundingClientRect().y - main_rect.y) / main__contents.scrollHeight * 100;
             index_div.append(createElement('a',
                 {
-                    styles: {top: `${(title_list[index].getBoundingClientRect().y - main_rect.y)  / main__contents.scrollHeight * 100}%`},
+                    styles: { top: `${marginTop}%` },
                     attrs: { href: `#title_${index}`, 'data-tooltip': `${[...prefix_arr, sub_index].join('.')}. ${data.text}` },
                     on: {
                         click: e => {

@@ -376,13 +376,14 @@ body.error footer::after {
 }
 
 .index>a {
+    position: absolute;
     display: block;
     height: 2rem;
     text-align: center;
     height: 2.8rem;
     width: 2.8rem;
     line-height: 2.8rem;
-    margin: 0.5rem 0 0.5rem auto;
+    right: 0;
 }
 
 .index>a::after {
@@ -417,8 +418,12 @@ a[data-tooltip]::before {
     font-size: 1.4rem;
     color: black;
     cursor: pointer;
+    background-color: var(--background);
 }
 
+a[data-tooltip]:hover::before {
+    background-color: var(--background-dark);
+}
 
 input,
 textarea {
