@@ -348,6 +348,10 @@ function buildPost(data) {
 
     let summury = component_list['summury'] ? component_list['summury'][0] : undefined;
     if (summury) {
+        let index_div = createElement('div', { attrs: { class: 'index' } });
+        let index__hover = createElement('div', { attrs: { class: 'index__hover' } });
+        document.body.append(index_div);
+        index_div.append(index__hover);
         summury.setAttribute('id', 'summary');
         let title_list = component_list['title'];
         let title_datas = contents.filter(content => content.type == 'title');
@@ -355,6 +359,7 @@ function buildPost(data) {
         let depth_info = [];
         let prefix_arr = [];
         let sub_index = 1;
+        let main_rect = main__contents.getBoundingClientRect();
         for (let index in title_datas) {
             let data = title_datas[index].value;
             if (depth < data.depth) {
@@ -382,6 +387,20 @@ function buildPost(data) {
                         }
                     }
                 });
+
+            let marginTop = (title_list[index].getBoundingClientRect().y - main_rect.y) / main__contents.scrollHeight * 100;
+            index_div.append(createElement('a',
+                {
+                    styles: { top: `${marginTop}%` },
+                    attrs: { href: `#title_${index}`, 'data-tooltip': `${[...prefix_arr, sub_index].join('.')}. ${data.text}` },
+                    on: {
+                        click: e => {
+                            e.preventDefault();
+                            title_list[index].scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+                            return false;
+                        }
+                    }
+                }));
             let pre_fix = createElement('a', { innerHTML: `${[...prefix_arr, sub_index].join('.')}. `, attrs: { href: `#summary` } });
             title_list[index].prepend(pre_fix);
             title_list[index].setAttribute('id', `title_${index}`)
