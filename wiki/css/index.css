@@ -210,7 +210,7 @@
 .profile>label {
     height: calc(100% - 4rem);
 }
-.profile__email {
+#user_area>*.profile__email {
     margin-top: 0 !important;
     text-align: center;
 }

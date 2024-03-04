@@ -84,6 +84,13 @@ body {
     background-color: var(--background);
 }
 
+body::before,
+body:not(:has(.index))::after {
+    content: '';
+    display: block;
+    flex: 1;
+}
+
 header {
     position: fixed;
     top: 0;
@@ -137,7 +144,7 @@ main {
     min-height: calc(100vh - 18rem);
     box-sizing: content-box;
     border-right: 0.1rem solid var(--border);
-    flex: 1;
+    flex: 100;
 }
 
 .main__header {
@@ -206,6 +213,7 @@ main {
     overflow: auto;
     padding-bottom: 2rem;
 }
+
 .main__notice__content {
     --background-dark: #3BA8F2;
     display: block;
@@ -326,6 +334,13 @@ aside>*>p:first-child {
     aside>div:first-child {
         margin-top: unset !important;
     }
+
+}
+
+@media (max-width: 1200px) {
+    .index {
+        display: none !important;
+    }
 }
 
 footer {
@@ -342,6 +357,66 @@ footer::after {
 
 body.error footer::after {
     content: "\A원하시는 문서를 찾을 수 없습니다.\A삭제된 문서 이거나 옳바른 주소 인지 확인해주세요.";
+}
+
+.index {
+    flex: 1;
+    counter-reset: index;
+    height: calc(100vh - 5rem);
+    position: sticky;
+    top: 5rem;
+}
+
+.index__hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.index>a {
+    display: block;
+    height: 2rem;
+    text-align: center;
+    height: 2.8rem;
+    width: 2.8rem;
+    line-height: 2.8rem;
+    margin: 0.5rem 0 0.5rem auto;
+}
+
+.index>a::after {
+    content: "\F09DE";
+    font-family: "Material Design Icons";
+    font-size: 1.4rem;
+    color: #5a5a5a;
+}
+
+.index__hover:hover~a[data-tooltip]::before,
+a[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+    right: 100%;
+}
+
+a[data-tooltip]::before {
+    content: attr(data-tooltip);
+    display: block;
+    position: absolute;
+    right: 0;
+    opacity: 0;
+    visibility: hidden;
+    border-radius: 0.3rem;
+    border: 0.1rem solid var(--border2);
+    height: 2.8rem;
+    line-height: 2.8rem;
+    white-space: nowrap;
+    padding: 0 0.8rem;
+    transition-property: opacity, right;
+    transition-duration: 200ms;
+    font-size: 1.4rem;
+    color: black;
+    cursor: pointer;
 }
 
 
@@ -717,7 +792,7 @@ body.loading::after, body.loading::before {
     animation: rotate 1s infinite;
 }
 body.loading::before {
-    border-color: white;
+    border-color: var(--background);
     animation: rotate_r 2s infinite;
 }
 */
