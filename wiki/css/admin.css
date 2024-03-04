@@ -292,6 +292,13 @@ tab.maximize:not([class*="maximize minimize"]) {
     flex: 1;
 }
 
+tab.post.maximize:not([class*="maximize minimize"]),
+tab.template.maximize:not([class*="maximize minimize"]) {
+    min-width: 84rem;
+    max-width: 84rem;
+    flex: 1;
+}
+
 .tab__top_menu {
     height: 2rem;
     display: flex;
@@ -393,9 +400,10 @@ tab.maximize:not([class*="maximize minimize"]) {
     transition: padding-bottom 400ms, height 400ms;
     padding-bottom: 0;
 }
+
 .list__item.expand {
-    height: 25rem;
-    padding-bottom: 20rem;
+    height: 35rem;
+    padding-bottom: 30rem;
 }
 
 .list__item__edit {
@@ -408,6 +416,7 @@ tab.maximize:not([class*="maximize minimize"]) {
     right: 0;
     overflow: hidden;
 }
+
 .list__item__edit textarea {
     resize: none;
     overflow: auto;
@@ -427,9 +436,11 @@ tab.maximize:not([class*="maximize minimize"]) {
     width: 15rem;
     cursor: pointer;
 }
+
 .list__item__edit button:hover {
     opacity: 0.7;
 }
+
 .list__item__edit button:active {
     background: none;
 }
@@ -475,17 +486,32 @@ tab.maximize .list__item>span,
     border-radius: 50%;
     background-color: var(--border2);
 }
+
 .list__item>span.flexible {
     max-width: unset !important;
     min-width: unset !important;
 }
 
 .list__item__level {
-    --width: 5rem !important;
+    --width: 6rem !important;
+}
+
+.list__item__board_name,
+.list__item__category {
+    --width: 12rem !important;
 }
 
 .list__item__use {
     --width: 8rem !important;
+}
+
+.list__item__delete  {
+    --width: 10rem !important;
+}
+
+.list__item__author_id {
+    --width: 16rem !important;
+    cursor: pointer;
 }
 
 .list__item:hover {
@@ -519,4 +545,30 @@ tab.maximize .list__item>span,
     border-top: 0.1rem solid var(--border2);
     border-bottom: 0.1rem solid var(--border2);
     margin-bottom: 2rem;
+}
+
+.icon::after {
+    font-family: "Material Design Icons";
+}
+
+.icon.edit::after {
+    content:"\F064F";
+}
+
+.icon.copy::after {
+    content:"\F018F";
+}
+
+.icon.link::after {
+    content:"\F0339";
+}
+.icon.delete::before {
+    content:"\F0A7A";
+}
+.icon.delete {
+    color: var(--invalid);
+}
+.icon.delete,
+.icon.link {
+    cursor: pointer;
 }

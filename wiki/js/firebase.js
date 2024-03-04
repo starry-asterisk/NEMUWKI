@@ -60,11 +60,11 @@ window.addEventListener('load', async function () {
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
         selectOne: async id => await getDoc(doc(db, "postList", id)),
-        list: async (search = {}, hidden = false, operator = 'contains') => {
+        list: (search = {}, hidden = false, operator = 'contains') => {
             let param_base = [
                 collection(db, "postList"),
                 where('hidden', '==', hidden)
-            ], params;
+            ], params, documentSnapshots, isEnd = false;
             for (let field in search) {
                 if (search[field] == '') continue;
                 switch (operator) {
@@ -80,19 +80,15 @@ window.addEventListener('load', async function () {
                         break;
                 }
             }
-            params = param_base.slice();
-            params.push(limit(25));
-            let query_result = query.apply(undefined, params);
-            let documentSnapshots = await getDocs(query_result);
 
             return {
-                docs: documentSnapshots.docs,
-                getNext: async (docs = documentSnapshots.docs) => {
+                next: async (docs = documentSnapshots?.docs) => {
+                    if (isEnd) return [];
                     params = param_base.slice();
-                    params.push(startAfter(docs[docs.length - 1]));
+                    if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
                     params.push(limit(25));
-                    query_result = query.apply(undefined, params);
-                    documentSnapshots = await getDocs(query_result);
+                    documentSnapshots = await getDocs(query.apply(undefined, params));
+                    if (documentSnapshots.docs.length < 25) isEnd = true;
                     return documentSnapshots.docs;
                 }
             }
@@ -118,7 +114,30 @@ window.addEventListener('load', async function () {
         },
         deleteOne: async id => await deleteDoc(doc(db, "boardList", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "boardList", id), data),
-        list: async () => await getDocs(collection(db, "boardList"))
+        list: async () => await getDocs(collection(db, "boardList")),
+        list_paginator: (search = {}) => {
+            let param_base = [
+                collection(db, "boardList")
+            ], params, documentSnapshots, isEnd = false;
+            for (let field in search) {
+                if (search[field] == '') continue;
+                param_base.push(where(field, '>=', search[field]));
+                param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+
+            }
+
+            return {
+                next: async (docs = documentSnapshots?.docs) => {
+                    if (isEnd) return [];
+                    params = param_base.slice();
+                    if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                    params.push(limit(25));
+                    documentSnapshots = await getDocs(query.apply(undefined, params));
+                    if (documentSnapshots.docs.length < 25) isEnd = true;
+                    return documentSnapshots.docs;
+                }
+            }
+        }
     }
 
     //공지사항
@@ -172,7 +191,30 @@ window.addEventListener('load', async function () {
         },
         deleteOne: async id => await deleteDoc(doc(db, "categories", id)),
         updateOne: async (id, data) => await updateDoc(doc(db, "categories", id), data),
-        list: async () => await getDocs(collection(db, "categories"))
+        list: async () => await getDocs(collection(db, "categories")),
+        list_paginator: (search = {}) => {
+            let param_base = [
+                collection(db, "categories")
+            ], params, documentSnapshots, isEnd = false;
+            for (let field in search) {
+                if (search[field] == '') continue;
+                param_base.push(where(field, '>=', search[field]));
+                param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+
+            }
+
+            return {
+                next: async (docs = documentSnapshots?.docs) => {
+                    if (isEnd) return [];
+                    params = param_base.slice();
+                    if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                    params.push(limit(25));
+                    documentSnapshots = await getDocs(query.apply(undefined, params));
+                    if (documentSnapshots.docs.length < 25) isEnd = true;
+                    return documentSnapshots.docs;
+                }
+            }
+        }
     }
 
     //저장소

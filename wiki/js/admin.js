@@ -65,8 +65,8 @@ const TAB_SPEC = {
             let item__photo = createElement('span', { attrs: { class: 'list__item__photo' }, innerHTML: isHeader ? 'IMAGE' : '' });
 
             let item__uid = createElement('span', { attrs: { class: 'list__item__uid' }, innerHTML: isHeader ? 'ID' : option.id });
-            let item__email = createElement('span', { attrs: { class: 'list__item__email always flexible' }, innerHTML: isHeader ? 'EMAIL' : data.email });
-            let item__level = createElement('span', { attrs: { class: 'list__item__level always' }, innerHTML: isHeader ? '' : `${data.level}` });
+            let item__email = createElement('span', { attrs: { class: 'list__item__email always flexible' }, innerHTML: isHeader ? '이메일' : data.email });
+            let item__level = createElement('span', { attrs: { class: 'list__item__level always' }, innerHTML: isHeader ? '권한' : `${data.level}` });
 
             item.append(item__photo);
             item.append(item__uid);
@@ -102,9 +102,9 @@ const TAB_SPEC = {
         createItem: (option, isHeader = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
-            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' }, innerHTML: isHeader ? 'Title' : data.title });
-            let item__timestamp = createElement('span', { attrs: { class: 'list__item__timestamp' }, innerHTML: isHeader ? 'Created' : new Date(data.timestamp.seconds * 1000).toLocaleString() });
-            let item__use = createElement('span', { attrs: { class: 'list__item__use' }, innerHTML: isHeader ? 'Use' : data.use });
+            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' }, innerHTML: isHeader ? '제목' : data.title });
+            let item__timestamp = createElement('span', { attrs: { class: 'list__item__timestamp' }, innerHTML: isHeader ? '작성일' : new Date(data.timestamp.seconds * 1000).toLocaleString() });
+            let item__use = createElement('span', { attrs: { class: 'list__item__use' }, innerHTML: isHeader ? '사용' : data.use });
 
             item.append(item__title);
             item.append(item__timestamp);
@@ -138,13 +138,110 @@ const TAB_SPEC = {
         }
     },
     post: {
+        alias: '게시글 목록 관리',
+        get cursor() {
+            return firebase.post.list();
+        },
+        createItem: (option, isHeader = false) => {
+            let data = isHeader || option.data();
+            let item = createElement('div', { attrs: { class: 'list__item' } });
+            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '제목' : data.title });
+            let item__timestamp = createElement('span', { attrs: { class: 'list__item__timestamp' }, innerHTML: isHeader ? '작성일' : new Date(data.timestamp.seconds * 1000).toLocaleString() });
+            let item__board_name = createElement('span', { attrs: { class: 'list__item__board_name'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '분류' : data.board_name });
+            let item__category = createElement('span', { attrs: { class: 'list__item__category'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '카테고리' : data.category });
+            let item__author_id = createElement('span', { attrs: { class: 'list__item__author_id'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '작성자' : '작성글 더 보기' });
 
+            item.append(item__author_id);
+            item.append(item__title);
+            item.append(item__board_name);
+            item.append(item__category);
+            item.append(item__timestamp);
+            
+            if (isHeader) {
+                item.classList.add('header');
+            } else {
+                item__title.onclick = () => {
+                    window.open(`${ROOT_PATH}?post=${option.id}`);
+                }
+                item__category.onclick = () => {
+                    window.open(`${ROOT_PATH}?keyword=${data.category}&field=category&operator=equal`);
+                }
+                item__board_name.onclick = () => {
+                    window.open(`${ROOT_PATH}?keyword=${data.board_name}&field=board_name_arr&operator=array-contains`);
+                }
+                item__author_id.onclick = () => {
+                    window.open(`${ROOT_PATH}?field=author&keyword=${data.author}`);
+                }
+            }
+            return item;
+        }
+    },
+    template: {
+        alias: '템플릿 목록 관리',
+        get cursor() {
+            return firebase.post.list({board_name: 'template'},true, 'equal');
+        },
+        createItem: (option, isHeader = false) => TAB_SPEC.post.createItem(option, isHeader)
     },
     board: {
-
+        alias: '분류 관리',
+        get cursor() {
+            return firebase.board.list_paginator();
+        },
+        createItem: (option, isHeader = false) => {
+            let data = isHeader || option.data();
+            let item = createElement('div', { attrs: { class: 'list__item' } });
+            let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '메뉴' : data.name });
+            let item__parent = createElement('span', { attrs: { class: 'list__item__parent always flexible' }, innerHTML: isHeader ? '상위메뉴' : data.parent });
+            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always'+(isHeader?'':' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
+           
+            item.append(item__name);
+            item.append(item__parent);
+            item.append(item__delete);
+            
+            if (isHeader) {
+                item.classList.add('header');
+            } else {
+                item__delete.onclick = () => {
+                    if(confirm('정말 이 메뉴를 삭제 하시겠습니까?')){
+                        firebase.board.deleteOne(option.id).then(()=>{
+                            alert('카테고리를 삭제하였습니다.');
+                            item.remove();
+                        }).catch(errorHandler);
+                    }
+                }
+            }
+            return item;
+        }
     },
     category: {
-
+        alias: '카테고리 관리',
+        get cursor() {
+            return firebase.categories.list_paginator();
+        },
+        createItem: (option, isHeader = false) => {
+            let data = isHeader || option.data();
+            let item = createElement('div', { attrs: { class: 'list__item' } });
+            let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '명칭' : data.name });
+            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always'+(isHeader?'':' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
+           
+            item.append(item__name);
+            item.append(item__delete);
+            
+            if (isHeader) {
+                item.classList.add('header');
+            } else {
+                item__delete.onclick = () => {
+                    if(confirm('정말 이 카태고리를 삭제 하시겠습니까?')){
+                        firebase.categories.deleteOne(option.id).then(()=>{
+                            alert('카테고리를 삭제하였습니다.');
+                            item.remove();
+                        }).catch(errorHandler);
+                    }
+                }
+            }
+            return item;
+        }
     },
 };
 const TAB_DEFAULT_SPEC = {
@@ -165,7 +262,7 @@ function createTab(type) {
     if (!replication && TabList.find(tab => tab.type == type)) return logger.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
 
     let id = `tab_${Math.floor(Math.random() * 1000000).toString(16)}`;
-    let tab = createElement('tab', { attrs: { id } });
+    let tab = createElement('tab', { attrs: { id, class: type } });
     let tab__top_menu = createElement('div', { attrs: { class: 'tab__top_menu' } });
     let tab__top_menu__title = createElement('span', { attrs: { class: 'tab__title' }, innerHTML: alias || type });
     let tab__top_menu__minimize = createElement('button', { attrs: { class: 'tab__minimize icon' }, on: { click: () => tab.switchClass('maximize', 'minimize') } });

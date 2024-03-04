@@ -197,19 +197,18 @@ async function firebaseLoadCallback() {
         let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
         let board_list = createElement('div', { attrs: { class: 'board_list_1' } });
 
-        let { docs, getNext } = await firebase.post.list({ [field]: keyword }, false, operator);
+        let docs,{ next } = await firebase.post.list({ [field]: keyword }, false, operator);
 
         search_input.value = keyword;
 
         load_more.onclick = async () => {
-            docs = await getNext(docs);
+            docs = await next();
             load();
         }
 
         total.after(board_list);
         board_list.after(load_more);
-
-        load();
+        await load_more.onclick();
 
         function load() {
             for (let doc of docs) {
@@ -223,24 +222,24 @@ async function firebaseLoadCallback() {
         let load_more2 = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
         let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
 
-        let people_ = await firebase.post.list({ category: '인물' });
+        let docs2, next2 = firebase.post.list({ category: '인물' }).next;
 
         load_more2.onclick = async () => {
-            people.docs = await people_.getNext(people_.docs);
-            people_();
+            docs2 = await next2();
+            load2();
         }
 
         people.after(board_list_2);
         board_list_2.after(load_more2);
 
-        load2();
+        await load_more2.onclick();
 
         function load2() {
-            for (let doc of people_.docs) {
+            for (let doc of docs2) {
                 let data = doc.data();
                 board_list_2.append(createType2Item(data, doc.id));
             }
-            if (people_.docs.length < 25) load_more2.setStyles({ display: 'none' });
+            if (docs2.length < 25) load_more2.setStyles({ display: 'none' });
         }
 
         firebase.notice.getNewest().then(ref => {
