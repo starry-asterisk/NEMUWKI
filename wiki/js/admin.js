@@ -73,7 +73,7 @@ const TAB_SPEC = {
             item.append(item__uid);
             item.append(item__email);
             item.append(item__level);
-            if (hidden) item.setStyles({display: 'none'});
+            if (hidden) item.setStyles({ display: 'none' });
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -101,7 +101,7 @@ const TAB_SPEC = {
         get cursor() {
             return firebase.notice.list();
         },
-        createItem: (option, isHeader = false, hidden= false) => {
+        createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' }, innerHTML: isHeader ? '제목' : data.title });
@@ -111,7 +111,7 @@ const TAB_SPEC = {
             item.append(item__title);
             item.append(item__timestamp);
             item.append(item__use);
-            
+
             let item__edit = createElement('div', { attrs: { class: 'list__item__edit' } });
             let item__edit__textarea = createElement('textarea', { value: data.content });
             let item__edit__button = createElement('button', { innerHTML: '저장' });
@@ -120,18 +120,18 @@ const TAB_SPEC = {
             item__edit.append(item__edit__button);
             item.append(item__edit);
 
-            if (hidden) item.setStyles({display: 'none'});
+            if (hidden) item.setStyles({ display: 'none' });
             if (isHeader) {
                 item.classList.add('header');
             } else {
-                item__title.onclick = ()=>{
+                item__title.onclick = () => {
                     item.classList.toggle('expand');
                     item__edit__textarea.value = data.content;
                 }
-                item__edit__button.onclick = ()=>{
+                item__edit__button.onclick = () => {
                     firebase.notice.updateOne(option.id, {
                         content: item__edit__textarea.value
-                    }).then(()=>{
+                    }).then(() => {
                         data.content = item__edit__textarea.value;
                         item.classList.toggle('expand');
                     }).catch(errorHandler);
@@ -149,19 +149,19 @@ const TAB_SPEC = {
         createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
-            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '제목' : data.title });
+            let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' + (isHeader ? '' : ' icon link') }, innerHTML: isHeader ? '제목' : data.title });
             let item__timestamp = createElement('span', { attrs: { class: 'list__item__timestamp' }, innerHTML: isHeader ? '작성일' : new Date(data.timestamp.seconds * 1000).toLocaleString() });
-            let item__board_name = createElement('span', { attrs: { class: 'list__item__board_name'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '분류' : data.board_name });
-            let item__category = createElement('span', { attrs: { class: 'list__item__category'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '카테고리' : data.category });
-            let item__author_id = createElement('span', { attrs: { class: 'list__item__author_id'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '작성자' : '작성글 더 보기' });
+            let item__board_name = createElement('span', { attrs: { class: 'list__item__board_name' + (isHeader ? '' : ' icon link') }, innerHTML: isHeader ? '분류' : data.board_name });
+            let item__category = createElement('span', { attrs: { class: 'list__item__category' + (isHeader ? '' : ' icon link') }, innerHTML: isHeader ? '카테고리' : data.category });
+            let item__author_id = createElement('span', { attrs: { class: 'list__item__author_id' + (isHeader ? '' : ' icon link') }, innerHTML: isHeader ? '작성자' : '작성글 더 보기' });
 
             item.append(item__author_id);
             item.append(item__title);
             item.append(item__board_name);
             item.append(item__category);
             item.append(item__timestamp);
-            
-            if (hidden) item.setStyles({display: 'none'});
+
+            if (hidden) item.setStyles({ display: 'none' });
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -185,7 +185,7 @@ const TAB_SPEC = {
         alias: '템플릿 목록 관리',
         search: 'title',
         get cursor() {
-            return firebase.post.list({board_name: 'template'},true, 'equal');
+            return firebase.post.list({ board_name: 'template' }, true, 'equal');
         },
         createItem: (option, isHeader, hidden) => TAB_SPEC.post.createItem(option, isHeader, hidden)
     },
@@ -200,19 +200,19 @@ const TAB_SPEC = {
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '메뉴' : data.name });
             let item__parent = createElement('span', { attrs: { class: 'list__item__parent always flexible' }, innerHTML: isHeader ? '상위메뉴' : data.parent });
-            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always'+(isHeader?'':' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
-           
+            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always' + (isHeader ? '' : ' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
+
             item.append(item__name);
             item.append(item__parent);
             item.append(item__delete);
-            
-            if (hidden) item.setStyles({display: 'none'});
+
+            if (hidden) item.setStyles({ display: 'none' });
             if (isHeader) {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if(confirm('정말 이 메뉴를 삭제 하시겠습니까?')){
-                        firebase.board.deleteOne(option.id).then(()=>{
+                    if (confirm('정말 이 메뉴를 삭제 하시겠습니까?')) {
+                        firebase.board.deleteOne(option.id).then(() => {
                             alert('카테고리를 삭제하였습니다.');
                             item.remove();
                         }).catch(errorHandler);
@@ -232,18 +232,18 @@ const TAB_SPEC = {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '명칭' : data.name });
-            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always'+(isHeader?'':' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
-           
+            let item__delete = createElement('span', { attrs: { class: 'list__item__delete always' + (isHeader ? '' : ' icon delete') }, innerHTML: isHeader ? '삭제' : '' });
+
             item.append(item__name);
             item.append(item__delete);
-            
-            if (hidden) item.setStyles({display: 'none'});
+
+            if (hidden) item.setStyles({ display: 'none' });
             if (isHeader) {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if(confirm('정말 이 카태고리를 삭제 하시겠습니까?')){
-                        firebase.categories.deleteOne(option.id).then(()=>{
+                    if (confirm('정말 이 카태고리를 삭제 하시겠습니까?')) {
+                        firebase.categories.deleteOne(option.id).then(() => {
                             alert('카테고리를 삭제하였습니다.');
                             item.remove();
                         }).catch(errorHandler);
@@ -305,14 +305,13 @@ function createTab(type) {
 
     let FullList = [];
 
-    tab__search__input.oninput = ()=>{
+    tab__search__input.oninput = () => {
         let keyword = tab__search__input.innerText;
         for (let index in FullList) {
-            console.log(index + 1, tab__list.children[index + 1]);
-            if(FullList[index].data()[search].includes(keyword)){
-                tab__list.children[parseInt(index) + 1].setStyles({display: 'flex'});
-            }else{
-                tab__list.children[parseInt(index) + 1].setStyles({display: 'none'});
+            if (FullList[index].data()[search].includes(keyword)) {
+                tab__list.children[parseInt(index) + 1].setStyles({ display: 'flex' });
+            } else {
+                tab__list.children[parseInt(index) + 1].setStyles({ display: 'none' });
             }
         }
     }
@@ -357,3 +356,25 @@ function testInit() {
     }
 
 }
+/*
+//미니 게임 코드
+window.onload = () => {
+    let fish = createElement('div', { attrs: { class: 'jellyFish' } });
+    document.body.append(fish);
+    let top = 500, left = 500;
+    let lastTop = 0, lastLeft = 0;
+    setInterval(() => {
+        top += Math.floor((Math.random() - 0.5) * 500);
+        left += Math.floor((Math.random() - 0.5) * 500);
+        var deltaX = left - lastLeft;
+        var deltaY = top - lastTop;
+        var rad = Math.atan2(deltaY, deltaX); // In radians
+
+        var deg = rad * (180 / Math.PI)
+        lastTop = top;
+        lastLeft = left;
+        fish.setStyles({
+            top, left, transform: `rotate(${deg}deg)`
+        });
+    }, 5000);
+};*/
