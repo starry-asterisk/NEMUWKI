@@ -56,10 +56,11 @@ const TabList = [];
 const TAB_SPEC = {
     user: {
         alias: '사용자 관리',
+        search: 'email',
         get cursor() {
             return firebase.auth.users();
         },
-        createItem: (option, isHeader = false) => {
+        createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__photo = createElement('span', { attrs: { class: 'list__item__photo' }, innerHTML: isHeader ? 'IMAGE' : '' });
@@ -72,7 +73,7 @@ const TAB_SPEC = {
             item.append(item__uid);
             item.append(item__email);
             item.append(item__level);
-
+            if (hidden) item.setStyles({display: 'none'});
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -96,10 +97,11 @@ const TAB_SPEC = {
     },
     notice: {
         alias: '공지사항 관리',
+        search: 'title',
         get cursor() {
             return firebase.notice.list();
         },
-        createItem: (option, isHeader = false) => {
+        createItem: (option, isHeader = false, hidden= false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible' }, innerHTML: isHeader ? '제목' : data.title });
@@ -118,6 +120,7 @@ const TAB_SPEC = {
             item__edit.append(item__edit__button);
             item.append(item__edit);
 
+            if (hidden) item.setStyles({display: 'none'});
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -139,10 +142,11 @@ const TAB_SPEC = {
     },
     post: {
         alias: '게시글 목록 관리',
+        search: 'title',
         get cursor() {
             return firebase.post.list();
         },
-        createItem: (option, isHeader = false) => {
+        createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__title = createElement('span', { attrs: { class: 'list__item__title always flexible'+(isHeader?'':' icon link') }, innerHTML: isHeader ? '제목' : data.title });
@@ -157,6 +161,7 @@ const TAB_SPEC = {
             item.append(item__category);
             item.append(item__timestamp);
             
+            if (hidden) item.setStyles({display: 'none'});
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -178,17 +183,19 @@ const TAB_SPEC = {
     },
     template: {
         alias: '템플릿 목록 관리',
+        search: 'title',
         get cursor() {
             return firebase.post.list({board_name: 'template'},true, 'equal');
         },
-        createItem: (option, isHeader = false) => TAB_SPEC.post.createItem(option, isHeader)
+        createItem: (option, isHeader, hidden) => TAB_SPEC.post.createItem(option, isHeader, hidden)
     },
     board: {
         alias: '분류 관리',
+        search: 'name',
         get cursor() {
             return firebase.board.list_paginator();
         },
-        createItem: (option, isHeader = false) => {
+        createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '메뉴' : data.name });
@@ -199,6 +206,7 @@ const TAB_SPEC = {
             item.append(item__parent);
             item.append(item__delete);
             
+            if (hidden) item.setStyles({display: 'none'});
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -216,10 +224,11 @@ const TAB_SPEC = {
     },
     category: {
         alias: '카테고리 관리',
+        search: 'name',
         get cursor() {
             return firebase.categories.list_paginator();
         },
-        createItem: (option, isHeader = false) => {
+        createItem: (option, isHeader = false, hidden = false) => {
             let data = isHeader || option.data();
             let item = createElement('div', { attrs: { class: 'list__item' } });
             let item__name = createElement('span', { attrs: { class: 'list__item__name always flexible' }, innerHTML: isHeader ? '명칭' : data.name });
@@ -228,6 +237,7 @@ const TAB_SPEC = {
             item.append(item__name);
             item.append(item__delete);
             
+            if (hidden) item.setStyles({display: 'none'});
             if (isHeader) {
                 item.classList.add('header');
             } else {
@@ -258,7 +268,7 @@ const TAB_DEFAULT_SPEC = {
 function createTab(type) {
 
     if (TAB_SPEC[type] == undefined) return logger.warn(`the tab type '${type}' is NOT exist.`);
-    let { replication, createItem, cursor, alias } = { ...TAB_DEFAULT_SPEC, ...TAB_SPEC[type] };
+    let { replication, createItem, cursor, alias, search } = { ...TAB_DEFAULT_SPEC, ...TAB_SPEC[type] };
     if (!replication && TabList.find(tab => tab.type == type)) return logger.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
 
     let id = `tab_${Math.floor(Math.random() * 1000000).toString(16)}`;
@@ -293,11 +303,27 @@ function createTab(type) {
 
     load();
 
+    let FullList = [];
+
+    tab__search__input.oninput = ()=>{
+        let keyword = tab__search__input.innerText;
+        for (let index in FullList) {
+            console.log(index + 1, tab__list.children[index + 1]);
+            if(FullList[index].data()[search].includes(keyword)){
+                tab__list.children[parseInt(index) + 1].setStyles({display: 'flex'});
+            }else{
+                tab__list.children[parseInt(index) + 1].setStyles({display: 'none'});
+            }
+        }
+    }
+
     function load() {
+        let keyword = tab__search__input.innerText;
         cursor.next().then(list => {
             if (list.length < 1) tab__list__button.remove();
+            FullList = [...FullList, ...list];
             for (let option of list) {
-                tab__list__button.before(createItem(option));
+                tab__list__button.before(createItem(option, false, !option.data()[search].includes(keyword)));
             }
         });
     }
