@@ -75,6 +75,13 @@ async function firebaseLoadCallback() {
                 .catch(errorHandler);
         }
         document.body.classList.remove('non-auth');
+        if(post_id) document.querySelector('.main__header__toolbox').append(createElement('button', {
+                innerHTML: '수정', on: {
+                    click: () => {
+                        location.href = `${ROOT_PATH}form${SUFFIX}?post=${post_id}`;
+                    }
+                }
+            }));
     }, () => {
         user_area.innerHTML = '';
         let loginMode = true;
@@ -175,14 +182,7 @@ async function firebaseLoadCallback() {
 
         buildPost(data);
         document.querySelector('.main__header__toolbox')
-            .setStyles({ display: 'flex' })
-            .append(createElement('button', {
-                innerHTML: '수정', on: {
-                    click: () => {
-                        location.href = `${ROOT_PATH}form${SUFFIX}?post=${post_id}`;
-                    }
-                }
-            }))
+            .setStyles({ display: 'flex' });
     } else {
         main__header__timestamp.innerHTML = new Date().toLocaleString();
         setTimeout(() => {

@@ -663,6 +663,7 @@ async function submit(button) {
         author: author_uid
     };
     if (post_id) {
+        data.updated_timestamp = new Date();
         firebase.post.updateOne(post_id, data)
             .then(() => {
                 location.href = `${ROOT_PATH}?post=${post_id}`

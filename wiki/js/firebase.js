@@ -58,7 +58,11 @@ window.addEventListener('load', async function () {
             }
         },
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
-        updateOne: async (id, data) => await updateDoc(doc(db, "postList", id), data),
+        updateOne: async (id, data) => {
+            if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
+            if (data && data.updated_timestamp) data.updated_timestamp = Timestamp.fromDate(data.updated_timestamp);
+            return await updateDoc(doc(db, "postList", id), data)
+        },
         selectOne: async id => await getDoc(doc(db, "postList", id)),
         list: (search = {}, hidden = false, operator = 'contains') => {
             let param_base = [
