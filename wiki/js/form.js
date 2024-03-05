@@ -66,7 +66,7 @@ async function loadCategorySuggest() {
 }
 
 async function firebaseLoadCallback() {
-    firebase.auth.check(user => {author_uid = author_uid || user.uid}, () => {
+    firebase.auth.check(user => { author_uid = author_uid || user.uid }, () => {
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
         return;
@@ -91,20 +91,19 @@ async function firebaseLoadCallback() {
         buildPost(data);
     }
 
-    firebase.post.list({ board_name: 'template' }, true)
-        .then(datas => {
-            for (let doc of datas.docs) {
-                let data = doc.data();
-                let li = createElement('li', { attrs: { value: data.title } });
-                li.onmousedown = () => {
-                    li.parentNode.previousElementSibling.value = data.title;
-                    buildPost(data);
-                    post_menu.value = '';
-                }
-                input_template.querySelector('.input_suggest').append(li);
+    let { next } = firebase.post.list({ board_name: 'template' }, true);
+    next().then(docs => {
+        for (let doc of docs) {
+            let data = doc.data();
+            let li = createElement('li', { attrs: { value: data.title } });
+            li.onmousedown = () => {
+                li.parentNode.previousElementSibling.value = data.title;
+                buildPost(data);
+                post_menu.value = '';
             }
-        })
-        .catch(errorHandler);
+            input_template.querySelector('.input_suggest').append(li);
+        }
+    }).catch(errorHandler);
 }
 function buildPost(data) {
     let {

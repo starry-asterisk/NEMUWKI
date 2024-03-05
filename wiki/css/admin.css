@@ -210,12 +210,12 @@ main {
     display: flex;
     flex-direction: column;
     flex: 1;
+    overflow: hidden;
 }
 
 main>section {
     flex: 1;
     transition: max-height 200ms;
-    max-height: 100vh;
     overflow: auto;
 }
 
@@ -275,7 +275,7 @@ tab {
     transition-duration: 200ms;
     min-width: 30rem;
     max-width: 30rem;
-    max-height: calc(100vh - 7rem);
+    max-height: calc(100% - 2rem);
     overflow: hidden;
     background-color: var(--background);
     transform: scale(1);

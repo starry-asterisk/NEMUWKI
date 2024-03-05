@@ -309,7 +309,7 @@ function buildPost(data) {
     } = data;
 
     let path_arr = board_name_arr || board2Path(SuggestList['board']).find(row => row.name == board_name)?.path_arr || [board_name];
-    console.log(path_arr);
+
 
     let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
     for (let path of path_arr) {
