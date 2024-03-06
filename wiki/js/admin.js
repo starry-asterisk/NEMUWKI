@@ -356,25 +356,3 @@ function testInit() {
     }
 
 }
-/*
-//미니 게임 코드
-window.onload = () => {
-    let fish = createElement('div', { attrs: { class: 'jellyFish' } });
-    document.body.append(fish);
-    let top = 500, left = 500;
-    let lastTop = 0, lastLeft = 0;
-    setInterval(() => {
-        top += Math.floor((Math.random() - 0.5) * 500);
-        left += Math.floor((Math.random() - 0.5) * 500);
-        var deltaX = left - lastLeft;
-        var deltaY = top - lastTop;
-        var rad = Math.atan2(deltaY, deltaX); // In radians
-
-        var deg = rad * (180 / Math.PI)
-        lastTop = top;
-        lastLeft = left;
-        fish.setStyles({
-            top, left, transform: `rotate(${deg}deg)`
-        });
-    }, 5000);
-};*/
