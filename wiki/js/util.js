@@ -517,11 +517,11 @@ function createNotice(data) {
     document.querySelector('main').firstElementChild.after(link);
 }
 
-function share(destination) {
+function share(destination, url = location.href) {
     let searchParams = new URLSearchParams();
     switch (destination) {
         case 'twitter':
-            searchParams.set("url", location.href);
+            searchParams.set("url", url);
             searchParams.set("text", `${document.title}\n`);
             window.open(`https://twitter.com/intent/post?${searchParams.toString()}`, '_blank').focus();
             break;

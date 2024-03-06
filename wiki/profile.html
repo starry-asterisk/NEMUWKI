@@ -21,33 +21,26 @@
     <link rel="stylesheet" href="css/util.css" type="text/css" />
     <link rel="stylesheet" href="css/index.css" type="text/css" />
     <script src="js/util.js"></script>
-    <script src="js/index.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/firebase.js" type="module"></script>
-    <title>#### :: ##</title>
-    <style>
-        .fold+*,
-        #user_area {
-            display: none !important;
-        }
-
-        
-    </style>
+    <title>네무위키 :: 프로필</title>
 </head>
 
 <body>
     <header>
-        <span class="header__logo" onclick="goHome()">개발용</span>
+        <span class="header__logo" onclick="goHome()">네무위키</span>
         <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
     </header>
     <main>
         <div class="main__header">
-            <div class="main__header__title" id="main__header__title">####:##</div>
+            <div class="main__header__title" id="main__header__title">나의 프로필</div>
             <div class="main__header__timestamp" id="main__header__timestamp">2024-02-13 14:25:59</div>
-            <div class="main__header__toolbox"><button onclick="share('twitter')">공유</button></div>
+            <div class="main__header__toolbox"></div>
         </div>
+        <div id="user_area" style="margin-top: 2rem;"></div>
         <div class="main__contents" id="main__contents">
-            <div class="title fold" id="total" onclick="fold(this)">## ##</div>
-            <div class="title fold" id="people" onclick="fold(this)">##</div>
+            <div class="title" id="total" onclick="fold(this)">전체 문서</div>
+            <div class="title" id="people" onclick="fold(this)">인물</div>
         </div>
         <footer></footer>
     </main>
@@ -55,21 +48,14 @@
         <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
                 onkeydown="search(event, this)" id="search_input" /></div>
         <div>
-            <p onclick="fold(this)" class="fold">###</p>
+            <p onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>
         </div>
         <div>
-            <p onclick="fold(this)" class="fold">###</p>
+            <p onclick="fold(this)">카테고리</p>
             <ul id="category_list"></ul>
         </div>
-        <div id="user_area"></div>
     </aside>
-    <div class="index">
-        <div class="index__hover"></div>
-        <a data-tooltip="개요"></a>
-        <a data-tooltip="성능"></a>
-        <a data-tooltip="이슈"></a>
-    </div>
 </body>
 
 </html>

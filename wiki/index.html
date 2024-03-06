@@ -30,11 +30,12 @@
     <header>
         <span class="header__logo" onclick="goHome()">네무위키</span>
         <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
+        <span class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"></span>
     </header>
     <main>
         <div class="main__header">
             <div class="main__header__title" id="main__header__title">네무위키:대문</div>
-            <div class="main__header__timestamp" id="main__header__timestamp">2024-02-13 14:25:59</div>
+            <div class="main__header__timestamp" id="main__header__timestamp"></div>
             <div class="main__header__toolbox"><button onclick="share('twitter')">공유</button></div>
         </div>
         <div class="main__contents" id="main__contents">

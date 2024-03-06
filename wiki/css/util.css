@@ -888,3 +888,7 @@ body[developerMode="true"] img {
     text-align: center;
     margin: 3rem;
 }
+
+.non-auth header .account {
+    display: none;
+}

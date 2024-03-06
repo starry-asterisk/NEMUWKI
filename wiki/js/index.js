@@ -222,7 +222,7 @@ async function firebaseLoadCallback() {
         let load_more2 = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
         let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
 
-        let docs2, next2 = firebase.post.list({ category: '인물' }).next;
+        let docs2, next2 = firebase.post.list({ category: '인물' }, false, 'equal').next;
 
         load_more2.onclick = async () => {
             docs2 = await next2();
