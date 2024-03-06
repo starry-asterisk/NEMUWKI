@@ -310,6 +310,9 @@ aside>*>p:first-child {
     .main__header {
         zoom: 0.65;
     }
+    .main__notice {
+        zoom: 0.9;
+    }
 }
 
 @media (max-width: 1000px) {
