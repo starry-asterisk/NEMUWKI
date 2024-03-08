@@ -9,7 +9,7 @@ async function firebaseLoadCallback() {
             }
         });
     } catch (e) {
-        errorHandler(e);
+        firebaseErrorHandler(e);
     }
 }
 
@@ -35,7 +35,7 @@ function login() {
         .then(user => {
             if (user == undefined) throw { code: 'auth/invalid-credential' };
         })
-        .catch(errorHandler);
+        .catch(firebaseErrorHandler);
 }
 
 function loadAdmin(args) {
@@ -46,10 +46,6 @@ function loadAdmin(args) {
 function goAdmin(e) {
     if (e) e.preventDefault();
     location.href = `${ROOT_PATH}admin${SUFFIX}`;
-}
-
-const logger = {
-    ...console
 }
 
 const TabList = [];
@@ -81,14 +77,14 @@ const TAB_SPEC = {
                 item__photo.append(item__photo_img);
                 if (data.photo_url) item__photo_img.src = data.photo_url;
                 item__level.onclick = () => {
-                    if (confirm('권한 레벨을 변경하시겠습니까?')) {
-                        let level = parseInt(prompt('새로운 권한 레벨 [0-5]'));
+                    if (Notify.confirm('권한 레벨을 변경하시겠습니까?')) {
+                        let level = parseInt(Notify.prompt('새로운 권한 레벨 [0-5]'));
                         if (data.level == level || level === NaN) return;
                         firebase.auth.updateUser(option.id, { level })
                             .then(e => {
                                 item__level.innerHTML = data.level = level;
                             })
-                            .catch(errorHandler);
+                            .catch(firebaseErrorHandler);
                     }
                 };
             }
@@ -134,7 +130,7 @@ const TAB_SPEC = {
                     }).then(() => {
                         data.content = item__edit__textarea.value;
                         item.classList.toggle('expand');
-                    }).catch(errorHandler);
+                    }).catch(firebaseErrorHandler);
                 }
             }
             return item;
@@ -211,11 +207,11 @@ const TAB_SPEC = {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if (confirm('정말 이 메뉴를 삭제 하시겠습니까?')) {
+                    if (Notify.confirm('정말 이 메뉴를 삭제 하시겠습니까?')) {
                         firebase.board.deleteOne(option.id).then(() => {
-                            alert('카테고리를 삭제하였습니다.');
+                            Notify.alert('카테고리를 삭제하였습니다.');
                             item.remove();
-                        }).catch(errorHandler);
+                        }).catch(firebaseErrorHandler);
                     }
                 }
             }
@@ -242,11 +238,11 @@ const TAB_SPEC = {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if (confirm('정말 이 카태고리를 삭제 하시겠습니까?')) {
+                    if (Notify.confirm('정말 이 카태고리를 삭제 하시겠습니까?')) {
                         firebase.categories.deleteOne(option.id).then(() => {
-                            alert('카테고리를 삭제하였습니다.');
+                            Notify.alert('카테고리를 삭제하였습니다.');
                             item.remove();
-                        }).catch(errorHandler);
+                        }).catch(firebaseErrorHandler);
                     }
                 }
             }
@@ -267,9 +263,9 @@ const TAB_DEFAULT_SPEC = {
 
 function createTab(type) {
 
-    if (TAB_SPEC[type] == undefined) return logger.warn(`the tab type '${type}' is NOT exist.`);
+    if (TAB_SPEC[type] == undefined) return dev.warn(`the tab type '${type}' is NOT exist.`);
     let { replication, createItem, cursor, alias, search } = { ...TAB_DEFAULT_SPEC, ...TAB_SPEC[type] };
-    if (!replication && TabList.find(tab => tab.type == type)) return logger.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
+    if (!replication && TabList.find(tab => tab.type == type)) return dev.warn(`warnning!! '${type}' cant't have deuplicated Tabs`);
 
     let id = `tab_${Math.floor(Math.random() * 1000000).toString(16)}`;
     let tab = createElement('tab', { attrs: { id, class: type } });
@@ -340,19 +336,8 @@ function createTab(type) {
     return data;
 }
 
-HTMLElement.prototype.switchClass = function (oldClass, newClass, replace = false) {
-    let old_index = Array.prototype.indexOf.call(this.classList, oldClass);
-    let new_index = Array.prototype.indexOf.call(this.classList, newClass);
-    if (replace) this.classList.remove(old_index);
-    this.classList.remove(newClass);
-    if (old_index >= new_index) {
-        this.classList.add(newClass);
-    }
-}
-
 function testInit() {
     for (let spec_name of Object.keys(TAB_SPEC)) {
         workspace.append(createTab(spec_name).el.tab);
     }
-
 }

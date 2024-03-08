@@ -54,7 +54,7 @@ window.addEventListener('load', async function () {
                     ...data
                 });
             } catch (e) {
-                console.error("Error adding document: ", e);
+                dev.error("Error adding document: ", e);
             }
         },
         deleteOne: async id => await deleteDoc(doc(db, "postList", id)),
@@ -113,7 +113,7 @@ window.addEventListener('load', async function () {
                     ...data
                 });
             } catch (e) {
-                console.error("Error adding document: ", e);
+                dev.error("Error adding document: ", e);
             }
         },
         deleteOne: async id => await deleteDoc(doc(db, "boardList", id)),
@@ -156,7 +156,7 @@ window.addEventListener('load', async function () {
                     ...data
                 });
             } catch (e) {
-                console.error("Error adding document: ", e);
+                dev.error("Error adding document: ", e);
             }
         },
         updateOne: async (id, data) => await updateDoc(doc(db, "notice", id), data),
@@ -190,7 +190,7 @@ window.addEventListener('load', async function () {
                     ...data
                 });
             } catch (e) {
-                console.error("Error adding document: ", e);
+                dev.error("Error adding document: ", e);
             }
         },
         deleteOne: async id => await deleteDoc(doc(db, "categories", id)),
@@ -250,7 +250,7 @@ window.addEventListener('load', async function () {
                     if (infos.data().level !== 0) return callback(false, user);
                     return callback(true, user);
                 } catch (e) {
-                    errorHandler(e);
+                    firebaseErrorHandler(e);
                 }
             });
         },

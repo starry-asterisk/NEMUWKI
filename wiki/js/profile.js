@@ -28,7 +28,7 @@ function firebaseLoadCallback() {
         user_area.append(profile__email);
 
         if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--accent)' } }));
-        else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--accent)', 'white-space': 'nowrap' }, on: { click: () => modal('confirm') } }));
+        else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--accent)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
 
         let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
         let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
@@ -52,7 +52,7 @@ function firebaseLoadCallback() {
                 profile__photo__img.src = photo_url;
                 firebase.auth.updateUser(user.uid, { photo_url });
             } else {
-                alert('프로필 이미지 업로드에 실패했습니다.');
+                Notify.alert('프로필 이미지 업로드에 실패했습니다.');
             }
         }
 
@@ -65,14 +65,14 @@ function firebaseLoadCallback() {
                 profile.setStyles({ '--background-url': `url("${banner_url}")` });
                 firebase.auth.updateUser(user.uid, { banner_url });
             } else {
-                alert('프로필 이미지 업로드에 실패했습니다.');
+                Notify.alert('프로필 이미지 업로드에 실패했습니다.');
             }
         }
 
         upload.onclick = () => location.href = `${ROOT_PATH}form${SUFFIX}`;
         logout.onclick = () => {
             firebase.auth.logout()
-                .catch(errorHandler);
+                .catch(firebaseErrorHandler);
         }
 
         // 게시물 로딩
@@ -148,12 +148,12 @@ function firebaseLoadCallback() {
                 recent_post.append(li);
             }
         } catch (e) {
-            errorHandler(e);
+            firebaseErrorHandler(e);
         }
 
         document.body.classList.remove('loading');
     }, () => {
-        alert('로그인 상태가 아니면 이용하실 수 없는 페이지입니다.');
+        Notify.alert('로그인 상태가 아니면 이용하실 수 없는 페이지입니다.');
         location.href = ROOT_PATH;
     });
 }

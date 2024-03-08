@@ -3,29 +3,15 @@ HTMLElement.prototype.setStyles = function (obj) {
     return this;
 }
 
-function createElement(tagName, option) {
-    return createElementPrototype(tagName || 'div', option || {});
+HTMLElement.prototype.switchClass = function (oldClass, newClass, replace = false) {
+    let old_index = Array.prototype.indexOf.call(this.classList, oldClass);
+    let new_index = Array.prototype.indexOf.call(this.classList, newClass);
+    if (replace) this.classList.remove(old_index);
+    this.classList.remove(newClass);
+    if (old_index >= new_index) {
+        this.classList.add(newClass);
+    }
 }
-
-function createElementPrototype(tagName, {
-    styles = {},
-    attrs = {},
-    on = {},
-    value,
-    innerHTML
-}) {
-    let el = document.createElement(tagName);
-
-    for (let namespace in styles) el.style.setProperty(namespace, styles[namespace]);
-    for (let namespace in attrs) el.setAttribute(namespace, attrs[namespace]);
-    for (let namespace in on) el[`on${namespace}`] = on[namespace];
-
-    if (innerHTML) el.innerHTML = innerHTML;
-    if (value) el.value = value;
-
-    return el;
-}
-
 
 customElements.define('editable-table', class extends HTMLElement {
     _beforeInit = true;
@@ -65,7 +51,6 @@ customElements.define('editable-table', class extends HTMLElement {
                 this.addCell(frag.lastChild).style.width = this._headers.children[i].style.width;
             }
         } else if (newValue < frag.children.length - 1) {
-            console.log(frag);
             for (; newValue < frag.children.length - 1;) frag.lastChild.remove();
             this._rows.length = newValue;
         }
@@ -145,6 +130,43 @@ customElements.define('editable-table', class extends HTMLElement {
     }
 });
 
+function createElement(tagName = 'div', option) {
+    let {
+        styles = {},
+        attrs = {},
+        on = {},
+        value,
+        innerHTML
+    } = option || {};
+    let el = document.createElement(tagName);
+
+    for (let namespace in styles) el.style.setProperty(namespace, styles[namespace]);
+    for (let namespace in attrs) el.setAttribute(namespace, attrs[namespace]);
+    for (let namespace in on) el[`on${namespace}`] = on[namespace];
+
+    if (innerHTML) el.innerHTML = innerHTML;
+    if (value) el.value = value;
+
+    return el;
+}
+
+function createNotice(data) {
+    let link = createElement('a', { attrs: { class: "main__notice" } });
+    let title = createElement('span', { innerHTML: data.title });
+    let timestamp = createElement('span', { attrs: { class: "main__notice__timestamp" }, innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
+    let content = createElement('span', { attrs: { class: "main__notice__content" }, innerHTML: data.content });
+    link.append(title);
+    link.append(timestamp);
+    link.append(content);
+
+    link.onclick = () => {
+        link.classList.toggle('open');
+    }
+    content.onclick = e => e.stopPropagation();
+
+    document.querySelector('main').firstElementChild.after(link);
+}
+
 function addSuggest(data, input) {
     let li = createElement('li', { attrs: { value: data.path || data.name } });
     li.onmousedown = () => {
@@ -155,73 +177,26 @@ function addSuggest(data, input) {
 
 function goHome() { location.href = ROOT_PATH }
 
-function goRandom() {
-    firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`);
-}
+function goRandom() { firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`) }
 
-function errorHandler(error) {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    switch (errorCode) {
-        case 'permission-denied':
-            alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
-            location.href = ROOT_PATH;
-            break;
-        case 'admin-permission-denied':
-            alert('접근 가능한 관리자가 아닌 계정으로 로그인 되어있습니다. 다시 로그인 해주세요.');
-            break;
-        case 'auth/invalid-email':
-            alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
-            break;
-        case 'auth/missing-password':
-            alert('패스워드를 입력해주세요.');
-            break;
-        case 'auth/invalid-credential':
-            alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
-            break;
-        case 'auth/email-already-in-use':
-            alert('이미 사용중인 이메일입니다.');
-            break;
-        case 'auth/weak-password':
-            alert('취약한 비밀번호 입니다.');
-            break;
-        default:
-            alert(`오류가 발생했습니다::${errorCode}:`);
-            console.error(errorCode, errorMessage);
-            break;
-    }
-}
-/* 구버전 필요시 리비전
-function board2Tree__OLD(arr) {
-    let depth_sorted = {};
-    let tree = [];
-    let max_depth;
-    for (let child of arr) {
-        if (depth_sorted[child.depth] == undefined) depth_sorted[child.depth] = [];
-        depth_sorted[child.depth].push(child);
-    }
-    max_depth = Math.max.apply(undefined, Object.keys(depth_sorted));
-
-    for (let d = max_depth; d > 0; d--) {
-        let parent_arr = depth_sorted[d - 1] || [];
-        let child_arr = depth_sorted[d] || [];
-        if (parent_arr.length < 1) {
-            for (let child of child_arr) tree.unshift(child);
-        } else {
-            for (let child of child_arr) {
-                let parent = parent_arr.find(parent => parent.name == child.parent);
-                if (parent == undefined) tree.unshift(child);
-                else {
-                    if (parent.child == undefined) parent.child = []
-                    parent.child.push(child);
-                }
-            }
+function goShare(destination, url = location.href) {
+    if (destination == undefined && typeof navigator.share == 'function') {
+        navigator.share({
+            title: document.title,
+            text: document.title,
+            url: url,
+        });
+    } else {
+        let searchParams = new URLSearchParams();
+        switch (destination) {
+            case 'twitter':
+                searchParams.set("url", url);
+                searchParams.set("text", `${document.title}\n`);
+                window.open(`https://twitter.com/intent/post?${searchParams.toString()}`, '_blank').focus();
+                break;
         }
     }
-
-    console.log(board2Tree__NEW(arr));
-    return tree;
-}*/
+}
 
 function board2Tree(arr) {
     for (let menu of arr) {
@@ -330,27 +305,42 @@ async function uploadByImgur(file) {
     });
 
     return response.json();
-
-    /*
-      {
-          url: 'https://api.imgur.com/3/image',
-          type: 'POST',
-          headers: {
-            Authorization: auth,
-            Accept: 'application/json'
-          },
-          data: {
-            image: localStorage.dataBase64,
-            type: 'base64'
-          },
-          success: function(result) {
-            var id = result.data.id;
-            window.location = 'https://imgur.com/gallery/' + id;
-          }
-        }*/
 }
 
-function errorHandler2(code) {
+function firebaseErrorHandler(error) {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    switch (errorCode) {
+        case 'permission-denied':
+            Notify.alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+            location.href = ROOT_PATH;
+            break;
+        case 'admin-permission-denied':
+            Notify.alert('접근 가능한 관리자가 아닌 계정으로 로그인 되어있습니다. 다시 로그인 해주세요.');
+            break;
+        case 'auth/invalid-email':
+            Notify.alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
+            break;
+        case 'auth/missing-password':
+            Notify.alert('패스워드를 입력해주세요.');
+            break;
+        case 'auth/invalid-credential':
+            Notify.alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
+            break;
+        case 'auth/email-already-in-use':
+            Notify.alert('이미 사용중인 이메일입니다.');
+            break;
+        case 'auth/weak-password':
+            Notify.alert('취약한 비밀번호 입니다.');
+            break;
+        default:
+            Notify.alert(`오류가 발생했습니다::${errorCode}:`);
+            dev.error(errorCode, errorMessage);
+            break;
+    }
+}
+
+function NetErrorHandler(code) {
     document.body.classList.add('error');
     document.body.append(createElement('error', {
         attrs: {
@@ -358,11 +348,11 @@ function errorHandler2(code) {
         }, innerHTML: code
     }));
     document.title = '404 NOT FOUND PAGE';
-    return console.warn('404 NOT FOUND PAGE');
+    return dev.warn('404 NOT FOUND PAGE');
 }
 
 //이메일 인증 모달
-function modal(mode = 'prompt') {
+function modal(mode = 'emailPrompt') {
     let container = createElement('dialog');
     let form = createElement('form', { attrs: { method: 'dialog' } });
     let button_cancel = createElement('button', { value: 'cancel', attrs: { class: 'danger' } });
@@ -374,7 +364,7 @@ function modal(mode = 'prompt') {
 }
 
 const MODAL_TEMPLATE = {
-    prompt: container => {
+    emailPrompt: container => {
         let frag = document.createDocumentFragment();
         let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '재설정을 위해 이메일을 입력해주세요.' });
         let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
@@ -386,19 +376,18 @@ const MODAL_TEMPLATE = {
         text_input_container.append(text_input);
         button_confirm.onclick = e => {
             e.preventDefault();
-            (async () => {
-                if (validate(text_input, undefined, 'email')) await firebase.auth.sendPasswordResetEmail(text_input.value);
-            })()
-                .then(result => {
-                    if (result) console.log(result);
-                    alert('메일이 전송되었습니다.');
-                    container.close();
-                })
-                .catch(errorHandler);
+            if (validate(text_input, undefined, 'email'))
+                firebase.auth.sendPasswordResetEmail(text_input.value)
+                    .then(result => {
+                        if (result) dev.log(result);
+                        Notify.alert('메일이 전송되었습니다.');
+                        container.close();
+                    })
+                    .catch(firebaseErrorHandler);
         }
         return frag;
     },
-    confirm: container => {
+    emailConfirm: container => {
         let frag = document.createDocumentFragment();
         let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '버튼을 누르면 인증 메일이 발송됩니다.' });
         let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
@@ -408,11 +397,11 @@ const MODAL_TEMPLATE = {
             e.preventDefault();
             (async () => await firebase.auth.sendEmailVerification())()
                 .then(result => {
-                    if (result) console.log(result);
-                    alert('메일이 전송되었습니다.');
+                    if (result) dev.log(result);
+                    Notify.alert('메일이 전송되었습니다.');
                     container.close();
                 })
-                .catch(errorHandler);
+                .catch(firebaseErrorHandler);
         }
         return frag;
     },
@@ -431,18 +420,18 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (Notify.confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
                     firebase.categories.insertOne({ name: text_input.value })
                         .then(() => {
-                            alert('카테고리가 추가되었습니다.');
+                            Notify.alert('카테고리가 추가되었습니다.');
                             SuggestList['category'].push({ name: text_input.value });
                             loadCategorySuggest();
                             container.close();
                         })
-                        .catch(errorHandler);
+                        .catch(firebaseErrorHandler);
                 }
             } else {
-                alert('카테고리 명칭을 입력해 주세요.')
+                Notify.alert('카테고리 명칭을 입력해 주세요.')
             }
         }
         return frag;
@@ -474,60 +463,28 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (Notify.confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
                     firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
                         .then(() => {
-                            alert('메뉴가 추가되었습니다.');
+                            Notify.alert('메뉴가 추가되었습니다.');
                             SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
                             loadBoardSuggest();
                             container.close();
                         })
-                        .catch(errorHandler);
+                        .catch(firebaseErrorHandler);
                 }
             } else {
-                alert('메뉴 명칭을 입력해 주세요.')
+                Notify.alert('메뉴 명칭을 입력해 주세요.')
             }
         }
         return frag;
     }
 };
 
-function createElements(arr) {
-    let returnArr = [];
-    for (let name of arr) {
-        returnArr[name] = createElement.apply(undefined, arr[name]);
-    }
-    return returnArr;
+const Notify = {
+    alert, confirm, prompt
 }
-
-function createNotice(data) {
-    let link = createElement('a', { attrs: { class: "main__notice" } });
-    let title = createElement('span', { innerHTML: data.title });
-    let timestamp = createElement('span', { attrs: { class: "main__notice__timestamp" }, innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
-    let content = createElement('span', { attrs: { class: "main__notice__content" }, innerHTML: data.content });
-    link.append(title);
-    link.append(timestamp);
-    link.append(content);
-
-    link.onclick = () => {
-        link.classList.toggle('open');
-    }
-    content.onclick = e => e.stopPropagation();
-
-    document.querySelector('main').firstElementChild.after(link);
-}
-
-function share(destination, url = location.href) {
-    let searchParams = new URLSearchParams();
-    switch (destination) {
-        case 'twitter':
-            searchParams.set("url", url);
-            searchParams.set("text", `${document.title}\n`);
-            window.open(`https://twitter.com/intent/post?${searchParams.toString()}`, '_blank').focus();
-            break;
-    }
-}
-
+const dev = console;
 const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
