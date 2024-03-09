@@ -52,7 +52,7 @@ async function firebaseLoadCallback() {
         localStorage.setItem('visited', visited);
 
         buildPost(data);
-        document.querySelector('.main__header__toolbox').syle.display = 'flex';
+        document.querySelector('.main__header__toolbox').style.display = 'flex';
     } else {
         main__header__timestamp.innerHTML = new Date().toLocaleString();
         setTimeout(() => {
