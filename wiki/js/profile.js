@@ -52,7 +52,7 @@ function firebaseLoadCallback() {
                 profile__photo__img.src = photo_url;
                 firebase.auth.updateUser(user.uid, { photo_url });
             } else {
-                Notify.alert('프로필 이미지 업로드에 실패했습니다.');
+                alert('프로필 이미지 업로드에 실패했습니다.');
             }
         }
 
@@ -65,7 +65,7 @@ function firebaseLoadCallback() {
                 profile.setStyles({ '--background-url': `url("${banner_url}")` });
                 firebase.auth.updateUser(user.uid, { banner_url });
             } else {
-                Notify.alert('프로필 이미지 업로드에 실패했습니다.');
+                alert('프로필 이미지 업로드에 실패했습니다.');
             }
         }
 
@@ -153,7 +153,7 @@ function firebaseLoadCallback() {
 
         document.body.classList.remove('loading');
     }, () => {
-        Notify.alert('로그인 상태가 아니면 이용하실 수 없는 페이지입니다.');
+        alert('로그인 상태가 아니면 이용하실 수 없는 페이지입니다.');
         location.href = ROOT_PATH;
     });
 }

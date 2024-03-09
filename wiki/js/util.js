@@ -312,29 +312,29 @@ function firebaseErrorHandler(error) {
     const errorMessage = error.message;
     switch (errorCode) {
         case 'permission-denied':
-            Notify.alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+            alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
             location.href = ROOT_PATH;
             break;
         case 'admin-permission-denied':
-            Notify.alert('접근 가능한 관리자가 아닌 계정으로 로그인 되어있습니다. 다시 로그인 해주세요.');
+            alert('접근 가능한 관리자가 아닌 계정으로 로그인 되어있습니다. 다시 로그인 해주세요.');
             break;
         case 'auth/invalid-email':
-            Notify.alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
+            alert('옳바르지 않거나 존재하지 않는 이메일 입니다.');
             break;
         case 'auth/missing-password':
-            Notify.alert('패스워드를 입력해주세요.');
+            alert('패스워드를 입력해주세요.');
             break;
         case 'auth/invalid-credential':
-            Notify.alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
+            alert('로그인 인증에 실패했습니다. 패스워드 또는 아이디를 확인해 주세요.');
             break;
         case 'auth/email-already-in-use':
-            Notify.alert('이미 사용중인 이메일입니다.');
+            alert('이미 사용중인 이메일입니다.');
             break;
         case 'auth/weak-password':
-            Notify.alert('취약한 비밀번호 입니다.');
+            alert('취약한 비밀번호 입니다.');
             break;
         default:
-            Notify.alert(`오류가 발생했습니다::${errorCode}:`);
+            alert(`오류가 발생했습니다::${errorCode}:`);
             dev.error(errorCode, errorMessage);
             break;
     }
@@ -380,7 +380,7 @@ const MODAL_TEMPLATE = {
                 firebase.auth.sendPasswordResetEmail(text_input.value)
                     .then(result => {
                         if (result) dev.log(result);
-                        Notify.alert('메일이 전송되었습니다.');
+                        alert('메일이 전송되었습니다.');
                         container.close();
                     })
                     .catch(firebaseErrorHandler);
@@ -398,7 +398,7 @@ const MODAL_TEMPLATE = {
             (async () => await firebase.auth.sendEmailVerification())()
                 .then(result => {
                     if (result) dev.log(result);
-                    Notify.alert('메일이 전송되었습니다.');
+                    alert('메일이 전송되었습니다.');
                     container.close();
                 })
                 .catch(firebaseErrorHandler);
@@ -420,10 +420,10 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (Notify.confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
                     firebase.categories.insertOne({ name: text_input.value })
                         .then(() => {
-                            Notify.alert('카테고리가 추가되었습니다.');
+                            alert('카테고리가 추가되었습니다.');
                             SuggestList['category'].push({ name: text_input.value });
                             loadCategorySuggest();
                             container.close();
@@ -431,7 +431,7 @@ const MODAL_TEMPLATE = {
                         .catch(firebaseErrorHandler);
                 }
             } else {
-                Notify.alert('카테고리 명칭을 입력해 주세요.')
+                alert('카테고리 명칭을 입력해 주세요.')
             }
         }
         return frag;
@@ -463,10 +463,10 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (Notify.confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
                     firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
                         .then(() => {
-                            Notify.alert('메뉴가 추가되었습니다.');
+                            alert('메뉴가 추가되었습니다.');
                             SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
                             loadBoardSuggest();
                             container.close();
@@ -474,7 +474,7 @@ const MODAL_TEMPLATE = {
                         .catch(firebaseErrorHandler);
                 }
             } else {
-                Notify.alert('메뉴 명칭을 입력해 주세요.')
+                alert('메뉴 명칭을 입력해 주세요.')
             }
         }
         return frag;

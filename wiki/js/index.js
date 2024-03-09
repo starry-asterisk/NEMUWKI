@@ -194,7 +194,7 @@ function createProfile(user) {
             if (result.status == 200) {
                 callback(result.data.link);
             } else {
-                Notify.alert('프로필 이미지 업로드에 실패했습니다.');
+                alert('프로필 이미지 업로드에 실패했습니다.');
             }
         }
     }
@@ -248,7 +248,7 @@ function createLoginForm() {
         if (!validate(password, undefined, 'password')) return;
         if (!validate(password, password_re, 'password')) return;
         firebase.auth.signup(email.value, password.value)
-            .then(creditional => creditional && Notify.alert('회원 가입완료 되었습니다.'))
+            .then(creditional => creditional && alert('회원 가입완료 되었습니다.'))
             .catch(firebaseErrorHandler);
     }
 

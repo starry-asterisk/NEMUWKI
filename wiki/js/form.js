@@ -67,7 +67,7 @@ async function loadCategorySuggest() {
 
 async function firebaseLoadCallback() {
     firebase.auth.check(user => { author_uid = author_uid || user.uid }, () => {
-        Notify.alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
+        alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
         return;
     });
@@ -151,7 +151,7 @@ function dropfile(files) {
                 break;
             default:
                 dev.warn('no support type :', type);
-                Notify.alert('지원하지 않는 파일형식 이거나 폴더 입니다');
+                alert('지원하지 않는 파일형식 이거나 폴더 입니다');
                 break;
         }
     });
@@ -286,8 +286,8 @@ const COMPONENT_SPEC = {
                     if (result.status === 200) {
                         fileName = result.data.link;
                     } else {
-                        Notify.alert('Imgur사이트 파일 업로드에 실패했습니다.');
-                        if (Notify.confirm('다시 시도하겠습니까?')) await firebase.storage.upload(fileName, file);
+                        alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                        if (confirm('다시 시도하겠습니까?')) await firebase.storage.upload(fileName, file);
                     }
                 } else {
                     await firebase.storage.upload(fileName, file);
@@ -618,7 +618,7 @@ function createTextboxOpt() {
                 on: {
                     click: () => {
                         val = command.val || "";
-                        if (command.prompt) val = command.conv_fn(Notify.prompt(command.prompt));
+                        if (command.prompt) val = command.conv_fn(prompt(command.prompt));
                         document.execCommand("styleWithCSS", 0, true);
                         document.execCommand(command.cmd, false, val || "");
                     }
@@ -631,7 +631,7 @@ function createTextboxOpt() {
 }
 
 function remove(button) {
-    if (!Notify.confirm('정말로 삭제 하시겠습니까?')) return;
+    if (!confirm('정말로 삭제 하시겠습니까?')) return;
     button.setAttribute('disabled', true);
     firebase.post.deleteOne(post_id)
         .then(() => location.href = ROOT_PATH)
@@ -639,7 +639,7 @@ function remove(button) {
 }
 
 async function submit(button) {
-    if (!Notify.confirm('작성한 내용을 업로드 하시겠습니까?')) return;
+    if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
     if (!validate(main__header__title)) return;
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
@@ -673,14 +673,14 @@ async function submit(button) {
         firebase.post.insertOne(data)
             .then(ref => {
                 if (ref == undefined) {
-                    Notify.alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+                    alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
                     location.href = ROOT_PATH;
                     return;
                 }
                 location.href = `${ROOT_PATH}?post=${ref.id}`;
             })
             .catch(e => {
-                Notify.alert('ERROR::저장에 실패했습니다::');
+                alert('ERROR::저장에 실패했습니다::');
                 dev.error(e);
             });
     }

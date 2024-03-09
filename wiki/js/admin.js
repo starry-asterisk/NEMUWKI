@@ -77,8 +77,8 @@ const TAB_SPEC = {
                 item__photo.append(item__photo_img);
                 if (data.photo_url) item__photo_img.src = data.photo_url;
                 item__level.onclick = () => {
-                    if (Notify.confirm('권한 레벨을 변경하시겠습니까?')) {
-                        let level = parseInt(Notify.prompt('새로운 권한 레벨 [0-5]'));
+                    if (confirm('권한 레벨을 변경하시겠습니까?')) {
+                        let level = parseInt(prompt('새로운 권한 레벨 [0-5]'));
                         if (data.level == level || level === NaN) return;
                         firebase.auth.updateUser(option.id, { level })
                             .then(e => {
@@ -207,9 +207,9 @@ const TAB_SPEC = {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if (Notify.confirm('정말 이 메뉴를 삭제 하시겠습니까?')) {
+                    if (confirm('정말 이 메뉴를 삭제 하시겠습니까?')) {
                         firebase.board.deleteOne(option.id).then(() => {
-                            Notify.alert('카테고리를 삭제하였습니다.');
+                            alert('카테고리를 삭제하였습니다.');
                             item.remove();
                         }).catch(firebaseErrorHandler);
                     }
@@ -238,9 +238,9 @@ const TAB_SPEC = {
                 item.classList.add('header');
             } else {
                 item__delete.onclick = () => {
-                    if (Notify.confirm('정말 이 카태고리를 삭제 하시겠습니까?')) {
+                    if (confirm('정말 이 카태고리를 삭제 하시겠습니까?')) {
                         firebase.categories.deleteOne(option.id).then(() => {
-                            Notify.alert('카테고리를 삭제하였습니다.');
+                            alert('카테고리를 삭제하였습니다.');
                             item.remove();
                         }).catch(firebaseErrorHandler);
                     }
