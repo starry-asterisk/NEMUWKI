@@ -70,7 +70,7 @@ window.addEventListener('load', async function () {
                 where('hidden', '==', hidden)
             ], params, documentSnapshots, isEnd = false;
             for (let field in search) {
-                if (search[field] == '') continue;
+                if (search[field] == '' ||search[field] == undefined) continue;
                 switch (operator) {
                     case 'contains':
                         param_base.push(where(field, '>=', search[field]));

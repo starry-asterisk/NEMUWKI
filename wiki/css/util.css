@@ -889,6 +889,7 @@ body[developerMode="true"] img {
     margin: 3rem;
 }
 
-.non-auth header .account {
+.non-auth header .account,
+.non-auth .main__header__toolbox > button.edit {
     display: none;
 }

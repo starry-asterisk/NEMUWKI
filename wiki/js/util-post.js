@@ -1,138 +1,28 @@
-
-function search({ key }) {
-    if (key.toLowerCase() != 'enter') return;
-    location.href = `${ROOT_PATH}?keyword=${search_input.value || ''}`
+async function createVisited() {
+    for (let str of visited) {
+        let [visited_id, title, board_name] = str.split(':');
+        let li = createElement('li');
+        let li_a = createElement('a', { innerHTML: `${SuggestList['board2Path_2'][board_name] || board_name} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
+        li.append(li_a);
+        recent_post.append(li);
+    }
 }
 
-async function firebaseLoadCallback() {
-    document.body.classList.add('loading');
-
-    let main__header__toolbox = document.querySelector('.main__header__toolbox');
-    let toolbox__editButton;
-
-    firebase.auth.check(user => {
-        user_area.innerHTML = '';
-        createProfile(user);
-        document.body.classList.remove('non-auth');
-        if (post_id) {
-            if(toolbox__editButton == undefined) toolbox__editButton = createElement('button', {
-                innerHTML: '수정', on: {
-                    click: () => {
-                        location.href = `${ROOT_PATH}form${SUFFIX}?post=${post_id}`;
-                    }
-                }
-            });
-            main__header__toolbox.append(toolbox__editButton);
-        }
-    }, () => {
-        user_area.innerHTML = '';
-        createLoginForm();
-        document.body.classList.add('non-auth');
-        if(toolbox__editButton) toolbox__editButton.remove();
-    });
-
-    SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
-    let pathFromBoard = board2Path(SuggestList['board'], 2);
-
-    createCategories(pathFromBoard);
-
-    if (post_id) {
-        main__contents.innerHTML = '';
-        let doc = await firebase.post.selectOne(post_id);
-        let data = doc.data();
-
-        if (data == undefined) return NetErrorHandler(404);
-
-        document.title = `${PAGE_PREFIX}${data.board_name} - ${data.title}`;
-
-        let old_visited_index = visited.indexOf(`${post_id}:${data.title}:${data.board_name}`);
-        if (old_visited_index > -1) visited.splice(old_visited_index, 1);
-        visited.unshift(`${post_id}:${data.title}:${data.board_name}`);
-        visited.splice(VISITED_MAX);
-        localStorage.setItem('visited', visited);
-
-        buildPost(data);
-        document.querySelector('.main__header__toolbox').style.display = 'flex';
-    } else {
-        main__header__timestamp.innerHTML = new Date().toLocaleString();
-        setTimeout(() => {
-            setInterval(() => {
-                main__header__timestamp.innerHTML = new Date().toLocaleString();
-            }, 1000);
-        }, 1000 - new Date().getMilliseconds());
-
-        let keyword = params.get('keyword') || '';
-        let field = params.get('field') || 'title';
-        let operator = params.get('operator') || 'contains';
-        let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
-        let board_list = createElement('div', { attrs: { class: 'board_list_1' } });
-
-        let docs, { next } = await firebase.post.list({ [field]: keyword }, false, operator);
-
-        search_input.value = keyword;
-
-        load_more.onclick = async () => {
-            docs = await next();
-            load();
-        }
-
-        total.after(board_list);
-        board_list.after(load_more);
-        await load_more.onclick();
-
-        function load() {
-            for (let doc of docs) {
-                let data = doc.data();
-                data.board_name = pathFromBoard[data.board_name] || data.board_name;
-                board_list.append(createType1Item(data, doc.id));
-            }
-            if (docs.length < 25) load_more.setStyles({ display: 'none' });
-        }
-
-        let load_more2 = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
-        let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
-
-        let docs2, next2 = firebase.post.list({ category: '인물' }, false, 'equal').next;
-
-        load_more2.onclick = async () => {
-            docs2 = await next2();
-            load2();
-        }
-
-        people.after(board_list_2);
-        board_list_2.after(load_more2);
-
-        await load_more2.onclick();
-
-        function load2() {
-            for (let doc of docs2) {
-                let data = doc.data();
-                board_list_2.append(createType2Item(data, doc.id));
-            }
-            if (docs2.length < 25) load_more2.setStyles({ display: 'none' });
-        }
-
-        firebase.notice.getNewest().then(ref => {
-            for (let doc of ref.docs) {
-                createNotice(doc.data());
-                break;
-            }
-        }).catch(firebaseErrorHandler);
+async function createCategories(pathFromBoard = SuggestList['board2Path_2']) {
+    for (let pathname in pathFromBoard) {
+        let li = createElement('li');
+        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name_arr&operator=array-contains` } }));
+        category_list.append(li);
     }
+}
 
-    try {
-        for (let str of visited) {
-            let [visited_id, title, board_name] = str.split(':');
-            let li = createElement('li');
-            let li_a = createElement('a', { innerHTML: `${pathFromBoard[board_name] || board_name} : ${title}`, attrs: { href: `${ROOT_PATH}?post=${visited_id}` } });
-            li.append(li_a);
-            recent_post.append(li);
+function loadNotice() {
+    firebase.notice.getNewest().then(ref => {
+        for (let doc of ref.docs) {
+            createNotice(doc.data());
+            break;
         }
-    } catch (e) {
-        firebaseErrorHandler(e);
-    }
-
-    document.body.classList.remove('loading');
+    }).catch(firebaseErrorHandler);
 }
 
 function createProfile(user) {
@@ -271,54 +161,85 @@ function createLoginForm() {
     password_re.oninput = () => validate(password_re, password, 'password');
 }
 
-function createCategories(pathFromBoard) {
-    for (let pathname in pathFromBoard) {
-        let li = createElement('li');
-        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name_arr&operator=array-contains` } }));
-        category_list.append(li);
+async function createList1(keyword, field, operator) {
+    let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
+    let board_list = createElement('div', { attrs: { class: 'board_list_1' } });
+
+    let docs, { next } = await firebase.post.list({ [field]: keyword }, false, operator);
+
+    load_more.onclick = async () => {
+        docs = await next();
+        load();
+    }
+
+    total.after(board_list);
+    board_list.after(load_more);
+    await load_more.onclick();
+
+    function load() {
+        for (let doc of docs) {
+            let data = doc.data();
+            data.board_name = SuggestList['board2Path_2'][data.board_name] || data.board_name;
+            board_list.append(createElement('div', {
+                attrs: { board_name: data.board_name, title: data.title },
+                on: {
+                    click: () => {
+                        location.href = `${ROOT_PATH}?post=${doc.id}`;
+                    }
+                }
+            }));
+        }
+        if (docs.length < 25) load_more.setStyles({ display: 'none' });
     }
 }
 
-function createType1() {
+async function createList2(keyword = '', field = 'author', operator = 'equal') {
 
-}
+    let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
+    let board_list_2 = createElement('div', { attrs: { class: 'board_list_2' } });
 
-function createType1Item(data, id) {
-    return createElement('div', {
-        attrs: { board_name: data.board_name, title: data.title },
-        on: {
-            click: () => {
-                location.href = `${ROOT_PATH}?post=${id}`;
-            }
-        }
-    });
-}
+    let docs, next = firebase.post.list({ category: '인물', [field]: keyword }, false, operator).next;
 
-function createType2() {
-
-}
-
-function createType2Item(data, id) {
-    let item = createElement('div', {
-        innerHTML: `${data.board_name}<br>${data.title}`,
-        on: {
-            click: () => {
-                location.href = `${ROOT_PATH}?post=${id}`;
-            }
-        }
-    });
-    let img = createElement('img');
-
-    item.prepend(img);
-
-    let urlObj = data.contents.find(content => content.type == 'image');
-    if (urlObj?.value) {
-        if (urlObj.value.startsWith('http')) img.src = urlObj.value;
-        else firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+    load_more.onclick = async () => {
+        docs = await next();
+        load();
     }
-    else img.src = '[ no image ]';
 
-    return item;
+    people.after(board_list_2);
+    board_list_2.after(load_more);
+
+    await load_more.onclick();
+
+    function load() {
+        for (let doc of docs) {
+            let data = doc.data();
+            board_list_2.append(createList2Item(data, doc.id));
+        }
+        if (docs.length < 25) load_more.setStyles({ display: 'none' });
+    }
+
+    function createList2Item(data, id) {
+        let item = createElement('div', {
+            innerHTML: `${data.board_name}<br>${data.title}`,
+            on: {
+                click: () => {
+                    location.href = `${ROOT_PATH}?post=${id}`;
+                }
+            }
+        });
+        let img = createElement('img');
+
+        item.prepend(img);
+
+        let urlObj = data.contents.find(content => content.type == 'image');
+        if (urlObj?.value) {
+            if (urlObj.value.startsWith('http')) img.src = urlObj.value;
+            else firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+        }
+        else img.src = '[ no image ]';
+
+        return item;
+    }
 }
 
 function buildPost(data) {
@@ -331,7 +252,8 @@ function buildPost(data) {
         contents
     } = data;
 
-    let path_arr = board_name_arr || board2Path(SuggestList['board']).find(row => row.name == board_name)?.path_arr || [board_name];
+    let alter_path_arr = SuggestList['board2Path_1'] || [];
+    let path_arr = board_name_arr || alter_path_arr.find(row => row.name == board_name)?.path_arr || [board_name];
 
 
     let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
@@ -351,7 +273,7 @@ function buildPost(data) {
     for (let content of contents) {
         if (component_list[content.type] == undefined) component_list[content.type] = [];
         let div = createElement('div', { attrs: { class: content.type } });
-        div.append(COMPONENT_SPEC[content.type](content.value));
+        div.append(COMPONENT_BUILD_SPEC[content.type](content.value));
         component_list[content.type].push(div);
         main__contents.append(div);
     }
@@ -432,8 +354,7 @@ function buildPost(data) {
     }
 }
 
-
-const COMPONENT_SPEC = {
+const COMPONENT_BUILD_SPEC = {
     textbox: (value) => {
         let frag = document.createDocumentFragment();
         let tpl = createElement('template');
@@ -449,8 +370,8 @@ const COMPONENT_SPEC = {
 
         return media;
     },
-    audio: (value) => COMPONENT_SPEC.image(value, 'audio'),
-    video: (value) => COMPONENT_SPEC.image(value, 'video'),
+    audio: (value) => COMPONENT_BUILD_SPEC.image(value, 'audio'),
+    video: (value) => COMPONENT_BUILD_SPEC.image(value, 'video'),
     table: (value) => {
         let { cells, header, rowcount } = value;
         let table = createElement('editable-table');
@@ -474,3 +395,5 @@ const COMPONENT_SPEC = {
         return frag;
     }
 }
+
+export {createVisited, createCategories, loadNotice, createProfile, createLoginForm, createList1, createList2, buildPost};
