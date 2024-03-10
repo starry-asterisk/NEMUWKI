@@ -491,6 +491,13 @@ const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
 const VISITED_MAX = 5;
 const FILE_UPLOAD_METHOD = 0; // 0 is imgur, 1 is firestorage
 const PAGE_PREFIX = '네무위키 :: ';
+const REGEX = {
+    annotation: /\[\*(\S+)\s([^\[\]]+)\]/gi,
+    color: /\[\#([^\s\[\]]+)\]/gi,
+    image: /\[image\:([^\s\[\]]+)\]/gi,
+    video: /\[video\:([^\s\[\]]+)\]/gi,
+    music: /\[music\:([^\s\[\]]+)\]/gi,
+};
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
 let firebase = {};
@@ -514,3 +521,4 @@ window.onload = async  function () {
         firebaseLoadCallback();
     }
 }
+let regex = /\[\*(\S+)\s([^\[\]]+)\]/gi;

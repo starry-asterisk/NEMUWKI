@@ -69,7 +69,7 @@ async function firebaseLoadCallback() {
 
         createList1(keyword, field, operator);
 
-        createList2();
+        createList2(operator == 'equal'?keyword:'');
 
         loadNotice();
     }
