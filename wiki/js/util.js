@@ -503,6 +503,14 @@ let SuggestList = {
 
 let post_id = params.get('post');
 
-window.onload = function () {
+window.onload = async  function () {
     document.body.setAttribute('developerMode', DEVELOPER_MODE);
+
+    const module = await import('./firebase.js');
+    firebase = module.default;
+    
+    //초기화 callback
+    if (typeof firebaseLoadCallback == 'function') {
+        firebaseLoadCallback();
+    }
 }

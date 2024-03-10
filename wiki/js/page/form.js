@@ -88,7 +88,7 @@ async function firebaseLoadCallback() {
 
         document.title = `${PAGE_PREFIX}문서 수정 - ${data.title}`;
 
-        buildPost(data);
+        buildForm(data);
     }
 
     let { next } = firebase.post.list({ board_name: 'template' }, true);
@@ -98,14 +98,14 @@ async function firebaseLoadCallback() {
             let li = createElement('li', { attrs: { value: data.title } });
             li.onmousedown = () => {
                 li.parentNode.previousElementSibling.value = data.title;
-                buildPost(data);
+                buildForm(data);
                 post_menu.value = '';
             }
             input_template.querySelector('.input_suggest').append(li);
         }
     }).catch(firebaseErrorHandler);
 }
-function buildPost(data) {
+function buildForm(data) {
     let {
         title,
         board_name,
