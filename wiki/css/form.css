@@ -46,6 +46,9 @@ footer:hover,
     padding: 2rem 4rem;
     min-height: 10.5rem;
 }
+.component:last-child {
+    border-bottom: 0.1rem solid var(--border);
+}
 
 .component>p {
     font-size: 3rem;
@@ -126,6 +129,10 @@ aside> :first-child {
     font-size: 1.5rem;
     overflow: hidden;
     background: none;
+}
+
+.component.textbox > [contenteditable]{
+    min-height: 10rem;
 }
 
 input[type="color"] {
