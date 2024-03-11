@@ -44,7 +44,7 @@ function init_componentList() {
 async function loadBoardSuggest() {
     if (typeof input_menu != 'undefined') {
         input_menu.querySelector('.input_suggest').innerHTML = '';
-        if (SuggestList['board'] == undefined) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
+        if (SuggestList['board'] == undefined || SuggestList['board'].length < 1) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
         for (let data of board2Path(SuggestList['board'])) addSuggest(data, input_menu);
 
         let li = createElement('li', { innerHTML: '+ 새로운 메뉴 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
@@ -56,7 +56,7 @@ async function loadBoardSuggest() {
 async function loadCategorySuggest() {
     if (typeof input_categories != 'undefined') {
         input_categories.querySelector('.input_suggest').innerHTML = '';
-        if (SuggestList['category'] == undefined) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
+        if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
         for (let data of SuggestList['category']) addSuggest(data, input_categories);
 
         let li = createElement('li', { innerHTML: '+ 새로운 카테고리 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
