@@ -343,23 +343,20 @@ const COMPONENT_SPEC = {
             return div;
         },
         input: ({ rowcount, header, cells }) => {
-            let table = createElement('editable-table', {
-                styles: { 'margin-top': '2rem' },
-                attrs: { rowcount: rowcount || 3, colcount: header?.length || 3 }
-            });
-            if (cells) table.loadData(cells);
-            if (header) for (let index in header) {
-                let input = table.headers.children[index].firstChild;
-                input.value = parseFloat(header[index]);
-                input.oninput();
-            }
+            let table = createElement('editable-table',
+                { styles: { 'margin-top': '2rem' } },
+                { rowcount: rowcount || 3, colcount: header?.length || 3 }
+            );
+            if (cells) table.setData(cells);
+            if (header) table.setHeader(header);
             return table;
         },
         getData: id => {
+            let table = document.querySelector(`#${id} editable-table`)
             return {
-                rowcount: document.querySelector(`#${id} .component__option__input.row input`).value,
-                header: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table input`), cell => cell.value),
-                cells: Array.prototype.map.call(document.querySelectorAll(`#${id} editable-table [contenteditable]`), cell => cell.innerHTML)
+                rowcount: table.rowcount,
+                header: table.header,
+                cells: table.data
             };
         }
     },

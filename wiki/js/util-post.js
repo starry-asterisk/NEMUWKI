@@ -168,6 +168,7 @@ async function createList1(keyword, field, operator) {
     let docs, { next } = await firebase.post.list({ [field]: keyword }, false, operator);
 
     load_more.onclick = async () => {
+        load_more.disabled = true;
         docs = await next();
         load();
     }
@@ -177,6 +178,7 @@ async function createList1(keyword, field, operator) {
     await load_more.onclick();
 
     function load() {
+        load_more.disabled = false;
         for (let doc of docs) {
             let data = doc.data();
             data.board_name = SuggestList['board2Path_2'][data.board_name] || data.board_name;
@@ -201,6 +203,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal') {
     let docs, next = firebase.post.list({ category: '인물', [field]: keyword }, false, operator).next;
 
     load_more.onclick = async () => {
+        load_more.disabled = true;
         docs = await next();
         load();
     }
@@ -211,6 +214,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal') {
     await load_more.onclick();
 
     function load() {
+        load_more.disabled = false;
         for (let doc of docs) {
             let data = doc.data();
             board_list_2.append(createList2Item(data, doc.id));
@@ -374,16 +378,13 @@ const COMPONENT_BUILD_SPEC = {
     video: (value) => COMPONENT_BUILD_SPEC.image(value, 'video'),
     table: (value) => {
         let { cells, header, rowcount } = value;
-        let table = createElement('editable-table');
-        table.rowcount = rowcount;
-        table.colcount = header.length;
-        table.loadData(cells);
-        table.readonly = true;
-        for (let index in header) {
-            let input = table.headers.children[index].firstChild;
-            input.value = parseFloat(header[index]);
-            input.oninput();
-        }
+        let table = createElement('editable-table',{},{
+            rowcount,
+            colcount: header.length,
+            readonly: true
+        });
+        table.setHeader(header);
+        table.setData(cells);
         return table;
     },
     title: (value) => document.createTextNode(value.text),

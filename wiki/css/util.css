@@ -201,6 +201,7 @@ main {
     line-height: 6rem;
     border-radius: 0.5rem;
     white-space: pre-line;
+    overflow: hidden;
 }
 
 .main__notice__timestamp {
@@ -310,6 +311,7 @@ aside>*>p:first-child {
     .main__header {
         zoom: 0.65;
     }
+
     .main__notice {
         zoom: 0.9;
     }
@@ -619,20 +621,42 @@ editable-table {
     border: 0.1rem solid var(--border2);
 }
 
+.editable-table__tbody {
+    display: table;
+}
+
 .editable-table__row {
-    display: flex;
+    display: table-row;
     flex-direction: row;
-    min-height: 5rem;
+    height: 5rem;
+}
+
+.editable-table__row.header>* {
+    background-color: var(--background-dark);
+    height: 5rem;
+}
+
+.editable-table__row.header.readonly,
+.editable-table__row.header.readonly * {
+    height: 0 !important;
+}
+
+.editable-table__row.header.readonly input {
+    display: none;
 }
 
 .editable-table__row+.editable-table__row>.editable-table__cell {
     border-top: 0.1rem solid var(--border2);
 }
 
+.editable-table__row.header.readonly+.editable-table__row>.editable-table__cell {
+    border-top: 0;
+}
+
 .editable-table__cell {
+    display: table-cell;
     box-sizing: content-box;
-    min-width: 20rem;
-    width: 20rem;
+    overflow-wrap: anywhere;
 }
 
 .editable-table__cell+.editable-table__cell {
@@ -829,8 +853,13 @@ body.loading::before {
     margin-bottom: 0 !important;
 }
 
-body[developerMode="true"] img {
+body[developerMode="true"] img,
+body[developerMode="true"] .header__logo {
     opacity: 0;
+}
+
+body[developerMode="true"] * {
+    color: #00000022 !important;
 }
 
 :modal {
@@ -890,6 +919,6 @@ body[developerMode="true"] img {
 }
 
 .non-auth header .account,
-.non-auth .main__header__toolbox > button.edit {
+.non-auth .main__header__toolbox>button.edit {
     display: none;
 }
