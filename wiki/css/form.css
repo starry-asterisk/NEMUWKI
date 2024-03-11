@@ -109,11 +109,6 @@ aside> :first-child {
     transition: 400ms margin-top;
 }
 
-
-.editable-table__row:first-child>* {
-    background-color: var(--background-dark);
-}
-
 .component__execList {
     line-height: 1.5em;
     background-color: #edf2fa;
