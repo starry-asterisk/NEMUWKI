@@ -314,7 +314,8 @@ const COMPONENT_SPEC = {
     table: {
         title: '도표',
         option: ({ id, rowcount, header }) => {
-            let div = createElement('div', { styles: { 'margin-top': '2rem' } });
+            let frag = document.createDocumentFragment();
+            let div = createElement('div', { attrs: { class: 'component__option' } });
             let colContainer = createElement('div', { attrs: { class: 'component__option__input col' } });
             let rowContainer = createElement('div', { attrs: { class: 'component__option__input row' } });
             let colcountInput = createElement('input', { attrs: { type: 'number', min: 1 }, value: 3 });
@@ -323,6 +324,7 @@ const COMPONENT_SPEC = {
             colContainer.append(colcountInput);
             rowContainer.append(rowcountInput);
 
+            div.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '가로 x 세로 크기' }));
             div.append(colContainer);
             div.append(document.createTextNode('x'));
             div.append(rowContainer);
@@ -339,17 +341,47 @@ const COMPONENT_SPEC = {
 
             if (rowcount) rowcountInput.value = rowcount;
             if (header) colcountInput.value = header.length;
+            
+            frag.append(div);
 
-            return div;
+            let div2 = createElement('div', { attrs: { class: 'component__option' } });
+            let outerContainer = createElement('div', { attrs: { class: 'component__option__input outer' } });
+            let innerContainer = createElement('div', { attrs: { class: 'component__option__input inner' } });
+            let outercountInput = createElement('input', { attrs: { type: 'color'}, value: '#cccccc' });
+            let innercountInput = createElement('input', { attrs: { type: 'color'}, value: '#cccccc' });
+
+            outerContainer.append(outercountInput);
+            innerContainer.append(innercountInput);
+
+            div2.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '외각선' }));
+            div2.append(outerContainer);
+            div2.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '내부선' }));
+            div2.append(innerContainer);
+
+            //frag.append(div2);
+
+            
+            let div3 = createElement('div', { attrs: { class: 'component__option' } });
+            let cellContainer = createElement('div', { attrs: { class: 'component__option__input cell' } });
+            let cellcountInput = createElement('input', { attrs: { type: 'color'}, value: '#eeeeee' });
+            cellContainer.append(cellcountInput);
+            div3.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '셀 체우기' }));
+            div3.append(cellContainer);
+
+            //frag.append(div3);
+
+            return frag;
         },
         input: ({ rowcount, header, cells }) => {
+            let div = createElement();
             let table = createElement('editable-table',
                 { styles: { 'margin-top': '2rem' } },
                 { rowcount: rowcount || 3, colcount: header?.length || 3 }
             );
             if (cells) table.setData(cells);
             if (header) table.setHeader(header);
-            return table;
+            div.append(table);
+            return div;
         },
         getData: id => {
             let table = document.querySelector(`#${id} editable-table`)

@@ -26,6 +26,7 @@
     --border: #eff3f4;
     --border2: #ccc;
     --border3: #ddd;
+    --border4: #e8e8e8;
     --background-dark: #f7f9f9;
     --background: #FFF;
     --block-padding: 2rem;
@@ -615,10 +616,14 @@ button.danger:active {
 }
 
 editable-table {
+    --outer-line: var(--border2);
+    --inner-line: var(--border2);
     overflow-x: auto;
     max-width: 100%;
     display: inline-block;
-    border: 0.1rem solid var(--border2);
+    border: 0.1rem solid var(--outer-line);
+    border-collapse: collapse;
+    background: var(--background);
 }
 
 .editable-table__tbody {
@@ -645,38 +650,90 @@ editable-table {
     display: none;
 }
 
-.editable-table__row+.editable-table__row>.editable-table__cell {
-    border-top: 0.1rem solid var(--border2);
-}
-
-.editable-table__row.header.readonly+.editable-table__row>.editable-table__cell {
-    border-top: 0;
-}
 
 .editable-table__cell {
     display: table-cell;
     box-sizing: content-box;
     overflow-wrap: anywhere;
+    border: 0.1rem solid var(--inner-line);
+    height: inherit;
+}
+.editable-table__cell>div{
+    overflow-wrap: anywhere;
+}
+.editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,
+.editable-table__row:first-child>.editable-table__cell {
+    border-top: none !important;
 }
 
-.editable-table__cell+.editable-table__cell {
-    border-left: 0.1rem solid var(--border2);
+.editable-table__row:last-child>.editable-table__cell {
+    border-bottom: none !important;
+}
+
+.editable-table__cell:first-child {
+    border-left: none !important;
+}
+
+.editable-table__cell:last-child {
+    border-right: none !important;
+}
+
+.editable-table__cell:focus-within {
+    outline: 0.2rem solid var(--accent) !important;
+    z-index: 10;
+}
+
+.component__option {
+    display: flex;
+    margin-top: 1.5rem;
+    white-space: nowrap;
+    line-height: 4rem;
+}
+
+.component__option__label {
+    margin-right: 1.5rem;
+}
+
+*+.component__option__label {
+    margin-left: 1.5rem;
 }
 
 .component__option__input {
     display: inline-block;
     width: 6rem;
     height: 4rem;
-    margin: 0 1rem;
-    border: 1px solid var(--border2);
-}
-
-.component__option__input:first-child {
-    margin-left: 0;
+    margin: 0 0.5rem;
+    border: 0.1rem solid var(--border4);
+    border-radius: 0.4rem;
+    background: var(--background-dark);
 }
 
 .component__option__input>input {
-    padding-right: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.component__option__input>input::-webkit-color-swatch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+}
+
+.component__option__input>input[type="color"] {
+    border: 0.4rem solid var(--background-dark);
+}
+
+.component__option__input:has(input[type="color"]) {
+    border-radius: 50%;
+    width: 4rem;
+    overflow: hidden;
+}
+
+.component__option__input:focus-within {
+    border-color: var(--accent);
 }
 
 editable-table [contenteditable] {
@@ -807,27 +864,6 @@ error::after {
     }
 }
 
-/*
-body.loading::after, body.loading::before {
-    content: '';
-    position: fixed;
-    top: calc(50% - 10rem);
-    left: calc(50% - 10rem);
-    width: 20rem;
-    height: 20rem;
-    border-radius: 50%;
-    border: 3vw solid var(--accent);
-    opacity: 0.3;
-    z-index: 10;
-    border-top-color: transparent !important;
-    border-left-color: transparent !important;
-    animation: rotate 1s infinite;
-}
-body.loading::before {
-    border-color: var(--background);
-    animation: rotate_r 2s infinite;
-}
-*/
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
