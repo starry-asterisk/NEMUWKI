@@ -357,36 +357,48 @@ const COMPONENT_SPEC = {
             frag.append(option_1);
 
             let option_2 = createOption([
-                {label: '외각선'},
+                {label: '외각선 색상'},
                 {name: 'outer', type: 'color', value: '#cccccc'},
-                {label: '내부선'},
-                {name: 'inner', type: 'color', value: '#cccccc'}
+                {label: '굵기'},
+                {name: 'outer_width', type: 'number', value: 1, attr: {max: 5, min: 1, step: 1}}
             ]);
 
             option_2.inputs.outer.oninput = function(){
                 table = table || document.querySelector(`#${id} editable-table`);
-                table.setStyles({'--outer-line': this.value});
+                table.outerLineColor = this.value;
             }
 
-            option_2.inputs.inner.oninput = function(){
+            option_2.inputs.outer_width.oninput = function(){
                 table = table || document.querySelector(`#${id} editable-table`);
-                table.setStyles({'--inner-line': this.value});
+                table.outerLineWidth = this.value;
             }
 
             frag.append(option_2.setStyles({display: 'none'}));
 
             let option_3 = createOption([
+                {label: '내부선'},
+                {name: 'inner', type: 'color', value: '#cccccc'}
+            ]);
+
+            option_3.inputs.inner.oninput = function(){
+                table = table || document.querySelector(`#${id} editable-table`);
+                table.innerLineColor = this.value;
+            }
+
+            frag.append(option_3.setStyles({display: 'none'}));
+
+            let option_4 = createOption([
                 {label: '셀 체우기'},
                 {name: 'cell', type: 'color', value: '#eeeeee'}
             ]);
 
-            option_3.inputs.cell.oninput = function(){
+            option_4.inputs.cell.oninput = function(){
                 if(this._lastCell == undefined) return;
                 this._lastCell.setStyles({'background-color': this.value});
                 this._lastCell._background = this.value;
             }
 
-            frag.append(option_3.setStyles({display: 'none'}));
+            frag.append(option_4.setStyles({display: 'none'}));
 
             return frag;
         },
@@ -407,11 +419,15 @@ const COMPONENT_SPEC = {
             return div;
         },
         getData: id => {
-            let table = document.querySelector(`#${id} editable-table`)
+            let table = document.querySelector(`#${id} editable-table`);
             return {
                 rowcount: table.rowcount,
                 header: table.header,
-                cells: table.data
+                cells: table.data,
+                innerLineColor: table.innerLineColor,
+                outerLineColor: table.outerLineColor,
+                outerLineWidth: table.outerLineWidth,
+                cellColors: table.cellColors
             };
         }
     },

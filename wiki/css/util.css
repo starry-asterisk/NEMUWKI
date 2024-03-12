@@ -616,12 +616,13 @@ button.danger:active {
 }
 
 editable-table {
+    --outer-line-width: 0.1rem;
     --outer-line: var(--border2);
     --inner-line: var(--border2);
     overflow-x: auto;
     max-width: 100%;
     display: inline-block;
-    border: 0.1rem solid var(--outer-line);
+    border: var(--outer-line-width) solid var(--outer-line);
     border-collapse: collapse;
     background: var(--background);
 }

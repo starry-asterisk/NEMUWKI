@@ -23,6 +23,9 @@ customElements.define('editable-table', class extends HTMLElement {
     _frag;
     _tbody;
     _DEFAULT_WIDTH = 20;
+    _outerLineWidth = 1;
+    _outerLineColor = '#eeeeee';
+    _innerLineColor = '#eeeeee';
     isPrepend = false;
 
     constructor() {
@@ -42,6 +45,15 @@ customElements.define('editable-table', class extends HTMLElement {
     get readonly() {
         return this._readonly;
     }
+    get outerLineWidth() {
+        return this._outerLineWidth;
+    }
+    get outerLineColor() {
+        return this._outerLineColor;
+    }
+    get innerLineColor() {
+        return this._innerLineColor;
+    }
     get header() {
         let elements = this._header.querySelectorAll('input');
         return Array.prototype.map.call(elements, element => element.value);
@@ -49,6 +61,10 @@ customElements.define('editable-table', class extends HTMLElement {
     get data() {
         let elements = this._tbody.querySelectorAll('[contenteditable]');
         return Array.prototype.map.call(elements, element => element.innerHTML);
+    }
+    get cellColors() {
+        let elements = this._tbody.querySelectorAll('[contenteditable]');
+        return Array.prototype.map.call(elements, element => element.parentElement.style.getPropertyValue('background-color'));
     }
     set colcount(newValue) {
         newValue = parseInt(newValue);
@@ -70,6 +86,22 @@ customElements.define('editable-table', class extends HTMLElement {
         for (let input of this._tbody.querySelectorAll('[contenteditable]')) input.setAttribute('contenteditable', newValue ? false : 'plaintext-only');
         this._readonly = newValue;
     }
+    set outerLineWidth(newValue){
+        newValue = parseInt(newValue);
+        if (newValue === NaN) return console.error('failed converting to integer \'innerLineWidth\'');
+        if (newValue > 5) newValue = 5;
+        if (newValue < 1) newValue = 1;
+        this.setStyles({'--outer-line-width': `${newValue / 10}rem`});
+        this._outerLineWidth = newValue;
+    }
+    set outerLineColor(newValue){
+        this.setStyles({'--outer-line': newValue});
+        this._outerLineColor = newValue;
+    }
+    set innerLineColor(newValue){
+        this.setStyles({'--inner-line': newValue});
+        this._innerLineColor = newValue;
+    }
     setHeader(size_arr) {
         let elements = Array.from(this._header.querySelectorAll('input'));
         for (let index in elements) {
@@ -81,6 +113,10 @@ customElements.define('editable-table', class extends HTMLElement {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
         for (let index in elements) elements[index].innerHTML = data_arr[index];
     }
+    setCellColors(color_arr) {
+        let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
+        for (let index in elements) elements[index].parentElement.setStyles({'background-cololr':color_arr[index]});
+    }
     attributeChangedCallback(name, oldValue, newValue) {
         if (this._beforeInit) {
             this['_' + name] = newValue;
@@ -90,7 +126,6 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     connectedCallback() {
         if (this._beforeInit) {
-            //this._tbody.append(this._frag);
             this.append(this._tbody);
             this._beforeInit = false;
         }
