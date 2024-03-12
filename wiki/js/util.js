@@ -86,20 +86,20 @@ customElements.define('editable-table', class extends HTMLElement {
         for (let input of this._tbody.querySelectorAll('[contenteditable]')) input.setAttribute('contenteditable', newValue ? false : 'plaintext-only');
         this._readonly = newValue;
     }
-    set outerLineWidth(newValue){
+    set outerLineWidth(newValue) {
         newValue = parseInt(newValue);
         if (newValue === NaN) return console.error('failed converting to integer \'innerLineWidth\'');
         if (newValue > 5) newValue = 5;
         if (newValue < 1) newValue = 1;
-        this.setStyles({'--outer-line-width': `${newValue / 10}rem`});
+        this.setStyles({ '--outer-line-width': `${newValue / 10}rem` });
         this._outerLineWidth = newValue;
     }
-    set outerLineColor(newValue){
-        this.setStyles({'--outer-line': newValue});
+    set outerLineColor(newValue) {
+        this.setStyles({ '--outer-line': newValue });
         this._outerLineColor = newValue;
     }
-    set innerLineColor(newValue){
-        this.setStyles({'--inner-line': newValue});
+    set innerLineColor(newValue) {
+        this.setStyles({ '--inner-line': newValue });
         this._innerLineColor = newValue;
     }
     setHeader(size_arr) {
@@ -111,14 +111,14 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     setData(data_arr) {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
-        for (let index in elements) elements[index].innerHTML = data_arr[index];
+        for (let index in elements) elements[index].innerHTML = this._readonly ? markdown(data_arr[index]) : data_arr[index];
     }
     setCellColors(color_arr) {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
         for (let index in elements) {
             let el = elements[index].parentElement;
             el._background = color_arr[index];
-            el.setStyles({'background-color':color_arr[index]});
+            el.setStyles({ 'background-color': color_arr[index] });
         }
     }
     attributeChangedCallback(name, oldValue, newValue) {
@@ -147,11 +147,11 @@ customElements.define('editable-table', class extends HTMLElement {
         for (let i = this._colcount; i > 0; i--) this.addCell(row, false, isHeader);
         if (isPrepend) {
             tbody.prepend(row);
-            if(!isHeader) this._rows.unshift(row);
+            if (!isHeader) this._rows.unshift(row);
         }
         else {
             tbody.append(row);
-            if(!isHeader) this._rows.push(row);
+            if (!isHeader) this._rows.push(row);
         }
         return row;
     }
@@ -196,7 +196,7 @@ customElements.define('editable-table', class extends HTMLElement {
         }
         if (parent.children.length > count) {
             //decrease
-            for (;parent.children.length > count;)
+            for (; parent.children.length > count;)
                 if (isPrepend) parent.firstChild.remove();
                 else parent.lastChild.remove();
             if (isRow) this._rows = this._rows.filter(row => {
@@ -204,7 +204,7 @@ customElements.define('editable-table', class extends HTMLElement {
             });
         } else {
             //increase
-            for (;parent.children.length < count;) func.call(this, parent, isPrepend, isHeader);
+            for (; parent.children.length < count;) func.call(this, parent, isPrepend, isHeader);
         }
         if (isRow) this._tbody.append(this._frag);
     }
@@ -444,16 +444,22 @@ function modal(mode = 'emailPrompt') {
     container.showModal();
 }
 
-function rgb2hex(rgb_str){
-    if(rgb_str == undefined || rgb_str == '') return;
-    if(rgb_str.startsWith('rgb')) {
-        let c = rgb_str.replace(')','').split('(')[1].split(',');
-        let hex = '#'+parseInt(c[0]).toString(16).padStart(2,'0') + parseInt(c[1]).toString(16).padStart(2,'0') + parseInt(c[2]).toString(16).padStart(2,'0');
-        if(c.length > 3) hex += Math.floor(parseFloat(c[3])*255).toString(16).padStart(2,'0');
+function rgb2hex(rgb_str) {
+    if (rgb_str == undefined || rgb_str == '') return;
+    if (rgb_str.startsWith('rgb')) {
+        let c = rgb_str.replace(')', '').split('(')[1].split(',');
+        let hex = '#' + parseInt(c[0]).toString(16).padStart(2, '0') + parseInt(c[1]).toString(16).padStart(2, '0') + parseInt(c[2]).toString(16).padStart(2, '0');
+        if (c.length > 3) hex += Math.floor(parseFloat(c[3]) * 255).toString(16).padStart(2, '0');
         return hex;
     } else {
         return rgb_str;
     }
+}
+
+function markdown(html) {
+    return html
+        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
+        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http')?group1:('//'+group1)}" target="_blank">링크</a>`)
 }
 
 const MODAL_TEMPLATE = {
@@ -586,7 +592,7 @@ const FILE_UPLOAD_METHOD = 0; // 0 is imgur, 1 is firestorage
 const PAGE_PREFIX = '네무위키 :: ';
 const REGEX = {
     annotation: /\[\*(\S+)\s([^\[\]]+)\]/gi,
-    color: /\[\#([^\s\[\]]+)\]/gi,
+    link: /\[link\:([^\s\[\]]+)\]/gi,
     image: /\[image\:([^\s\[\]]+)\]/gi,
     video: /\[video\:([^\s\[\]]+)\]/gi,
     music: /\[music\:([^\s\[\]]+)\]/gi,

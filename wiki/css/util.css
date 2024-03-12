@@ -658,9 +658,20 @@ editable-table {
     overflow-wrap: anywhere;
     border: 0.1rem solid var(--inner-line);
     height: inherit;
+    vertical-align: top;
 }
 .editable-table__cell>div{
     overflow-wrap: anywhere;
+}
+.editable-table__cell img {
+    max-width: 100%;
+}
+.editable-table__cell a::before {
+    content: "\F0339";
+    font-family: "Material Design Icons";
+}
+.editable-table__cell a {
+    color: green
 }
 .editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,
 .editable-table__row:first-child>.editable-table__cell {
