@@ -210,7 +210,29 @@ function createComponent(type, option = {}) {
     return component;
 }
 
+function createOption(arr = []){
+    let div = createElement('div', { attrs: { class: 'component__option' } });
+    let inputs = {};
+    for(let option of arr){
+        let {label, text, type, name, value , attr} = option;
+        if(label){
+            div.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: label }));
+        }else if(text){
+            div.append(document.createTextNode(text));
+        }else{
+            let inputContainer = createElement('div', { attrs: { class: `component__option__input ${name}` } });
+            let input = createElement('input', { attrs: {...attr, type}, value });
+            inputContainer.append(input);
+            div.append(inputContainer);
+            inputs[name] = input;
+        }
+    }
+    div.inputs = inputs;
+    return div;
+}
+
 let lastSelection;
+let lastCell;
 
 const COMPONENT_SPEC = {
     textbox: {
@@ -314,70 +336,71 @@ const COMPONENT_SPEC = {
     table: {
         title: '도표',
         option: ({ id, rowcount, header }) => {
-            let frag = document.createDocumentFragment();
-            let div = createElement('div', { attrs: { class: 'component__option' } });
-            let colContainer = createElement('div', { attrs: { class: 'component__option__input col' } });
-            let rowContainer = createElement('div', { attrs: { class: 'component__option__input row' } });
-            let colcountInput = createElement('input', { attrs: { type: 'number', min: 1 }, value: 3 });
-            let rowcountInput = createElement('input', { attrs: { type: 'number', min: 1 }, value: 3 });
+            let table, frag = document.createDocumentFragment();
+            let option_1 = createOption([
+                {label: '가로 x 세로 크기'},
+                {name: 'col', type: 'number', value: header?.length || 3, attr: {min: 1}},
+                {text: 'x'},
+                {name: 'row', type: 'number', value: rowcount || 3, attr: {min: 1}}
+            ]);
 
-            colContainer.append(colcountInput);
-            rowContainer.append(rowcountInput);
-
-            div.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '가로 x 세로 크기' }));
-            div.append(colContainer);
-            div.append(document.createTextNode('x'));
-            div.append(rowContainer);
-
-            colcountInput.oninput = () => {
-                if (colcountInput.value < 1) colcountInput.value = 1;
-                document.querySelector(`#${id} editable-table`).colcount = colcountInput.value;
+            option_1.inputs.col.oninput = function() {
+                if (this.value < 1) this.value = 1;
+                document.querySelector(`#${id} editable-table`).colcount = this.value;
             }
 
-            rowcountInput.oninput = () => {
-                if (rowcountInput.value < 1) rowcountInput.value = 1;
-                document.querySelector(`#${id} editable-table`).rowcount = rowcountInput.value;
+            option_1.inputs.row.oninput = function() {
+                if (this.value < 1) this.value = 1;
+                document.querySelector(`#${id} editable-table`).rowcount = this.value;
+            }
+            
+            frag.append(option_1);
+
+            let option_2 = createOption([
+                {label: '외각선'},
+                {name: 'outer', type: 'color', value: '#cccccc'},
+                {label: '내부선'},
+                {name: 'inner', type: 'color', value: '#cccccc'}
+            ]);
+
+            option_2.inputs.outer.oninput = function(){
+                table = table || document.querySelector(`#${id} editable-table`);
+                table.setStyles({'--outer-line': this.value});
             }
 
-            if (rowcount) rowcountInput.value = rowcount;
-            if (header) colcountInput.value = header.length;
-            
-            frag.append(div);
+            option_2.inputs.inner.oninput = function(){
+                table = table || document.querySelector(`#${id} editable-table`);
+                table.setStyles({'--inner-line': this.value});
+            }
 
-            let div2 = createElement('div', { attrs: { class: 'component__option' } });
-            let outerContainer = createElement('div', { attrs: { class: 'component__option__input outer' } });
-            let innerContainer = createElement('div', { attrs: { class: 'component__option__input inner' } });
-            let outercountInput = createElement('input', { attrs: { type: 'color'}, value: '#cccccc' });
-            let innercountInput = createElement('input', { attrs: { type: 'color'}, value: '#cccccc' });
+            frag.append(option_2.setStyles({display: 'none'}));
 
-            outerContainer.append(outercountInput);
-            innerContainer.append(innercountInput);
+            let option_3 = createOption([
+                {label: '셀 체우기'},
+                {name: 'cell', type: 'color', value: '#eeeeee'}
+            ]);
 
-            div2.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '외각선' }));
-            div2.append(outerContainer);
-            div2.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '내부선' }));
-            div2.append(innerContainer);
+            option_3.inputs.cell.oninput = function(){
+                if(this._lastCell == undefined) return;
+                this._lastCell.setStyles({'background-color': this.value});
+                this._lastCell._background = this.value;
+            }
 
-            //frag.append(div2);
-
-            
-            let div3 = createElement('div', { attrs: { class: 'component__option' } });
-            let cellContainer = createElement('div', { attrs: { class: 'component__option__input cell' } });
-            let cellcountInput = createElement('input', { attrs: { type: 'color'}, value: '#eeeeee' });
-            cellContainer.append(cellcountInput);
-            div3.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: '셀 체우기' }));
-            div3.append(cellContainer);
-
-            //frag.append(div3);
+            frag.append(option_3.setStyles({display: 'none'}));
 
             return frag;
         },
-        input: ({ rowcount, header, cells }) => {
-            let div = createElement();
+        input: ({ rowcount, header, cells, id }) => {
+            let option_cell, div = createElement();
             let table = createElement('editable-table',
                 { styles: { 'margin-top': '2rem' } },
                 { rowcount: rowcount || 3, colcount: header?.length || 3 }
             );
+            table.addEventListener('focusin',e => {
+                option_cell = option_cell || document.querySelector(`#${id} .cell>input`);
+                option_cell._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
+                option_cell.value = option_cell._lastCell?._background || '#eeeeee';
+            });
             if (cells) table.setData(cells);
             if (header) table.setHeader(header);
             div.append(table);
@@ -395,24 +418,12 @@ const COMPONENT_SPEC = {
     title: {
         title: '소제목',
         option: ({ depth = 1 }) => {
-            let frag = document.createDocumentFragment();
-            let label = document.createTextNode('목차 깊이');
-            let container = createElement('div', { attrs: { class: 'component__option__input depth' } });
-            let depth_input = createElement('input', {
-                attrs: {
-                    type: 'number',
-                    max: 6,
-                    min: 1,
-                    step: 1
-                },
-                value: depth
-            });
-            frag.append(label);
-            frag.append(container);
-            frag.append(createElement('br'));
-            frag.append(createElement('br'));
-            container.append(depth_input);
-            return frag;
+            let option_1 = createOption([
+                {label: '목차 깊이'},
+                {name: 'depth', type: 'number', value: depth, attr: {min: 1, max: 6, step: 1}}
+            ]);
+            option_1.setStyles({'margin-bottom': '2rem'});
+            return option_1;
         },
         input: ({ text = '' }) => {
             return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' }, innerHTML: text });

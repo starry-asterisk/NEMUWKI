@@ -163,7 +163,6 @@ customElements.define('editable-table', class extends HTMLElement {
             if (isRow) this._rows = this._rows.filter(row => {
                 return row.parentNode != null;
             });
-            console.log(this._rows.length);
         } else {
             //increase
             for (;parent.children.length < count;) func.call(this, parent, isPrepend, isHeader);

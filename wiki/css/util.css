@@ -666,6 +666,7 @@ editable-table {
     border-top: none !important;
 }
 
+.editable-table__row.header.readonly>.editable-table__cell,
 .editable-table__row:last-child>.editable-table__cell {
     border-bottom: none !important;
 }
@@ -679,8 +680,8 @@ editable-table {
 }
 
 .editable-table__cell:focus-within {
-    outline: 0.2rem solid var(--accent) !important;
-    z-index: 10;
+    outline-offset: -0.1rem;
+    outline: 0.1rem solid var(--accent) !important;
 }
 
 .component__option {
