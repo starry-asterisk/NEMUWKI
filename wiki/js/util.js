@@ -115,7 +115,11 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     setCellColors(color_arr) {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
-        for (let index in elements) elements[index].parentElement.setStyles({'background-cololr':color_arr[index]});
+        for (let index in elements) {
+            let el = elements[index].parentElement;
+            el._background = color_arr[index];
+            el.setStyles({'background-color':color_arr[index]});
+        }
     }
     attributeChangedCallback(name, oldValue, newValue) {
         if (this._beforeInit) {
@@ -438,6 +442,18 @@ function modal(mode = 'emailPrompt') {
     form.append(MODAL_TEMPLATE[mode](container));
     form.append(button_cancel);
     container.showModal();
+}
+
+function rgb2hex(rgb_str){
+    if(rgb_str == undefined || rgb_str == '') return;
+    if(rgb_str.startsWith('rgb')) {
+        let c = rgb_str.replace(')','').split('(')[1].split(',');
+        let hex = '#'+parseInt(c[0]).toString(16).padStart(2,'0') + parseInt(c[1]).toString(16).padStart(2,'0') + parseInt(c[2]).toString(16).padStart(2,'0');
+        if(c.length > 3) hex += Math.floor(parseFloat(c[3])*255).toString(16).padStart(2,'0');
+        return hex;
+    } else {
+        return rgb_str;
+    }
 }
 
 const MODAL_TEMPLATE = {

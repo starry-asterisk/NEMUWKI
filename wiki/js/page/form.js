@@ -335,7 +335,7 @@ const COMPONENT_SPEC = {
     },
     table: {
         title: '도표',
-        option: ({ id, rowcount, header }) => {
+        option: ({ id, rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' }) => {
             let table, frag = document.createDocumentFragment();
             let option_1 = createOption([
                 {label: '가로 x 세로 크기'},
@@ -358,9 +358,9 @@ const COMPONENT_SPEC = {
 
             let option_2 = createOption([
                 {label: '외각선 색상'},
-                {name: 'outer', type: 'color', value: '#cccccc'},
+                {name: 'outer', type: 'color', value: outerLineColor},
                 {label: '굵기'},
-                {name: 'outer_width', type: 'number', value: 1, attr: {max: 5, min: 1, step: 1}}
+                {name: 'outer_width', type: 'number', value: outerLineWidth, attr: {max: 5, min: 1, step: 1}}
             ]);
 
             option_2.inputs.outer.oninput = function(){
@@ -373,11 +373,11 @@ const COMPONENT_SPEC = {
                 table.outerLineWidth = this.value;
             }
 
-            frag.append(option_2.setStyles({display: 'none'}));
+            frag.append(option_2.setStyles({display: 'flex'}));
 
             let option_3 = createOption([
                 {label: '내부선'},
-                {name: 'inner', type: 'color', value: '#cccccc'}
+                {name: 'inner', type: 'color', value: innerLineColor}
             ]);
 
             option_3.inputs.inner.oninput = function(){
@@ -385,11 +385,11 @@ const COMPONENT_SPEC = {
                 table.innerLineColor = this.value;
             }
 
-            frag.append(option_3.setStyles({display: 'none'}));
+            frag.append(option_3.setStyles({display: 'flex'}));
 
             let option_4 = createOption([
                 {label: '셀 체우기'},
-                {name: 'cell', type: 'color', value: '#eeeeee'}
+                {name: 'cell', type: 'color', value: '#ffffff'}
             ]);
 
             option_4.inputs.cell.oninput = function(){
@@ -398,11 +398,11 @@ const COMPONENT_SPEC = {
                 this._lastCell._background = this.value;
             }
 
-            frag.append(option_4.setStyles({display: 'none'}));
+            frag.append(option_4.setStyles({display: 'flex'}));
 
             return frag;
         },
-        input: ({ rowcount, header, cells, id }) => {
+        input: ({ rowcount, header, cells, cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', id }) => {
             let option_cell, div = createElement();
             let table = createElement('editable-table',
                 { styles: { 'margin-top': '2rem' } },
@@ -411,10 +411,14 @@ const COMPONENT_SPEC = {
             table.addEventListener('focusin',e => {
                 option_cell = option_cell || document.querySelector(`#${id} .cell>input`);
                 option_cell._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
-                option_cell.value = option_cell._lastCell?._background || '#eeeeee';
+                option_cell.value = rgb2hex(option_cell._lastCell?._background) || '#ffffff';
             });
             if (cells) table.setData(cells);
             if (header) table.setHeader(header);
+            if (cellColors) table.setCellColors(cellColors);
+            table.outerLineWidth = outerLineWidth;
+            table.outerLineColor = outerLineColor;
+            table.innerLineColor = innerLineColor;
             div.append(table);
             return div;
         },

@@ -377,7 +377,7 @@ const COMPONENT_BUILD_SPEC = {
     audio: (value) => COMPONENT_BUILD_SPEC.image(value, 'audio'),
     video: (value) => COMPONENT_BUILD_SPEC.image(value, 'video'),
     table: (value) => {
-        let { cells, header, rowcount } = value;
+        let { cells, header, rowcount, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = value;
         let table = createElement('editable-table',{},{
             rowcount,
             colcount: header.length,
@@ -385,6 +385,10 @@ const COMPONENT_BUILD_SPEC = {
         });
         table.setHeader(header);
         table.setData(cells);
+        table.setCellColors(cellColors);
+        table.outerLineWidth = outerLineWidth;
+        table.outerLineColor = outerLineColor;
+        table.innerLineColor = innerLineColor;
         return table;
     },
     title: (value) => document.createTextNode(value.text),
