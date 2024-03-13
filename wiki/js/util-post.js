@@ -331,6 +331,7 @@ function buildPost(data) {
                     on: {
                         click: e => {
                             e.preventDefault();
+                            history.pushState({}, "", `#title_${index}`);
                             title_list[index].scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
                             return false;
                         }
@@ -354,6 +355,11 @@ function buildPost(data) {
             title_list[index].prepend(pre_fix);
             title_list[index].setAttribute('id', `title_${index}`)
             summury.append(a);
+        }
+
+        let hash_regex = /\#index_(\S+)/;
+        if(hash_regex.test(location.hash)){
+            title_list[hash_regex.exec(location.hash)[1]]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         }
     }
 }

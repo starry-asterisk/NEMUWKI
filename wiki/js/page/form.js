@@ -345,12 +345,12 @@ const COMPONENT_SPEC = {
             ]);
 
             option_1.inputs.col.oninput = function() {
-                if (this.value < 1) this.value = 1;
+                if (!this.validity.valid) return false;
                 document.querySelector(`#${id} editable-table`).colcount = this.value;
             }
 
             option_1.inputs.row.oninput = function() {
-                if (this.value < 1) this.value = 1;
+                if (!this.validity.valid) return false;
                 document.querySelector(`#${id} editable-table`).rowcount = this.value;
             }
             
@@ -360,7 +360,7 @@ const COMPONENT_SPEC = {
                 {label: '외각선 색상'},
                 {name: 'outer', type: 'color', value: outerLineColor},
                 {label: '굵기'},
-                {name: 'outer_width', type: 'number', value: outerLineWidth, attr: {max: 5, min: 1, step: 1}}
+                {name: 'outer_width', type: 'number', value: outerLineWidth, attr: {min: 1, step: 1}}
             ]);
 
             option_2.inputs.outer.oninput = function(){
@@ -369,6 +369,7 @@ const COMPONENT_SPEC = {
             }
 
             option_2.inputs.outer_width.oninput = function(){
+                if (!this.validity.valid) return false;
                 table = table || document.querySelector(`#${id} editable-table`);
                 table.outerLineWidth = this.value;
             }
