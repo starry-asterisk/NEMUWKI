@@ -229,6 +229,26 @@ fb.storage = {
     uploadResumable: (fileName, file) => uploadBytesResumable(ref(storage, fileName), file)
 };
 
+fb.resources = {
+    regist: async data => {
+        if(!'link' in data || !'deletehash' in data) throw 'data incorrect, necessary field is not presented';
+        if(!'id' in data) data.id = Math.floor(Math.random() * 100000000).toString(16);
+        const formatted = {
+            owner_id: auth.currentUser?.uid,
+            uploaded_dt: data.datetime * 1000 || new Date().getTime(),
+            deletehash: data.deletehash,
+            link: data.link,
+            size: data.size,
+            mime: data.type,
+            height: data.height,
+            width: data.width
+        }
+        await setDoc(doc(db, "resources", data.id), formatted);
+        return true;
+    },
+    all: async ()=>await getDocs(query(collection(db, "resources"),where('owner_id', '==', auth.currentUser?.uid))),
+}
+
 //인증
 fb.auth = {
     login: async (email, password) => await signInWithEmailAndPassword(auth, email, password),

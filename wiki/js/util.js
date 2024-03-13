@@ -384,8 +384,9 @@ async function uploadByImgur(file) {
         },
         body: bodyData,
     });
-
-    return response.json();
+    let result = await response.json();
+    if(result.status === 200) firebase.resources.regist(result.data).catch(dev.error);
+    return result;
 }
 
 function firebaseErrorHandler(error) {
