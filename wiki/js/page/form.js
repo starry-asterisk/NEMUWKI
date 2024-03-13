@@ -210,18 +210,22 @@ function createComponent(type, option = {}) {
     return component;
 }
 
-function createOption(arr = []){
+function createOption(arr = []) {
     let div = createElement('div', { attrs: { class: 'component__option' } });
     let inputs = {};
-    for(let option of arr){
-        let {label, text, type, name, value , attr} = option;
-        if(label){
+    for (let option of arr) {
+        let { label, text, type, name, value, attr, button } = option;
+        if (label) {
             div.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: label }));
-        }else if(text){
+        } else if (text) {
             div.append(document.createTextNode(text));
-        }else{
+        } else if (button) {
+            let btn = createElement('button', { attrs: { class: `component__option__button ${button}` } });
+            div.append(btn);
+            inputs[button] = btn;
+        } else {
             let inputContainer = createElement('div', { attrs: { class: `component__option__input ${name}` } });
-            let input = createElement('input', { attrs: {...attr, type}, value });
+            let input = createElement('input', { attrs: { ...attr, type }, value });
             inputContainer.append(input);
             div.append(inputContainer);
             inputs[name] = input;
@@ -338,68 +342,89 @@ const COMPONENT_SPEC = {
         option: ({ id, rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' }) => {
             let table, frag = document.createDocumentFragment();
             let option_1 = createOption([
-                {label: '가로 x 세로 크기'},
-                {name: 'col', type: 'number', value: header?.length || 3, attr: {min: 1}},
-                {text: 'x'},
-                {name: 'row', type: 'number', value: rowcount || 3, attr: {min: 1}}
+                { label: '가로 x 세로 크기' },
+                { name: 'col', type: 'number', value: header?.length || 3, attr: { min: 1 } },
+                { text: 'x' },
+                { name: 'row', type: 'number', value: rowcount || 3, attr: { min: 1 } }
             ]);
 
-            option_1.inputs.col.oninput = function() {
+            function getTable() {
+                if (table == undefined) table = document.querySelector(`#${id} editable-table`);
+                return table;
+            }
+
+            option_1.inputs.col.oninput = function () {
                 if (!this.validity.valid) return false;
                 document.querySelector(`#${id} editable-table`).colcount = this.value;
             }
 
-            option_1.inputs.row.oninput = function() {
+            option_1.inputs.row.oninput = function () {
                 if (!this.validity.valid) return false;
                 document.querySelector(`#${id} editable-table`).rowcount = this.value;
             }
-            
+
             frag.append(option_1);
 
             let option_2 = createOption([
-                {label: '외각선 색상'},
-                {name: 'outer', type: 'color', value: outerLineColor},
-                {label: '굵기'},
-                {name: 'outer_width', type: 'number', value: outerLineWidth, attr: {min: 1, step: 1}}
+                { label: '외각선 색상' },
+                { name: 'outer', type: 'color', value: outerLineColor },
+                { label: '굵기' },
+                { name: 'outer_width', type: 'number', value: outerLineWidth, attr: { min: 1, step: 1 } }
             ]);
 
-            option_2.inputs.outer.oninput = function(){
-                table = table || document.querySelector(`#${id} editable-table`);
-                table.outerLineColor = this.value;
+            option_2.inputs.outer.oninput = function () {
+                getTable().outerLineColor = this.value;
             }
 
-            option_2.inputs.outer_width.oninput = function(){
+            option_2.inputs.outer_width.oninput = function () {
                 if (!this.validity.valid) return false;
-                table = table || document.querySelector(`#${id} editable-table`);
-                table.outerLineWidth = this.value;
+                getTable().outerLineWidth = this.value;
             }
 
-            frag.append(option_2.setStyles({display: 'flex'}));
+            frag.append(option_2.setStyles({ display: 'flex' }));
 
             let option_3 = createOption([
-                {label: '내부선'},
-                {name: 'inner', type: 'color', value: innerLineColor}
+                { label: '내부선' },
+                { name: 'inner', type: 'color', value: innerLineColor }
             ]);
 
-            option_3.inputs.inner.oninput = function(){
-                table = table || document.querySelector(`#${id} editable-table`);
-                table.innerLineColor = this.value;
+            option_3.inputs.inner.oninput = function () {
+                getTable().innerLineColor = this.value;
             }
 
-            frag.append(option_3.setStyles({display: 'flex'}));
+            frag.append(option_3.setStyles({ display: 'flex' }));
 
             let option_4 = createOption([
-                {label: '셀 체우기'},
-                {name: 'cell', type: 'color', value: '#ffffff'}
+                { label: '셀 체우기' },
+                { name: 'cell', type: 'color', value: '#ffffff' },
+                { label: '삽입' },
+                { button: 'image' },
+                { button: 'link' }
             ]);
 
-            option_4.inputs.cell.oninput = function(){
-                if(this._lastCell == undefined) return;
-                this._lastCell.setStyles({'background-color': this.value});
-                this._lastCell._background = this.value;
+            option_4.inputs.cell.oninput = function () {
+                let _table = getTable();
+                if (_table._lastCell == undefined) return;
+                _table._lastCell.setStyles({ 'background-color': this.value });
+                _table._lastCell._background = this.value;
             }
 
-            frag.append(option_4.setStyles({display: 'flex'}));
+            option_4.inputs.image.onclick = () => {
+                let _table = getTable();
+                if (_table._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
+                modal('addImg', src => {
+                    _table._lastCell.firstChild.append(document.createTextNode(`[image:${src}]`));
+                });
+
+            }
+            option_4.inputs.link.onclick = () => {
+                let _table = getTable();
+                if (_table._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
+                let link = prompt('삽입할 링크를 입력해 주세요');
+                if (link) _table._lastCell.firstChild.append(document.createTextNode(`[link:${link}]`));
+            }
+
+            frag.append(option_4.setStyles({ display: 'flex' }));
 
             return frag;
         },
@@ -409,10 +434,10 @@ const COMPONENT_SPEC = {
                 { styles: { 'margin-top': '2rem' } },
                 { rowcount: rowcount || 3, colcount: header?.length || 3 }
             );
-            table.addEventListener('focusin',e => {
+            table.addEventListener('focusin', e => {
+                table._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
                 option_cell = option_cell || document.querySelector(`#${id} .cell>input`);
-                option_cell._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
-                option_cell.value = rgb2hex(option_cell._lastCell?._background) || '#ffffff';
+                option_cell.value = rgb2hex(table._lastCell?._background) || '#ffffff';
             });
             if (cells) table.setData(cells);
             if (header) table.setHeader(header);
@@ -440,10 +465,10 @@ const COMPONENT_SPEC = {
         title: '소제목',
         option: ({ depth = 1 }) => {
             let option_1 = createOption([
-                {label: '목차 깊이'},
-                {name: 'depth', type: 'number', value: depth, attr: {min: 1, max: 6, step: 1}}
+                { label: '목차 깊이' },
+                { name: 'depth', type: 'number', value: depth, attr: { min: 1, max: 6, step: 1 } }
             ]);
-            option_1.setStyles({'margin-bottom': '2rem'});
+            option_1.setStyles({ 'margin-bottom': '2rem' });
             return option_1;
         },
         input: ({ text = '' }) => {
@@ -552,7 +577,7 @@ var commands = [{
 {
     cmd: "insertImage",
     icon: "image-plus",
-    prompt: '이미지 링크를 입력해 주세요.',
+    modal: "addImg",
     desc: "링크 기반 이미지 삽입",
     conv_fn: val => val.startsWith('http') ? val : 'http://' + val
 },
@@ -679,6 +704,13 @@ function createTextboxOpt() {
                 on: {
                     click: () => {
                         val = command.val || "";
+                        if (command.modal) {
+                            return modal(command.modal, src => {
+                                val = command.conv_fn(src);
+                                document.execCommand("styleWithCSS", 0, true);
+                                document.execCommand(command.cmd, false, val || "");
+                            });
+                        }
                         if (command.prompt) val = command.conv_fn(prompt(command.prompt));
                         document.execCommand("styleWithCSS", 0, true);
                         document.execCommand(command.cmd, false, val || "");

@@ -660,19 +660,24 @@ editable-table {
     height: inherit;
     vertical-align: top;
 }
-.editable-table__cell>div{
+
+.editable-table__cell>div {
     overflow-wrap: anywhere;
 }
+
 .editable-table__cell img {
     max-width: 100%;
 }
+
 .editable-table__cell a::before {
     content: "\F0339";
     font-family: "Material Design Icons";
 }
+
 .editable-table__cell a {
     color: green
 }
+
 .editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,
 .editable-table__row:first-child>.editable-table__cell {
     border-top: none !important;
@@ -709,6 +714,45 @@ editable-table {
 
 *+.component__option__label {
     margin-left: 1.5rem;
+}
+
+.component__option__button {
+    min-width: 4rem;
+    background: var(--background);
+    border: 0.1rem solid var(--border4);
+    border-radius: 0.4rem;
+    margin-left: 1.5rem;
+}
+
+.component__option__button:not(:first-of-type) {
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: 0;
+}
+
+.component__option__button:not(:last-of-type) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.component__option__button.image::before {
+    content: "\F087C";
+    font-family: "Material Design Icons";
+}
+
+.component__option__button.link::before {
+    content: "\F0339";
+    font-family: "Material Design Icons";
+}
+
+.component__option__button:hover {
+    background: var(--border4);
+    color: var(--accent);
+}
+
+.component__option__button:active {
+    opacity: 0.55;
 }
 
 .component__option__input {
@@ -965,6 +1009,128 @@ body[developerMode="true"] * {
     font-size: 1.7rem;
     text-align: center;
     margin: 3rem;
+}
+
+.fullSize:modal {
+    width: 100%;
+    height: 100%;
+    max-width: 40rem;
+    max-height: 80rem;
+    border-radius: 0;
+    padding: 0;
+}
+
+.fullSize .modal__sub_title {
+    margin: 0;
+    height: 5rem;
+    line-height: 5rem;
+}
+
+.fullSize button[value='default'],
+.fullSize button[value='cancel'] {
+    position: absolute;
+    top: 0;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    height: 5rem;
+    width: 5rem;
+    background: none;
+    font-size: 1.5rem;
+}
+
+.fullSize button[value='default'] {
+    right: 0;
+    color: inherit;
+
+}
+
+.fullSize button[value='cancel'] {
+    left: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.fullSize button[value='default']::before {
+    content: '완료';
+    font-family: inherit;
+}
+.fullSize form{
+    margin: 0;
+    height: 100%;
+}
+.gallery_container {
+    position: absolute;
+    width: 100%;
+    top: 5rem;
+    left: 0;
+    max-height: calc(100% - 5rem);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0 0.5rem;;
+}
+.gallery_container_cell {
+    aspect-ratio: 1;
+    background-color: var(--border4);
+    background-size: cover;
+    background-position: center;
+    font-size: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: uncheck 300ms forwards;
+}
+.gallery_container_cell > input {
+    display: none;
+}
+button.gallery_container_cell {
+    width: auto;
+    margin: 0;
+}
+input.gallery_container_cell {
+    appearance: none;
+}
+.gallery_container_cell:checked,
+.gallery_container_cell:active {
+    animation: check 300ms forwards;
+    outline: 0.3rem solid var(--accent);
+}
+
+.gallery_container_cell.localStorage::before {
+    content: "\F024B";
+    font-family: "Material Design Icons";
+    font-size: inherit;
+}
+
+.gallery_container_cell.link::before {
+    content: "\F0339";
+    font-family: "Material Design Icons";
+    font-size: inherit;
+}
+
+@keyframes check {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    20% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(0.91);
+        opacity: 0.8;
+    }
+}
+@keyframes uncheck {
+    0% {
+        transform: scale(0.91);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .non-auth header .account,

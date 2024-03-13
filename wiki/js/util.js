@@ -385,7 +385,7 @@ async function uploadByImgur(file) {
         body: bodyData,
     });
     let result = await response.json();
-    if(result.status === 200) firebase.resources.regist(result.data).catch(dev.error);
+    if (result.status === 200) firebase.resources.regist(result.data).catch(dev.error);
     return result;
 }
 
@@ -434,13 +434,13 @@ function NetErrorHandler(code) {
 }
 
 //이메일 인증 모달
-function modal(mode = 'emailPrompt') {
+function modal(mode = 'emailPrompt', option) {
     let container = createElement('dialog');
     let form = createElement('form', { attrs: { method: 'dialog' } });
     let button_cancel = createElement('button', { value: 'cancel', attrs: { class: 'danger' } });
     document.body.append(container);
     container.append(form);
-    form.append(MODAL_TEMPLATE[mode](container));
+    form.append(MODAL_TEMPLATE[mode](container, option));
     form.append(button_cancel);
     container.showModal();
 }
@@ -460,7 +460,7 @@ function rgb2hex(rgb_str) {
 function markdown(html) {
     return html
         .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
-        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http')?group1:('//'+group1)}" target="_blank">링크</a>`)
+        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`)
 }
 
 const MODAL_TEMPLATE = {
@@ -575,6 +575,70 @@ const MODAL_TEMPLATE = {
                 }
             } else {
                 alert('메뉴 명칭을 입력해 주세요.')
+            }
+        }
+        return frag;
+    },
+    addImg: (container, callback) => {
+        container.classList.add('fullSize', 'loading');
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '이미지 선택' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+
+        let gallery_container = createElement('div', { attrs: { class: 'gallery_container' } });
+        let input_file = createElement('input', { attrs: { type: 'file', accept: 'image/*' } });
+        let gallery_container_cell_1 = createElement('label', { attrs: { class: 'gallery_container_cell localStorage' } });
+        let gallery_container_cell_2 = createElement('button', { attrs: { class: 'gallery_container_cell link' } });
+
+        frag.append(sub_title);
+        frag.append(button_confirm);
+        frag.append(gallery_container);
+        gallery_container_cell_1.append(input_file);
+        gallery_container.append(gallery_container_cell_1);
+        gallery_container.append(gallery_container_cell_2);
+
+        input_file.onchange = async () => {
+            let file = input_file.files[0];
+            if (file) {
+                let result = await uploadByImgur(file);
+                if (result.status === 200) {
+                    container.close();
+                    callback(result.data.link);
+                } else {
+                    alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                    input_file.setAttribute('type', 'text');
+                    input_file.value = '';
+                    input_file.setAttribute('type', 'file');
+                }
+            }
+        }
+
+        firebase.resources.all().then(r => {
+            for (let doc of r.docs) {
+                let data = doc.data();
+                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${data.link})` }, value: data.link });
+                gallery_container.append(radio);
+            }
+        });
+        gallery_container_cell_2.onclick = e => {
+            e.preventDefault();
+            let link = prompt('사용할 이미지의 URL을 입력해 주세요');
+            if (link) {
+                container.close();
+                callback(link);
+            } else {
+                alert('URL을 입력해 주세요!!');
+            }
+        }
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            let i = gallery_container.querySelector(':checked');
+            if (i) {
+                container.close();
+                callback(i.value);
+            } else {
+                alert('이미지를 선택해 주세요!!');
             }
         }
         return frag;
