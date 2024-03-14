@@ -445,24 +445,6 @@ function modal(mode = 'emailPrompt', option) {
     container.showModal();
 }
 
-function rgb2hex(rgb_str) {
-    if (rgb_str == undefined || rgb_str == '') return;
-    if (rgb_str.startsWith('rgb')) {
-        let c = rgb_str.replace(')', '').split('(')[1].split(',');
-        let hex = '#' + parseInt(c[0]).toString(16).padStart(2, '0') + parseInt(c[1]).toString(16).padStart(2, '0') + parseInt(c[2]).toString(16).padStart(2, '0');
-        if (c.length > 3) hex += Math.floor(parseFloat(c[3]) * 255).toString(16).padStart(2, '0');
-        return hex;
-    } else {
-        return rgb_str;
-    }
-}
-
-function markdown(html) {
-    return html
-        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
-        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`)
-}
-
 const MODAL_TEMPLATE = {
     emailPrompt: container => {
         let frag = document.createDocumentFragment();
@@ -644,6 +626,32 @@ const MODAL_TEMPLATE = {
         return frag;
     }
 };
+
+function rgb2hex(rgb_str) {
+    if (rgb_str == undefined || rgb_str == '') return;
+    if (rgb_str.startsWith('rgb')) {
+        let c = rgb_str.replace(')', '').split('(')[1].split(',');
+        let hex = '#' + parseInt(c[0]).toString(16).padStart(2, '0') + parseInt(c[1]).toString(16).padStart(2, '0') + parseInt(c[2]).toString(16).padStart(2, '0');
+        if (c.length > 3) hex += Math.floor(parseFloat(c[3]) * 255).toString(16).padStart(2, '0');
+        return hex;
+    } else {
+        return rgb_str;
+    }
+}
+
+function markdown(html) {
+    return html
+        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
+        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`)
+}
+
+function loading(float) {
+    let p = Math.min(1, Math.max(float, 0)) * 100;
+    let indicator = document.querySelector('indicator');
+    if(p <= 0) indicator.setStyles({'--progress': `${p}%`});
+    else if (p >= 100) setTimeout(()=>indicator.setStyles({'--progress': `${p}%`}),250);
+    indicator.setStyles({'--progress-r': `${100 - p}%`});
+}
 
 const Notify = {
     alert, confirm, prompt

@@ -72,8 +72,11 @@ async function firebaseLoadCallback() {
         return;
     });
 
+    loading(0);
     await loadBoardSuggest();
+    loading(0.15);
     await loadCategorySuggest();
+    loading(0.3);
 
     if (post_id) {
         document.querySelector('aside').append(createElement('button', {
@@ -83,12 +86,14 @@ async function firebaseLoadCallback() {
         }));
 
         let data = (await firebase.post.selectOne(post_id)).data();
+        loading(0.6);
 
         if (data == undefined) return NetErrorHandler(404);
 
         document.title = `${PAGE_PREFIX}문서 수정 - ${data.title}`;
 
         buildForm(data);
+        loading(0.75);
     }
 
     let { next } = firebase.post.list({ board_name: 'template' }, true);
@@ -103,6 +108,7 @@ async function firebaseLoadCallback() {
             }
             input_template.querySelector('.input_suggest').append(li);
         }
+        loading(1);
     }).catch(firebaseErrorHandler);
 }
 function buildForm(data) {

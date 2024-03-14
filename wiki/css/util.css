@@ -120,18 +120,63 @@ header::before {
 header>* {
     float: left;
     margin-right: 2rem;
+    line-height: 5rem;
+    transition: 350ms padding-right;
+    padding-right: 0;
+}
+header>*[title]:hover {
+    padding-right: 6rem;
+    transition-delay: 200ms;
+}
+header>*[title]::after {
+    content: attr(title);
+    position: absolute;
+    right: 0;
+    line-height: 5rem;
+    font-size: 1.5rem;
+    display: inline-block;
+    width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: 350ms width;
+}
+header>*[title]:hover::after {
+    width: 6rem;
+    transition-delay: 250ms;
 }
 
 header>.right {
     float: right;
     margin-left: 2rem;
-    line-height: 5rem;
     cursor: pointer;
+    height: 5rem;
+}
+header>.right::before {
     font-size: 3rem;
+}
+header > indicator {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 0.5rem;
+    margin: 0;
+    pointer-events: none;
+    --progress: 0;
+    --progress-r: 100%;
+}
+header > indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--progress);
+    right: var(--progress-r);
+    height: 100%;
+    transition: left 250ms, right 250ms;
+    background-color: var(--accent);
 }
 
 .header__logo {
-    line-height: 5rem;
     font-family: "headerFont";
     cursor: pointer;
 }

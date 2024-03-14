@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta property="og:title" content="네무위키">
     <meta property="og:locale" content="ko_KR">
     <meta name="description" content="personal wiki project for NEMU">
     <meta property="og:description" content="personal wiki project for NEMU">
-    <!--<meta property="og:url" content="">-->
+    <meta property="og:url" content="https://www.nemuwiki.com/wiki">
     <meta property="og:site_name" content="네무위키">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta property="twitter:title" content="네무위키">
-    <!--<link rel="canonical" href="https://starry-asterisk.github.io/">-->
+    <link rel="canonical" href="https://www.nemuwiki.com/wiki">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.png">
-    <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css" />
-    <link rel="stylesheet" href="css/util.css" type="text/css" />
-    <link rel="stylesheet" href="css/index.css" type="text/css" />
+    <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css">
+    <link rel="stylesheet" href="css/util.css" type="text/css">
+    <link rel="stylesheet" href="css/index.css" type="text/css">
+    <!--<link rel="stylesheet" href="css/aero-theme.css" type="text/css">-->
     <script src="js/util.js"></script>
     <script src="js/page/index.js"></script>
     <title>네무위키 :: 메인</title>
@@ -28,8 +28,10 @@
 <body class="loading non-auth">
     <header>
         <span class="header__logo" onclick="goHome()">네무위키</span>
-        <span class="right mdi mdi-shuffle-variant" onclick="goRandom()"></span>
-        <span class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"></span>
+        <span class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></span>
+        <span class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"
+            title="마이페이지"></span>
+        <indicator></indicator>
     </header>
     <main>
         <div class="main__header">
@@ -45,7 +47,7 @@
     </main>
     <aside>
         <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
-                onkeydown="search(event, this)" id="search_input" /></div>
+                onkeydown="search(event, this)" id="search_input"></div>
         <div>
             <p onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>
