@@ -222,11 +222,11 @@ function createOption(arr = []) {
     for (let option of arr) {
         let { label, text, type, name, value, attr, button } = option;
         if (label) {
-            div.append(createElement('span', { attrs: { class: 'component__option__label' }, innerHTML: label }));
+            div.append(createElement('span', { attrs: { ...attr, class: 'component__option__label' }, innerHTML: label }));
         } else if (text) {
             div.append(document.createTextNode(text));
         } else if (button) {
-            let btn = createElement('button', { attrs: { class: `component__option__button ${button}` } });
+            let btn = createElement('button', { attrs: { ...attr, class: `component__option__button ${button}` } });
             div.append(btn);
             inputs[button] = btn;
         } else {
@@ -387,7 +387,7 @@ const COMPONENT_SPEC = {
                 getTable().outerLineWidth = this.value;
             }
 
-            frag.append(option_2.setStyles({ display: 'flex' }));
+            frag.append(option_2);
 
             let option_3 = createOption([
                 { label: '내부선' },
@@ -398,7 +398,7 @@ const COMPONENT_SPEC = {
                 getTable().innerLineColor = this.value;
             }
 
-            frag.append(option_3.setStyles({ display: 'flex' }));
+            frag.append(option_3);
 
             let option_4 = createOption([
                 { label: '셀 체우기' },
@@ -430,7 +430,7 @@ const COMPONENT_SPEC = {
                 if (link) _table._lastCell.firstChild.append(document.createTextNode(`[link:${link}]`));
             }
 
-            frag.append(option_4.setStyles({ display: 'flex' }));
+            frag.append(option_4);
 
             return frag;
         },
