@@ -1,0 +1,423 @@
+/* Font Declation */
+/*
+ font from https://www.yd.go.kr/?page_id=120264
+ copright by 영덕군
+*/
+@font-face {
+    font-family: "Yeongdeok Snow Crab";
+    src: url("../resource/Yeongdeok\ Snow Crab.ttf")format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Yeongdeok Sea";
+    src: url("../resource/Yeongdeok\ Sea.ttf")format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Variable */
+
+:root {
+    /*font*/
+    --ff-contents: "Yeongdeok Sea", Helvetica, Arial, sans-serif;
+    --ff-header: "Yeongdeok Snow Crab", Helvetica, Arial, sans-serif;
+    --ff-icon: "Material Design Icons";
+    --fs-largest: 3rem;
+    --fs-large: 2.2rem;
+    --fs-base: 1.8rem;
+    --fs-small: 1.4rem;
+    --fs-smallest: 1.2rem;
+
+    /*color*/
+    --clr-primary-100: #1d9bf0;
+    --clr-primary-86: #1d9bf0dd;
+    --clr-primary-base: #1d9bf0aa;
+    --clr-primary-46: #1d9bf077;
+    --clr-border-lt: #eff3f4;
+    --clr-border-base: #cccccc;
+    --clr-border-dk: #dddddd;
+    --clr-border-dkst: #e8e8e8;
+    --clr-background-dark: #f7f9f9;
+    --clr-background-base: #ffffff;
+    --clr-valid: #008000;
+    --clr-invalid: #f4212e;
+    --clr-font: #000000;
+    --clr-font-alt: #FFFFFF;
+
+    --bs-small: 0.1rem;
+    --bs-base: 0.2rem;
+    --br-smallest: 0.3rem;
+    --br-largest: 2rem;
+
+    --size-indent: 2rem;
+    --mg-component: 1.2rem;
+
+    --h-control: 4rem;
+    --h-button-large: 5.4rem;
+
+    /*setting*/
+    font-size: 10px;
+}
+
+* {
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+    border: none;
+    padding: 0;
+    font-size: var(--fs-base);
+    font-family: var(--ff-contents);
+    color: var(--clr-font);
+}
+
+*:focus {
+    outline: none;
+}
+
+li,
+ol,
+ul {
+    list-style: none;
+}
+
+::-webkit-scrollbar {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-smallest);
+    border: solid 0.2rem var(--background-dark);
+    background: #00000044;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00000077;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #00000088;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* base Layout */
+
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-top: var(--h-header);
+    min-height: 100vh;
+    overflow: auto;
+    background-color: var(--clr-background-base);
+    --h-header: 5rem;
+}
+
+body::before,
+body:not(:has(.index))::after {
+    content: '';
+    display: block;
+    flex: 1;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 0 var(--size-indent);
+    max-width: 126rem;
+    height: var(--h-header);
+    line-height: var(--h-header);
+    gap: var(--size-indent);
+    z-index: 1;
+    user-select: none;
+}
+
+header::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--h-header);
+    background-color: var(--clr-primary-base);
+    backdrop-filter: blur(1rem);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    flex: 100;
+    box-sizing: content-box;
+    margin: var(--mg-component);
+    min-width: 40rem;
+    max-width: 90rem;
+    gap: var(--size-indent);
+}
+
+hr {
+    width: var(--bs-small);
+    background-color: var(--clr-border-lt);
+}
+
+aside {
+    display: flex;
+    flex-direction: column;
+    margin: var(--mg-component);
+    width: 32rem;
+    gap: var(--size-indent);
+}
+
+/* Responsive Design */
+
+@media (max-width: 500px) {
+    :root {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 1000px) {
+    body {
+        flex-direction: column;
+    }
+
+    main {
+        max-width: unset;
+        min-width: unset;
+    }
+
+    aside {
+        width: auto;
+        margin-left: var(--size-indent);
+    }
+}
+
+@media (max-width: 1200px) {
+
+    body::before,
+    body::after,
+    .index {
+        display: none !important;
+    }
+}
+
+/* re-useable Component */
+
+indicator {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 0.5rem;
+    margin: 0;
+    pointer-events: none;
+    --progress: 0;
+    --progress-r: 100%;
+}
+
+indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--progress);
+    right: var(--progress-r);
+    height: 100%;
+    background-color: var(--clr-primary-base);
+    transition: left 250ms, right 250ms;
+}
+
+input,
+textarea,
+button,
+a {
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+[placeholder]:empty::after {
+    content: attr(placeholder);
+    opacity: 0.5;
+}
+
+.input_suggest {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    border-radius: 0.5rem;
+    padding: 0;
+    width: 100%;
+    max-height: 36.5rem;
+    background-color: var(--clr-background-base);
+    box-shadow: 0 0 1rem 0 #4b749933;
+    overflow: auto;
+    z-index: 10;
+}
+
+.input_suggest>li {
+    padding: 1rem;
+}
+
+.input_suggest>li+li {
+    border-top: var(--bs-small) solid var(--clr-border-base)
+}
+
+.input_suggest>li[value]:empty::after {
+    content: attr(value);
+}
+
+.input_suggest>:first-child {
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+}
+
+.input_suggest>:last-child {
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+
+:focus+.input_suggest {
+    display: block;
+}
+
+.input_suggest>li:hover {
+    background-color: var(--clr-background-dark);
+}
+
+.input_container {
+    height: var(--h-control);
+    line-height: var(--h-control);
+    transition: outline 200ms;
+}
+
+.input_container::before {
+    content: "";
+    font-family: var(--ff-icon);
+    font-size: var(--fs-largest);
+}
+
+.input_container > input,
+.input_container > textarea {
+    position: absolute;
+    left: 0;
+    border-radius: inherit;
+    padding: 0 var(--size-indent);
+    width: 100%;
+    height: 100%;
+    transition: padding 200ms;
+}
+
+.input_container:focus-within {
+    outline: var(--bs-base) solid var(--clr-primary-base);
+}
+
+.input_container:not(.no-validity):has(:user-valid) {
+    outline: var(--bs-base) solid var(--valid);
+    padding-left: 1rem;
+}
+
+.input_container:not(.no-validity):has(:invalid) {
+    outline: var(--bs-base) solid var(--invalid);
+    padding-left: 1rem;
+}
+
+.input_container:not(.no-validity):has(input:user-valid)::before {
+    content: "\F05E1";
+    color: var(--valid);
+}
+
+.input_container:not(.no-validity):has(input:invalid)::before {
+    content: "\F0028";
+    color: var(--invalid);
+}
+
+.input_container:not(.no-validity) :user-valid,
+.input_container:not(.no-validity) :invalid {
+    padding-left: var(--h-control);
+}
+
+button.normal,
+button.danger {
+    display: block;
+    width: 100%;
+    max-width: 32rem;
+    min-width: 6rem;
+    border-radius: calc(var(--h-button-large) / 2);
+    line-height: var(--h-button-large);
+    font-family: inherit;
+    font-size: 2.5rem;
+    color: var(--clr-font-alt);
+    background: var(--clr-primary-base);
+    opacity: 0.8;
+}
+
+button.danger {
+    background: var(--invalid);
+}
+
+button.normal:hover,
+button.danger:hover {
+    opacity: 1;
+}
+
+button.normal:active,
+button.danger:active {
+    opacity: 0.6;
+}
+
+/* one-use-component */
+
+/*Header*/
+.header__logo {
+    margin-right: auto;
+    white-space: nowrap;
+    font-family: var(--ff-header);
+}
+
+header>[title] {
+    transition: 350ms padding-right;
+    padding-right: 0;
+}
+
+header>[title]::before {
+    font-size: var(--fs-largest);
+}
+
+header>[title]::after {
+    content: attr(title);
+    position: absolute;
+    right: 0;
+    width: 0;
+    font-size: var(--fs-small);
+    white-space: nowrap;
+    overflow: hidden;
+    transition: 350ms width;
+}
+
+header>[title]:hover {
+    padding-right: 6rem;
+    transition-delay: 200ms;
+}
+
+header>[title]:hover::after {
+    width: 6rem;
+    transition-delay: 250ms;
+}
+
+/*main*/

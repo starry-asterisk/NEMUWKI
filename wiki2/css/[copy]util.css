@@ -1,195 +1,3 @@
-/*
- font from https://www.yd.go.kr/?page_id=120264
- copright by 영덕군
-*/
-@font-face {
-    font-family: "headerFont";
-    src: url("../font/Yeongdeok\ Snow Crab.ttf")format("truetype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "mainFont";
-    src: url("../font/Yeongdeok\ Sea.ttf")format("truetype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-:root {
-    font-size: 10px;
-    font-family: "mainFont";
-    --accent: #1d9bf0aa;
-    --accent-half: #1d9bf077;
-    --border: #eff3f4;
-    --border2: #ccc;
-    --border3: #ddd;
-    --border4: #e8e8e8;
-    --background-dark: #f7f9f9;
-    --background: #FFF;
-    --block-padding: 2rem;
-    --border-radius: 2rem;
-    --valid: #008000;
-    --invalid: #f4212e;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    border: none;
-    box-sizing: border-box;
-    position: relative;
-    font-size: 2rem;
-}
-
-*:focus {
-    outline: none;
-}
-
-::-webkit-scrollbar {
-    width: 1.1rem;
-    height: 1.1rem;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00000044;
-    border-radius: 0.2rem;
-    border: solid 0.2rem var(--background-dark);
-
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #00000077;
-}
-
-::-webkit-scrollbar-thumb:active {
-    background: #00000088;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-li {
-    list-style: none;
-}
-
-body {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    min-height: 100vh;
-    overflow: auto;
-    background-color: var(--background);
-}
-
-body::before,
-body:not(:has(.index))::after {
-    content: '';
-    display: block;
-    flex: 1;
-}
-
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5rem;
-    z-index: 10;
-    max-width: 126rem;
-    padding: 0 2rem;
-    margin: auto;
-}
-
-header::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5rem;
-    background-color: var(--accent);
-    backdrop-filter: blur(1rem);
-}
-
-header>* {
-    float: left;
-    margin-right: 2rem;
-    line-height: 5rem;
-    transition: 350ms padding-right;
-    padding-right: 0;
-}
-header>*[title]:hover {
-    padding-right: 6rem;
-    transition-delay: 200ms;
-}
-header>*[title]::after {
-    content: attr(title);
-    position: absolute;
-    right: 0;
-    line-height: 5rem;
-    font-size: 1.5rem;
-    display: inline-block;
-    width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    transition: 350ms width;
-}
-header>*[title]:hover::after {
-    width: 6rem;
-    transition-delay: 250ms;
-}
-
-header>.right {
-    float: right;
-    margin-left: 2rem;
-    cursor: pointer;
-    height: 5rem;
-}
-header>.right::before {
-    font-size: 3rem;
-}
-header > indicator {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 0.5rem;
-    margin: 0;
-    pointer-events: none;
-    --progress: 0;
-    --progress-r: 100%;
-}
-header > indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: var(--progress);
-    right: var(--progress-r);
-    height: 100%;
-    transition: left 250ms, right 250ms;
-    background-color: var(--accent);
-}
-
-.header__logo {
-    font-family: "headerFont";
-    cursor: pointer;
-}
-
-main {
-    display: flex;
-    flex-direction: column;
-    padding: 7rem 0 0 1rem;
-    min-width: 40rem;
-    max-width: 90rem;
-    min-height: calc(100vh - 18rem);
-    box-sizing: content-box;
-    border-right: 0.1rem solid var(--border);
-    flex: 100;
-}
 
 .main__header {
     padding: 2rem 0;
@@ -320,19 +128,10 @@ footer:hover {
     background-color: var(--background-dark);
 }
 
-aside {
-    margin: 7rem 2rem 2rem 1rem;
-    width: 32rem;
-}
-
 aside>* {
     padding: var(--block-padding) 0;
     background-color: var(--background-dark);
     border-radius: var(--border-radius);
-}
-
-aside>*+* {
-    margin-top: 2rem;
 }
 
 aside>*>* {
@@ -348,49 +147,7 @@ aside>*>p:first-child {
 }
 
 
-@media (max-width: 500px) {
 
-    .main__contents,
-    .main__document_info,
-    .main__header {
-        zoom: 0.65;
-    }
-
-    .main__notice {
-        zoom: 0.9;
-    }
-}
-
-@media (max-width: 1000px) {
-    body {
-        flex-direction: column;
-    }
-
-    main {
-        max-width: unset;
-        min-width: unset;
-        margin: 0 2rem 2rem 2rem;
-        padding-right: 1rem;
-        border-right: none;
-    }
-
-    aside {
-        width: auto;
-        margin-left: 3rem;
-        margin-right: 3rem;
-    }
-
-    aside>div:first-child {
-        margin-top: unset !important;
-    }
-
-}
-
-@media (max-width: 1200px) {
-    .index {
-        display: none !important;
-    }
-}
 
 footer {
     font-size: 1.5rem;
@@ -474,120 +231,7 @@ a[data-tooltip]:hover::before {
     background-color: var(--background-dark);
 }
 
-input,
-textarea {
-    width: 100%;
-    height: 100%;
-    background: none;
-    border: none;
-    font-size: inherit;
-    color: inherit;
-    padding: 0 2rem;
-    font-family: inherit;
-}
 
-input:not(:focus)+.input_suggest {
-    display: none !important;
-}
-
-input:focus+.input_suggest {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    padding: 0;
-    max-height: 30rem;
-    border-radius: 0.5rem;
-    background-color: var(--background);
-    z-index: 10;
-    box-shadow: 0 0 1rem 0 #4b749933;
-    max-height: 36.5rem;
-    overflow: auto;
-}
-
-input:focus+.input_suggest>*:first-child {
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
-}
-
-input:focus+.input_suggest>*:last-child {
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
-}
-
-.input_suggest>li {
-    padding: 1rem;
-}
-
-.input_suggest>li+li {
-    border-top: 0.1rem solid var(--border)
-}
-
-.input_suggest>li[value]:empty::after {
-    content: attr(value);
-}
-
-.input_suggest>li:hover {
-    background-color: var(--background-dark);
-}
-
-[placeholder]:empty::after {
-    content: attr(placeholder);
-    opacity: 0.5;
-}
-
-.input_container {
-    height: 4rem;
-    line-height: 4rem;
-    padding: 0 2rem;
-    transition: outline 200ms;
-}
-
-.input_container:focus-within {
-    outline: 0.2rem solid var(--accent);
-}
-
-.input_container:not(.no-validity):has(input:user-valid) {
-    outline: 0.2rem solid var(--valid);
-    padding-left: 1rem;
-}
-
-.input_container:not(.no-validity):has(input:invalid) {
-    outline: 0.2rem solid var(--invalid);
-    padding-left: 1rem;
-}
-
-.input_container::before {
-    content: "";
-    font-family: "Material Design Icons";
-    font-size: 2.5rem;
-}
-
-.input_container:not(.no-validity):has(input:user-valid)::before {
-    content: "\F05E1";
-    color: var(--valid);
-}
-
-.input_container:not(.no-validity):has(input:invalid)::before {
-    content: "\F0028";
-    color: var(--invalid);
-}
-
-.input_container input {
-    position: absolute;
-    left: 0;
-    transition: padding 200ms;
-}
-
-.input_container:not(.no-validity) input:user-valid,
-.input_container:not(.no-validity) input:invalid {
-    padding-left: 4rem;
-}
-
-.input_container>input {
-    border-radius: inherit;
-}
 
 input[type="file"] {
     overflow: hidden;
@@ -625,38 +269,7 @@ input[type="file"]:hover {
     opacity: 0.55;
 }
 
-button {
-    cursor: pointer;
-}
 
-button.normal,
-button.danger {
-    display: block;
-    width: 100%;
-    max-width: 32rem;
-    color: white;
-    background: var(--accent);
-    padding: 0;
-    line-height: 6rem;
-    border-radius: 3rem;
-    opacity: 0.8;
-    font-family: inherit;
-    font-size: 2.5rem;
-}
-
-button.danger {
-    background: var(--invalid);
-}
-
-button.normal:hover,
-button.danger:hover {
-    opacity: 1;
-}
-
-button.normal:active,
-button.danger:active {
-    opacity: 0.6;
-}
 
 editable-table {
     --outer-line-width: 0.1rem;
@@ -846,11 +459,6 @@ editable-table [contenteditable] {
     padding: 1.25rem 2rem;
 }
 
-a {
-    font-size: inherit;
-    text-decoration: none;
-}
-
 blockquote {
     padding: 1.5rem;
     border: 0.1rem dashed var(--border2);
@@ -965,26 +573,6 @@ error::after {
 
     to {
         transform: translate(0);
-    }
-}
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes rotate_r {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(-360deg);
     }
 }
 
