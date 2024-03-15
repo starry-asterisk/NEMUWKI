@@ -25,16 +25,16 @@
 <body class="loading non-auth">
     <header>
         <a class="header__logo" onclick="goHome()">네무위키</a>
-        <button class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></button>
         <button class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"
             title="마이페이지"></button>
+        <button class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></button>
         <indicator></indicator>
     </header>
     <main>
         <div class="main__header">
             <div class="main__header__title" id="main__header__title">네무위키:대문</div>
-            <div class="main__header__timestamp" id="main__header__timestamp"></div>
             <div class="main__header__toolbox"><button onclick="goShare('twitter')">공유</button></div>
+            <div class="main__header__timestamp" id="main__header__timestamp"></div>
         </div>
         <div class="main__contents" id="main__contents">
             <div class="title" id="total" onclick="fold(this)">전체 문서</div>
@@ -44,14 +44,14 @@
     </main>
     <hr>
     <aside>
-        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
+        <div class="aside__container input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
                 onkeydown="search(event, this)" id="search_input"></div>
-        <div>
-            <p onclick="fold(this)">최근글</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>
         </div>
-        <div>
-            <p onclick="fold(this)">분류</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">분류</p>
             <ul id="category_list"></ul>
         </div>
         <div id="user_area"></div>

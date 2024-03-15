@@ -26,7 +26,8 @@
     --ff-contents: "Yeongdeok Sea", Helvetica, Arial, sans-serif;
     --ff-header: "Yeongdeok Snow Crab", Helvetica, Arial, sans-serif;
     --ff-icon: "Material Design Icons";
-    --fs-largest: 3rem;
+    --fs-xxlarge: 5rem;
+    --fs-xlarge: 3rem;
     --fs-large: 2.2rem;
     --fs-base: 1.8rem;
     --fs-small: 1.4rem;
@@ -46,18 +47,23 @@
     --clr-valid: #008000;
     --clr-invalid: #f4212e;
     --clr-font: #000000;
+    --clr-font-invaild: #555555;
     --clr-font-alt: #FFFFFF;
 
     --bs-small: 0.1rem;
     --bs-base: 0.2rem;
     --br-smallest: 0.3rem;
+    --br-base: 1rem;
     --br-largest: 2rem;
 
     --size-indent: 2rem;
     --mg-component: 1.2rem;
 
     --h-control: 4rem;
+    --h-control-large: 5rem;
     --h-button-large: 5.4rem;
+
+    --w-min-button: 6rem;
 
     /*setting*/
     font-size: 10px;
@@ -135,7 +141,7 @@ header {
     left: 0;
     right: 0;
     margin: auto;
-    padding: 0 var(--size-indent);
+    padding-inline: var(--size-indent);
     max-width: 126rem;
     height: var(--h-header);
     line-height: var(--h-header);
@@ -167,7 +173,8 @@ main {
 }
 
 hr {
-    width: var(--bs-small);
+    min-width: var(--bs-small);
+    min-height: var(--bs-small);
     background-color: var(--clr-border-lt);
 }
 
@@ -177,39 +184,6 @@ aside {
     margin: var(--mg-component);
     width: 32rem;
     gap: var(--size-indent);
-}
-
-/* Responsive Design */
-
-@media (max-width: 500px) {
-    :root {
-        font-size: 9px;
-    }
-}
-
-@media (max-width: 1000px) {
-    body {
-        flex-direction: column;
-    }
-
-    main {
-        max-width: unset;
-        min-width: unset;
-    }
-
-    aside {
-        width: auto;
-        margin-left: var(--size-indent);
-    }
-}
-
-@media (max-width: 1200px) {
-
-    body::before,
-    body::after,
-    .index {
-        display: none !important;
-    }
 }
 
 /* re-useable Component */
@@ -260,7 +234,7 @@ a {
     position: absolute;
     top: 100%;
     left: 0;
-    border-radius: 0.5rem;
+    border-radius: var(--br-smallest);
     padding: 0;
     width: 100%;
     max-height: 36.5rem;
@@ -303,28 +277,29 @@ a {
 .input_container {
     height: var(--h-control);
     line-height: var(--h-control);
-    transition: outline 200ms;
+    outline: var(--bs-base) solid transparent;
+    transition: outline-color 200ms;
 }
 
 .input_container::before {
     content: "";
     font-family: var(--ff-icon);
-    font-size: var(--fs-largest);
+    font-size: var(--fs-xlarge);
 }
 
-.input_container > input,
-.input_container > textarea {
+.input_container>input,
+.input_container>textarea {
     position: absolute;
     left: 0;
     border-radius: inherit;
-    padding: 0 var(--size-indent);
+    padding-inline: var(--size-indent);
     width: 100%;
     height: 100%;
     transition: padding 200ms;
 }
 
 .input_container:focus-within {
-    outline: var(--bs-base) solid var(--clr-primary-base);
+    outline-color: var(--clr-primary-base);
 }
 
 .input_container:not(.no-validity):has(:user-valid) {
@@ -357,7 +332,7 @@ button.danger {
     display: block;
     width: 100%;
     max-width: 32rem;
-    min-width: 6rem;
+    min-width: var(--w-min-button);
     border-radius: calc(var(--h-button-large) / 2);
     line-height: var(--h-button-large);
     font-family: inherit;
@@ -381,6 +356,15 @@ button.danger:active {
     opacity: 0.6;
 }
 
+[onclick] {
+    cursor: pointer;
+}
+
+.fold {
+    opacity: 0.4;
+    margin-bottom: 0 !important;
+}
+
 /* one-use-component */
 
 /*Header*/
@@ -396,7 +380,7 @@ header>[title] {
 }
 
 header>[title]::before {
-    font-size: var(--fs-largest);
+    font-size: var(--fs-xlarge);
 }
 
 header>[title]::after {
@@ -411,13 +395,274 @@ header>[title]::after {
 }
 
 header>[title]:hover {
-    padding-right: 6rem;
+    padding-right: var(--w-min-button);
     transition-delay: 200ms;
 }
 
 header>[title]:hover::after {
-    width: 6rem;
+    width: var(--w-min-button);
     transition-delay: 250ms;
 }
 
 /*main*/
+
+main>div,
+main>footer {
+    padding-inline: var(--mg-component);
+}
+
+.main__header {
+    display: flex;
+    flex-wrap: wrap;
+    padding-block: var(--size-indent);
+}
+
+.main__header__title {
+    margin-right: var(--mg-component);
+    margin-bottom: var(--mg-component);
+    max-width: fit-content;
+    height: var(--fs-xxlarge);
+    font-size: var(--fs-xxlarge);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.main__header__timestamp {
+    width: 100%;
+    height: var(--fs-small);
+    font-size: var(--fs-small);
+}
+
+.main__header__toolbox {
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+    max-width: fit-content;
+    height: var(--h-control);
+    border: var(--bs-small) solid var(--clr-border-base);
+    border-radius: var(--br-base);
+    background-color: var(--clr-border-base);
+    gap: var(--bs-small);
+    overflow: hidden;
+}
+
+.main__header__toolbox:empty {
+    display: none !important;
+}
+
+.main__header__toolbox>button {
+    min-width: var(--w-min-button);
+    color: var(--clr-font-invaild);
+    background-color: var(--clr-background-base);
+}
+
+.main__contents {
+    flex: 1;
+}
+
+footer {
+    font-size: var(--fs-small);
+    min-height: 15rem;
+    white-space: pre-line;
+    text-align: right;
+}
+
+footer::after {
+    content: "\A이 저작물은  CC BY-NC-SA 2.0 KR에 따라 이용할 수 있습니다. (단, 라이선스가 명시된 일부 문서 및 삽화 포함)\A기여하신 문서의 저작권은 각 기여자에게 있으며, 각 기여자는 기여하신 부분의 저작권을 갖습니다.\A\A네무위키는 백과사전이 아니며 검증되지 않았거나, 편향적이거나, 잘못된 서술이 있을 수 있습니다.\A네무위키는 위키위키입니다. 여러분이 직접 문서를 고칠 수 있으며, 다른 사람의 의견을 원할 경우 직접 토론을 발제할 수 있습니다.\A";
+}
+
+/*aside*/
+
+.aside__container {
+    border-radius: var(--br-largest);
+    padding-bottom: var(--size-indent);
+    background-color: var(--clr-background-dark);
+}
+
+.aside__container.input_container {
+    border-radius: calc(var(--h-control-large) / 2);
+    height: var(--h-control-large);
+}
+
+.aside__container__title {
+    margin-bottom: var(--mg-component);
+    border-bottom: var(--bs-small) solid var(--clr-border-base);
+    padding: var(--size-indent) var(--size-indent) var(--mg-component);
+    font-size: var(--fs-large);
+    line-height: var(--fs-large);
+}
+
+/* Responsive Design */
+
+@media (max-width: 500px) {
+    :root {
+        --fs-xxlarge: 3.2rem;
+    }
+}
+
+@media (max-width: 1000px) {
+    body {
+        flex-direction: column;
+    }
+
+    main {
+        max-width: unset;
+        min-width: unset;
+    }
+
+    aside {
+        width: auto;
+    }
+}
+
+@media (max-width: 1200px) {
+    .index {
+        display: none !important;
+    }
+}
+
+/* Error Page */
+
+error::after,
+error::before,
+error {
+    content: attr(state-code);
+    font-family: 'headerFont';
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 10rem;
+    margin: auto;
+    font-size: 10rem;
+    z-index: 9999;
+    text-align: center;
+}
+
+error::before {
+    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+    color: #00FFFF;
+    z-index: -1;
+}
+
+error::after {
+    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
+    color: #FF00FF;
+    z-index: -1;
+}
+
+@keyframes glitch-it {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-2px, 2px);
+    }
+
+    40% {
+        transform: translate(-2px, -2px);
+    }
+
+    60% {
+        transform: translate(2px, 2px);
+    }
+
+    80% {
+        transform: translate(2px, -2px);
+    }
+
+    to {
+        transform: translate(0);
+    }
+}
+
+/* DeveloperMode */
+body[developerMode="true"] img,
+body[developerMode="true"] .header__logo {
+    opacity: 0;
+}
+
+body[developerMode="true"] * {
+    color: #00000022 !important;
+}
+
+
+
+
+
+
+.main__notice {
+    display: block;
+    min-height: var(--h-button-large);
+    padding-inline: var(--size-indent);
+    border: var(--bs-small) solid var(--clr-primary-100);
+    background: var(--clr-primary-86);
+    color: var(--clr-font-alt);
+    line-height: var(--h-button-large);
+    border-radius: var(--br-smallest);
+    white-space: pre-line;
+    overflow: hidden;
+}
+
+.main__notice__timestamp {
+    float: right;
+    opacity: 0.46;
+}
+
+.main__notice.open .main__notice__content {
+    max-height: 30rem;
+    overflow: auto;
+    padding-bottom: var(--size-indent);
+}
+
+.main__notice__content {
+    --background-dark: #3BA8F2;
+    display: block;
+    max-height: 0;
+    line-height: 1.5;
+    padding-bottom: 0;
+    margin-inline: calc(- var(--size-indent) - var(--bs-small));
+    padding-inline: var(--size-indent);
+    transition: 500ms max-height, 500ms padding-bottom;
+}
+
+.main__document_info {
+    display: flex;
+    height: var(--h-control);
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 0.1rem solid var(--border);
+    background-color: var(--background-dark);
+}
+
+.main__document_info::before {
+    content: '분류:';
+    font-size: 1.7rem;
+    line-height: 2.8rem;
+}
+
+.main__document_info>a {
+    color: black;
+    font-size: 1.7rem;
+    padding: 0 1rem;
+    line-height: 2.8rem;
+}
+
+.main__document_info>a+a:not(.category)::before {
+    content: '>';
+    padding-right: 2rem;
+}
+
+.main__document_info>.category::before {
+    content: '카테고리:';
+}
+
+.main__document_info>.category {
+    border-radius: 1.4rem;
+    margin-left: 2rem;
+    padding: 0 2rem;
+    background: var(--accent);
+}
