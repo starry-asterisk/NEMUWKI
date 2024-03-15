@@ -122,10 +122,12 @@ header>* {
     transition: 350ms padding-right;
     padding-right: 0;
 }
+
 header>*[title]:hover {
     padding-right: 6rem;
     transition-delay: 200ms;
 }
+
 header>*[title]::after {
     content: attr(title);
     position: absolute;
@@ -138,6 +140,7 @@ header>*[title]::after {
     overflow: hidden;
     transition: 350ms width;
 }
+
 header>*[title]:hover::after {
     width: 6rem;
     transition-delay: 250ms;
@@ -149,10 +152,12 @@ header>.right {
     cursor: pointer;
     height: 5rem;
 }
+
 header>.right::before {
     font-size: 3rem;
 }
-header > indicator {
+
+header>indicator {
     position: absolute;
     top: 100%;
     left: 0;
@@ -163,7 +168,8 @@ header > indicator {
     --progress: 0;
     --progress-r: 100%;
 }
-header > indicator::before {
+
+header>indicator::before {
     content: '';
     position: absolute;
     top: 0;
@@ -702,6 +708,22 @@ editable-table {
     border: 0.1rem solid var(--inner-line);
     height: inherit;
     vertical-align: top;
+    background: var(--background);
+}
+
+.editable-table__cell.colspan-full,
+.editable-table__cell.colspan-center {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    border-width: 0 0 0.1rem 0;
+}
+
+.editable-table__cell.colspan-center {
+    text-align: center;
 }
 
 .editable-table__cell>div {
@@ -1102,10 +1124,12 @@ body[developerMode="true"] * {
     content: '완료';
     font-family: inherit;
 }
-.fullSize form{
+
+.fullSize form {
     margin: 0;
     height: 100%;
 }
+
 .gallery_container {
     position: absolute;
     width: 100%;
@@ -1115,8 +1139,10 @@ body[developerMode="true"] * {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 0.5rem;
-    padding: 0 0.5rem;;
+    padding: 0 0.5rem;
+    ;
 }
+
 .gallery_container_cell {
     aspect-ratio: 1;
     background-color: var(--border4);
@@ -1128,16 +1154,20 @@ body[developerMode="true"] * {
     justify-content: center;
     animation: uncheck 300ms forwards;
 }
-.gallery_container_cell > input {
+
+.gallery_container_cell>input {
     display: none;
 }
+
 button.gallery_container_cell {
     width: auto;
     margin: 0;
 }
+
 input.gallery_container_cell {
     appearance: none;
 }
+
 .gallery_container_cell:checked,
 .gallery_container_cell:active {
     animation: check 300ms forwards;
@@ -1161,19 +1191,23 @@ input.gallery_container_cell {
         transform: scale(1);
         opacity: 1;
     }
+
     20% {
         transform: scale(1.03);
     }
+
     100% {
         transform: scale(0.91);
         opacity: 0.8;
     }
 }
+
 @keyframes uncheck {
     0% {
         transform: scale(0.91);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;

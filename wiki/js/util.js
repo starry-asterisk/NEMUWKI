@@ -111,7 +111,7 @@ customElements.define('editable-table', class extends HTMLElement {
     }
     setData(data_arr) {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
-        for (let index in elements) elements[index].innerHTML = this._readonly ? markdown(data_arr[index]) : data_arr[index];
+        for (let index in elements) elements[index].innerHTML = this._readonly ? markdown(data_arr[index], elements[index].parentElement) : data_arr[index];
     }
     setCellColors(color_arr) {
         let elements = Array.from(this._tbody.querySelectorAll('[contenteditable]'));
@@ -639,8 +639,13 @@ function rgb2hex(rgb_str) {
     }
 }
 
-function markdown(html) {
+function markdown(html, cell) {
     return html
+        .replace(REGEX.colspan, (full_str, group1) => {
+            cell.classList.add(`colspan-${group1}`);
+            return '';
+        })
+        .replace(REGEX.css, (full_str, cssString, text) => `<span style="${cssString}"/>${text}</span>`)
         .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
         .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`)
 }
@@ -669,6 +674,8 @@ const REGEX = {
     image: /\[image\:([^\s\[\]]+)\]/gi,
     video: /\[video\:([^\s\[\]]+)\]/gi,
     music: /\[music\:([^\s\[\]]+)\]/gi,
+    colspan: /\[colspan\:([^\s\[\]]+)\]/gi,
+    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/gi,
 };
 let visited = localStorage.getItem('visited') ? localStorage.getItem('visited').split(',') : [];
 let params = new URLSearchParams(document.location.search);
