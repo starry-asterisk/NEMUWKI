@@ -4,11 +4,6 @@ footer:hover {
     background-color: var(--background-dark);
 }
 
-
-body.error footer::after {
-    content: "\A원하시는 문서를 찾을 수 없습니다.\A삭제된 문서 이거나 옳바른 주소 인지 확인해주세요.";
-}
-
 .index {
     flex: 1;
     counter-reset: index;
@@ -58,7 +53,7 @@ a[data-tooltip]::before {
     opacity: 0;
     visibility: hidden;
     border-radius: 0.3rem;
-    border: 0.1rem solid var(--border2);
+    border: 0.1rem solid var(--clr-border-base);
     height: 2.8rem;
     line-height: 2.8rem;
     white-space: nowrap;
@@ -68,11 +63,11 @@ a[data-tooltip]::before {
     font-size: 1.4rem;
     color: black;
     cursor: pointer;
-    background-color: var(--background);
+    background-color: var(--clr-background-base);
 }
 
 a[data-tooltip]:hover::before {
-    background-color: var(--background-dark);
+    background-color: var(--clr-background-dark);
 }
 
 
@@ -81,15 +76,15 @@ input[type="file"] {
     overflow: hidden;
     border-radius: 1.75rem;
     padding: 0;
-    background: var(--background-dark);
+    background: var(--clr-background-dark);
     margin: 2rem 0;
-    border: 0.1rem solid var(--border);
+    border: 0.1rem solid var(--clr-border-lt);
     cursor: pointer;
     display: block;
 }
 
 input[type="file"]:hover {
-    border-color: var(--border3);
+    border-color: var(--clr-border-dk);
 }
 
 ::file-selector-button {
@@ -468,79 +463,6 @@ body.loading aside>*::after {
 .fullSize form{
     margin: 0;
     height: 100%;
-}
-.gallery_container {
-    position: absolute;
-    width: 100%;
-    top: 5rem;
-    left: 0;
-    max-height: calc(100% - 5rem);
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0 0.5rem;;
-}
-.gallery_container_cell {
-    aspect-ratio: 1;
-    background-color: var(--border4);
-    background-size: cover;
-    background-position: center;
-    font-size: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: uncheck 300ms forwards;
-}
-.gallery_container_cell > input {
-    display: none;
-}
-button.gallery_container_cell {
-    width: auto;
-    margin: 0;
-}
-input.gallery_container_cell {
-    appearance: none;
-}
-.gallery_container_cell:checked,
-.gallery_container_cell:active {
-    animation: check 300ms forwards;
-    outline: 0.3rem solid var(--accent);
-}
-
-.gallery_container_cell.localStorage::before {
-    content: "\F024B";
-    font-family: "Material Design Icons";
-    font-size: inherit;
-}
-
-.gallery_container_cell.link::before {
-    content: "\F0339";
-    font-family: "Material Design Icons";
-    font-size: inherit;
-}
-
-@keyframes check {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    20% {
-        transform: scale(1.03);
-    }
-    100% {
-        transform: scale(0.91);
-        opacity: 0.8;
-    }
-}
-@keyframes uncheck {
-    0% {
-        transform: scale(0.91);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
 }
 
 .non-auth header .account,

@@ -258,6 +258,7 @@ function buildPost(data) {
 
     let alter_path_arr = SuggestList['board2Path_1'] || [];
     let path_arr = board_name_arr || alter_path_arr.find(row => row.name == board_name)?.path_arr || [board_name];
+    console.log(board_name_arr, alter_path_arr, board_name);
 
 
     let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
