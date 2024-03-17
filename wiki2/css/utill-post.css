@@ -1,7 +1,7 @@
 .main__contents>div:hover,
 .main__header:hover,
 footer:hover {
-    background-color: var(--background-dark);
+    background-color: var(--clr-background-dark);
 }
 
 .index {
@@ -89,7 +89,7 @@ input[type="file"]:hover {
 
 ::file-selector-button {
     font-family: 'mainFont';
-    background-color: var(--accent);
+    background-color: var(--clr-primary-base);
     color: white;
     height: 3.5rem;
     font-size: 2rem;
@@ -112,14 +112,14 @@ input[type="file"]:hover {
 
 editable-table {
     --outer-line-width: 0.1rem;
-    --outer-line: var(--border2);
-    --inner-line: var(--border2);
+    --outer-line: var(--clr-border-base);
+    --inner-line: var(--clr-border-base);
     overflow-x: auto;
     max-width: 100%;
     display: inline-block;
     border: var(--outer-line-width) solid var(--outer-line);
     border-collapse: collapse;
-    background: var(--background);
+    background: var(--clr-background-base);
 }
 
 .editable-table__tbody {
@@ -133,7 +133,7 @@ editable-table {
 }
 
 .editable-table__row.header>* {
-    background-color: var(--background-dark);
+    background-color: var(--clr-background-dark);
     height: 5rem;
 }
 
@@ -193,7 +193,7 @@ editable-table {
 
 .editable-table__cell:focus-within {
     outline-offset: -0.1rem;
-    outline: 0.1rem solid var(--accent) !important;
+    outline: 0.1rem solid var(--clr-primary-base) !important;
 }
 
 .component__option {
@@ -214,8 +214,8 @@ editable-table {
 
 .component__option__button {
     min-width: 4rem;
-    background: var(--background);
-    border: 0.1rem solid var(--border4);
+    background: var(--clr-background-base);
+    border: 0.1rem solid var(--clr-border-dkst);
     border-radius: 0.4rem;
     margin-left: 1.5rem;
 }
@@ -243,8 +243,8 @@ editable-table {
 }
 
 .component__option__button:hover {
-    background: var(--border4);
-    color: var(--accent);
+    background: var(--clr-border-dkst);
+    color: var(--clr-primary-base);
 }
 
 .component__option__button:active {
@@ -257,9 +257,9 @@ editable-table {
     width: 6rem;
     height: 4rem;
     margin: 0 0.5rem;
-    border: 0.1rem solid var(--border4);
+    border: 0.1rem solid var(--clr-border-dkst);
     border-radius: 0.4rem;
-    background: var(--background-dark);
+    background: var(--clr-background-dark);
 }
 
 .component__option__input>input {
@@ -277,7 +277,7 @@ editable-table {
 }
 
 .component__option__input>input[type="color"] {
-    border: 0.4rem solid var(--background-dark);
+    border: 0.4rem solid var(--clr-background-dark);
 }
 
 .component__option__input:has(input[type="color"]) {
@@ -288,7 +288,7 @@ editable-table {
 }
 
 .component__option__input:focus-within {
-    border-color: var(--accent);
+    border-color: var(--clr-primary-base);
 }
 
 editable-table [contenteditable] {
@@ -300,10 +300,10 @@ editable-table [contenteditable] {
 
 blockquote {
     padding: 1.5rem;
-    border: 0.1rem dashed var(--border2);
-    border-left: 0.5rem solid var(--accent);
+    border: 0.1rem dashed var(--clr-border-base);
+    border-left: 0.5rem solid var(--clr-primary-base);
     margin: 1.5rem 0;
-    background: var(--border);
+    background: var(--clr-border-lt);
 }
 
 img::after {
@@ -318,7 +318,7 @@ img::after {
     flex: 1;
     justify-content: center;
     align-items: center;
-    background: var(--background);
+    background: var(--clr-background-base);
     border: 0.1rem solid #aaa;
     color: #aaa;
     font-family: "Material Design Icons";
@@ -339,7 +339,7 @@ body.loading aside>*::after {
     left: 0;
     width: 80%;
     height: 100%;
-    background-color: var(--background);
+    background-color: var(--clr-background-base);
     z-index: 1;
     opacity: 1;
 }
@@ -362,13 +362,13 @@ body.loading aside>*::after {
 
 :modal {
     position: fixed;
-    border: 0.1rem solid var(--border);
+    border: 0.1rem solid var(--clr-border-lt);
     border-radius: 0.5rem;
     min-width: 30rem;
     min-height: 6rem;
     margin: auto;
     padding: 1rem;
-    background-color: var(--background);
+    background-color: var(--clr-background-base);
     text-align: center;
     overflow: visible;
 }
@@ -401,7 +401,7 @@ body.loading aside>*::after {
     width: 25rem;
     margin: 1.5rem auto;
     border-radius: 1.5rem;
-    background-color: var(--background-dark);
+    background-color: var(--clr-background-dark);
 }
 
 .modal__title {

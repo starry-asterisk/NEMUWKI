@@ -663,6 +663,15 @@ footer::after {
     .main__notice {
         --fs-base: var(--fs-small);
     }
+
+    .main__contents {
+        padding-inline: 0;
+    }
+
+    editable-table,
+    .textbox {
+        zoom: 0.8;
+    }
 }
 
 @media (max-width: 1000px) {
