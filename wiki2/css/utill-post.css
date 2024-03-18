@@ -7,9 +7,9 @@ footer:hover {
 .index {
     flex: 1;
     counter-reset: index;
-    height: calc(100vh - 5rem);
+    height: calc(100vh - var(--h-control-large));
     position: sticky;
-    top: 5rem;
+    top: var(--h-control-large);
 }
 
 .index__hover {

@@ -68,6 +68,7 @@
 .main__contents>.board_list_1>div[board_name]::before {
     content: attr(board_name);
     padding-left: 3rem;
+    min-width: 12rem;
 }
 
 .main__contents>.board_list_1>div[title]::after {
@@ -91,6 +92,7 @@
 .main__contents>.board_list_1::before {
     content: '분류';
     border-right: 0.1rem solid var(--clr-border-base);
+    min-width: 12rem;
 }
 
 .main__contents>.board_list_1>*:first-child {
@@ -115,6 +117,17 @@
     padding: 0.2rem;
     cursor: pointer;
 }
+
+.main__contents>.board_list_2>div>span {
+    display: block;
+    font-size: var(--fs-base);
+}
+
+.main__contents>.board_list_2>div>span.sub {
+    font-size: var(--fs-small);
+    opacity: 0.9;
+}
+
 
 .main__contents>.board_list_2>div>img {
     aspect-ratio: 1;

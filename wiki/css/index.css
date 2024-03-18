@@ -120,6 +120,15 @@
     cursor: pointer;
 }
 
+.main__contents>.board_list_2>div>span {
+    display: block;
+    font-size: var(--fs-base);
+}
+
+.main__contents>.board_list_2>div>span.sub {
+    font-size: var(--fs-small);
+}
+
 .main__contents>.board_list_2>div>img {
     aspect-ratio: 1;
     object-fit: cover;

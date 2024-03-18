@@ -224,7 +224,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal') {
 
     function createList2Item(data, id) {
         let item = createElement('div', {
-            innerHTML: `${data.board_name}<br>${data.title}`,
+            innerHTML: `<span class="sub">${data.board_name}</span><span>${data.title}</span>`,
             on: {
                 click: () => {
                     location.href = `${ROOT_PATH}?post=${id}`;
