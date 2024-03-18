@@ -33,8 +33,8 @@ footer:hover {
 
 .index>a::after {
     content: "\F09DE";
-    font-family: "Material Design Icons";
-    font-size: 1.4rem;
+    font-family: var(--ff-icon);
+    font-size: var(--fs-small);
     color: #5a5a5a;
 }
 
@@ -60,7 +60,7 @@ a[data-tooltip]::before {
     padding: 0 0.8rem;
     transition-property: opacity, right;
     transition-duration: 200ms;
-    font-size: 1.4rem;
+    font-size: var(--fs-small);
     color: black;
     cursor: pointer;
     background-color: var(--clr-background-base);
@@ -88,11 +88,11 @@ input[type="file"]:hover {
 }
 
 ::file-selector-button {
-    font-family: 'mainFont';
+    font-family: var(--ff-contents);
     background-color: var(--clr-primary-base);
     color: white;
     height: 3.5rem;
-    font-size: 2rem;
+    font-size: var(--fs-base);
     border: none;
     margin-right: 1.5rem;
     padding: 0 2rem;
@@ -166,7 +166,7 @@ editable-table {
 
 .editable-table__cell a::before {
     content: "\F0339";
-    font-family: "Material Design Icons";
+    font-family: var(--ff-icon);
 }
 
 .editable-table__cell a {
@@ -234,12 +234,12 @@ editable-table {
 
 .component__option__button.image::before {
     content: "\F087C";
-    font-family: "Material Design Icons";
+    font-family: var(--ff-icon);
 }
 
 .component__option__button.link::before {
     content: "\F0339";
-    font-family: "Material Design Icons";
+    font-family: var(--ff-icon);
 }
 
 .component__option__button:hover {
@@ -308,7 +308,7 @@ blockquote {
 
 img::after {
     content: '\F082B';
-    font-size: 3em;
+    font-size: var(--fs-xlarge);
     display: flex;
     position: absolute;
     top: 0;
@@ -321,7 +321,7 @@ img::after {
     background: var(--clr-background-base);
     border: 0.1rem solid #aaa;
     color: #aaa;
-    font-family: "Material Design Icons";
+    font-family: var(--ff-icon);
 }
 
 body.loading .main__header__title::after,
@@ -332,12 +332,10 @@ body.loading aside>*::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "headerFont";
-    font-size: 4em;
     position: absolute;
     top: 0;
     left: 0;
-    width: 80%;
+    width: 100%;
     height: 100%;
     background-color: var(--clr-background-base);
     z-index: 1;
@@ -384,7 +382,7 @@ body.loading aside>*::after {
 }
 
 :modal button::before {
-    font-family: "Material Design Icons"
+    font-family: var(--ff-icon);
 }
 
 :modal button[value='cancel']::before {
@@ -406,7 +404,7 @@ body.loading aside>*::after {
 
 .modal__title {
     font-size: 3rem;
-    font-family: 'headerFont';
+    font-family: var(--ff-header);
 
 }
 
@@ -438,10 +436,10 @@ body.loading aside>*::after {
     margin: 0;
     border: 0;
     padding: 0;
-    height: 5rem;
-    width: 5rem;
+    height: var(--h-control-large);
+    width: var(--h-control-large);
     background: none;
-    font-size: 1.5rem;
+    font-size: var(--fs-small);
 }
 
 .fullSize button[value='default'] {
