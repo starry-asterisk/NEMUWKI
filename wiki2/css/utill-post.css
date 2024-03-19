@@ -23,11 +23,10 @@ footer:hover {
 .index>a {
     position: absolute;
     display: block;
-    height: 2rem;
     text-align: center;
-    height: 2.8rem;
-    width: 2.8rem;
-    line-height: 2.8rem;
+    height: var(--h-control-small);
+    width: var(--h-control-small);
+    line-height: var(--h-control-small);
     right: 0;
 }
 
@@ -35,7 +34,7 @@ footer:hover {
     content: "\F09DE";
     font-family: var(--ff-icon);
     font-size: var(--fs-small);
-    color: #5a5a5a;
+    color: var(--clr-font-invaild);
 }
 
 .index__hover:hover~a[data-tooltip]::before,
@@ -52,17 +51,16 @@ a[data-tooltip]::before {
     right: 0;
     opacity: 0;
     visibility: hidden;
-    border-radius: 0.3rem;
-    border: 0.1rem solid var(--clr-border-base);
-    height: 2.8rem;
-    line-height: 2.8rem;
+    border-radius: var(--br-smallest);
+    border: var(--bs-small) solid var(--clr-border-base);
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
     white-space: nowrap;
-    padding: 0 0.8rem;
+    padding-inline: var(--mg-component);
     transition-property: opacity, right;
-    transition-duration: 200ms;
+    transition-duration: var(--duration-fast);
     font-size: var(--fs-small);
-    color: black;
-    cursor: pointer;
+    color: var(--clr-font);
     background-color: var(--clr-background-base);
 }
 
@@ -74,11 +72,11 @@ a[data-tooltip]:hover::before {
 
 input[type="file"] {
     overflow: hidden;
-    border-radius: 1.75rem;
+    border-radius: calc(var(--h-control) / 2);
     padding: 0;
     background: var(--clr-background-dark);
-    margin: 2rem 0;
-    border: 0.1rem solid var(--clr-border-lt);
+    margin-block: var(--size-indent);
+    border: var(--bs-small) solid var(--clr-border-lt);
     cursor: pointer;
     display: block;
 }
@@ -90,12 +88,12 @@ input[type="file"]:hover {
 ::file-selector-button {
     font-family: var(--ff-contents);
     background-color: var(--clr-primary-base);
-    color: white;
-    height: 3.5rem;
+    color: var(--clr-font-alt);
+    height: var(--h-control);
     font-size: var(--fs-base);
     border: none;
-    margin-right: 1.5rem;
-    padding: 0 2rem;
+    margin-right: var(--mg-component);
+    padding-inline: var(--size-indent);
     opacity: 0.7;
     cursor: pointer;
 }
@@ -111,7 +109,7 @@ input[type="file"]:hover {
 
 
 editable-table {
-    --outer-line-width: 0.1rem;
+    --outer-line-width: var(--bs-small);
     --outer-line: var(--clr-border-base);
     --inner-line: var(--clr-border-base);
     overflow-x: auto;
@@ -129,12 +127,12 @@ editable-table {
 .editable-table__row {
     display: table-row;
     flex-direction: row;
-    height: 5rem;
+    height: var(--h-control-large);
 }
 
 .editable-table__row.header>* {
     background-color: var(--clr-background-dark);
-    height: 5rem;
+    height: var(--h-control-large);
 }
 
 .editable-table__row.header.readonly,
@@ -151,7 +149,7 @@ editable-table {
     display: table-cell;
     box-sizing: content-box;
     overflow-wrap: anywhere;
-    border: 0.1rem solid var(--inner-line);
+    border: var(--bs-small) solid var(--inner-line);
     height: inherit;
     vertical-align: top;
 }
@@ -170,7 +168,7 @@ editable-table {
 }
 
 .editable-table__cell a {
-    color: green
+    color: var(--clr-valid);
 }
 
 .editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,
@@ -192,32 +190,32 @@ editable-table {
 }
 
 .editable-table__cell:focus-within {
-    outline-offset: -0.1rem;
-    outline: 0.1rem solid var(--clr-primary-base) !important;
+    outline-offset: calc(0px - var(--bs-small));
+    outline: var(--bs-small) solid var(--clr-primary-base) !important;
 }
 
 .component__option {
     display: flex;
-    margin-top: 1rem;
+    margin-top: var(--mg-component);
     white-space: nowrap;
-    line-height: 4rem;
+    line-height: var(--h-control);
     overflow: hidden;
 }
 
 .component__option__label {
-    margin-right: 1.5rem;
+    margin-right: var(--mg-component);
 }
 
 *+.component__option__label {
-    margin-left: 1.5rem;
+    margin-left: var(--mg-component);
 }
 
 .component__option__button {
-    min-width: 4rem;
+    min-width: var(--h-control);
     background: var(--clr-background-base);
-    border: 0.1rem solid var(--clr-border-dkst);
-    border-radius: 0.4rem;
-    margin-left: 1.5rem;
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
+    margin-left: var(--mg-component);
 }
 
 .component__option__button:not(:first-of-type) {
@@ -253,12 +251,12 @@ editable-table {
 
 .component__option__input {
     display: inline-block;
-    min-width: 6rem;
-    width: 6rem;
-    height: 4rem;
-    margin: 0 0.5rem;
-    border: 0.1rem solid var(--clr-border-dkst);
-    border-radius: 0.4rem;
+    min-width: var(--w-min-button);
+    width: var(--w-min-button);
+    height: var(--h-control);
+    margin-inline: var(--mg-component);
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
     background: var(--clr-background-dark);
 }
 
@@ -282,8 +280,8 @@ editable-table {
 
 .component__option__input:has(input[type="color"]) {
     border-radius: 50%;
-    width: 4rem;
-    min-width: 4rem;
+    width: var(--h-control);
+    min-width: var(--h-control);
     overflow: hidden;
 }
 
@@ -295,12 +293,12 @@ editable-table [contenteditable] {
     white-space: pre-line;
     width: 100%;
     height: 100%;
-    padding: 1.25rem 2rem;
+    padding: var(--mg-component) var(--size-indent);
 }
 
 blockquote {
     padding: 1.5rem;
-    border: 0.1rem dashed var(--clr-border-base);
+    border: var(--bs-small) dashed var(--clr-border-base);
     border-left: 0.5rem solid var(--clr-primary-base);
     margin: 1.5rem 0;
     background: var(--clr-border-lt);
@@ -319,8 +317,8 @@ img::after {
     justify-content: center;
     align-items: center;
     background: var(--clr-background-base);
-    border: 0.1rem solid #aaa;
-    color: #aaa;
+    border: var(--bs-small) solid var(--clr-border-dk);
+    color: var(--clr-border-dk);
     font-family: var(--ff-icon);
 }
 
@@ -360,25 +358,25 @@ body.loading aside>*::after {
 
 :modal {
     position: fixed;
-    border: 0.1rem solid var(--clr-border-lt);
-    border-radius: 0.5rem;
+    border: var(--bs-small) solid var(--clr-border-lt);
+    border-radius: var(--br-smallest);
     min-width: 30rem;
-    min-height: 6rem;
+    min-height: var(--h-control-large);
     margin: auto;
-    padding: 1rem;
+    padding: var(--mg-component);
     background-color: var(--clr-background-base);
     text-align: center;
     overflow: visible;
 }
 
 :modal form {
-    margin-bottom: 2rem;
+    margin-bottom: var(--size-indent);
 }
 
 :modal button {
     width: 25rem;
-    line-height: 5rem;
-    margin: 1rem auto 0;
+    line-height: var(--h-control-large);
+    margin: var(--mg-component) auto 0;
 }
 
 :modal button::before {
@@ -394,24 +392,17 @@ body.loading aside>*::after {
 }
 
 :modal .input_container {
-    height: 5rem;
-    border-radius: 2.5rem !important;
+    height: var(--h-control-large);
+    border-radius: calc(var(--h-control-large) / 2) !important;
     width: 25rem;
-    margin: 1.5rem auto;
-    border-radius: 1.5rem;
+    margin: var(--mg-component) auto;
     background-color: var(--clr-background-dark);
 }
 
-.modal__title {
-    font-size: 3rem;
-    font-family: var(--ff-header);
-
-}
-
 .modal__sub_title {
-    font-size: 1.7rem;
+    font-size: var(--fs-small);
     text-align: center;
-    margin: 3rem;
+    margin: var(--size-indent);
 }
 
 .fullSize:modal {
@@ -425,8 +416,8 @@ body.loading aside>*::after {
 
 .fullSize .modal__sub_title {
     margin: 0;
-    height: 5rem;
-    line-height: 5rem;
+    height: var(--h-control-large);
+    line-height: var(--h-control-large);
 }
 
 .fullSize button[value='default'],

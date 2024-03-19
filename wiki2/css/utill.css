@@ -1,3 +1,29 @@
+/*
+CSS 작성 규칙
+
+다음과 같은 속성 순서를 지켜주세요.
+
+content
+font
+
+display
+flex
+
+position
+sizing
+margin
+border
+padding
+width
+height
+
+background
+outline
+
+ETC (Alphabet ASC)
+
+*/
+
 /* Font Declation */
 /*
  font from https://www.yd.go.kr/?page_id=120264
@@ -59,11 +85,14 @@
     --size-indent: 2rem;
     --mg-component: 1.2rem;
 
+    --h-control-small: 2.8rem;
     --h-control: 4rem;
     --h-control-large: 5rem;
     --h-button-large: 5.4rem;
 
     --w-min-button: 6rem;
+
+    --duration-fast: 200ms;
 
     /*setting*/
     font-size: 10px;
@@ -91,13 +120,13 @@ ul {
 }
 
 ::-webkit-scrollbar {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: var(--mg-component);
+    height: var(--mg-component);
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: var(--br-smallest);
-    border: solid 0.2rem var(--clr-background-dark);
+    border: solid var(--bs-base) var(--clr-background-dark);
     background: #00000044;
 }
 
@@ -246,7 +275,7 @@ a {
 }
 
 .input_suggest>li {
-    padding: 1rem;
+    padding: var(--size-indent);
 }
 
 .input_suggest>li+li {
@@ -279,7 +308,7 @@ a {
     height: var(--h-control);
     line-height: var(--h-control);
     outline: var(--bs-base) solid transparent;
-    transition: outline-color 200ms;
+    transition: outline-color var(--duration-fast);
 }
 
 .input_container::before {
@@ -296,7 +325,7 @@ a {
     padding-inline: var(--size-indent);
     width: 100%;
     height: 100%;
-    transition: padding 200ms;
+    transition: padding var(--duration-fast);
 }
 
 .input_container:focus-within {
@@ -337,7 +366,7 @@ button.danger {
     border-radius: calc(var(--h-button-large) / 2);
     line-height: var(--h-button-large);
     font-family: inherit;
-    font-size: 2.5rem;
+    font-size: var(--fs-large);
     color: var(--clr-font-alt);
     background: var(--clr-primary-base);
     opacity: 0.8;
@@ -377,7 +406,6 @@ button.danger:active {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 0.5rem;
     padding-inline: 0.5rem;
-    ;
 }
 
 .gallery_container_cell {
@@ -701,7 +729,7 @@ error::after,
 error::before,
 error {
     content: attr(state-code);
-    font-family: 'headerFont';
+    font-family: var(--ff-header);
     position: fixed;
     top: 0;
     left: 0;
