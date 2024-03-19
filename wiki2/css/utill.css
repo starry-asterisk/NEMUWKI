@@ -175,7 +175,7 @@ header {
     height: var(--h-header);
     line-height: var(--h-header);
     gap: var(--size-indent);
-    z-index: 1;
+    z-index: 2;
     user-select: none;
 }
 
@@ -265,7 +265,7 @@ a {
     top: 100%;
     left: 0;
     border-radius: var(--br-smallest);
-    padding: 0;
+    padding: 0 !important;
     width: 100%;
     max-height: 36.5rem;
     background-color: var(--clr-background-base);
@@ -275,7 +275,7 @@ a {
 }
 
 .input_suggest>li {
-    padding: var(--size-indent);
+    padding: var(--mg-component);
 }
 
 .input_suggest>li+li {
@@ -314,7 +314,7 @@ a {
 .input_container::before {
     content: "";
     font-family: var(--ff-icon);
-    font-size: var(--fs-xlarge);
+    font-size: 1.35em;
 }
 
 .input_container>input,
@@ -333,7 +333,7 @@ a {
 }
 
 .input_container:not(.no-validity):has(:user-valid) {
-    outline: var(--bs-base) solid var(--valid);
+    outline: var(--bs-base) solid var(--clr-valid);
     padding-left: 1rem;
 }
 
@@ -344,7 +344,7 @@ a {
 
 .input_container:not(.no-validity):has(input:user-valid)::before {
     content: "\F05E1";
-    color: var(--valid);
+    color: var(--clr-valid);
 }
 
 .input_container:not(.no-validity):has(input:invalid)::before {
@@ -680,6 +680,10 @@ footer::after {
     line-height: var(--fs-large);
 }
 
+.aside__container > ul {
+    padding-inline: var(--size-indent);
+}
+
 /* Responsive Design */
 
 @media (max-width: 500px) {
@@ -714,6 +718,10 @@ footer::after {
 
     aside {
         width: auto;
+    }
+
+    aside>div:first-child {
+        margin-top: unset !important;
     }
 }
 

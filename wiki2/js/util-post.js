@@ -44,8 +44,8 @@ function createProfile(user) {
     user_area.append(profile);
     user_area.append(profile__email);
 
-    if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--accent)' } }));
-    else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--accent)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
+    if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--clr-primary-base)' } }));
+    else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--clr-primary-base)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
 
     let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
     let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });

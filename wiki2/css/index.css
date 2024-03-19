@@ -141,7 +141,7 @@
 }
 
 #user_area>* {
-    margin: 1rem 0;
+    margin: var(--mg-component);
     text-align: left;
 }
 
@@ -162,7 +162,7 @@
     min-height: 15rem;
     min-width: 100%;
     max-width: 100%;
-    --background-url: linear-gradient(to top,#F2DDC4, var(--accent));
+    --background-url: linear-gradient(to top,#F2DDC4, var(--clr-primary-base));
 }
 
 .profile::before {

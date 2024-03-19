@@ -8,36 +8,36 @@
     <meta property="og:locale" content="ko_KR">
     <meta name="description" content="personal wiki project for NEMU">
     <meta property="og:description" content="personal wiki project for NEMU">
-    <meta property="og:url" content="https://www.nemuwiki.com/wiki">
+    <meta property="og:url" content="https://www.nemuwiki.com/wiki/profile">
     <meta property="og:site_name" content="네무위키">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta property="twitter:title" content="네무위키">
-    <link rel="canonical" href="https://www.nemuwiki.com/wiki">
+    <link rel="canonical" href="https://www.nemuwiki.com/wiki/profile">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.png">
     <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css">
-    <link rel="stylesheet" href="css/util.css" type="text/css">
+    <link rel="stylesheet" href="css/utill.css" type="text/css">
+    <link rel="stylesheet" href="css/utill-post.css" type="text/css">
     <link rel="stylesheet" href="css/index.css" type="text/css">
     <script src="js/util.js"></script>
-    <script src="js/page/index.js"></script>
-    <title>네무위키 :: 메인</title>
+    <script src="js/page/profile.js"></script>
+    <title>네무위키 :: 프로필</title>
 </head>
 
-<body class="loading non-auth">
+<body>
     <header>
         <span class="header__logo" onclick="goHome()">네무위키</span>
         <span class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></span>
-        <span class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"
-            title="마이페이지"></span>
         <indicator></indicator>
     </header>
     <main>
         <div class="main__header">
-            <div class="main__header__title" id="main__header__title">네무위키:대문</div>
-            <div class="main__header__timestamp" id="main__header__timestamp"></div>
-            <div class="main__header__toolbox"><button onclick="goShare('twitter')">공유</button></div>
+            <div class="main__header__title" id="main__header__title">나의 프로필</div>
+            <div class="main__header__timestamp" id="main__header__timestamp">2024-02-13 14:25:59</div>
+            <div class="main__header__toolbox"></div>
         </div>
+        <div id="user_area" style="margin-top: 2rem;"></div>
         <div class="main__contents" id="main__contents">
             <div class="title" id="total" onclick="fold(this)">전체 문서</div>
             <div class="title" id="people" onclick="fold(this)">인물</div>
@@ -55,7 +55,6 @@
             <p onclick="fold(this)">분류</p>
             <ul id="category_list"></ul>
         </div>
-        <div id="user_area"></div>
     </aside>
 </body>
 
