@@ -474,7 +474,6 @@ const COMPONENT_SPEC = {
                 { label: '목차 깊이' },
                 { name: 'depth', type: 'number', value: depth, attr: { min: 1, max: 6, step: 1 } }
             ]);
-            option_1.setStyles({ 'margin-bottom': '2rem' });
             return option_1;
         },
         input: ({ text = '' }) => {

@@ -116,10 +116,12 @@ aside> :first-child {
 .component__execList {
     display: flex;
     flex-wrap: wrap;
-    background-color: #edf2fa;
-    padding-inline: calc(var(--h-control-small) / 2);
-    border-radius: calc(var(--h-control-small) / 2);
+    background-color: var(--clr-background-base);
+    padding: var(--mg-component);
+    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
+    border: var(--bs-small) solid var(--clr-border-dkst);
     font-size: var(--fs-base);
+    margin-bottom: calc(0px - var(--mg-component));
 }
 
 .component__execList>button,
@@ -136,11 +138,18 @@ aside> :first-child {
     text-align: center;
 }
 
+.component.title>[contenteditable] {
+    line-height: 1.5;
+}
+
 .component.textbox>[contenteditable] {
     min-height: 10rem;
     padding: var(--size-indent) var(--mg-component);
     background: var(--clr-background-dark);
-    border-radius: var(--br-smallest);
+    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-top-width: 0;
+    line-height: 1.5;
 }
 
 .component.textbox>[contenteditable] img {
@@ -242,6 +251,11 @@ footer:hover * {
 
     .component.textbox {
         max-height: 100vh;
+        padding-inline: 0;
+    }
+
+    .component.textbox > p:first-child {
+        margin-inline: calc(var(--size-indent) * 2);
     }
 
     .component__execList {
@@ -249,24 +263,26 @@ footer:hover * {
         white-space: nowrap;
         overflow-x: scroll;
         min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
-        padding: var(--mg-component) var(--mg-component) 0;
-        border-radius: var(--bs-base);
-        margin-bottom: 0;
+        padding-bottom: 0;
+        border-radius: unset;
+        border-inline-width: 0;
         max-width: unset;
         font-size: var(--fs-large);
     }
 
-    .component.textbox>[contenteditable] {
-        padding-top: 5rem;
-        max-width: unset;
-        margin-top: calc(0px - var(--mg-component));
-        overflow-y: auto;
+    .component.table {
+        padding-inline: var(--size-indent);
     }
 
-    .component__execList,
-    .component.textbox>[contenteditable] {
-        margin-inline: calc(0px - var(--size-indent) - var(--mg-component));
+    .component.table > .component__option,
+    .component.table > p {
+        margin-inline: var(--size-indent);
+    }
 
+    .component.textbox>[contenteditable] {
+        padding-top: 5rem;
+        padding-inline: var(--size-indent);
+        overflow-y: auto;
     }
 }
 
