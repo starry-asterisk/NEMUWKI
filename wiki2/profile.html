@@ -45,14 +45,14 @@
         <footer></footer>
     </main>
     <aside>
-        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
+        <div class="aside__container input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
                 onkeydown="search(event, this)" id="search_input"></div>
-        <div>
-            <p onclick="fold(this)">최근글</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>
         </div>
-        <div>
-            <p onclick="fold(this)">분류</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">분류</p>
             <ul id="category_list"></ul>
         </div>
     </aside>

@@ -24,9 +24,9 @@ footer:hover {
     position: absolute;
     display: block;
     text-align: center;
-    height: var(--h-control-small);
-    width: var(--h-control-small);
-    line-height: var(--h-control-small);
+    height: var(--h-control-smaller);
+    width: var(--h-control-smaller);
+    line-height: var(--h-control-smaller);
     right: 0;
 }
 
@@ -53,8 +53,8 @@ a[data-tooltip]::before {
     visibility: hidden;
     border-radius: var(--br-smallest);
     border: var(--bs-small) solid var(--clr-border-base);
-    height: var(--h-control-small);
-    line-height: var(--h-control-small);
+    height: var(--h-control-smaller);
+    line-height: var(--h-control-smaller);
     white-space: nowrap;
     padding-inline: var(--mg-component);
     transition-property: opacity, right;
@@ -140,6 +140,12 @@ editable-table {
     height: 0 !important;
 }
 
+.editable-table__row.header input {
+    width: 100%;
+    height: 100%;
+    padding: var(--mg-component);
+}
+
 .editable-table__row.header.readonly input {
     display: none;
 }
@@ -196,7 +202,6 @@ editable-table {
 
 .component__option {
     display: flex;
-    margin-top: var(--mg-component);
     white-space: nowrap;
     line-height: var(--h-control);
     overflow: hidden;
@@ -263,6 +268,8 @@ editable-table {
 .component__option__input>input {
     padding: 0;
     text-align: center;
+    width: 100%;
+    height: 100%;
 }
 
 .component__option__input>input::-webkit-color-swatch {

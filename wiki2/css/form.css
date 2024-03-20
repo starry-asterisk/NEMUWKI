@@ -18,13 +18,19 @@
     padding-bottom: 15rem;
 }
 
+.main__contents:empty {
+    aspect-ratio: 1;
+}
+
 .main__contents:empty::after {
     content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     margin: var(--mg-component);
     background: var(--clr-background-dark);
     text-align: center;
-    line-height: 40rem;
 }
 
 footer:hover,
@@ -37,21 +43,24 @@ footer:hover,
 }
 
 .component {
-    border-top: 0.1rem solid var(--clr-border-lt);
-    padding: 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    border-top: var(--bs-small) solid var(--clr-border-lt);
+    padding: var(--size-indent) calc(var(--size-indent) * 2);
     min-height: 10.5rem;
+    gap: var(--mg-component);
 }
 
 .component:last-child {
-    border-bottom: 0.1rem solid var(--clr-border-lt);
+    border-bottom: var(--bs-small) solid var(--clr-border-lt);
 }
 
 .component>p {
-    font-size: 3rem;
+    font-size: var(--fs-xlarge);
 }
 
 .component>* {
-    max-width: calc(100% - 5rem);
+    max-width: 100%;
 }
 
 .component audio {
@@ -61,15 +70,14 @@ footer:hover,
 
 .component__remove_btn {
     position: absolute;
-    top: 2rem;
-    right: 2rem;
-    width: 6rem;
-    height: 6rem;
-    margin: 0 !important;
+    top: var(--mg-component);
+    right: var(--mg-component);
+    width: var(--h-control-large);
+    height: var(--h-control-large);
     border-radius: 50%;
     color: #fff;
     background-color: var(--clr-primary-base);
-    font-size: 3rem;
+    font-size: var(--fs-xlarge);
 }
 
 .component__remove_btn:hover {
@@ -98,7 +106,7 @@ footer:hover,
     height: 3.5rem;
     width: 3.5rem;
     background: var(--clr-primary-base);
-    color: white;
+    color: var(--clr-font-alt);
 }
 
 aside> :first-child {
@@ -106,27 +114,33 @@ aside> :first-child {
 }
 
 .component__execList {
-    line-height: 1.5em;
+    display: flex;
+    flex-wrap: wrap;
     background-color: #edf2fa;
-    padding: 0 1.75rem;
-    border-radius: 1.75rem;
-    margin: 1rem 0;
+    padding-inline: calc(var(--h-control-small) / 2);
+    border-radius: calc(var(--h-control-small) / 2);
+    font-size: var(--fs-base);
 }
 
 .component__execList>button,
 .input_color {
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-    font-size: 1.5rem;
+    min-width: var(--h-control-small);
+    border-radius: var(--br-smallest);
     overflow: hidden;
     background: none;
 }
 
+.component__execList>* {
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
+    text-align: center;
+}
+
 .component.textbox>[contenteditable] {
     min-height: 10rem;
-    padding: 2rem 1rem;
+    padding: var(--size-indent) var(--mg-component);
     background: var(--clr-background-dark);
-    border-radius: 0.3rem;
+    border-radius: var(--br-smallest);
 }
 
 .component.textbox>[contenteditable] img {
@@ -176,8 +190,10 @@ input[type="color"]::-webkit-color-swatch {
     text-align: center;
 }
 
-.component__execList>input[type="number"][type=number] {
+.component__execList>input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield;
+    -webkit-appearance: textfield;
 }
 
 .separator::before {
@@ -192,33 +208,65 @@ footer:hover * {
 
 @media (max-width: 500px) {
     main {
-        margin: 0 0 2rem 0;
+        margin: 0 0 var(--size-indent) 0;
         padding-left: 0;
         padding-right: 0;
     }
 
+    .main__contents {
+        --zoom: 0.8;
+        --fs-xxlarge: calc(5rem * var(--zoom));
+        --fs-xlarge: calc(3rem * var(--zoom));
+        --fs-large: calc(2.2rem * var(--zoom));
+        --fs-base: calc(1.8rem * var(--zoom));
+        --fs-small: calc(1.4rem * var(--zoom));
+        --fs-smallest: calc(1.2rem * var(--zoom));
+    
+        --h-control-smaller: calc(2.8rem * var(--zoom));
+        --h-control-small: calc(3rem * var(--zoom));
+        --h-control: calc(4rem * var(--zoom));
+        --h-control-large: calc(5rem * var(--zoom));
+        --h-button-large: calc(5.4rem * var(--zoom));
+    
+        --w-min-button: calc(6rem * var(--zoom));
+    }
+
+    .editable-table__row, .component.textbox>[contenteditable]{
+        zoom: var(--zoom);
+        --fs-base: 1.8rem;
+    }
+
+    .main__header>* {
+        margin-inline: var(--mg-component);
+    }
+
+    .component.textbox {
+        max-height: 100vh;
+    }
+
     .component__execList {
+        flex-wrap: nowrap;
         white-space: nowrap;
-        overflow-x: auto;
-        padding-top: 1rem;
-        border-radius: 0.2rem;
-        margin-top: 2.5rem;
+        overflow-x: scroll;
+        min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
+        padding: var(--mg-component) var(--mg-component) 0;
+        border-radius: var(--bs-base);
         margin-bottom: 0;
         max-width: unset;
+        font-size: var(--fs-large);
     }
 
     .component.textbox>[contenteditable] {
         padding-top: 5rem;
         max-width: unset;
+        margin-top: calc(0px - var(--mg-component));
+        overflow-y: auto;
     }
 
-    .component__execList * {
-        font-size: 2rem !important;
-        line-height: 2rem !important;
-    }
+    .component__execList,
+    .component.textbox>[contenteditable] {
+        margin-inline: calc(0px - var(--size-indent) - var(--mg-component));
 
-    .component__remove_btn {
-        margin-top: -1rem !important;
     }
 }
 

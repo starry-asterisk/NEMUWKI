@@ -85,7 +85,8 @@ ETC (Alphabet ASC)
     --size-indent: 2rem;
     --mg-component: 1.2rem;
 
-    --h-control-small: 2.8rem;
+    --h-control-smaller: 2.8rem;
+    --h-control-small: 3rem;
     --h-control: 4rem;
     --h-control-large: 5rem;
     --h-button-large: 5.4rem;
@@ -249,7 +250,6 @@ a {
     font-size: inherit;
     font-family: inherit;
     background: none;
-    cursor: pointer;
     text-decoration: none;
     color: var(--clr-font);
 }
@@ -386,6 +386,11 @@ button.danger:active {
     opacity: 0.6;
 }
 
+a,
+input,
+textarea,
+button,
+label,
 [onclick] {
     cursor: pointer;
 }
@@ -680,7 +685,7 @@ footer::after {
     line-height: var(--fs-large);
 }
 
-.aside__container > ul {
+.aside__container>ul {
     padding-inline: var(--size-indent);
 }
 
@@ -700,8 +705,8 @@ footer::after {
         padding-inline: 0;
     }
 
-    editable-table,
-    .textbox {
+    .editable-table__row,
+    .textbox:not(.component) {
         zoom: 0.8;
     }
 }
@@ -794,11 +799,15 @@ body.error footer::after {
 }
 
 /* DeveloperMode */
-body[developerMode="true"] img,
-body[developerMode="true"] .header__logo {
+body[developerMode="true"] img {
     opacity: 0;
 }
 
-body[developerMode="true"] * {
-    color: #00000022 !important;
+body[developerMode="true"] *,
+body[developerMode="true"] *::before,
+body[developerMode="true"] *::after,
+body[developerMode="true"] *::placeholder {
+    color: #eee;
+    border-color: transparent !important;
+    background-color: #fff7 !important;
 }
