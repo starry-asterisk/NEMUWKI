@@ -98,10 +98,11 @@ footer:hover,
 }
 
 .component_list button {
-    margin-top: -0.5rem 2rem -0.5rem -0.5rem;
+    margin: -0.3rem 2rem;
     border-radius: 50%;
-    height: 3.5rem;
-    width: 3.5rem;
+    width: var(--h-control-small);
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
     background: var(--clr-primary-base);
     color: var(--clr-font-alt);
 }
@@ -282,9 +283,13 @@ aside {
     }
 
     .component.textbox>[contenteditable] {
-        padding-top: 5rem;
+        padding-top: var(--h-control-large);
         padding-inline: var(--size-indent);
         overflow-y: auto;
+    }
+
+    aside > button {
+        margin-inline: auto;
     }
 }
 
@@ -295,12 +300,8 @@ aside {
     }
 }
 @media (max-width: 1000px) {
-    main {
-        padding-top: 1rem;
-    }
-
     aside {
-        top: -66.2rem !important;
+        top: -67.5rem !important;
         order: -1;
         z-index: 2;
     }

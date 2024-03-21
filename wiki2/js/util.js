@@ -662,7 +662,7 @@ const Notify = {
     alert, confirm, prompt
 }
 const dev = console;
-const DEVELOPER_MODE = true;
+const DEVELOPER_MODE = false;
 const ROOT_PATH = './';
 const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
 const VISITED_MAX = 5;
