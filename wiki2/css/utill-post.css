@@ -6,62 +6,62 @@ footer:hover {
 
 .index {
     flex: 1;
-    counter-reset: index;
-    height: calc(100vh - var(--h-control-large));
     position: sticky;
-    top: var(--h-control-large);
+    top: var(--h-header);
+    height: calc(100vh - var(--h-header));
+    counter-reset: index;
 }
 
 .index__hover {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
     bottom: 0;
+    right: 0;
 }
 
 .index>a {
-    position: absolute;
-    display: block;
     text-align: center;
-    height: var(--h-control-smaller);
-    width: var(--h-control-smaller);
-    line-height: var(--h-control-smaller);
+    display: block;
+    position: absolute;
     right: 0;
+    width: var(--h-control-smaller);
+    height: var(--h-control-smaller);
+    line-height: var(--h-control-smaller);
 }
 
 .index>a::after {
     content: "\F09DE";
-    font-family: var(--ff-icon);
-    font-size: var(--fs-small);
     color: var(--clr-font-invaild);
+    font-size: var(--fs-small);
+    font-family: var(--ff-icon);
 }
 
 .index__hover:hover~a[data-tooltip]::before,
 a[data-tooltip]:hover::before {
+    right: 100%;
     opacity: 1;
     visibility: visible;
-    right: 100%;
 }
 
 a[data-tooltip]::before {
     content: attr(data-tooltip);
+    color: var(--clr-font);
+    font-size: var(--fs-small);
+    white-space: nowrap;
     display: block;
     position: absolute;
     right: 0;
-    opacity: 0;
-    visibility: hidden;
-    border-radius: var(--br-smallest);
     border: var(--bs-small) solid var(--clr-border-base);
+    border-radius: var(--br-smallest);
+    padding-inline: var(--mg-component);
     height: var(--h-control-smaller);
     line-height: var(--h-control-smaller);
-    white-space: nowrap;
-    padding-inline: var(--mg-component);
+    background-color: var(--clr-background-base);
+    opacity: 0;
     transition-property: opacity, right;
     transition-duration: var(--duration-fast);
-    font-size: var(--fs-small);
-    color: var(--clr-font);
-    background-color: var(--clr-background-base);
+    visibility: hidden;
 }
 
 a[data-tooltip]:hover::before {
@@ -71,14 +71,14 @@ a[data-tooltip]:hover::before {
 
 
 input[type="file"] {
-    overflow: hidden;
+    display: block;
+    margin-block: var(--size-indent);
+    border: var(--bs-small) solid var(--clr-border-lt);
     border-radius: calc(var(--h-control) / 2);
     padding: 0;
     background: var(--clr-background-dark);
-    margin-block: var(--size-indent);
-    border: var(--bs-small) solid var(--clr-border-lt);
+    overflow: hidden;
     cursor: pointer;
-    display: block;
 }
 
 input[type="file"]:hover {
@@ -86,14 +86,14 @@ input[type="file"]:hover {
 }
 
 ::file-selector-button {
-    font-family: var(--ff-contents);
-    background-color: var(--clr-primary-base);
     color: var(--clr-font-alt);
-    height: var(--h-control);
     font-size: var(--fs-base);
-    border: none;
+    font-family: var(--ff-contents);
     margin-right: var(--mg-component);
+    border: none;
     padding-inline: var(--size-indent);
+    height: var(--h-control);
+    background-color: var(--clr-primary-base);
     opacity: 0.7;
     cursor: pointer;
 }
@@ -109,15 +109,15 @@ input[type="file"]:hover {
 
 
 editable-table {
-    --outer-line-width: var(--bs-small);
-    --outer-line: var(--clr-border-base);
-    --inner-line: var(--clr-border-base);
     overflow-x: auto;
     max-width: 100%;
     display: inline-block;
     border: var(--outer-line-width) solid var(--outer-line);
     border-collapse: collapse;
     background: var(--clr-background-base);
+    --outer-line-width: var(--bs-small);
+    --outer-line: var(--clr-border-base);
+    --inner-line: var(--clr-border-base);
 }
 
 .editable-table__tbody {
@@ -131,8 +131,8 @@ editable-table {
 }
 
 .editable-table__row.header>* {
-    background-color: var(--clr-background-dark);
     height: var(--h-control-large);
+    background-color: var(--clr-background-dark);
 }
 
 .editable-table__row.header.readonly,
@@ -141,9 +141,9 @@ editable-table {
 }
 
 .editable-table__row.header input {
+    padding: var(--mg-component) var(--size-indent);
     width: 100%;
     height: 100%;
-    padding: var(--mg-component);
 }
 
 .editable-table__row.header.readonly input {
@@ -153,11 +153,11 @@ editable-table {
 
 .editable-table__cell {
     display: table-cell;
+    vertical-align: top;
     box-sizing: content-box;
-    overflow-wrap: anywhere;
     border: var(--bs-small) solid var(--inner-line);
     height: inherit;
-    vertical-align: top;
+    overflow-wrap: anywhere;
 }
 
 .editable-table__cell>div {
@@ -196,8 +196,8 @@ editable-table {
 }
 
 .editable-table__cell:focus-within {
-    outline-offset: calc(0px - var(--bs-small));
     outline: var(--bs-small) solid var(--clr-primary-base) !important;
+    outline-offset: calc(0px - var(--bs-small));
 }
 
 .component__option {
@@ -216,18 +216,18 @@ editable-table {
 }
 
 .component__option__button {
-    min-width: var(--h-control);
-    background: var(--clr-background-base);
+    margin-left: var(--mg-component);
     border: var(--bs-small) solid var(--clr-border-dkst);
     border-radius: var(--br-smallest);
-    margin-left: var(--mg-component);
+    min-width: var(--h-control);
+    background: var(--clr-background-base);
 }
 
 .component__option__button:not(:first-of-type) {
+    margin-left: 0;
     border-left-width: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    margin-left: 0;
 }
 
 .component__option__button:not(:last-of-type) {
@@ -256,12 +256,12 @@ editable-table {
 
 .component__option__input {
     display: inline-block;
-    min-width: var(--w-min-button);
-    width: var(--w-min-button);
-    height: var(--h-control);
     margin-inline: var(--mg-component);
     border: var(--bs-small) solid var(--clr-border-dkst);
     border-radius: var(--br-smallest);
+    width: var(--w-min-button);
+    min-width: var(--w-min-button);
+    height: var(--h-control);
     background: var(--clr-background-dark);
 }
 
@@ -276,8 +276,8 @@ editable-table {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
     bottom: 0;
+    right: 0;
     border-radius: 50%;
 }
 
@@ -298,35 +298,35 @@ editable-table {
 
 editable-table [contenteditable] {
     white-space: pre-line;
+    padding: var(--mg-component) var(--size-indent);
     width: 100%;
     height: 100%;
-    padding: var(--mg-component) var(--size-indent);
 }
 
 blockquote {
-    padding: 1.5rem;
+    margin-block: 1.5rem;
     border: var(--bs-small) dashed var(--clr-border-base);
     border-left: 0.5rem solid var(--clr-primary-base);
-    margin: 1.5rem 0;
+    padding: 1.5rem;
     background: var(--clr-border-lt);
 }
 
 img::after {
     content: '\F082B';
+    color: var(--clr-border-dk);
     font-size: var(--fs-xlarge);
+    font-family: var(--ff-icon);
     display: flex;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     flex: 1;
     justify-content: center;
     align-items: center;
-    background: var(--clr-background-base);
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     border: var(--bs-small) solid var(--clr-border-dk);
-    color: var(--clr-border-dk);
-    font-family: var(--ff-icon);
+    background: var(--clr-background-base);
 }
 
 body.loading .main__header__title::after,
@@ -335,16 +335,16 @@ body.loading .main__contents::after,
 body.loading aside>*::after {
     content: '';
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: var(--clr-background-base);
-    z-index: 1;
     opacity: 1;
+    z-index: 1;
 }
 
 body.loading .main__header__timestamp::after {
@@ -364,15 +364,15 @@ body.loading aside>*::after {
 
 
 :modal {
+    text-align: center;
     position: fixed;
+    margin: auto;
     border: var(--bs-small) solid var(--clr-border-lt);
     border-radius: var(--br-smallest);
+    padding: var(--mg-component);
     min-width: 30rem;
     min-height: var(--h-control-large);
-    margin: auto;
-    padding: var(--mg-component);
     background-color: var(--clr-background-base);
-    text-align: center;
     overflow: visible;
 }
 
@@ -381,9 +381,9 @@ body.loading aside>*::after {
 }
 
 :modal button {
-    width: 25rem;
     line-height: var(--h-control-large);
     margin: var(--mg-component) auto 0;
+    width: 25rem;
 }
 
 :modal button::before {
@@ -399,10 +399,10 @@ body.loading aside>*::after {
 }
 
 :modal .input_container {
-    height: var(--h-control-large);
+    margin: var(--mg-component) auto;
     border-radius: calc(var(--h-control-large) / 2) !important;
     width: 25rem;
-    margin: var(--mg-component) auto;
+    height: var(--h-control-large);
     background-color: var(--clr-background-dark);
 }
 
@@ -413,12 +413,12 @@ body.loading aside>*::after {
 }
 
 .fullSize:modal {
-    width: 100%;
-    height: 100%;
-    max-width: 40rem;
-    max-height: 80rem;
     border-radius: 0;
     padding: 0;
+    width: 100%;
+    max-width: 40rem;
+    height: 100%;
+    max-height: 80rem;
 }
 
 .fullSize .modal__sub_title {
@@ -429,27 +429,27 @@ body.loading aside>*::after {
 
 .fullSize button[value='default'],
 .fullSize button[value='cancel'] {
+    font-size: var(--fs-small);
     position: absolute;
     top: 0;
     margin: 0;
     border: 0;
     padding: 0;
-    height: var(--h-control-large);
     width: var(--h-control-large);
+    height: var(--h-control-large);
     background: none;
-    font-size: var(--fs-small);
 }
 
 .fullSize button[value='default'] {
-    right: 0;
     color: inherit;
+    right: 0;
 
 }
 
 .fullSize button[value='cancel'] {
-    left: 0;
     color: inherit;
     font-size: inherit;
+    left: 0;
 }
 
 .fullSize button[value='default']::before {

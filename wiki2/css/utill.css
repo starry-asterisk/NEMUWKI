@@ -1,29 +1,3 @@
-/*
-CSS 작성 규칙
-
-다음과 같은 속성 순서를 지켜주세요.
-
-content
-font
-
-display
-flex
-
-position
-sizing
-margin
-border
-padding
-width
-height
-
-background
-outline
-
-ETC (Alphabet ASC)
-
-*/
-
 /* Font Declation */
 /*
  font from https://www.yd.go.kr/?page_id=120264
@@ -101,13 +75,13 @@ ETC (Alphabet ASC)
 }
 
 * {
+    font-size: var(--fs-base);
+    font-family: var(--ff-contents);
     position: relative;
     box-sizing: border-box;
     margin: 0;
     border: none;
     padding: 0;
-    font-size: var(--fs-base);
-    font-family: var(--ff-contents);
 }
 
 *:focus {
@@ -126,8 +100,8 @@ ul {
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: var(--br-smallest);
     border: solid var(--bs-base) var(--clr-background-dark);
+    border-radius: var(--br-smallest);
     background: #00000044;
 }
 
@@ -166,6 +140,7 @@ body:not(:has(.index))::after {
 header {
     display: flex;
     flex-direction: row;
+    gap: var(--size-indent);
     position: fixed;
     top: 0;
     left: 0;
@@ -175,7 +150,6 @@ header {
     max-width: 126rem;
     height: var(--h-header);
     line-height: var(--h-header);
-    gap: var(--size-indent);
     z-index: 2;
     user-select: none;
 }
@@ -193,13 +167,13 @@ header::before {
 
 main {
     display: flex;
-    flex-direction: column;
     flex: 100;
+    flex-direction: column;
+    gap: var(--size-indent);
     box-sizing: content-box;
     margin: var(--mg-component);
     min-width: 40rem;
     max-width: 90rem;
-    gap: var(--size-indent);
 }
 
 hr {
@@ -211,9 +185,9 @@ hr {
 aside {
     display: flex;
     flex-direction: column;
+    gap: var(--size-indent);
     margin: var(--mg-component);
     width: 32rem;
-    gap: var(--size-indent);
 }
 
 /* re-useable Component */
@@ -223,8 +197,8 @@ indicator {
     top: 100%;
     left: 0;
     right: 0;
-    height: 0.5rem;
     margin: 0;
+    height: 0.5rem;
     pointer-events: none;
     --progress: 0;
     --progress-r: 100%;
@@ -245,13 +219,12 @@ input,
 textarea,
 button,
 a {
-    border: none;
     color: inherit;
     font-size: inherit;
     font-family: inherit;
-    background: none;
     text-decoration: none;
-    color: var(--clr-font);
+    border: none;
+    background: none;
 }
 
 [placeholder]:empty::after {
@@ -305,16 +278,16 @@ a {
 }
 
 .input_container {
+    outline: var(--bs-base) solid transparent;
     height: var(--h-control);
     line-height: var(--h-control);
-    outline: var(--bs-base) solid transparent;
     transition: outline-color var(--duration-fast);
 }
 
 .input_container::before {
     content: "";
-    font-family: var(--ff-icon);
     font-size: 1.35em;
+    font-family: var(--ff-icon);
 }
 
 .input_container>input,
@@ -359,15 +332,15 @@ a {
 
 button.normal,
 button.danger {
-    display: block;
-    width: 100%;
-    max-width: 32rem;
-    min-width: var(--w-min-button);
-    border-radius: calc(var(--h-button-large) / 2);
-    line-height: var(--h-button-large);
-    font-family: inherit;
-    font-size: var(--fs-large);
     color: var(--clr-font-alt);
+    font-size: var(--fs-large);
+    font-family: inherit;
+    display: block;
+    border-radius: calc(var(--h-button-large) / 2);
+    width: 100%;
+    min-width: var(--w-min-button);
+    max-width: 32rem;
+    line-height: var(--h-button-large);
     background: var(--clr-primary-base);
     opacity: 0.8;
 }
@@ -396,42 +369,43 @@ label,
 }
 
 .fold {
-    opacity: 0.4;
     margin-bottom: 0 !important;
+    opacity: 0.4;
 }
 
 
 .gallery_container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
     position: absolute;
     width: 100%;
     top: var(--h-control-large);
     left: 0;
-    max-height: calc(100% - var(--h-control-large));
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5rem;
     padding-inline: 0.5rem;
+    max-height: calc(100% - var(--h-control-large));
+    overflow-y: auto;
 }
 
 .gallery_container_cell {
-    aspect-ratio: 1;
-    background-color: var(--clr-border-dkst);
-    background-size: cover;
-    background-position: center;
     font-size: var(--fs-xxlarge);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    aspect-ratio: 1;
+    background-position: center;
+    background-size: cover;
+    background-color: var(--clr-border-dkst);
     animation: uncheck 300ms forwards;
 }
 
 .gallery_container_cell>input {
-    display: none;
+    display: none !important;
 }
 
 button.gallery_container_cell {
-    width: auto;
-    margin: 0;
+    margin: 0 !important;
+    width: auto !important;
 }
 
 input.gallery_container_cell {
@@ -440,26 +414,26 @@ input.gallery_container_cell {
 
 .gallery_container_cell:checked,
 .gallery_container_cell:active {
-    animation: check 300ms forwards;
     outline: 0.3rem solid var(--clr-primary-base);
+    animation: check 300ms forwards;
 }
 
 .gallery_container_cell.localStorage::before {
     content: "\F024B";
-    font-family: var(--ff-icon);
     font-size: inherit;
+    font-family: var(--ff-icon);
 }
 
 .gallery_container_cell.link::before {
     content: "\F0339";
-    font-family: var(--ff-icon);
     font-size: inherit;
+    font-family: var(--ff-icon);
 }
 
 @keyframes check {
     0% {
-        transform: scale(1);
         opacity: 1;
+        transform: scale(1);
     }
 
     20% {
@@ -467,20 +441,20 @@ input.gallery_container_cell {
     }
 
     100% {
-        transform: scale(0.91);
         opacity: 0.8;
+        transform: scale(0.91);
     }
 }
 
 @keyframes uncheck {
     0% {
-        transform: scale(0.91);
         opacity: 0.8;
+        transform: scale(0.91);
     }
 
     100% {
-        transform: scale(1);
         opacity: 1;
+        transform: scale(1);
     }
 }
 
@@ -488,14 +462,14 @@ input.gallery_container_cell {
 
 /*Header*/
 .header__logo {
-    margin-right: auto;
-    white-space: nowrap;
     font-family: var(--ff-header);
+    white-space: nowrap;
+    margin-right: auto;
 }
 
 header>[title] {
-    transition: 350ms padding-right;
     padding-right: 0;
+    transition: 350ms padding-right;
 }
 
 header>[title]::before {
@@ -504,11 +478,11 @@ header>[title]::before {
 
 header>[title]::after {
     content: attr(title);
+    font-size: var(--fs-small);
+    white-space: nowrap;
     position: absolute;
     right: 0;
     width: 0;
-    font-size: var(--fs-small);
-    white-space: nowrap;
     overflow: hidden;
     transition: 350ms width;
 }
@@ -537,31 +511,31 @@ main>footer {
 }
 
 .main__header__title {
+    font-size: var(--fs-xxlarge);
+    font-weight: bold;
+    white-space: nowrap;
     margin-right: var(--mg-component);
     margin-bottom: var(--mg-component);
     max-width: fit-content;
     height: var(--fs-xxlarge);
-    font-size: var(--fs-xxlarge);
-    font-weight: bold;
-    white-space: nowrap;
 }
 
 .main__header__timestamp {
+    font-size: var(--fs-small);
     width: 100%;
     height: var(--fs-small);
-    font-size: var(--fs-small);
 }
 
 .main__header__toolbox {
     display: flex;
     flex-direction: row;
+    gap: var(--bs-small);
     margin-left: auto;
-    max-width: fit-content;
-    height: var(--h-control);
     border: var(--bs-small) solid var(--clr-border-base);
     border-radius: var(--br-base);
+    max-width: fit-content;
+    height: var(--h-control);
     background-color: var(--clr-border-base);
-    gap: var(--bs-small);
     overflow: hidden;
 }
 
@@ -570,21 +544,21 @@ main>footer {
 }
 
 .main__header__toolbox>button {
-    min-width: var(--w-min-button);
     color: var(--clr-font-invaild);
+    min-width: var(--w-min-button);
     background-color: var(--clr-background-base);
 }
 
 
 .main__notice {
     display: block;
+    color: var(--clr-font-alt);
+    white-space: pre-line;
     border: var(--bs-small) solid var(--clr-primary-100);
     border-radius: var(--br-smallest);
     padding-inline: var(--size-indent);
     min-height: var(--h-button-large);
-    white-space: pre-line;
     line-height: var(--h-button-large);
-    color: var(--clr-font-alt);
     background-color: var(--clr-primary-86);
     overflow: hidden;
 }
@@ -595,28 +569,28 @@ main>footer {
 }
 
 .main__notice.open .main__notice__content {
+    padding-bottom: var(--size-indent);
     max-height: 30rem;
     overflow: auto;
-    padding-bottom: var(--size-indent);
 }
 
 .main__notice__content {
-    --clr-background-dark: #3BA8F2;
     display: block;
+    line-height: 1.5;
     margin-inline: calc(0px - var(--size-indent) - var(--bs-small));
     padding-inline: var(--size-indent);
     padding-bottom: 0;
     max-height: 0;
-    line-height: 1.5;
     transition: 500ms max-height, 500ms padding-bottom;
+    --clr-background-dark: #3BA8F2;
 }
 
 .main__document_info {
     display: flex;
-    height: var(--h-control);
-    padding-inline: var(--size-indent);
-    border-radius: var(--br-smallest);
     border: var(--bs-small) solid var(--clr-border-lt);
+    border-radius: var(--br-smallest);
+    padding-inline: var(--size-indent);
+    height: var(--h-control);
     line-height: var(--h-control);
     background-color: var(--clr-background-dark);
 }
@@ -641,8 +615,8 @@ main>footer {
 }
 
 .main__document_info>.category {
-    margin-left: var(--mg-component);
     margin-block: calc(var(--mg-component) / 2);
+    margin-left: var(--mg-component);
     border-radius: var(--mg-component);
     padding-inline: var(--size-indent);
     line-height: calc(var(--h-control) - var(--mg-component));
@@ -655,9 +629,9 @@ main>footer {
 
 footer {
     font-size: var(--fs-small);
-    min-height: 15rem;
-    white-space: pre-line;
     text-align: right;
+    white-space: pre-line;
+    min-height: 15rem;
 }
 
 footer::after {
@@ -678,14 +652,15 @@ footer::after {
 }
 
 .aside__container__title {
+    font-size: var(--fs-large);
     margin-bottom: var(--mg-component);
     border-bottom: var(--bs-small) solid var(--clr-border-base);
     padding: var(--size-indent) var(--size-indent) var(--mg-component);
-    font-size: var(--fs-large);
     line-height: var(--fs-large);
 }
 
 .aside__container>ul {
+    line-height: 1.5;
     padding-inline: var(--size-indent);
 }
 
@@ -696,6 +671,23 @@ footer::after {
         --fs-xxlarge: 3.2rem;
     }
 
+    main {
+        --root_fs-xxlarge: var(--fs-xxlarge);
+        --root_fs-xlarge: var(--fs-xlarge);
+        --root_fs-large: var(--fs-large);
+        --root_fs-base: var(--fs-base);
+        --root_fs-small: var(--fs-small);
+        --root_fs-smallest: var(--fs-smallest);
+    
+        --root_h-control-smaller: var(--h-control-smaller);
+        --root_h-control-small: var(--h-control-small);
+        --root_h-control: var(--h-control);
+        --root_h-control-large: var(--h-control-large);
+        --root_h-button-large: var(--h-button-large);
+    
+        --root_w-min-button: var(--w-min-button);
+    }
+
     .main__document_info,
     .main__notice {
         --fs-base: var(--fs-small);
@@ -703,11 +695,17 @@ footer::after {
 
     .main__contents {
         padding-inline: 0;
+        --zoom: 0.8;
     }
-
-    .editable-table__row,
-    .textbox:not(.component) {
-        zoom: 0.8;
+    editable-table {
+        --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
+    }
+    .editable-table__row.header > .editable-table__cell,
+    .editable-table__row:not(.header) > .editable-table__cell > *,
+    .textbox.content,
+    .component.textbox>[contenteditable] {
+        zoom: var(--zoom);
+        --fs-base: var(--root_fs-base);
     }
 }
 
@@ -717,8 +715,8 @@ footer::after {
     }
 
     main {
-        max-width: unset;
         min-width: unset;
+        max-width: unset;
     }
 
     aside {
@@ -742,7 +740,9 @@ error::after,
 error::before,
 error {
     content: attr(state-code);
+    font-size: 10rem;
     font-family: var(--ff-header);
+    text-align: center;
     position: fixed;
     top: 0;
     left: 0;
@@ -751,21 +751,19 @@ error {
     width: 100vw;
     height: 10rem;
     margin: auto;
-    font-size: 10rem;
     z-index: 9999;
-    text-align: center;
 }
 
 error::before {
-    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
     color: #00FFFF;
     z-index: -1;
+    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
 }
 
 error::after {
-    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
     color: #FF00FF;
     z-index: -1;
+    animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
 }
 
 body.error footer::after {

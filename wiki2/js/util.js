@@ -662,7 +662,7 @@ const Notify = {
     alert, confirm, prompt
 }
 const dev = console;
-const DEVELOPER_MODE = false;
+const DEVELOPER_MODE = true;
 const ROOT_PATH = './';
 const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
 const VISITED_MAX = 5;
@@ -699,4 +699,5 @@ window.onload = async function () {
     if (typeof firebaseLoadCallback == 'function') {
         firebaseLoadCallback();
     }
+    if(DEVELOPER_MODE) document.title = '.';
 }

@@ -1,7 +1,5 @@
 let author_uid;
 
-window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
-
 window.addEventListener('load', function () {
     init_componentList();
     init_timestamp();

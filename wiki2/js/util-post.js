@@ -277,7 +277,7 @@ function buildPost(data) {
 
     for (let content of contents) {
         if (component_list[content.type] == undefined) component_list[content.type] = [];
-        let div = createElement('div', { attrs: { class: content.type } });
+        let div = createElement('div', { attrs: { class: `content ${content.type}` } });
         div.append(COMPONENT_BUILD_SPEC[content.type](content.value));
         component_list[content.type].push(div);
         main__contents.append(div);
@@ -326,7 +326,7 @@ function buildPost(data) {
             depth_info.push({ depth, sub_index: sub_index });
             let a = createElement('a',
                 {
-                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span style="color:black;">${data.text}</span>`,
+                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span>${data.text}</span>`,
                     attrs: { href: `#title_${index}` },
                     styles: { 'margin-left': `${depth * 2}rem` },
                     on: {

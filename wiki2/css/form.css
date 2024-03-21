@@ -1,8 +1,8 @@
 .main__header__title:has(input:invalid)::before {
-    position: absolute;
     content: "\F0028";
     color: var(--clr-invalid);
     font-family: var(--ff-icon);
+    position: absolute;
 }
 
 .main__header__title>input {
@@ -24,13 +24,13 @@
 
 .main__contents:empty::after {
     content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    margin: var(--mg-component);
-    background: var(--clr-background-dark);
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: var(--mg-component);
+    height: 100%;
+    background: var(--clr-background-dark);
 }
 
 footer:hover,
@@ -44,11 +44,11 @@ footer:hover,
 
 .component {
     display: flex;
+    gap: var(--mg-component);
     flex-direction: column;
     border-top: var(--bs-small) solid var(--clr-border-lt);
     padding: var(--size-indent) calc(var(--size-indent) * 2);
     min-height: 10.5rem;
-    gap: var(--mg-component);
 }
 
 .component:last-child {
@@ -64,20 +64,20 @@ footer:hover,
 }
 
 .component audio {
-    min-width: calc(70% - 5rem);
     margin-top: 1rem;
+    min-width: calc(70% - 5rem);
 }
 
 .component__remove_btn {
+    color: #fff;
+    font-size: var(--fs-xlarge);
     position: absolute;
     top: var(--mg-component);
     right: var(--mg-component);
+    border-radius: 50%;
     width: var(--h-control-large);
     height: var(--h-control-large);
-    border-radius: 50%;
-    color: #fff;
     background-color: var(--clr-primary-base);
-    font-size: var(--fs-xlarge);
 }
 
 .component__remove_btn:hover {
@@ -98,11 +98,8 @@ footer:hover,
 }
 
 .component_list button {
+    margin-top: -0.5rem 2rem -0.5rem -0.5rem;
     border-radius: 50%;
-    margin-top: -0.5rem;
-    margin-bottom: -0.5rem;
-    margin-right: -0.5rem;
-    margin-left: 2rem;
     height: 3.5rem;
     width: 3.5rem;
     background: var(--clr-primary-base);
@@ -114,28 +111,28 @@ aside> :first-child {
 }
 
 .component__execList {
+    font-size: var(--fs-base);
     display: flex;
     flex-wrap: wrap;
-    background-color: var(--clr-background-base);
-    padding: var(--mg-component);
-    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
-    border: var(--bs-small) solid var(--clr-border-dkst);
-    font-size: var(--fs-base);
     margin-bottom: calc(0px - var(--mg-component));
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
+    padding: var(--mg-component);
+    background-color: var(--clr-background-base);
 }
 
 .component__execList>button,
 .input_color {
-    min-width: var(--h-control-small);
     border-radius: var(--br-smallest);
-    overflow: hidden;
+    min-width: var(--h-control-small);
     background: none;
+    overflow: hidden;
 }
 
 .component__execList>* {
+    text-align: center;
     height: var(--h-control-small);
     line-height: var(--h-control-small);
-    text-align: center;
 }
 
 .component.title>[contenteditable] {
@@ -143,12 +140,12 @@ aside> :first-child {
 }
 
 .component.textbox>[contenteditable] {
-    min-height: 10rem;
-    padding: var(--size-indent) var(--mg-component);
-    background: var(--clr-background-dark);
-    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
     border: var(--bs-small) solid var(--clr-border-dkst);
     border-top-width: 0;
+    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
+    padding: var(--size-indent) var(--mg-component);
+    min-height: 10rem;
+    background: var(--clr-background-dark);
     line-height: 1.5;
 }
 
@@ -156,47 +153,55 @@ aside> :first-child {
     max-width: 100%;
 }
 
+.component.title>[contenteditable] {
+    white-space: nowrap;
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
+    padding: var(--mg-component);
+    overflow-x: auto;
+}
+
 input[type="color"] {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: transparent;
     border: none;
     padding: 0;
+    background-color: transparent;
 }
 
 input[type="color"]::-webkit-color-swatch {
+    margin: 0;
+    padding: 0;
     border: none;
     width: 100%;
     height: 100%;
-    padding: 0;
-    margin: 0;
 }
 
 .input_color>input {
     position: absolute;
-    bottom: 0;
     left: 0;
+    bottom: 0;
     width: 100%;
     height: 1.3rem;
 }
 
 .input_color::before {
-    z-index: 2;
     position: relative;
+    z-index: 2;
 }
 
 .component__execList>input[type="number"] {
+    text-align: center;
     padding: 0.5rem;
     width: 5rem;
-    text-align: center;
 }
 
 .component__execList>input[type="number"]::-webkit-outer-spin-button,
 .component__execList>input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    margin: 0;
     text-align: center;
+    margin: 0;
 }
 
 .component__execList>input[type="number"] {
@@ -215,34 +220,31 @@ footer:hover * {
     --clr-background-dark: var(--clr-background-base);
 }
 
+aside {
+    position: sticky;
+}
+
 @media (max-width: 500px) {
     main {
         margin: 0 0 var(--size-indent) 0;
-        padding-left: 0;
-        padding-right: 0;
+        padding-inline: 0;
     }
 
     .main__contents {
-        --zoom: 0.8;
-        --fs-xxlarge: calc(5rem * var(--zoom));
-        --fs-xlarge: calc(3rem * var(--zoom));
-        --fs-large: calc(2.2rem * var(--zoom));
-        --fs-base: calc(1.8rem * var(--zoom));
-        --fs-small: calc(1.4rem * var(--zoom));
-        --fs-smallest: calc(1.2rem * var(--zoom));
+        --fs-xxlarge: calc(var(--root_fs-xxlarge) * var(--zoom));
+        --fs-xlarge: calc(var(--root_fs-xlarge) * var(--zoom));
+        --fs-large: calc(var(--root_fs-large) * var(--zoom));
+        --fs-base: calc(var(--root_fs-base) * var(--zoom));
+        --fs-small: calc(var(--root_fs-small) * var(--zoom));
+        --fs-smallest: calc(var(--root_fs-smallest) * var(--zoom));
     
-        --h-control-smaller: calc(2.8rem * var(--zoom));
-        --h-control-small: calc(3rem * var(--zoom));
-        --h-control: calc(4rem * var(--zoom));
-        --h-control-large: calc(5rem * var(--zoom));
-        --h-button-large: calc(5.4rem * var(--zoom));
+        --h-control-smaller: calc(var(--root_h-control-smaller) * var(--zoom));
+        --h-control-small: calc(var(--root_h-control-small) * var(--zoom));
+        --h-control: calc(var(--root_h-control) * var(--zoom));
+        --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
+        --h-button-large: calc(var(--root_h-button-large) * var(--zoom));
     
-        --w-min-button: calc(6rem * var(--zoom));
-    }
-
-    .editable-table__row, .component.textbox>[contenteditable]{
-        zoom: var(--zoom);
-        --fs-base: 1.8rem;
+        --w-min-button: calc(var(--root_w-min-button) * var(--zoom));
     }
 
     .main__header>* {
@@ -259,15 +261,15 @@ footer:hover * {
     }
 
     .component__execList {
-        flex-wrap: nowrap;
-        white-space: nowrap;
-        overflow-x: scroll;
-        min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
-        padding-bottom: 0;
-        border-radius: unset;
-        border-inline-width: 0;
-        max-width: unset;
         font-size: var(--fs-large);
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        border-inline-width: 0;
+        border-radius: unset;
+        padding-bottom: 0;
+        max-width: unset;
+        min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
+        overflow-x: scroll;
     }
 
     .component.table {
@@ -286,15 +288,20 @@ footer:hover * {
     }
 }
 
+@media (min-width: 1000px) {
+    aside {
+        top: calc(var(--h-header) + var(--mg-component)) !important;
+        height: fit-content;
+    }
+}
 @media (max-width: 1000px) {
     main {
         padding-top: 1rem;
     }
 
     aside {
-        order: -1;
-        position: sticky;
         top: -66.2rem !important;
+        order: -1;
         z-index: 2;
     }
 
