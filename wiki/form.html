@@ -15,9 +15,7 @@
     <meta property="twitter:title" content="네무위키">
     <link rel="canonical" href="https://www.nemuwiki.com/wiki/form">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./favicon.png">
-    <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css">
-    <link rel="stylesheet" href="css/util.css" type="text/css">
+    <link rel="icon" href="resource/favicon.png">
     <link rel="stylesheet" href="css/form.css" type="text/css">
     <script src="js/util.js"></script>
     <script src="js/page/form.js"></script>
@@ -43,21 +41,22 @@
         <div class="main__contents" id="main__contents" ondrop="drop(event)" ondragover="dragover(event)"></div>
         <footer></footer>
     </main>
+    <hr>
     <aside>
-        <div id="input_categories" class="input_container">
+        <div id="input_categories" class="aside__container input_container">
             <input type="text" placeholder="카테고리" name="post_categories" id="post_categories" oninput="validate(this)">
             <ul class="input_suggest"></ul>
         </div>
-        <div id="input_menu" class="input_container">
+        <div id="input_menu" class="aside__container input_container">
             <input type="text" placeholder="메뉴" name="post_menu" id="post_menu" oninput="validate(this)">
             <ul class="input_suggest"></ul>
         </div>
-        <div id="input_template" class="input_container no-validity">
+        <div id="input_template" class="aside__container input_container no-validity">
             <input type="button" value="--템플릿 선택--" style="text-align:left;">
             <ul class="input_suggest"></ul>
         </div>
-        <div>
-            <p onclick="fold(this)">컴포넌트</p>
+        <div class="aside__container">
+            <p onclick="fold(this)" class="aside__container__title">컴포넌트</p>
             <ul class="component_list"></ul>
         </div>
         <button class="normal" onclick="submit(this)">게시하기</button>

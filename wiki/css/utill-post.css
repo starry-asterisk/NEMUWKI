@@ -1,0 +1,239 @@
+.main__contents>div:hover,
+.main__header:hover,
+footer:hover {
+    background-color: var(--clr-background-dark);
+}
+
+.main__contents>.content {
+    margin-bottom: var(--mg-component);
+}
+
+.content.title {
+    font-size: 1.5em;
+    margin-top: 3rem;
+    border-bottom: var(--bs-small) solid var(--clr-border-base);
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.content.title.fold {
+    opacity: 0.8;
+}
+
+.content.title::before {
+    content: '\F0140';
+    font-family: var(--ff-icon);
+    line-height: 3.5rem;
+    display: inline-block;
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.content.title.fold::before {
+    content: '\F0142';
+}
+
+.content.seperator {
+    margin-bottom: 3rem;
+    border-bottom: var(--bs-small) solid var(--clr-border-base);
+    padding-top: 2rem;
+}
+
+
+.content.summury {
+    display: flex;
+    flex-direction: column;
+    border: var(--bs-small) solid var(--clr-border-base);
+    padding: 1.2rem 2rem 1.8rem 1.4rem;
+}
+
+.content.summury::before {
+    content: '목차';
+    font-size: 1.3em;
+    margin-bottom: 1.2rem;
+}
+
+.content.summury>a {
+    margin-left: 2rem;
+}
+
+.content.image>img,
+.content.video>video {
+    max-width: 100%;
+}
+
+.content.textbox {
+    line-height: 1.5;
+}
+
+.index {
+    flex: 1;
+    position: sticky;
+    top: var(--h-header);
+    height: calc(100vh - var(--h-header));
+    counter-reset: index;
+}
+
+.index__hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.index>a {
+    text-align: center;
+    display: block;
+    position: absolute;
+    right: 0;
+    width: var(--h-control-smaller);
+    height: var(--h-control-smaller);
+    line-height: var(--h-control-smaller);
+}
+
+.index>a::after {
+    content: "\F09DE";
+    color: var(--clr-font-invaild);
+    font-size: var(--fs-small);
+    font-family: var(--ff-icon);
+}
+
+.index__hover:hover~a[data-tooltip]::before,
+a[data-tooltip]:hover::before {
+    right: 100%;
+    opacity: 1;
+    visibility: visible;
+}
+
+a[data-tooltip]::before {
+    content: attr(data-tooltip);
+    color: var(--clr-font);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+    display: block;
+    position: absolute;
+    right: 0;
+    border: var(--bs-small) solid var(--clr-border-base);
+    border-radius: var(--br-smallest);
+    padding-inline: var(--mg-component);
+    height: var(--h-control-smaller);
+    line-height: var(--h-control-smaller);
+    background-color: var(--clr-background-base);
+    opacity: 0;
+    transition-property: opacity, right;
+    transition-duration: var(--duration-fast);
+    visibility: hidden;
+}
+
+a[data-tooltip]:hover::before {
+    background-color: var(--clr-background-dark);
+}
+
+editable-table {
+    overflow-x: auto;
+    max-width: 100%;
+    display: inline-block;
+    border: var(--outer-line-width) solid var(--outer-line);
+    border-collapse: collapse;
+    background: var(--clr-background-base);
+    --outer-line-width: var(--bs-small);
+    --outer-line: var(--clr-border-base);
+    --inner-line: var(--clr-border-base);
+}
+
+.editable-table__tbody {
+    display: table;
+}
+
+.editable-table__row {
+    display: table-row;
+    flex-direction: row;
+    height: var(--h-control-large);
+}
+
+.editable-table__row.header>* {
+    height: var(--h-control-large);
+    background-color: var(--clr-background-dark);
+}
+
+.editable-table__row.header.readonly,
+.editable-table__row.header.readonly * {
+    height: 0 !important;
+}
+
+.editable-table__row.header input {
+    padding: var(--mg-component) var(--size-indent);
+    width: 100%;
+    height: 100%;
+}
+
+.editable-table__row.header.readonly input {
+    display: none;
+}
+
+
+.editable-table__cell {
+    display: table-cell;
+    vertical-align: top;
+    box-sizing: content-box;
+    border: var(--bs-small) solid var(--inner-line);
+    height: inherit;
+    overflow-wrap: anywhere;
+}
+
+.editable-table__cell>div {
+    overflow-wrap: anywhere;
+}
+
+.editable-table__cell img {
+    max-width: 100%;
+}
+
+.editable-table__cell a::before {
+    content: "\F0339";
+    font-family: var(--ff-icon);
+}
+
+.editable-table__cell a {
+    color: var(--clr-valid);
+}
+
+.editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,
+.editable-table__row:first-child>.editable-table__cell {
+    border-top: none !important;
+}
+
+.editable-table__row.header.readonly>.editable-table__cell,
+.editable-table__row:last-child>.editable-table__cell {
+    border-bottom: none !important;
+}
+
+.editable-table__cell:first-child {
+    border-left: none !important;
+}
+
+.editable-table__cell:last-child {
+    border-right: none !important;
+}
+
+.editable-table__cell:focus-within {
+    outline: var(--bs-small) solid var(--clr-primary-base) !important;
+    outline-offset: calc(0px - var(--bs-small));
+}
+
+
+editable-table [contenteditable] {
+    white-space: pre-line;
+    padding: var(--mg-component) var(--size-indent);
+    width: 100%;
+    height: 100%;
+}
+
+blockquote {
+    margin-block: 1.5rem;
+    border: var(--bs-small) dashed var(--clr-border-base);
+    border-left: 0.5rem solid var(--clr-primary-base);
+    padding: 1.5rem;
+    background: var(--clr-border-lt);
+}

@@ -699,5 +699,4 @@ window.onload = async function () {
     if (typeof firebaseLoadCallback == 'function') {
         firebaseLoadCallback();
     }
-    if(DEVELOPER_MODE) document.title = '.';
 }

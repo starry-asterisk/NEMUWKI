@@ -1,7 +1,5 @@
 let author_uid;
 
-window.addEventListener('scroll', () => input_categories.style.marginTop = `${document.body.parentNode.scrollTop}px`);
-
 window.addEventListener('load', function () {
     init_componentList();
     init_timestamp();
@@ -47,7 +45,7 @@ async function loadBoardSuggest() {
         if (SuggestList['board'] == undefined || SuggestList['board'].length < 1) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
         for (let data of board2Path(SuggestList['board'])) addSuggest(data, input_menu);
 
-        let li = createElement('li', { innerHTML: '+ 새로운 메뉴 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
+        let li = createElement('li', { innerHTML: '+ 새로운 메뉴 추가', styles: { background: 'var(--clr-primary-46)', cursor: 'pointer' } });
         li.onmousedown = () => modal('addMenu');
         input_menu.querySelector('.input_suggest').append(li);
     }
@@ -59,7 +57,7 @@ async function loadCategorySuggest() {
         if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
         for (let data of SuggestList['category']) addSuggest(data, input_categories);
 
-        let li = createElement('li', { innerHTML: '+ 새로운 카테고리 추가', styles: { background: 'var(--accent-half)', cursor: 'pointer' } });
+        let li = createElement('li', { innerHTML: '+ 새로운 카테고리 추가', styles: { background: 'var(--clr-primary-46)', cursor: 'pointer' } });
         li.onmousedown = () => modal('addCategory');
         input_categories.querySelector('.input_suggest').append(li);
     }
@@ -474,7 +472,6 @@ const COMPONENT_SPEC = {
                 { label: '목차 깊이' },
                 { name: 'depth', type: 'number', value: depth, attr: { min: 1, max: 6, step: 1 } }
             ]);
-            option_1.setStyles({ 'margin-bottom': '2rem' });
             return option_1;
         },
         input: ({ text = '' }) => {

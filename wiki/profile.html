@@ -15,9 +15,7 @@
     <meta property="twitter:title" content="네무위키">
     <link rel="canonical" href="https://www.nemuwiki.com/wiki/profile">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./favicon.png">
-    <link rel="stylesheet" href="css/materialdesignicons.min.css" type="text/css">
-    <link rel="stylesheet" href="css/util.css" type="text/css">
+    <link rel="icon" href="resource/favicon.png">
     <link rel="stylesheet" href="css/index.css" type="text/css">
     <script src="js/util.js"></script>
     <script src="js/page/profile.js"></script>
@@ -38,20 +36,21 @@
         </div>
         <div id="user_area" style="margin-top: 2rem;"></div>
         <div class="main__contents" id="main__contents">
-            <div class="title" id="total" onclick="fold(this)">전체 문서</div>
-            <div class="title" id="people" onclick="fold(this)">인물</div>
+            <div class="content title" id="total" onclick="fold(this)">전체 문서</div>
+            <div class="content title" id="people" onclick="fold(this)">인물</div>
         </div>
         <footer></footer>
     </main>
+    <hr>
     <aside>
-        <div class="input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
+        <div class="aside__container input_container no-validity"><input type="text" placeholder="문서 명을 입력해 검색"
                 onkeydown="search(event, this)" id="search_input"></div>
-        <div>
-            <p onclick="fold(this)">최근글</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">최근글</p>
             <ul id="recent_post"></ul>
         </div>
-        <div>
-            <p onclick="fold(this)">분류</p>
+        <div class="aside__container">
+            <p class="aside__container__title" onclick="fold(this)">분류</p>
             <ul id="category_list"></ul>
         </div>
     </aside>

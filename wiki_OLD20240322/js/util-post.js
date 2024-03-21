@@ -44,8 +44,8 @@ function createProfile(user) {
     user_area.append(profile);
     user_area.append(profile__email);
 
-    if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--clr-primary-base)' } }));
-    else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--clr-primary-base)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
+    if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--accent)' } }));
+    else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--accent)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
 
     let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
     let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
@@ -277,7 +277,7 @@ function buildPost(data) {
 
     for (let content of contents) {
         if (component_list[content.type] == undefined) component_list[content.type] = [];
-        let div = createElement('div', { attrs: { class: `content ${content.type}` } });
+        let div = createElement('div', { attrs: { class: content.type } });
         div.append(COMPONENT_BUILD_SPEC[content.type](content.value));
         component_list[content.type].push(div);
         main__contents.append(div);
@@ -326,7 +326,7 @@ function buildPost(data) {
             depth_info.push({ depth, sub_index: sub_index });
             let a = createElement('a',
                 {
-                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span>${data.text}</span>`,
+                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span style="color:black;">${data.text}</span>`,
                     attrs: { href: `#title_${index}` },
                     styles: { 'margin-left': `${depth * 2}rem` },
                     on: {

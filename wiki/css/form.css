@@ -1,40 +1,142 @@
-.main__header__title:has(input:invalid) {
-    height: 5rem;
-    padding-left: 2rem;
+@import url("utill.css");
+@import url("utill-post.css");
+
+footer:hover,
+.component:hover {
+    background-color: var(--clr-background-dark);
 }
 
 .main__header__title:has(input:invalid)::before {
-    position: absolute;
     content: "\F0028";
-    color: var(--invalid);
-    font-family: "Material Design Icons";
+    color: var(--clr-invalid);
+    font-family: var(--ff-icon);
+    position: absolute;
 }
 
 .main__header__title>input {
+    display: block;
+    height: var(--fs-xxlarge);
     transition: 200ms padding;
 }
 
 .main__header__title>input:invalid {
-    padding-left: 8rem;
+    padding-left: calc(var(--fs-xxlarge) + var(--mg-component));
 }
 
 .main__contents {
-    padding: 0;
-    padding-bottom: 15rem;
+    padding: 0 0 15rem;
+}
+
+.main__contents:empty {
+    aspect-ratio: 1;
 }
 
 .main__contents:empty::after {
     content: '여기에 컴포넌트(요소)를 끌어다 놓으면 추가할 수 있어요!';
-    display: block;
-    margin: 2rem;
-    background: var(--background-dark);
     text-align: center;
-    line-height: 40rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: var(--mg-component);
+    height: 100%;
+    background: var(--clr-background-dark);
 }
 
-footer:hover,
-.component:hover {
-    background-color: var(--background-dark);
+
+.component__option {
+    display: flex;
+    white-space: nowrap;
+    line-height: var(--h-control);
+    overflow: hidden;
+}
+
+.component__option__label {
+    margin-right: var(--mg-component);
+}
+
+*+.component__option__label {
+    margin-left: var(--mg-component);
+}
+
+.component__option__button {
+    margin-left: var(--mg-component);
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
+    min-width: var(--h-control);
+    background: var(--clr-background-base);
+}
+
+.component__option__button:not(:first-of-type) {
+    margin-left: 0;
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.component__option__button:not(:last-of-type) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.component__option__button.image::before {
+    content: "\F087C";
+    font-family: var(--ff-icon);
+}
+
+.component__option__button.link::before {
+    content: "\F0339";
+    font-family: var(--ff-icon);
+}
+
+.component__option__button:hover {
+    background: var(--clr-border-dkst);
+    color: var(--clr-primary-base);
+}
+
+.component__option__button:active {
+    opacity: 0.55;
+}
+
+.component__option__input {
+    display: inline-block;
+    margin-inline: var(--mg-component);
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
+    width: var(--w-min-button);
+    min-width: var(--w-min-button);
+    height: var(--h-control);
+    background: var(--clr-background-dark);
+}
+
+.component__option__input>input {
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+.component__option__input>input::-webkit-color-swatch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    border-radius: 50%;
+}
+
+.component__option__input>input[type="color"] {
+    border: 0.4rem solid var(--clr-background-dark);
+}
+
+.component__option__input:has(input[type="color"]) {
+    border-radius: 50%;
+    width: var(--h-control);
+    min-width: var(--h-control);
+    overflow: hidden;
+}
+
+.component__option__input:focus-within {
+    border-color: var(--clr-primary-base);
 }
 
 .main__contents:hover {
@@ -42,39 +144,42 @@ footer:hover,
 }
 
 .component {
-    border-top: 0.1rem solid var(--border);
-    padding: 2rem 4rem;
+    display: flex;
+    gap: var(--mg-component);
+    flex-direction: column;
+    border-top: var(--bs-small) solid var(--clr-border-lt);
+    padding: var(--size-indent) calc(var(--size-indent) * 2);
     min-height: 10.5rem;
 }
 
 .component:last-child {
-    border-bottom: 0.1rem solid var(--border);
+    border-bottom: var(--bs-small) solid var(--clr-border-lt);
 }
 
 .component>p {
-    font-size: 3rem;
+    font-size: var(--fs-xlarge);
 }
 
 .component>* {
-    max-width: calc(100% - 5rem);
+    max-width: 100%;
 }
 
 .component audio {
-    min-width: calc(70% - 5rem);
     margin-top: 1rem;
+    min-width: calc(70% - 5rem);
 }
 
 .component__remove_btn {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    width: 6rem;
-    height: 6rem;
-    margin: 0 !important;
-    border-radius: 50%;
     color: #fff;
-    background-color: var(--accent);
-    font-size: 3rem;
+    font-size: var(--fs-xlarge);
+    position: absolute;
+    top: var(--mg-component);
+    right: var(--mg-component);
+    border-radius: 50%;
+    width: var(--h-control-large);
+    height: var(--h-control-large);
+    line-height: var(--h-control-large);
+    background-color: var(--clr-primary-base);
 }
 
 .component__remove_btn:hover {
@@ -82,7 +187,7 @@ footer:hover,
 }
 
 .component__remove_btn:active {
-    background: var(--invalid);
+    background: var(--clr-invalid);
     opacity: 1;
 }
 
@@ -91,19 +196,17 @@ footer:hover,
 }
 
 .component_list>li {
-    padding: 1rem var(--block-padding);
+    padding: 1rem var(--size-indent);
 }
 
 .component_list button {
+    margin: -0.3rem 2rem;
     border-radius: 50%;
-    margin-top: -0.5rem;
-    margin-bottom: -0.5rem;
-    margin-right: -0.5rem;
-    margin-left: 2rem;
-    height: 3.5rem;
-    width: 3.5rem;
-    background: var(--accent);
-    color: white;
+    width: var(--h-control-small);
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
+    background: var(--clr-primary-base);
+    color: var(--clr-font-alt);
 }
 
 aside> :first-child {
@@ -111,78 +214,139 @@ aside> :first-child {
 }
 
 .component__execList {
-    line-height: 1.5em;
-    background-color: #edf2fa;
-    padding: 0 1.75rem;
-    border-radius: 1.75rem;
-    margin: 1rem 0;
+    font-size: var(--fs-base);
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: calc(0px - var(--mg-component));
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
+    padding: var(--mg-component);
+    background-color: var(--clr-background-base);
 }
 
 .component__execList>button,
 .input_color {
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-    font-size: 1.5rem;
-    overflow: hidden;
+    border-radius: var(--br-smallest);
+    min-width: var(--h-control-small);
     background: none;
+    overflow: hidden;
+}
+
+.component__execList>* {
+    text-align: center;
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
+}
+
+.component.title>[contenteditable] {
+    line-height: 1.5;
 }
 
 .component.textbox>[contenteditable] {
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-top-width: 0;
+    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
+    padding: var(--size-indent) var(--mg-component);
     min-height: 10rem;
-    padding: 2rem 1rem;
-    background: var(--background-dark);
-    border-radius: 0.3rem;
+    background: var(--clr-background-dark);
+    line-height: 1.5;
 }
 
 .component.textbox>[contenteditable] img {
     max-width: 100%;
 }
 
+.component.title>[contenteditable] {
+    white-space: nowrap;
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest);
+    padding: var(--mg-component);
+    background-color: var(--clr-background-base);
+    overflow-x: auto;
+}
+
 input[type="color"] {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: transparent;
     border: none;
     padding: 0;
+    background-color: transparent;
 }
 
 input[type="color"]::-webkit-color-swatch {
+    margin: 0;
+    padding: 0;
     border: none;
     width: 100%;
     height: 100%;
-    padding: 0;
-    margin: 0;
 }
 
 .input_color>input {
     position: absolute;
-    bottom: 0;
     left: 0;
+    bottom: 0;
     width: 100%;
     height: 1.3rem;
 }
 
 .input_color::before {
-    z-index: 2;
     position: relative;
 }
 
 .component__execList>input[type="number"] {
+    text-align: center;
     padding: 0.5rem;
     width: 5rem;
-    text-align: center;
 }
 
 .component__execList>input[type="number"]::-webkit-outer-spin-button,
 .component__execList>input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    margin: 0;
     text-align: center;
+    margin: 0;
 }
 
-.component__execList>input[type="number"][type=number] {
+.component__execList>input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+}
+
+input[type="file"] {
+    display: block;
+    margin-block: var(--size-indent);
+    border: var(--bs-small) solid var(--clr-border-lt);
+    border-radius: calc(var(--h-control) / 2);
+    padding: 0;
+    background: var(--clr-background-dark);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+input[type="file"]:hover {
+    border-color: var(--clr-border-dk);
+}
+
+::file-selector-button {
+    color: var(--clr-font-alt);
+    font-size: var(--fs-base);
+    font-family: var(--ff-contents);
+    margin-right: var(--mg-component);
+    border: none;
+    padding-inline: var(--size-indent);
+    height: var(--h-control);
+    background-color: var(--clr-primary-base);
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+::file-selector-button:hover {
+    opacity: 1;
+}
+
+::file-selector-button:active {
+    opacity: 0.55;
 }
 
 .separator::before {
@@ -192,50 +356,91 @@ input[type="color"]::-webkit-color-swatch {
 .main__contents>div:hover *,
 .main__header:hover *,
 footer:hover * {
-    --background-dark: var(--background);
+    --clr-background-dark: var(--clr-background-base);
+}
+
+aside {
+    position: sticky;
 }
 
 @media (max-width: 500px) {
     main {
-        margin: 0 0 2rem 0;
-        padding-left: 0;
-        padding-right: 0;
+        margin: 0 0 var(--size-indent) 0;
+        padding-inline: 0;
+    }
+
+    .main__contents {
+        --fs-xxlarge: calc(var(--root_fs-xxlarge) * var(--zoom));
+        --fs-xlarge: calc(var(--root_fs-xlarge) * var(--zoom));
+        --fs-large: calc(var(--root_fs-large) * var(--zoom));
+        --fs-base: calc(var(--root_fs-base) * var(--zoom));
+        --fs-small: calc(var(--root_fs-small) * var(--zoom));
+        --fs-smallest: calc(var(--root_fs-smallest) * var(--zoom));
+    
+        --h-control-smaller: calc(var(--root_h-control-smaller) * var(--zoom));
+        --h-control-small: calc(var(--root_h-control-small) * var(--zoom));
+        --h-control: calc(var(--root_h-control) * var(--zoom));
+        --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
+        --h-button-large: calc(var(--root_h-button-large) * var(--zoom));
+    
+        --w-min-button: calc(var(--root_w-min-button) * var(--zoom));
+    }
+
+    .main__header>* {
+        margin-inline: var(--mg-component);
+    }
+
+    .component.textbox {
+        max-height: 100vh;
+        padding-inline: 0;
+    }
+
+    .component.textbox > p:first-child {
+        margin-inline: calc(var(--size-indent) * 2);
     }
 
     .component__execList {
+        font-size: var(--fs-large);
         white-space: nowrap;
-        overflow-x: auto;
-        padding-top: 1rem;
-        border-radius: 0.2rem;
-        margin-top: 2.5rem;
-        margin-bottom: 0;
+        flex-wrap: nowrap;
+        border-inline-width: 0;
+        border-radius: unset;
+        padding-bottom: 0;
         max-width: unset;
+        min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
+        overflow-x: scroll;
+    }
+
+    .component.table {
+        padding-inline: var(--size-indent);
+    }
+
+    .component.table > .component__option,
+    .component.table > p {
+        margin-inline: var(--size-indent);
     }
 
     .component.textbox>[contenteditable] {
-        padding-top: 5rem;
-        max-width: unset;
+        padding-top: var(--h-control-large);
+        padding-inline: var(--size-indent);
+        overflow-y: auto;
     }
 
-    .component__execList * {
-        font-size: 2rem !important;
-        line-height: 2rem !important;
-    }
-
-    .component__remove_btn {
-        margin-top: -1rem !important;
+    aside > button {
+        margin-inline: auto;
     }
 }
 
-@media (max-width: 1000px) {
-    main {
-        padding-top: 1rem;
-    }
-
+@media (min-width: 1000px) {
     aside {
+        top: calc(var(--h-header) + var(--mg-component)) !important;
+        height: fit-content;
+    }
+}
+@media (max-width: 1000px) {
+    aside {
+        top: -67.5rem !important;
         order: -1;
-        position: sticky;
-        top: -63rem;
         z-index: 2;
     }
 

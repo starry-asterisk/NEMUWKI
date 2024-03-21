@@ -1,3 +1,5 @@
+@import url("materialdesignicons.min.css");
+
 /* Font Declation */
 /*
  font from https://www.yd.go.kr/?page_id=120264
@@ -311,7 +313,7 @@ a {
 }
 
 .input_container:not(.no-validity):has(:invalid) {
-    outline: var(--bs-base) solid var(--invalid);
+    outline: var(--bs-base) solid var(--clr-invalid);
     padding-left: 1rem;
 }
 
@@ -322,7 +324,7 @@ a {
 
 .input_container:not(.no-validity):has(input:invalid)::before {
     content: "\F0028";
-    color: var(--invalid);
+    color: var(--clr-invalid);
 }
 
 .input_container:not(.no-validity) :user-valid,
@@ -346,7 +348,7 @@ button.danger {
 }
 
 button.danger {
-    background: var(--invalid);
+    background: var(--clr-invalid);
 }
 
 button.normal:hover,
@@ -456,6 +458,24 @@ input.gallery_container_cell {
         opacity: 1;
         transform: scale(1);
     }
+}
+
+img::after {
+    content: '\F082B';
+    color: var(--clr-border-dk);
+    font-size: var(--fs-xlarge);
+    font-family: var(--ff-icon);
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    border: var(--bs-small) solid var(--clr-border-dk);
+    background: var(--clr-background-base);
 }
 
 /* one-use-component */
@@ -648,7 +668,9 @@ footer::after {
 
 .aside__container.input_container {
     border-radius: calc(var(--h-control-large) / 2);
+    padding-bottom: 0;
     height: var(--h-control-large);
+    line-height: var(--h-control-large);
 }
 
 .aside__container__title {
@@ -702,7 +724,7 @@ footer::after {
     }
     .editable-table__row.header > .editable-table__cell,
     .editable-table__row:not(.header) > .editable-table__cell > *,
-    .textbox.content,
+    .content.textbox,
     .component.textbox>[contenteditable] {
         zoom: var(--zoom);
         --fs-base: var(--root_fs-base);
@@ -732,6 +754,148 @@ footer::after {
     .index {
         display: none !important;
     }
+}
+
+/* modal */
+
+:modal {
+    text-align: center;
+    position: fixed;
+    margin: auto;
+    border: var(--bs-small) solid var(--clr-border-lt);
+    border-radius: var(--br-smallest);
+    padding: var(--mg-component);
+    min-width: 30rem;
+    min-height: var(--h-control-large);
+    background-color: var(--clr-background-base);
+    overflow: visible;
+}
+
+:modal form {
+    margin-bottom: var(--size-indent);
+}
+
+:modal button {
+    line-height: var(--h-control-large);
+    margin: var(--mg-component) auto 0;
+    width: 25rem;
+}
+
+:modal button::before {
+    font-family: var(--ff-icon);
+}
+
+:modal button[value='cancel']::before {
+    content: "\F015A";
+}
+
+:modal button[value='default']::before {
+    content: "\F05E1";
+}
+
+:modal .input_container {
+    margin: var(--mg-component) auto;
+    border-radius: calc(var(--h-control-large) / 2) !important;
+    width: 25rem;
+    height: var(--h-control-large);
+    background-color: var(--clr-background-dark);
+}
+
+.modal__sub_title {
+    font-size: var(--fs-small);
+    text-align: center;
+    margin: var(--size-indent);
+}
+
+.fullSize:modal {
+    border-radius: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 40rem;
+    height: 100%;
+    max-height: 80rem;
+}
+
+.fullSize .modal__sub_title {
+    margin: 0;
+    height: var(--h-control-large);
+    line-height: var(--h-control-large);
+}
+
+.fullSize button[value='default'],
+.fullSize button[value='cancel'] {
+    font-size: var(--fs-small);
+    position: absolute;
+    top: 0;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    width: var(--h-control-large);
+    height: var(--h-control-large);
+    background: none;
+}
+
+.fullSize button[value='default'] {
+    color: inherit;
+    right: 0;
+
+}
+
+.fullSize button[value='cancel'] {
+    color: inherit;
+    font-size: inherit;
+    left: 0;
+}
+
+.fullSize button[value='default']::before {
+    content: '완료';
+    font-family: inherit;
+}
+.fullSize form{
+    margin: 0;
+    height: 100%;
+}
+
+/* Loading */
+
+body.loading .main__header__title::after,
+body.loading .main__header__timestamp::after,
+body.loading .main__contents::after,
+body.loading aside>*::after {
+    content: '';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--clr-background-base);
+    opacity: 1;
+    z-index: 1;
+}
+
+body.loading .main__header__timestamp::after {
+    width: 40%;
+}
+
+body.loading .main__contents::after {
+    top: 2rem;
+    left: 2rem;
+    width: calc(100% - 4rem);
+    height: calc(100% - 4rem);
+}
+
+body.loading aside>*::after {
+    width: 100%;
+}
+
+/* non-auth style */
+
+.non-auth header .account,
+.non-auth .main__header__toolbox>button.edit {
+    display: none;
 }
 
 /* Error Page */
