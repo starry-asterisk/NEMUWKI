@@ -118,6 +118,7 @@ function buildForm(data) {
     let {
         title,
         board_name,
+        board_name_arr,
         category,
         timestamp,
         contents,
@@ -129,7 +130,7 @@ function buildForm(data) {
     main__header__title.value = title;
     main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
     post_categories.value = category;
-    post_menu.value = board_name;
+    post_menu.value = board_name_arr?board_name_arr.join(' > '):board_name;
 
     for (let content of contents) {
         if (typeof content.value == 'string') {
