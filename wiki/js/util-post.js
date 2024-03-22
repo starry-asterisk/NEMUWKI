@@ -362,13 +362,20 @@ function buildPost(data) {
             title_list[hash_regex.exec(location.hash)[1]]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         }
     }
+
+    if(html_annotation.length > 0) {
+        let annotation = createElement('div', { attrs: { class: 'content annotation' } });
+        annotation.innerHTML = html_annotation;
+        html_annotation = '';
+        main__contents. append(annotation);
+    }
 }
 
 const COMPONENT_BUILD_SPEC = {
     textbox: (value) => {
         let frag = document.createDocumentFragment();
         let tpl = createElement('template');
-        tpl.innerHTML = value;
+        tpl.innerHTML = markdown(value);
         frag.appendChild(tpl.content);
         return frag;
     },

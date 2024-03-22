@@ -12,7 +12,7 @@ HTMLElement.prototype.switchClass = function (oldClass, newClass, replace = fals
         this.classList.add(newClass);
     }
 }
-let table;
+
 customElements.define('editable-table', class extends HTMLElement {
     _beforeInit = true;
     _rowcount = 0;
@@ -31,11 +31,12 @@ customElements.define('editable-table', class extends HTMLElement {
     constructor() {
         super();
         this._tbody = this.createTBody();
-        table = this;
     }
+
     static get observedAttributes() {
         return ['rowcount', 'colcount', 'readonly'];
     }
+
     get colcount() {
         return this._colcount;
     }
@@ -66,6 +67,7 @@ customElements.define('editable-table', class extends HTMLElement {
         let elements = this._tbody.querySelectorAll('[contenteditable]');
         return Array.prototype.map.call(elements, element => element.parentElement.style.getPropertyValue('background-color'));
     }
+
     set colcount(newValue) {
         newValue = parseInt(newValue);
         if (newValue === NaN) return console.error('failed converting to integer \'colcount\'');
@@ -235,7 +237,7 @@ function createNotice(data) {
     let link = createElement('a', { attrs: { class: "main__notice" } });
     let title = createElement('span', { innerHTML: data.title });
     let timestamp = createElement('span', { attrs: { class: "main__notice__timestamp" }, innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
-    let content = createElement('span', { attrs: { class: "main__notice__content" }, innerHTML: data.content });
+    let content = createElement('span', { attrs: { class: "main__notice__content" }, innerHTML: markdown(data.content) });
     link.append(title);
     link.append(timestamp);
     link.append(content);
@@ -256,9 +258,204 @@ function addSuggest(data, input) {
     input.querySelector('.input_suggest').append(li);
 }
 
+function modal(mode = 'emailPrompt', option) {
+    let container = createElement('dialog');
+    let form = createElement('form', { attrs: { method: 'dialog' } });
+    let button_cancel = createElement('button', { value: 'cancel', attrs: { class: 'danger' } });
+    document.body.append(container);
+    container.append(form);
+    form.append(MODAL_TEMPLATE[mode](container, option));
+    form.append(button_cancel);
+    container.showModal();
+}
+
+const MODAL_TEMPLATE = {
+    emailPrompt: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '재설정을 위해 이메일을 입력해주세요.' });
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+        frag.append(sub_title);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        text_input_container.append(text_input);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (validate(text_input, undefined, 'email'))
+                firebase.auth.sendPasswordResetEmail(text_input.value)
+                    .then(result => {
+                        if (result) dev.log(result);
+                        alert('메일이 전송되었습니다.');
+                        container.close();
+                    })
+                    .catch(firebaseErrorHandler);
+        }
+        return frag;
+    },
+    emailConfirm: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '버튼을 누르면 인증 메일이 발송됩니다.' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+        frag.append(sub_title);
+        frag.append(button_confirm);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            (async () => await firebase.auth.sendEmailVerification())()
+                .then(result => {
+                    if (result) dev.log(result);
+                    alert('메일이 전송되었습니다.');
+                    container.close();
+                })
+                .catch(firebaseErrorHandler);
+        }
+        return frag;
+    },
+    addCategory: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 카테고리에 대한 정보를 입력해 주세요.' });
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 카테고리' } });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+        frag.append(sub_title);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        text_input_container.append(text_input);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (text_input.value) {
+                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                    firebase.categories.insertOne({ name: text_input.value })
+                        .then(() => {
+                            alert('카테고리가 추가되었습니다.');
+                            SuggestList['category'].push({ name: text_input.value });
+                            loadCategorySuggest();
+                            container.close();
+                        })
+                        .catch(firebaseErrorHandler);
+                }
+            } else {
+                alert('카테고리 명칭을 입력해 주세요.')
+            }
+        }
+        return frag;
+    },
+    addMenu: container => {
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 메뉴에 대한 정보를 입력해 주세요.' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+        let parent_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let parent_input = createElement('input', { attrs: { type: 'text', placeholder: '상위 메뉴' } });
+        let parent_suggest = createElement('ul', { attrs: { class: 'input_suggest' } });
+        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
+        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 메뉴' } });
+
+        frag.append(sub_title);
+        frag.append(parent_input_container);
+        frag.append(text_input_container);
+        frag.append(button_confirm);
+        parent_input_container.append(parent_input);
+        parent_input_container.append(parent_suggest);
+        text_input_container.append(text_input);
+
+        for (let data of board2Path(SuggestList['board'])) addSuggest(data, parent_input_container);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (text_input.value) {
+                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                    firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
+                        .then(() => {
+                            alert('메뉴가 추가되었습니다.');
+                            SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
+                            loadBoardSuggest();
+                            container.close();
+                        })
+                        .catch(firebaseErrorHandler);
+                }
+            } else {
+                alert('메뉴 명칭을 입력해 주세요.')
+            }
+        }
+        return frag;
+    },
+    addImg: (container, callback) => {
+        container.classList.add('fullSize', 'loading');
+        let frag = document.createDocumentFragment();
+        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '이미지 선택' });
+        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
+
+        let gallery_container = createElement('div', { attrs: { class: 'gallery_container' } });
+        let input_file = createElement('input', { attrs: { type: 'file', accept: 'image/*' } });
+        let gallery_container_cell_1 = createElement('label', { attrs: { class: 'gallery_container_cell localStorage' } });
+        let gallery_container_cell_2 = createElement('button', { attrs: { class: 'gallery_container_cell link' } });
+
+        frag.append(sub_title);
+        frag.append(button_confirm);
+        frag.append(gallery_container);
+        gallery_container_cell_1.append(input_file);
+        gallery_container.append(gallery_container_cell_1);
+        gallery_container.append(gallery_container_cell_2);
+
+        input_file.onchange = async () => {
+            let file = input_file.files[0];
+            if (file) {
+                let result = await uploadByImgur(file);
+                if (result.status === 200) {
+                    container.close();
+                    callback(result.data.link);
+                } else {
+                    alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                    input_file.setAttribute('type', 'text');
+                    input_file.value = '';
+                    input_file.setAttribute('type', 'file');
+                }
+            }
+        }
+
+        gallery_container_cell_2.onclick = e => {
+            e.preventDefault();
+            let link = prompt('사용할 이미지의 URL을 입력해 주세요');
+            if (link) {
+                container.close();
+                callback(link);
+            } else {
+                alert('URL을 입력해 주세요!!');
+            }
+        }
+
+        firebase.resources.all().then(r => {
+            for (let doc of r.docs) {
+                let data = doc.data();
+                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${data.link})` }, value: data.link });
+                gallery_container.append(radio);
+            }
+        });
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            let i = gallery_container.querySelector(':checked');
+            if (i) {
+                container.close();
+                callback(i.value);
+            } else {
+                alert('이미지를 선택해 주세요!!');
+            }
+        }
+        return frag;
+    }
+};
+
 function goHome() { location.href = ROOT_PATH }
 
 function goRandom() { firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`) }
+
+function goProfile() { location.href = `${ROOT_PATH}profile${SUFFIX}` }
 
 function goShare(destination, url = location.href) {
     if (destination == undefined && typeof navigator.share == 'function') {
@@ -279,52 +476,18 @@ function goShare(destination, url = location.href) {
     }
 }
 
-function board2Tree(arr) {
-    for (let menu of arr) {
-        if (menu.parent == '') continue;
-        let parent = arr.find(parent => parent.name == menu.parent);
-        if (parent?.child?.length) {
-            parent.child.push(menu);
-        } else if (parent) {
-            parent.child = [menu];
-        } else {
-            menu.parent = '';
-        }
-    }
-
-    arr = arr.filter(menu => menu.parent == '');
-    return arr;
-}
-
-function board2Path(arr_original, type) {
-    let arr = JSON.parse(JSON.stringify(arr_original));
-    let striped_menu = [];
-    let tree = board2Tree(arr);
-    let stripe = type == 2 ? stripe_2 : stripe_1;
-
-    for (let child of tree || []) stripe(child);
-
-    function stripe_1(data, prefix = []) {
-        prefix.push(data.name);
-        striped_menu.push({ path: prefix.join(' > '), name: data.name, path_arr: prefix.slice() });
-        for (let child of data.child || []) stripe(child, prefix.slice());
-    }
-
-    function stripe_2(data, prefix = []) {
-        prefix.push(data.name);
-        striped_menu[data.name] = prefix.join(' > ');
-        for (let child of data.child || []) stripe(child, prefix.slice());
-    }
-
-    striped_menu.sort((v1, v2) => v1.path.localeCompare(v2.path));
-
-    return striped_menu;
-}
-
 function fold(target) {
     target.classList.toggle('fold');
     if (target.classList.contains('fold')) target.nextElementSibling.style.display = 'none';
     else target.nextElementSibling.style.removeProperty('display');
+}
+
+function loading(float) {
+    let p = Math.min(1, Math.max(float, 0)) * 100;
+    let indicator = document.querySelector('indicator');
+    if (p <= 0) indicator.setStyles({ '--progress': `${p}%` });
+    else if (p >= 100) setTimeout(() => indicator.setStyles({ '--progress': `${p}%` }), 250);
+    indicator.setStyles({ '--progress-r': `${100 - p}%` });
 }
 
 const INPUT_STATE = {
@@ -373,9 +536,82 @@ function validate(input, input_2, type = 'text') {
     return input.checkValidity();
 }
 
+function board2Tree(arr) {
+    for (let menu of arr) {
+        if (menu.parent == '') continue;
+        let parent = arr.find(parent => parent.name == menu.parent);
+        if (parent?.child?.length) {
+            parent.child.push(menu);
+        } else if (parent) {
+            parent.child = [menu];
+        } else {
+            menu.parent = '';
+        }
+    }
+
+    arr = arr.filter(menu => menu.parent == '');
+    return arr;
+}
+
+function board2Path(arr_original, type) {
+    let arr = JSON.parse(JSON.stringify(arr_original));
+    let striped_menu = [];
+    let tree = board2Tree(arr);
+    let stripe = type == 2 ? stripe_2 : stripe_1;
+
+    for (let child of tree || []) stripe(child);
+
+    function stripe_1(data, prefix = []) {
+        prefix.push(data.name);
+        striped_menu.push({ path: prefix.join(' > '), name: data.name, path_arr: prefix.slice() });
+        for (let child of data.child || []) stripe(child, prefix.slice());
+    }
+
+    function stripe_2(data, prefix = []) {
+        prefix.push(data.name);
+        striped_menu[data.name] = prefix.join(' > ');
+        for (let child of data.child || []) stripe(child, prefix.slice());
+    }
+
+    striped_menu.sort((v1, v2) => v1.path.localeCompare(v2.path));
+
+    return striped_menu;
+}
+
+function rgb2hex(rgb_str) {
+    if (rgb_str == undefined || rgb_str == '') return;
+    if (rgb_str.startsWith('rgb')) {
+        let c = rgb_str.replace(')', '').split('(')[1].split(',');
+        let hex = '#' + parseInt(c[0]).toString(16).padStart(2, '0') + parseInt(c[1]).toString(16).padStart(2, '0') + parseInt(c[2]).toString(16).padStart(2, '0');
+        if (c.length > 3) hex += Math.floor(parseFloat(c[3]) * 255).toString(16).padStart(2, '0');
+        return hex;
+    } else {
+        return rgb_str;
+    }
+}
+
+let html_annotation = '';
+
+function markdown(html, cell) {
+    return html
+        .replace(REGEX.annotation, (full_str, index, description) => {
+            html_annotation += `<p id="anno_${index}"><a href="#sup_${index}">[${index}]</a> ${description}</p>`;
+            return `<a href="#anno_${index}"><sup title="${description}" id="sup_${index}">[${index}]</sup></a>`;
+        })
+        .replace(REGEX.colspan, (full_str, group1) => {
+            cell.classList.add(`colspan-${group1}`);
+            return '';
+        })
+        .replace(REGEX.css, (full_str, cssString, text) => `<span style="${cssString}"/>${text}</span>`)
+        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
+        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`);
+}
+
 async function uploadByImgur(file) {
-    var bodyData = new FormData();
+    loading(0);
+    let bodyData = new FormData();
     bodyData.append("image", file);
+    loading(0.1);
     const response = await fetch('https://api.imgur.com/3/image', {
         method: "POST",
         headers: {
@@ -384,8 +620,11 @@ async function uploadByImgur(file) {
         },
         body: bodyData,
     });
+    loading(0.7);
     let result = await response.json();
+    loading(0.9);
     if (result.status === 200) firebase.resources.regist(result.data).catch(dev.error);
+    loading(1);
     return result;
 }
 
@@ -433,236 +672,13 @@ function NetErrorHandler(code) {
     return dev.warn('404 NOT FOUND PAGE');
 }
 
-//이메일 인증 모달
-function modal(mode = 'emailPrompt', option) {
-    let container = createElement('dialog');
-    let form = createElement('form', { attrs: { method: 'dialog' } });
-    let button_cancel = createElement('button', { value: 'cancel', attrs: { class: 'danger' } });
-    document.body.append(container);
-    container.append(form);
-    form.append(MODAL_TEMPLATE[mode](container, option));
-    form.append(button_cancel);
-    container.showModal();
-}
 
-const MODAL_TEMPLATE = {
-    emailPrompt: container => {
-        let frag = document.createDocumentFragment();
-        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '재설정을 위해 이메일을 입력해주세요.' });
-        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
-        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '이메일' } });
-        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
-        frag.append(sub_title);
-        frag.append(text_input_container);
-        frag.append(button_confirm);
-        text_input_container.append(text_input);
-        button_confirm.onclick = e => {
-            e.preventDefault();
-            if (validate(text_input, undefined, 'email'))
-                firebase.auth.sendPasswordResetEmail(text_input.value)
-                    .then(result => {
-                        if (result) dev.log(result);
-                        alert('메일이 전송되었습니다.');
-                        container.close();
-                    })
-                    .catch(firebaseErrorHandler);
-        }
-        return frag;
-    },
-    emailConfirm: container => {
-        let frag = document.createDocumentFragment();
-        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '버튼을 누르면 인증 메일이 발송됩니다.' });
-        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
-        frag.append(sub_title);
-        frag.append(button_confirm);
-        button_confirm.onclick = e => {
-            e.preventDefault();
-            (async () => await firebase.auth.sendEmailVerification())()
-                .then(result => {
-                    if (result) dev.log(result);
-                    alert('메일이 전송되었습니다.');
-                    container.close();
-                })
-                .catch(firebaseErrorHandler);
-        }
-        return frag;
-    },
-    addCategory: container => {
-        let frag = document.createDocumentFragment();
-        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 카테고리에 대한 정보를 입력해 주세요.' });
-
-        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
-        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 카테고리' } });
-
-        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
-        frag.append(sub_title);
-        frag.append(text_input_container);
-        frag.append(button_confirm);
-        text_input_container.append(text_input);
-        button_confirm.onclick = e => {
-            e.preventDefault();
-            if (text_input.value) {
-                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
-                    firebase.categories.insertOne({ name: text_input.value })
-                        .then(() => {
-                            alert('카테고리가 추가되었습니다.');
-                            SuggestList['category'].push({ name: text_input.value });
-                            loadCategorySuggest();
-                            container.close();
-                        })
-                        .catch(firebaseErrorHandler);
-                }
-            } else {
-                alert('카테고리 명칭을 입력해 주세요.')
-            }
-        }
-        return frag;
-    },
-    addMenu: container => {
-        let frag = document.createDocumentFragment();
-        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '새로운 메뉴에 대한 정보를 입력해 주세요.' });
-        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
-
-
-        let parent_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
-        let parent_input = createElement('input', { attrs: { type: 'text', placeholder: '상위 메뉴' } });
-        let parent_suggest = createElement('ul', { attrs: { class: 'input_suggest' } });
-        let text_input_container = createElement('div', { attrs: { class: 'input_container no-validity' } });
-        let text_input = createElement('input', { attrs: { type: 'text', placeholder: '새로운 메뉴' } });
-
-        frag.append(sub_title);
-        frag.append(parent_input_container);
-        frag.append(text_input_container);
-        frag.append(button_confirm);
-        parent_input_container.append(parent_input);
-        parent_input_container.append(parent_suggest);
-        text_input_container.append(text_input);
-
-        if (typeof SuggestList != 'undefined') {
-            for (let data of board2Path(SuggestList['board'] || [])) addSuggest(data, parent_input_container);
-        }
-
-        button_confirm.onclick = e => {
-            e.preventDefault();
-            if (text_input.value) {
-                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
-                    firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
-                        .then(() => {
-                            alert('메뉴가 추가되었습니다.');
-                            SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
-                            loadBoardSuggest();
-                            container.close();
-                        })
-                        .catch(firebaseErrorHandler);
-                }
-            } else {
-                alert('메뉴 명칭을 입력해 주세요.')
-            }
-        }
-        return frag;
-    },
-    addImg: (container, callback) => {
-        container.classList.add('fullSize', 'loading');
-        let frag = document.createDocumentFragment();
-        let sub_title = createElement('div', { attrs: { class: 'modal__sub_title' }, innerHTML: '이미지 선택' });
-        let button_confirm = createElement('button', { value: 'default', attrs: { class: 'normal' } });
-
-
-        let gallery_container = createElement('div', { attrs: { class: 'gallery_container' } });
-        let input_file = createElement('input', { attrs: { type: 'file', accept: 'image/*' } });
-        let gallery_container_cell_1 = createElement('label', { attrs: { class: 'gallery_container_cell localStorage' } });
-        let gallery_container_cell_2 = createElement('button', { attrs: { class: 'gallery_container_cell link' } });
-
-        frag.append(sub_title);
-        frag.append(button_confirm);
-        frag.append(gallery_container);
-        gallery_container_cell_1.append(input_file);
-        gallery_container.append(gallery_container_cell_1);
-        gallery_container.append(gallery_container_cell_2);
-
-        input_file.onchange = async () => {
-            let file = input_file.files[0];
-            if (file) {
-                let result = await uploadByImgur(file);
-                if (result.status === 200) {
-                    container.close();
-                    callback(result.data.link);
-                } else {
-                    alert('Imgur사이트 파일 업로드에 실패했습니다.');
-                    input_file.setAttribute('type', 'text');
-                    input_file.value = '';
-                    input_file.setAttribute('type', 'file');
-                }
-            }
-        }
-
-        firebase.resources.all().then(r => {
-            for (let doc of r.docs) {
-                let data = doc.data();
-                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${data.link})` }, value: data.link });
-                gallery_container.append(radio);
-            }
-        });
-        gallery_container_cell_2.onclick = e => {
-            e.preventDefault();
-            let link = prompt('사용할 이미지의 URL을 입력해 주세요');
-            if (link) {
-                container.close();
-                callback(link);
-            } else {
-                alert('URL을 입력해 주세요!!');
-            }
-        }
-        button_confirm.onclick = e => {
-            e.preventDefault();
-            let i = gallery_container.querySelector(':checked');
-            if (i) {
-                container.close();
-                callback(i.value);
-            } else {
-                alert('이미지를 선택해 주세요!!');
-            }
-        }
-        return frag;
-    }
-};
-
-function rgb2hex(rgb_str) {
-    if (rgb_str == undefined || rgb_str == '') return;
-    if (rgb_str.startsWith('rgb')) {
-        let c = rgb_str.replace(')', '').split('(')[1].split(',');
-        let hex = '#' + parseInt(c[0]).toString(16).padStart(2, '0') + parseInt(c[1]).toString(16).padStart(2, '0') + parseInt(c[2]).toString(16).padStart(2, '0');
-        if (c.length > 3) hex += Math.floor(parseFloat(c[3]) * 255).toString(16).padStart(2, '0');
-        return hex;
-    } else {
-        return rgb_str;
-    }
-}
-
-function markdown(html, cell) {
-    return html
-        .replace(REGEX.colspan, (full_str, group1) => {
-            cell.classList.add(`colspan-${group1}`);
-            return '';
-        })
-        .replace(REGEX.css, (full_str, cssString, text) => `<span style="${cssString}"/>${text}</span>`)
-        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
-        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`)
-}
-
-function loading(float) {
-    let p = Math.min(1, Math.max(float, 0)) * 100;
-    let indicator = document.querySelector('indicator');
-    if(p <= 0) indicator.setStyles({'--progress': `${p}%`});
-    else if (p >= 100) setTimeout(()=>indicator.setStyles({'--progress': `${p}%`}),250);
-    indicator.setStyles({'--progress-r': `${100 - p}%`});
-}
 
 const Notify = {
     alert, confirm, prompt
 }
 const dev = console;
-const DEVELOPER_MODE = false;
+const DEVELOPER_MODE = true;
 const ROOT_PATH = './';
 const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
 const VISITED_MAX = 5;
@@ -699,5 +715,5 @@ window.onload = async function () {
     if (typeof firebaseLoadCallback == 'function') {
         firebaseLoadCallback();
     }
-    if(DEVELOPER_MODE) document.title = '.';
+    if (DEVELOPER_MODE) document.title = '.';
 }

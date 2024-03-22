@@ -22,12 +22,12 @@
     <title>네무위키 :: 문서작성</title>
 </head>
 
-<body>
+<body class="loading non-auth">
     <header>
         <span class="header__logo" onclick="goHome()">네무위키</span>
-        <span class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></span>
-        <span class="right mdi mdi-account-circle account" onclick="location.href=`${ROOT_PATH}profile${SUFFIX}`;"
-            title="마이페이지"></span>
+        <button class="right mdi mdi-account-circle account" onclick="goProfile()"
+            title="마이페이지"></button>
+        <button class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></button>
         <indicator></indicator>
     </header>
     <main>

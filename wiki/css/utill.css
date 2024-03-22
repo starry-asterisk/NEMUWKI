@@ -69,8 +69,6 @@
 
     --w-min-button: 6rem;
 
-    --duration-fast: 200ms;
-
     /*setting*/
     font-size: 10px;
     color: var(--clr-font);
@@ -229,6 +227,11 @@ a {
     background: none;
 }
 
+sup {
+    color: var(--clr-primary-base);
+    font-size: 0.8em;
+}
+
 [placeholder]:empty::after {
     content: attr(placeholder);
     opacity: 0.5;
@@ -283,7 +286,7 @@ a {
     outline: var(--bs-base) solid transparent;
     height: var(--h-control);
     line-height: var(--h-control);
-    transition: outline-color var(--duration-fast);
+    transition: outline-color 200ms;
 }
 
 .input_container::before {
@@ -300,7 +303,7 @@ a {
     padding-inline: var(--size-indent);
     width: 100%;
     height: 100%;
-    transition: padding var(--duration-fast);
+    transition: padding 200ms;
 }
 
 .input_container:focus-within {
@@ -874,21 +877,6 @@ body.loading aside>*::after {
     background-color: var(--clr-background-base);
     opacity: 1;
     z-index: 1;
-}
-
-body.loading .main__header__timestamp::after {
-    width: 40%;
-}
-
-body.loading .main__contents::after {
-    top: 2rem;
-    left: 2rem;
-    width: calc(100% - 4rem);
-    height: calc(100% - 4rem);
-}
-
-body.loading aside>*::after {
-    width: 100%;
 }
 
 /* non-auth style */

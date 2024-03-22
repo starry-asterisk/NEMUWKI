@@ -64,7 +64,11 @@ async function loadCategorySuggest() {
 }
 
 async function firebaseLoadCallback() {
-    firebase.auth.check(user => { author_uid = author_uid || user.uid }, () => {
+    firebase.auth.check(user => { 
+        document.body.classList.remove('non-auth');
+        author_uid = author_uid || user.uid;
+     }, () => {
+        document.body.classList.add('non-auth');
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
         return;
@@ -93,6 +97,7 @@ async function firebaseLoadCallback() {
         buildForm(data);
         loading(0.75);
     }
+    document.body.classList.remove('loading');
 
     let { next } = firebase.post.list({ board_name: 'template' }, true);
     next().then(docs => {
@@ -343,8 +348,9 @@ const COMPONENT_SPEC = {
     },
     table: {
         title: '도표',
-        option: ({ id, rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' }) => {
-            let table, frag = document.createDocumentFragment();
+        option: (option) => {
+            let { rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = option;
+            let frag = document.createDocumentFragment();
             let option_1 = createOption([
                 { label: '가로 x 세로 크기' },
                 { name: 'col', type: 'number', value: header?.length || 3, attr: { min: 1 } },
@@ -352,19 +358,14 @@ const COMPONENT_SPEC = {
                 { name: 'row', type: 'number', value: rowcount || 3, attr: { min: 1 } }
             ]);
 
-            function getTable() {
-                if (table == undefined) table = document.querySelector(`#${id} editable-table`);
-                return table;
-            }
-
             option_1.inputs.col.oninput = function () {
                 if (!this.validity.valid) return false;
-                document.querySelector(`#${id} editable-table`).colcount = this.value;
+                option.table.colcount = this.value;
             }
 
             option_1.inputs.row.oninput = function () {
                 if (!this.validity.valid) return false;
-                document.querySelector(`#${id} editable-table`).rowcount = this.value;
+                option.table.rowcount = this.value;
             }
 
             frag.append(option_1);
@@ -377,12 +378,12 @@ const COMPONENT_SPEC = {
             ]);
 
             option_2.inputs.outer.oninput = function () {
-                getTable().outerLineColor = this.value;
+                option.table.outerLineColor = this.value;
             }
 
             option_2.inputs.outer_width.oninput = function () {
                 if (!this.validity.valid) return false;
-                getTable().outerLineWidth = this.value;
+                option.table.outerLineWidth = this.value;
             }
 
             frag.append(option_2);
@@ -393,7 +394,7 @@ const COMPONENT_SPEC = {
             ]);
 
             option_3.inputs.inner.oninput = function () {
-                getTable().innerLineColor = this.value;
+                option.table.innerLineColor = this.value;
             }
 
             frag.append(option_3);
@@ -406,42 +407,41 @@ const COMPONENT_SPEC = {
                 { button: 'link' }
             ]);
 
+            option.cell_input = option_4.inputs.cell;
+
             option_4.inputs.cell.oninput = function () {
-                let _table = getTable();
-                if (_table._lastCell == undefined) return;
-                _table._lastCell.setStyles({ 'background-color': this.value });
-                _table._lastCell._background = this.value;
+                if (option._lastCell == undefined) return;
+                option._lastCell.setStyles({ 'background-color': this.value });
+                option._lastCell._background = this.value;
             }
 
             option_4.inputs.image.onclick = () => {
-                let _table = getTable();
-                if (_table._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
+                if (option._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
                 modal('addImg', src => {
-                    _table._lastCell.firstChild.append(document.createTextNode(`[image:${src}]`));
+                    option._lastCell.firstChild.append(document.createTextNode(`[image:${src}]`));
                 });
 
             }
             option_4.inputs.link.onclick = () => {
-                let _table = getTable();
-                if (_table._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
+                if (option._lastCell == undefined) return alert('셀을 먼저 선택해 주세요.');
                 let link = prompt('삽입할 링크를 입력해 주세요');
-                if (link) _table._lastCell.firstChild.append(document.createTextNode(`[link:${link}]`));
+                if (link) option._lastCell.firstChild.append(document.createTextNode(`[link:${link}]`));
             }
 
             frag.append(option_4);
 
             return frag;
         },
-        input: ({ rowcount, header, cells, cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', id }) => {
-            let option_cell, div = createElement();
-            let table = createElement('editable-table',
+        input: (option) => {
+            let { rowcount, header, cells, cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = option;
+            let div = createElement();
+            let table = option.table = createElement('editable-table',
                 { styles: { 'margin-top': '2rem' } },
                 { rowcount: rowcount || 3, colcount: header?.length || 3 }
             );
             table.addEventListener('focusin', e => {
-                table._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
-                option_cell = option_cell || document.querySelector(`#${id} .cell>input`);
-                option_cell.value = rgb2hex(table._lastCell?._background) || '#ffffff';
+                option._lastCell = e.target.closest('.editable-table__cell:not(.header *)');
+                option.cell_input.value = rgb2hex(option._lastCell?._background) || '#ffffff';
             });
             if (cells) table.setData(cells);
             if (header) table.setHeader(header);
@@ -512,7 +512,7 @@ const COMPONENT_SPEC = {
     }
 }
 
-var commands = [{
+const commands = [{
     cmd: "backColor",
     icon: "format-color-highlight",
     val: "#00ffff",
@@ -632,7 +632,7 @@ function createTextboxOpt() {
                                 if (e != undefined) {
                                     let selection = window.getSelection();
                                     let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
-                                    var range = document.createRange();
+                                    let range = document.createRange();
                                     range.setStart(anchorNode, anchorOffset);
                                     range.setEnd(focusNode, focusOffset);
                                     selection.removeAllRanges();
