@@ -19,6 +19,10 @@ footer:hover,
     transition: 200ms padding;
 }
 
+.main__header {
+    overflow: hidden;
+}
+
 .main__header__title>input:invalid {
     padding-left: calc(var(--fs-xxlarge) + var(--mg-component));
 }
