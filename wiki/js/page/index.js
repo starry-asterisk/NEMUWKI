@@ -70,6 +70,37 @@ async function firebaseLoadCallback() {
 
         search_input.value = keyword;
 
+        buildPost({
+            contents: [
+                {
+                    type: 'seperator',
+                },
+                {
+                    type: 'textbox',
+                    value: '<div style="text-align: center;"><span style="font-family: var(--ff-contents); color: var(--clr-font); font-size: 3.8rem;">환영합니다!</span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 3.9rem; color: var(--clr-primary-base);">네무위키</span><span style="font-size: 3.8rem;">입니다</span></div><div style="text-align: center;">※ 정확하지 않은 내용이 있을 수있으며</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div>'
+                },
+                {
+                    type: 'seperator',
+                },
+                {
+                    type: 'table',
+                    value: {
+                        cellColors: ["",""],
+                        cells: ["%{display:block;text-align:center}처음이라면\n[link:http://www.nemuwiki.com/wiki/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%","%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/wiki/profile;사용자_문서]%"],
+                        header: [0,0],
+                        innerLineColor: 'var(--clr-primary-base)',
+                        outerLineColor: 'transparent',
+                        outerLineWidth: '1',
+                        rowcount: 1,
+                        isFullWidth: true
+                    }
+                },
+            ]
+        }, false);
+
+        main__contents.append(createElement('div',{attrs:{class: 'content title', id: 'total', onclick: 'fold(this)'}, innerHTML: '전체 문서'}));
+        main__contents.append(createElement('div',{attrs:{class: 'content title', id: 'people', onclick: 'fold(this)'}, innerHTML: '인물'}));
+
         document.body.classList.remove('loading');
 
         await createList1(keyword, field, operator);

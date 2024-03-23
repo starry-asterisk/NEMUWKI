@@ -227,6 +227,10 @@ a {
     background: none;
 }
 
+a {
+    color: var(--clr-primary-base);
+}
+
 sup {
     color: var(--clr-primary-base);
     font-size: 0.8em;
@@ -485,6 +489,7 @@ img::after {
 
 /*Header*/
 .header__logo {
+    color: var(--clr-font);
     font-family: var(--ff-header);
     white-space: nowrap;
     margin-right: auto;

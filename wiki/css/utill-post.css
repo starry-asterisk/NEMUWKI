@@ -81,6 +81,17 @@ footer:hover {
     line-height: 1.5;
 }
 
+a.link::before {
+    content: "\F0339";
+    color: var(--clr-font-alt);
+    font-family: var(--ff-icon);
+    background-color: var(--clr-valid);
+}
+
+a.link {
+    color: var(--clr-valid);
+}
+
 .index {
     flex: 1;
     position: sticky;
@@ -157,6 +168,9 @@ editable-table {
     --inner-line: var(--clr-border-base);
 }
 
+editable-table.fullWidth,
+editable-table.fullWidth .editable-table__tbody {width: 100%;}
+
 .editable-table__tbody {
     display: table;
 }
@@ -203,15 +217,6 @@ editable-table {
 
 .editable-table__cell img {
     max-width: 100%;
-}
-
-.editable-table__cell a::before {
-    content: "\F0339";
-    font-family: var(--ff-icon);
-}
-
-.editable-table__cell a {
-    color: var(--clr-valid);
 }
 
 .editable-table__row.header.readonly+.editable-table__row>.editable-table__cell,

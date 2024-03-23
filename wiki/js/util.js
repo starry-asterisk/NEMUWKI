@@ -177,7 +177,8 @@ customElements.define('editable-table', class extends HTMLElement {
             on: {
                 input: e => {
                     header.width = parseFloat(e.target.value);
-                    cell.setStyles({ width: `${header.width}rem`, 'min-width': `${header.width}rem` });
+                    if(header.width <= 0)  cell.setStyles({ width: 'auto', 'min-width': 'auto' });
+                    else cell.setStyles({ width: `${header.width}rem`, 'min-width': `${header.width}rem` });
                 }
             },
             value: this._DEFAULT_WIDTH
@@ -604,7 +605,10 @@ function markdown(html, cell) {
         })
         .replace(REGEX.css, (full_str, cssString, text) => `<span style="${cssString}"/>${text}</span>`)
         .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
-        .replace(REGEX.link, (full_str, group1) => `<a href="${group1.startsWith('http') ? group1 : ('//' + group1)}" target="_blank">링크</a>`);
+        .replace(REGEX.link, (full_str, group1) => {
+            let [link, namespace] = group1.split(';')
+            return `<a class="link" href="${link.startsWith('http') ? link : ('//' + link)}" target="_blank">${namespace||'링크'}</a>`;
+        });
 }
 
 async function uploadByImgur(file) {

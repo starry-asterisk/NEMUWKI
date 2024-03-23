@@ -344,7 +344,7 @@ fb.auth = {
             }
         }
     },
-    getUser: async () => await getDoc(doc(db, "users", auth.currentUser?.uid)),
+    getUser: async (uid = auth.currentUser?.uid) => await getDoc(doc(db, "users", uid)),
     getAuth: () => auth.currentUser,
     updateUser: async (id, data) => await updateDoc(doc(db, "users", id), data),
     sendPasswordResetEmail: async email => await sendPasswordResetEmail(auth, email),

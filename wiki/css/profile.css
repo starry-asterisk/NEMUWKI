@@ -1,0 +1,23 @@
+.main__profile {
+    margin-top: var(--size-indent);
+    aspect-ratio: 3;
+    background-color: var(--clr-background-dark);
+    border-radius: var(--br-base);
+    border: var(--bs-small) solid var(--clr-border-lt);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+.main__profile input {
+    display: none;
+}
+.main__profile__background_container {
+    flex: 1;
+}
+
+.main__header__toolbox {
+    position: absolute;
+    bottom: var(--mg-component);
+    right: var(--mg-component)
+}

@@ -47,7 +47,7 @@ function createProfile(user) {
     if (user.emailVerified) profile__email.append(createElement('span', { attrs: { class: 'mdi mdi-check-decagram ' }, styles: { color: 'var(--clr-primary-base)' } }));
     else profile__email.append(createElement('span', { innerHTML: '인증하기', styles: { 'font-size': '1.5rem', opacity: 0.8, 'padding-left': '1rem', color: 'var(--clr-primary-base)', 'white-space': 'nowrap' }, on: { click: () => modal('emailConfirm') } }));
 
-    let upload = createElement('button', { innerHTML: '글쓰기', attrs: { class: 'normal' } });
+    let upload = createElement('button', { innerHTML: '문서 작성', attrs: { class: 'normal' } });
     let logout = createElement('button', { innerHTML: '로그아웃', attrs: { class: 'normal' }, styles: { 'margin-top': '1rem' } });
     let button_container = createElement();
     button_container.append(upload);
@@ -246,7 +246,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal') {
     }
 }
 
-function buildPost(data) {
+function buildPost(data, renderInfo = true) {
     let {
         title,
         board_name,
@@ -256,21 +256,24 @@ function buildPost(data) {
         contents
     } = data;
 
-    let alter_path_arr = SuggestList['board2Path_1'] || [];
-    let path_arr = board_name_arr || alter_path_arr.find(row => row.name == board_name)?.path_arr || [board_name];
-
-
-    let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
-    for (let path of path_arr) {
-        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}` }, innerHTML: path }));
+    if(renderInfo){
+        let alter_path_arr = SuggestList['board2Path_1'] || [];
+        let path_arr = board_name_arr || alter_path_arr.find(row => row.name == board_name)?.path_arr || [board_name];
+    
+    
+        let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
+        for (let path of path_arr) {
+            main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}` }, innerHTML: path }));
+        }
+    
+        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category' }, innerHTML: category }));
+    
+        document.querySelector('.main__header').after(main__document_info);
+    
+        main__header__title.innerHTML = title;
+        main__header__timestamp.innerHTML = new Date(1000 * timestamp.seconds).toLocaleString();
     }
-
-    main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category' }, innerHTML: category }));
-
-    document.querySelector('.main__header').after(main__document_info);
-
-    main__header__title.innerHTML = title;
-    main__header__timestamp.innerHTML = new Date(1000 * timestamp.seconds).toLocaleString();
+    
 
     let component_list = {};
 
@@ -325,7 +328,7 @@ function buildPost(data) {
             depth_info.push({ depth, sub_index: sub_index });
             let a = createElement('a',
                 {
-                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span>${data.text}</span>`,
+                    innerHTML: `${[...prefix_arr, sub_index].join('.')}. <span style="color:var(--clr-font)">${data.text}</span>`,
                     attrs: { href: `#title_${index}` },
                     styles: { 'margin-left': `${depth * 2}rem` },
                     on: {
@@ -390,7 +393,7 @@ const COMPONENT_BUILD_SPEC = {
     audio: (value) => COMPONENT_BUILD_SPEC.image(value, 'audio'),
     video: (value) => COMPONENT_BUILD_SPEC.image(value, 'video'),
     table: (value) => {
-        let { cells, header, rowcount, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = value;
+        let { cells, header, rowcount, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth } = value;
         let table = createElement('editable-table',{},{
             rowcount,
             colcount: header.length,
@@ -402,6 +405,7 @@ const COMPONENT_BUILD_SPEC = {
         table.outerLineWidth = outerLineWidth;
         table.outerLineColor = outerLineColor;
         table.innerLineColor = innerLineColor;
+        if(isFullWidth) table.classList.add('fullWidth');
         return table;
     },
     title: (value) => document.createTextNode(value.text),
