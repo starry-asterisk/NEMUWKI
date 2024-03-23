@@ -8,7 +8,7 @@ function firebaseLoadCallback() {
     loading(0);
     firebase.auth.check(async user => {
         loading(0.3);
-        const { createVisited, createCategories, createProfile, createList1, createList2 } = await import('../util-post.js');
+        const { createVisited, createCategories, createProfile, createList1, createList2 } = await import(`../util-post.js?timestamp=${new Date().getTime()}`);
         user_area.innerHTML = '';
         createProfile(user);
         document.body.classList.remove('non-auth');

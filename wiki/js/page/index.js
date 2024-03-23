@@ -7,7 +7,7 @@ function search({ key }) {
 
 async function firebaseLoadCallback() {
     loading(0);
-    const {createVisited, createCategories, loadNotice, createProfile, createLoginForm, createList1, createList2, buildPost} = await import('../util-post.js');
+    const {createVisited, createCategories, loadNotice, createProfile, createLoginForm, createList1, createList2, buildPost} = await import(`../util-post.js?timestamp=${new Date().getTime()}`);
     let main__header__toolbox = document.querySelector('.main__header__toolbox');
     loading(0.15);
     firebase.auth.check(user => {
