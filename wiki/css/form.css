@@ -1,5 +1,6 @@
 @import url("utill.css");
 @import url("utill-post.css");
+@import url("form-textbox.css");
 
 footer:hover,
 .component:hover {
@@ -217,47 +218,8 @@ aside> :first-child {
     transition: 400ms margin-top;
 }
 
-.component__execList {
-    font-size: var(--fs-base);
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: calc(0px - var(--mg-component));
-    border: var(--bs-small) solid var(--clr-border-dkst);
-    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
-    padding: var(--mg-component);
-    background-color: var(--clr-background-base);
-}
-
-.component__execList>button,
-.input_color {
-    border-radius: var(--br-smallest);
-    min-width: var(--h-control-small);
-    background: none;
-    overflow: hidden;
-}
-
-.component__execList>* {
-    text-align: center;
-    height: var(--h-control-small);
-    line-height: var(--h-control-small);
-}
-
 .component.title>[contenteditable] {
     line-height: 1.5;
-}
-
-.component.textbox>[contenteditable] {
-    border: var(--bs-small) solid var(--clr-border-dkst);
-    border-top-width: 0;
-    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
-    padding: var(--size-indent) var(--mg-component);
-    min-height: 10rem;
-    background: var(--clr-background-dark);
-    line-height: 1.5;
-}
-
-.component.textbox>[contenteditable] img {
-    max-width: 100%;
 }
 
 .component.title>[contenteditable] {
@@ -296,25 +258,6 @@ input[type="color"]::-webkit-color-swatch {
 
 .input_color::before {
     position: relative;
-}
-
-.component__execList>input[type="number"] {
-    text-align: center;
-    padding: 0.5rem;
-    width: 5rem;
-}
-
-.component__execList>input[type="number"]::-webkit-outer-spin-button,
-.component__execList>input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    text-align: center;
-    margin: 0;
-}
-
-.component__execList>input[type="number"] {
-    appearance: textfield;
-    -moz-appearance: textfield;
-    -webkit-appearance: textfield;
 }
 
 input[type="file"] {

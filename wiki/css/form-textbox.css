@@ -1,0 +1,83 @@
+.component__execList {
+    font-size: var(--fs-base);
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: calc(0px - var(--mg-component));
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-radius: var(--br-smallest) var(--br-smallest) 0 0;
+    padding: var(--mg-component);
+    background-color: var(--clr-background-base);
+}
+
+.component__execList>button,
+.input_color {
+    border-radius: var(--br-smallest);
+    min-width: var(--h-control-small);
+    background: none;
+    overflow: hidden;
+}
+
+.component__execList>* {
+    text-align: center;
+    height: var(--h-control-small);
+    line-height: var(--h-control-small);
+}
+
+.component.textbox>[contenteditable] {
+    border: var(--bs-small) solid var(--clr-border-dkst);
+    border-top-width: 0;
+    border-radius: 0 0 var(--br-smallest) var(--br-smallest);
+    padding: var(--size-indent) var(--mg-component);
+    min-height: 10rem;
+    background: var(--clr-background-dark);
+    line-height: 1.5;
+}
+
+.component.textbox>[contenteditable] img {
+    max-width: 100%;
+}
+
+.component__execList>input[type="number"] {
+    text-align: center;
+    padding: 0.5rem;
+    width: 5rem;
+}
+
+.component__execList>input[type="number"]::-webkit-outer-spin-button,
+.component__execList>input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    text-align: center;
+    margin: 0;
+}
+
+.component__execList>input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+}
+
+@media (max-width: 500px) {
+    .component.textbox {
+        max-height: 100vh;
+        padding-inline: 0;
+    }
+
+    .component__execList {
+        font-size: var(--fs-large);
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        border-inline-width: 0;
+        border-radius: unset;
+        padding-bottom: 0;
+        max-width: unset;
+        min-height: calc(var(--mg-component) * 2 + var(--h-control-small));
+        overflow-x: scroll;
+    }
+
+    .component.textbox>[contenteditable] {
+        padding-top: var(--h-control-large);
+        padding-inline: var(--size-indent);
+        overflow-y: auto;
+    }
+
+}

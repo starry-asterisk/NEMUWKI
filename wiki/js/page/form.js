@@ -234,7 +234,7 @@ function createOption(arr = []) {
             div.append(btn);
             inputs[button] = btn;
         } else {
-            let inputContainer = createElement('div', { attrs: { class: `component__option__input ${name}` } });
+            let inputContainer = createElement('div', { attrs: { class: `component__option__input ${name}`, ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true } });
             let input = createElement('input', { attrs: { ...attr, type }, value });
             inputContainer.append(input);
             div.append(inputContainer);
@@ -246,7 +246,6 @@ function createOption(arr = []) {
 }
 
 let lastSelection;
-let lastCell;
 
 const COMPONENT_SPEC = {
     textbox: {
@@ -254,7 +253,7 @@ const COMPONENT_SPEC = {
         option: createTextboxOpt,
         input: ({ value = '' }) => {
             return createElement('div', {
-                attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요' },
+                attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true },
                 on: {
                     ondragstart: e => {
                         e.preventDefault();
@@ -476,7 +475,7 @@ const COMPONENT_SPEC = {
             return option_1;
         },
         input: ({ text = '' }) => {
-            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요' }, innerHTML: text });
+            return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true }, innerHTML: text });
         },
         getData: id => {
             return { text: document.querySelector(`#${id} [contenteditable]`).innerHTML, depth: document.querySelector(`#${id} .depth>input`).value || 1 };

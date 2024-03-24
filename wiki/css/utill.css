@@ -909,6 +909,7 @@ error {
     height: 10rem;
     margin: auto;
     z-index: 9999;
+    pointer-events: none;
 }
 
 error::before {
@@ -925,6 +926,11 @@ error::after {
 
 body.error footer::after {
     content: "\A원하시는 문서를 찾을 수 없습니다.\A삭제된 문서 이거나 옳바른 주소 인지 확인해주세요.";
+}
+
+body.error main > *,
+body.error aside > * {
+    display: none !important;
 }
 
 @keyframes glitch-it {

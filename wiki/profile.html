@@ -32,18 +32,14 @@
     </header>
     <main>
         <div class="main__profile">
-            <label class="main__profile__background_container">
-                <img id="main__profile__background">
-                <input type="file" />
-            </label>
-            <div class="main__header__toolbox"><button onclick="goShare('twitter')">공유</button></div>
+            <div class="main__header__toolbox" id="toolbox_1"><button onclick="goShare('twitter')">공유</button></div>
         </div>
         <div class="main__contents" id="main__contents">
             <div class="content seperator"></div>
             <div class="content textbox" id="self_description"></div>
-            <div class="content seperator"></div>
-            <div class="content title" id="total" onclick="fold(this)">전체 문서</div>
-            <div class="content title" id="people" onclick="fold(this)">인물</div>
+            <div class="content seperator"><div class="main__header__toolbox" id="toolbox_2"></div></div>
+            <div class="content title" id="total" onclick="fold(this)">전체 문서<div class="main__header__toolbox" id="toolbox_3"></div></div>
+            <div class="content title" id="people" onclick="fold(this)">인물<div class="main__header__toolbox" id="toolbox_4"></div></div>
         </div>
         <footer></footer>
     </main>

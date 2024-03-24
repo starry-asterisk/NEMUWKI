@@ -161,11 +161,11 @@ function createLoginForm() {
     password_re.oninput = () => validate(password_re, password, 'password');
 }
 
-async function createList1(keyword, field, operator) {
+async function createList1(keyword, field, operator, targetHeader = total, searchData = {}) {
     let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
     let board_list = createElement('div', { attrs: { class: 'content board_list_1' } });
 
-    let docs, { next } = await firebase.post.list({ [field]: keyword }, false, operator);
+    let docs, { next } = await firebase.post.list({ [field]: keyword, ...searchData }, false, operator);
 
     load_more.onclick = async () => {
         load_more.disabled = true;
@@ -173,7 +173,7 @@ async function createList1(keyword, field, operator) {
         load();
     }
 
-    total.after(board_list);
+    targetHeader.after(board_list);
     board_list.after(load_more);
     await load_more.onclick();
 
@@ -195,12 +195,12 @@ async function createList1(keyword, field, operator) {
     }
 }
 
-async function createList2(keyword = '', field = 'author', operator = 'equal') {
+async function createList2(keyword = '', field = 'author', operator = 'equal', targetHeader = people, searchData = {}) {
 
     let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
     let board_list_2 = createElement('div', { attrs: { class: 'content board_list_2' } });
 
-    let docs, next = firebase.post.list({ category: '인물', [field]: keyword }, false, operator).next;
+    let docs, next = firebase.post.list({ category: '인물', [field]: keyword, ...searchData }, false, operator).next;
 
     load_more.onclick = async () => {
         load_more.disabled = true;
@@ -208,7 +208,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal') {
         load();
     }
 
-    people.after(board_list_2);
+    targetHeader.after(board_list_2);
     board_list_2.after(load_more);
 
     await load_more.onclick();

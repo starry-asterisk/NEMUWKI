@@ -91,16 +91,24 @@ fb.post = {
         ], params, documentSnapshots, isEnd = false;
         for (let field in search) {
             if (search[field] == '' || search[field] == undefined) continue;
-            switch (operator) {
+            let method, keyword;
+            if(typeof search[field] == 'string'){
+                method = operator;
+                keyword = search[field];
+            } else {
+                method = search[field].op;
+                keyword = search[field].key;
+            }
+            switch (method) {
                 case 'contains':
-                    param_base.push(where(field, '>=', search[field]));
-                    param_base.push(where(field, '<=', search[field] + "\uf8ff"));
+                    param_base.push(where(field, '>=', keyword));
+                    param_base.push(where(field, '<=', keyword + "\uf8ff"));
                     break;
                 case 'equal':
-                    param_base.push(where(field, '==', search[field]));
+                    param_base.push(where(field, '==', keyword));
                     break;
                 default:
-                    param_base.push(where(field, operator, search[field]));
+                    param_base.push(where(field, method, keyword));
                     break;
             }
         }
