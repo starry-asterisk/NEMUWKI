@@ -60,7 +60,7 @@ async function firebaseLoadCallback() {
 
         document.body.classList.remove('loading');
 
-        let search = params.get('keyword') == null ? {} : { title: { op: 'contains', key: params.get('keyword') } };
+        let search = params.get('keyword') == null ? {} : { title_arr: { op: 'contains', key: params.get('keyword') } };
 
         await createList1(uid, 'author', 'equal', undefined, search);
         loading(0.7);

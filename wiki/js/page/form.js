@@ -1,4 +1,5 @@
 let author_uid;
+let old_data = {}
 
 window.addEventListener('load', function () {
     init_componentList();
@@ -94,6 +95,7 @@ async function firebaseLoadCallback() {
 
         document.title = `${PAGE_PREFIX}문서 수정 - ${data.title}`;
 
+        old_data = data;
         buildForm(data);
         loading(0.75);
     }
@@ -737,6 +739,7 @@ function remove(button) {
 async function submit(button) {
     if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
     if (!validate(main__header__title)) return;
+    if (main__header__title.length > 25) return alert('문서 명은 최대 25자 까지 가능합니다.');
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
@@ -761,18 +764,20 @@ async function submit(button) {
     if (post_id) {
         data.updated_timestamp = new Date();
         firebase.post.updateOne(post_id, data)
-            .then(() => {
+            .then(async () => {
+                await makeKeyword(post_id, data);
                 location.href = `${ROOT_PATH}?post=${post_id}`
             })
             .catch(firebaseErrorHandler);
     } else {
         firebase.post.insertOne(data)
-            .then(ref => {
+            .then(async ref => {
                 if (ref == undefined) {
                     alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
                     location.href = ROOT_PATH;
                     return;
                 }
+                await makeKeyword(id, data);
                 location.href = `${ROOT_PATH}?post=${ref.id}`;
             })
             .catch(e => {
@@ -781,4 +786,45 @@ async function submit(button) {
             });
     }
 
+}
+
+async function makeKeyword(id, data){
+    if(data.hidden) return;
+    let {
+        title,
+        board_name,
+        board_name_arr,
+        category,
+        timestamp,
+        updated_timestamp,
+        author,
+        contents
+    } = data
+    let fullText = data.title.replace(/\s+/g, '');
+    let title_arr = [];
+
+    for(let start = 0; start < fullText.length; start++){
+        let max_length = fullText.length - start;
+        for(let length = 1; length <= max_length; length++){
+            title_arr.push(fullText.substr(start, length))
+        }
+    }
+
+    title_arr = [...new Set(title_arr)];
+
+    let keyword_data = {
+        title,
+        board_name,
+        category,
+        timestamp,
+        author,
+    }
+
+    let urlObj = contents.find(content => content.type == 'image');
+    if(urlObj) keyword_data.thumbnail = urlObj.value;
+    if(updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
+    if(data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
+    if(data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '') || old_data.title_arr == undefined) keyword_data.title_arr = title_arr;
+
+    await firebase.search.set(id, keyword_data);
 }

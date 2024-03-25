@@ -165,7 +165,7 @@ async function createList1(keyword, field, operator, targetHeader = total, searc
     let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
     let board_list = createElement('div', { attrs: { class: 'content board_list_1' } });
 
-    let docs, { next } = await firebase.post.list({ [field]: keyword, ...searchData }, false, operator);
+    let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator);
 
     load_more.onclick = async () => {
         load_more.disabled = true;
@@ -200,7 +200,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
     let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
     let board_list_2 = createElement('div', { attrs: { class: 'content board_list_2' } });
 
-    let docs, next = firebase.post.list({ category: '인물', [field]: keyword, ...searchData }, false, operator).next;
+    let docs, next = firebase.search.list({ category: '인물', [field]: keyword, ...searchData }, operator).next;
 
     load_more.onclick = async () => {
         load_more.disabled = true;
@@ -235,10 +235,9 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
 
         item.prepend(img);
 
-        let urlObj = data.contents.find(content => content.type == 'image');
-        if (urlObj?.value) {
-            if (urlObj.value.startsWith('http')) img.src = urlObj.value;
-            else firebase.storage.getUrl(urlObj.value).then(url => img.src = url);
+        if (data.thumbnail) {
+            if (data.thumbnail.startsWith('http')) img.src = data.thumbnail;
+            else firebase.storage.getUrl(data.thumbnail).then(url => img.src = url);
         }
         else img.src = '[ no image ]';
 

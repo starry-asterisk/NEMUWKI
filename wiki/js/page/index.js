@@ -65,7 +65,7 @@ async function firebaseLoadCallback() {
         }, 1000 - new Date().getMilliseconds());
 
         let keyword = params.get('keyword') || '';
-        let field = params.get('field') || 'title';
+        let field = params.get('field') || 'title_arr';
         let operator = params.get('operator') || 'contains';
 
         search_input.value = keyword;

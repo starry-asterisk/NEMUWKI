@@ -359,4 +359,53 @@ fb.auth = {
     sendEmailVerification: async () => await sendEmailVerification(auth.currentUser)
 }
 
+fb.search = {
+    set: async (id, data)=>{
+        await setDoc(doc(db, "keyword", id), data);
+    },
+    unset: async (id) => {
+        await deleteDoc(doc(db, "keyword", id));
+    },
+    list: (search = {}, operator = 'contains') => {
+        let param_base = [
+            collection(db, "keyword")
+        ], params, documentSnapshots, isEnd = false;
+        for (let field in search) {
+            if (search[field] == '' || search[field] == undefined) continue;
+            let method, keyword;
+            if(typeof search[field] == 'string'){
+                method = operator;
+                keyword = search[field];
+            } else {
+                method = search[field].op;
+                keyword = search[field].key;
+            }
+            switch (method) {
+                case 'contains':
+                    param_base.push(where(field, 'array-contains', keyword));
+                    break;
+                case 'equal':
+                    param_base.push(where(field, '==', keyword));
+                    break;
+                default:
+                    param_base.push(where(field, method, keyword));
+                    break;
+            }
+        }
+
+        return {
+            next: async (docs = documentSnapshots?.docs) => {
+                if (isEnd) return [];
+                params = param_base.slice();
+                if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                params.push(limit(25));
+                console.log(params);
+                documentSnapshots = await getDocs(query.apply(undefined, params));
+                if (documentSnapshots.docs.length < 25) isEnd = true;
+                return documentSnapshots.docs;
+            }
+        }
+    }
+}
+
 export default fb;
