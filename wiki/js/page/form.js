@@ -17,6 +17,7 @@ function init_componentList() {
     let component_list = document.querySelector('.component_list');
     for (let specname in COMPONENT_SPEC) {
         let spec = COMPONENT_SPEC[specname];
+        if (spec.hidden) continue;
         if (spec.title == undefined) continue;
         let li = createElement('li', {
             attrs: {
@@ -190,7 +191,11 @@ function createComponent(type, option = {}) {
     component.append(title);
 
     let component__remove_btn = createElement('button', { attrs: { class: 'component__remove_btn mdi mdi-trash-can' } });
+    let component__move_btn_up = createElement('button', { attrs: { class: 'component__move_btn up' } });
+    let component__move_btn_down = createElement('button', { attrs: { class: 'component__move_btn down' } });
     component.append(component__remove_btn);
+    component.append(component__move_btn_up);
+    component.append(component__move_btn_down);
 
     component.append(spec.option(option));
     component.append(spec.input(option));
@@ -219,6 +224,14 @@ function createComponent(type, option = {}) {
 
     component__remove_btn.onclick = function () {
         component.remove();
+    }
+    component__move_btn_up.onclick = function () {
+        if(component.previousElementSibling) component.previousElementSibling.before(component);
+        component.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
+    component__move_btn_down.onclick = function () {
+        if(component.nextElementSibling) component.nextElementSibling.after(component);
+        component.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }
 
     return component;
@@ -291,17 +304,24 @@ const COMPONENT_SPEC = {
             let tagName = mediaTytpe == 'image' ? 'img' : mediaTytpe;
             let media, fragment = document.createDocumentFragment();
             let input = createElement('input', { attrs: { type: 'file', accept: `${mediaTytpe}/*` } });
-            input.oninput = async (e, value) => {
-                if (input.files && input.files[0]) {
-                    if (media) media.remove();
-                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: URL.createObjectURL(input.files[0]) } });
-                    input.after(media);
-                } else if (value) {
-                    media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: value.startsWith('http') ? value : await firebase.storage.getUrl(value) } });
-                    input.after(media);
-                }
-            }
+            let inputHidden = createElement('input', { attrs: { type: 'hidden' }});
             fragment.append(input);
+            fragment.append(inputHidden);
+
+            input.oninput = () => {
+                addImg(URL.createObjectURL(input.files[0]));
+            }
+
+            input.onclick = e => {
+                if(mediaTytpe != 'image') return;
+                e.preventDefault();
+                e.stopPropagation();
+                modal('addImg', src => {
+                    inputHidden.value = src;
+                    addImg(src);
+                })
+            }
+
             if (file) {
                 let dataTranster = new DataTransfer();
                 dataTranster.items.add(file);
@@ -309,9 +329,18 @@ const COMPONENT_SPEC = {
                 input.oninput();
             }
             if (value) {
-                let inputHidden = createElement('input', { attrs: { type: 'hidden' }, value });
-                input.after(inputHidden);
-                input.oninput(undefined, value);
+                inputHidden.value = value;
+                if(value.startsWith('http')){
+                    addImg(value);
+                } else {
+                    firebase.storage.getUrl(value).then(addImg);
+                }
+            }
+
+            function addImg(src){
+                if (media) media.remove();
+                media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: src } });
+                input.after(media);
             }
             return fragment;
         },
@@ -339,12 +368,14 @@ const COMPONENT_SPEC = {
         }
     },
     audio: {
+        hidden: true,
         title: '음악',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.image.input(option, 'audio'),
         getData: id => COMPONENT_SPEC.image.getData(id)
     },
     video: {
+        hidden: true,
         title: '영상',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.image.input(option, 'video'),

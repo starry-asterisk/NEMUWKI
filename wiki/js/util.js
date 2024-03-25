@@ -437,6 +437,10 @@ const MODAL_TEMPLATE = {
                 let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${data.link})` }, value: data.link });
                 gallery_container.append(radio);
             }
+
+            for(let i=0;i<6;i++){
+                gallery_container.append(createElement('button', { attrs: { class: 'gallery_container_cell empty' } }));
+            }
         });
         button_confirm.onclick = e => {
             e.preventDefault();

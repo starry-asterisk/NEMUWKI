@@ -28,7 +28,7 @@ const fb = {}
 let authListner;
 
 fb.history = {
-    insertOne: async ({crud, target, text = ''}) => {
+    insertOne: async ({ crud, target, text = '' }) => {
         try {
             return await addDoc(collection(db, "history"), {
                 uid: auth.currentUser?.uid,
@@ -67,20 +67,20 @@ fb.post = {
                 timestamp: Timestamp.fromDate(new Date()),
                 ...data
             });
-            fb.history.insertOne({crud: 'INSERT', target: `postList-${ref.id}`, text: data.title || ''});
+            fb.history.insertOne({ crud: 'INSERT', target: `postList-${ref.id}`, text: data.title || '' });
             return ref;
         } catch (e) {
             dev.error("Error adding document: ", e);
         }
     },
     deleteOne: async (id, title) => {
-        fb.history.insertOne({crud: 'DELETE', target: `postList-${id}`, text: title || `(삭제됨-${id})`});
+        fb.history.insertOne({ crud: 'DELETE', target: `postList-${id}`, text: title || `(삭제됨-${id})` });
         return await deleteDoc(doc(db, "postList", id));
     },
     updateOne: async (id, data) => {
         if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
         if (data && data.updated_timestamp) data.updated_timestamp = Timestamp.fromDate(data.updated_timestamp);
-        fb.history.insertOne({crud: 'UPDATE', target: `postList-${id}`, text: data.title || ''});
+        fb.history.insertOne({ crud: 'UPDATE', target: `postList-${id}`, text: data.title || '' });
         return await updateDoc(doc(db, "postList", id), data);
     },
     selectOne: async id => await getDoc(doc(db, "postList", id)),
@@ -92,7 +92,7 @@ fb.post = {
         for (let field in search) {
             if (search[field] == '' || search[field] == undefined) continue;
             let method, keyword;
-            if(typeof search[field] == 'string'){
+            if (typeof search[field] == 'string') {
                 method = operator;
                 keyword = search[field];
             } else {
@@ -140,18 +140,18 @@ fb.board = {
                 use: true,
                 ...data
             });
-            fb.history.insertOne({crud: 'INSERT', target: `boardList-${ref.id}`});
+            fb.history.insertOne({ crud: 'INSERT', target: `boardList-${ref.id}` });
             return ref;
         } catch (e) {
             dev.error("Error adding document: ", e);
         }
     },
     deleteOne: async id => {
-        fb.history.insertOne({crud: 'DELETE', target: `boardList-${id}`});
+        fb.history.insertOne({ crud: 'DELETE', target: `boardList-${id}` });
         return await deleteDoc(doc(db, "boardList", id))
     },
     updateOne: async (id, data) => {
-        fb.history.insertOne({crud: 'UPDATE', target: `boardList-${id}`});
+        fb.history.insertOne({ crud: 'UPDATE', target: `boardList-${id}` });
         return await updateDoc(doc(db, "boardList", id), data);
     },
     list: async () => await getDocs(collection(db, "boardList")),
@@ -225,18 +225,18 @@ fb.categories = {
                 use: true,
                 ...data
             });
-            fb.history.insertOne({crud: 'INSERT', target: `categories-${ref.id}`});
+            fb.history.insertOne({ crud: 'INSERT', target: `categories-${ref.id}` });
             return ref;
         } catch (e) {
             dev.error("Error adding document: ", e);
         }
     },
     deleteOne: async id => {
-        fb.history.insertOne({crud: 'DELETE', target: `categories-${ref.id}`});
+        fb.history.insertOne({ crud: 'DELETE', target: `categories-${ref.id}` });
         await deleteDoc(doc(db, "categories", id));
     },
     updateOne: async (id, data) => {
-        fb.history.insertOne({crud: 'UPDATE', target: `categories-${ref.id}`});
+        fb.history.insertOne({ crud: 'UPDATE', target: `categories-${ref.id}` });
         await updateDoc(doc(db, "categories", id), data);
     },
     list: async () => await getDocs(collection(db, "categories")),
@@ -275,8 +275,8 @@ fb.storage = {
 
 fb.resources = {
     regist: async data => {
-        if(!'link' in data || !'deletehash' in data) throw 'data incorrect, necessary field is not presented';
-        if(!'id' in data) data.id = Math.floor(Math.random() * 100000000).toString(16);
+        if (!'link' in data || !'deletehash' in data) throw 'data incorrect, necessary field is not presented';
+        if (!'id' in data) data.id = Math.floor(Math.random() * 100000000).toString(16);
         const formatted = {
             owner_id: auth.currentUser?.uid,
             uploaded_dt: data.datetime * 1000 || new Date().getTime(),
@@ -288,10 +288,10 @@ fb.resources = {
             width: data.width
         }
         await setDoc(doc(db, "resources", data.id), formatted);
-        fb.history.insertOne({crud: 'INSERT', target: `resources-${data.id}`});
+        fb.history.insertOne({ crud: 'INSERT', target: `resources-${data.id}` });
         return true;
     },
-    all: async ()=>await getDocs(query(collection(db, "resources"),where('owner_id', '==', auth.currentUser?.uid))),
+    all: async () => await getDocs(query(collection(db, "resources"), where('owner_id', '==', auth.currentUser?.uid))),
 }
 
 //인증
@@ -360,7 +360,7 @@ fb.auth = {
 }
 
 fb.search = {
-    set: async (id, data)=>{
+    set: async (id, data) => {
         await setDoc(doc(db, "keyword", id), data);
     },
     unset: async (id) => {
@@ -373,7 +373,7 @@ fb.search = {
         for (let field in search) {
             if (search[field] == '' || search[field] == undefined) continue;
             let method, keyword;
-            if(typeof search[field] == 'string'){
+            if (typeof search[field] == 'string') {
                 method = operator;
                 keyword = search[field];
             } else {

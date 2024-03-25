@@ -408,6 +408,11 @@ label,
     animation: uncheck 300ms forwards;
 }
 
+.gallery_container_cell.empty {
+    pointer-events: none;
+    visibility: hidden;
+}
+
 .gallery_container_cell>input {
     display: none !important;
 }
@@ -694,76 +699,6 @@ footer::after {
     padding-inline: var(--size-indent);
 }
 
-/* Responsive Design */
-
-@media (max-width: 500px) {
-    :root {
-        --fs-xxlarge: 3.2rem;
-    }
-
-    main {
-        --root_fs-xxlarge: var(--fs-xxlarge);
-        --root_fs-xlarge: var(--fs-xlarge);
-        --root_fs-large: var(--fs-large);
-        --root_fs-base: var(--fs-base);
-        --root_fs-small: var(--fs-small);
-        --root_fs-smallest: var(--fs-smallest);
-    
-        --root_h-control-smaller: var(--h-control-smaller);
-        --root_h-control-small: var(--h-control-small);
-        --root_h-control: var(--h-control);
-        --root_h-control-large: var(--h-control-large);
-        --root_h-button-large: var(--h-button-large);
-    
-        --root_w-min-button: var(--w-min-button);
-    }
-
-    .main__document_info,
-    .main__notice {
-        --fs-base: var(--fs-small);
-    }
-
-    .main__contents {
-        padding-inline: 0;
-        --zoom: 0.8;
-    }
-    editable-table {
-        --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
-    }
-    .editable-table__row.header > .editable-table__cell,
-    .editable-table__row:not(.header) > .editable-table__cell > *,
-    .content.textbox,
-    .component.textbox>[contenteditable] {
-        zoom: var(--zoom);
-        --fs-base: var(--root_fs-base);
-    }
-}
-
-@media (max-width: 1000px) {
-    body {
-        flex-direction: column;
-    }
-
-    main {
-        min-width: unset;
-        max-width: unset;
-    }
-
-    aside {
-        width: auto;
-    }
-
-    aside>div:first-child {
-        margin-top: unset !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .index {
-        display: none !important;
-    }
-}
-
 /* modal */
 
 :modal {
@@ -862,6 +797,99 @@ footer::after {
 .fullSize form{
     margin: 0;
     height: 100%;
+}
+
+/* Responsive Design */
+
+@media (max-width: 500px) {
+    :root {
+        --fs-xxlarge: 3.2rem;
+    }
+
+    main {
+        --root_fs-xxlarge: var(--fs-xxlarge);
+        --root_fs-xlarge: var(--fs-xlarge);
+        --root_fs-large: var(--fs-large);
+        --root_fs-base: var(--fs-base);
+        --root_fs-small: var(--fs-small);
+        --root_fs-smallest: var(--fs-smallest);
+    
+        --root_h-control-smaller: var(--h-control-smaller);
+        --root_h-control-small: var(--h-control-small);
+        --root_h-control: var(--h-control);
+        --root_h-control-large: var(--h-control-large);
+        --root_h-button-large: var(--h-button-large);
+    
+        --root_w-min-button: var(--w-min-button);
+    }
+
+    .main__document_info,
+    .main__notice {
+        --fs-base: var(--fs-small);
+    }
+
+    .main__contents {
+        padding-inline: 0;
+        --zoom: 0.8;
+    }
+    editable-table {
+        --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
+    }
+    .editable-table__row.header > .editable-table__cell,
+    .editable-table__row:not(.header) > .editable-table__cell > *,
+    .content.textbox,
+    .component.textbox>[contenteditable] {
+        zoom: var(--zoom);
+        --fs-base: var(--root_fs-base);
+    }
+}
+
+@media (min-width: 500px) {
+    .fullSize:modal {
+        border-radius: 0;
+        padding: 0;
+        width: 100rem;
+        max-width: calc(100% - var(--h-control-large));
+        height: 80rem;
+        max-height: calc(100% - var(--h-control-large));
+    }
+
+    .gallery_container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .gallery_container_cell,
+    button.gallery_container_cell {
+        width: 13.5rem !important;
+    }
+}
+
+
+@media (max-width: 1000px) {
+    body {
+        flex-direction: column;
+    }
+
+    main {
+        min-width: unset;
+        max-width: unset;
+    }
+
+    aside {
+        width: auto;
+    }
+
+    aside>div:first-child {
+        margin-top: unset !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .index {
+        display: none !important;
+    }
 }
 
 /* Loading */
