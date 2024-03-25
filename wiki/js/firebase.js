@@ -399,7 +399,6 @@ fb.search = {
                 params = param_base.slice();
                 if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
                 params.push(limit(25));
-                console.log(params);
                 documentSnapshots = await getDocs(query.apply(undefined, params));
                 if (documentSnapshots.docs.length < 25) isEnd = true;
                 return documentSnapshots.docs;

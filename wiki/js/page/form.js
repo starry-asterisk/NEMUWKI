@@ -1,5 +1,6 @@
 let author_uid;
 let old_data = {}
+let isOwner = false;
 
 window.addEventListener('load', function () {
     init_componentList();
@@ -127,6 +128,7 @@ function buildForm(data) {
         author
     } = data;
 
+    isOwner = author == author_uid;
     author_uid = author || author_uid;
 
     main__header__title.value = title;
@@ -730,16 +732,20 @@ function createTextboxOpt() {
 
 function remove(button) {
     if (!confirm('정말로 삭제 하시겠습니까?')) return;
+    if (!isOwner) return alert('문서 최초 작성자만 삭제가 가능합니다. 필요시, 관리자에게 문의 주세요');
     button.setAttribute('disabled', true);
     firebase.post.deleteOne(post_id)
-        .then(() => location.href = ROOT_PATH)
+        .then(async () => {
+            await firebase.search.unset(post_id);
+            location.href = ROOT_PATH;
+        })
         .catch(firebaseErrorHandler);
 }
 
 async function submit(button) {
     if (!confirm('작성한 내용을 업로드 하시겠습니까?')) return;
     if (!validate(main__header__title)) return;
-    if (main__header__title.length > 25) return alert('문서 명은 최대 25자 까지 가능합니다.');
+    if (main__header__title.value.length > 25) return alert('문서 명은 최대 25자 까지 가능합니다.');
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
@@ -777,7 +783,7 @@ async function submit(button) {
                     location.href = ROOT_PATH;
                     return;
                 }
-                await makeKeyword(id, data);
+                await makeKeyword(ref.id, data);
                 location.href = `${ROOT_PATH}?post=${ref.id}`;
             })
             .catch(e => {
@@ -824,7 +830,7 @@ async function makeKeyword(id, data){
     if(urlObj) keyword_data.thumbnail = urlObj.value;
     if(updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
     if(data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
-    if(data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '') || old_data.title_arr == undefined) keyword_data.title_arr = title_arr;
+    if(old_data.title == undefined || old_data.title_arr == undefined || data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '')) keyword_data.title_arr = title_arr;
 
     await firebase.search.set(id, keyword_data);
 }
