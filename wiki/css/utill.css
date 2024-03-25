@@ -490,6 +490,10 @@ img::after {
     background: var(--clr-background-base);
 }
 
+iframe {
+    max-width: 100%;
+}
+
 /* one-use-component */
 
 /*Header*/

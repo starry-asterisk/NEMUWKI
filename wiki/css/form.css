@@ -240,11 +240,13 @@ aside> :first-child {
     transition: 400ms margin-top;
 }
 
-.component.title>[contenteditable] {
+.component.title>[contenteditable],
+.component.youtube>[contenteditable] {
     line-height: 1.5;
 }
 
-.component.title>[contenteditable] {
+.component.title>[contenteditable],
+.component.youtube>[contenteditable] {
     white-space: nowrap;
     border: var(--bs-small) solid var(--clr-border-dkst);
     border-radius: var(--br-smallest);

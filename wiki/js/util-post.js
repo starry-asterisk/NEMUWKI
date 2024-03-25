@@ -60,33 +60,28 @@ function createProfile(user) {
         if (data.photo_url) profile__photo__img.src = data.photo_url;
     });
 
-    profile__photo__input.onchange = changeImage(profile__photo__input, photo_url => {
-        profile__photo__img.src = photo_url;
-        firebase.auth.updateUser(user.uid, { photo_url });
-    });
+    profile__photo__input.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        modal('addImg', photo_url => {
+            profile__photo__img.src = photo_url;
+            firebase.auth.updateUser(user.uid, { photo_url });
+        });
+    }
 
-    profile__input.onchange = changeImage(profile__input, banner_url => {
-        profile.setStyles({ '--background-url': `url("${banner_url}")` });
-        firebase.auth.updateUser(user.uid, { banner_url });
-    });
+    profile__input.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation(); 
+        modal('addImg', banner_url => {
+            profile.setStyles({ '--background-url': `url("${banner_url}")` });
+            firebase.auth.updateUser(user.uid, { banner_url });
+        });
+    }
 
     upload.onclick = () => location.href = `${ROOT_PATH}form${SUFFIX}`;
     logout.onclick = () => {
         firebase.auth.logout()
             .catch(firebaseErrorHandler);
-    }
-
-    function changeImage(input, callback) {
-        return async () => {
-            if (input.files.length < 1) return 0;
-            let file = input.files[0];
-            let result = await uploadByImgur(file);
-            if (result.status == 200) {
-                callback(result.data.link);
-            } else {
-                alert('프로필 이미지 업로드에 실패했습니다.');
-            }
-        }
     }
 }
 
@@ -255,24 +250,24 @@ function buildPost(data, renderInfo = true) {
         contents
     } = data;
 
-    if(renderInfo){
+    if (renderInfo) {
         let alter_path_arr = SuggestList['board2Path_1'] || [];
         let path_arr = board_name_arr || alter_path_arr.find(row => row.name == board_name)?.path_arr || [board_name];
-    
-    
+
+
         let main__document_info = createElement('div', { attrs: { class: 'main__document_info' } });
         for (let path of path_arr) {
             main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}` }, innerHTML: path }));
         }
-    
+
         main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}&operator=equal`, class: 'category' }, innerHTML: category }));
-    
+
         document.querySelector('.main__header').after(main__document_info);
-    
+
         main__header__title.innerHTML = title;
         main__header__timestamp.innerHTML = new Date(1000 * timestamp.seconds).toLocaleString();
     }
-    
+
 
     let component_list = {};
 
@@ -360,16 +355,16 @@ function buildPost(data, renderInfo = true) {
         }
 
         let hash_regex = /\#index_(\S+)/;
-        if(hash_regex.test(location.hash)){
+        if (hash_regex.test(location.hash)) {
             title_list[hash_regex.exec(location.hash)[1]]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         }
     }
 
-    if(html_annotation.length > 0) {
+    if (html_annotation.length > 0) {
         let annotation = createElement('div', { attrs: { class: 'content annotation' } });
         annotation.innerHTML = html_annotation;
         html_annotation = '';
-        main__contents. append(annotation);
+        main__contents.append(annotation);
     }
 }
 
@@ -393,7 +388,7 @@ const COMPONENT_BUILD_SPEC = {
     video: (value) => COMPONENT_BUILD_SPEC.image(value, 'video'),
     table: (value) => {
         let { cells, header, rowcount, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth } = value;
-        let table = createElement('editable-table',{},{
+        let table = createElement('editable-table', {}, {
             rowcount,
             colcount: header.length,
             readonly: true
@@ -404,7 +399,7 @@ const COMPONENT_BUILD_SPEC = {
         table.outerLineWidth = outerLineWidth;
         table.outerLineColor = outerLineColor;
         table.innerLineColor = innerLineColor;
-        if(isFullWidth) table.classList.add('fullWidth');
+        if (isFullWidth) table.classList.add('fullWidth');
         return table;
     },
     title: (value) => document.createTextNode(value.text),
@@ -414,7 +409,21 @@ const COMPONENT_BUILD_SPEC = {
         let frag = document.createDocumentFragment();
 
         return frag;
+    },
+    youtube: (value)=>{
+        let video_id = getYoutubeId(value.link);
+        let start = value.start || 0;
+        return createElement('iframe',{attrs:{
+            title: 'YouTube video player',
+            frameborder: '0',
+            allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+            referrerpolicy: 'strict-origin-when-cross-origin',
+            allowfullscreen: true,
+            width: 530,
+            height: 315,
+            src: `//www.youtube.com/embed/${video_id}?start=${start}`
+        }})
     }
 }
 
-export {createVisited, createCategories, loadNotice, createProfile, createLoginForm, createList1, createList2, buildPost};
+export { createVisited, createCategories, loadNotice, createProfile, createLoginForm, createList1, createList2, buildPost };

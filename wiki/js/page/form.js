@@ -534,6 +534,49 @@ const COMPONENT_SPEC = {
         input: option => COMPONENT_SPEC.default.input(option),
         getData: id => COMPONENT_SPEC.default.getData(id)
     },
+    youtube: {
+        title: '유튜브 링크',
+        option: (option) => {
+            let option_1 = createOption([
+                { label: '시작 시간(초)' },
+                { name: 'start', type: 'number', value: option.start, attr: { min: 0, step: 1 } }
+            ]);
+            option_1.inputs.start.onchange = e => {
+                option.adjust(e.target.value, 'start');
+            }
+            return option_1;
+        },
+        input: (option) => {
+            let frag = document.createDocumentFragment();
+            let input = createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '링크를 삽입하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true }, innerHTML: option.link });
+            let iframe = createElement('iframe',{attrs:{
+                title: 'YouTube video player',
+                frameborder: '0',
+                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+                referrerpolicy: 'strict-origin-when-cross-origin',
+                allowfullscreen: true,
+                width: 530,
+                height: 315
+            }})
+
+            frag.append(input);
+            frag.append(iframe);
+
+            input.oninput = e => option.adjust(e.target.innerHTML, 'link');
+
+            option.adjust = (value, type) => {
+                if(type) option[type] = value;
+                let video_id = getYoutubeId(option.link || '');
+                let start = option.start || 0;
+                iframe.src = `//www.youtube.com/embed/${video_id}?start=${start}`
+            }
+            option.adjust();
+            return frag;
+        },
+        getData: id => {
+            return { link: document.querySelector(`#${id} [contenteditable]`).innerHTML, start: document.querySelector(`#${id} .start>input`).value || 0 };
+        }
+    },
     default: {
         option: () => {
             return document.createDocumentFragment();
