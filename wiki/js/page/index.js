@@ -105,7 +105,7 @@ async function firebaseLoadCallback() {
 
         await createList1(keyword, field, operator);
         loading(0.6);
-        await createList2(operator == 'equal'?keyword:'');
+        await createList2();
 
         loadNotice();
     }

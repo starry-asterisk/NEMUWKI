@@ -265,7 +265,7 @@ function buildPost(data, renderInfo = true) {
             main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=board_name_arr&operator=array-contains&keyword=${path}` }, innerHTML: path }));
         }
     
-        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}`, class: 'category' }, innerHTML: category }));
+        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}&operator=equal`, class: 'category' }, innerHTML: category }));
     
         document.querySelector('.main__header').after(main__document_info);
     

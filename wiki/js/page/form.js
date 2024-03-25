@@ -829,7 +829,7 @@ async function makeKeyword(id, data){
     let urlObj = contents.find(content => content.type == 'image');
     if(urlObj) keyword_data.thumbnail = urlObj.value;
     if(updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
-    if(data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
+    if(old_data.board_name_arr == undefined || data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
     if(old_data.title == undefined || old_data.title_arr == undefined || data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '')) keyword_data.title_arr = title_arr;
 
     await firebase.search.set(id, keyword_data);
