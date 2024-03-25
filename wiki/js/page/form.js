@@ -529,6 +529,7 @@ const COMPONENT_SPEC = {
         getData: id => COMPONENT_SPEC.default.getData(id)
     },
     caption: {
+        hidden: true,
         title: '틀',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
