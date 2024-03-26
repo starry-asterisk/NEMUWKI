@@ -471,7 +471,7 @@ const COMPONENT_SPEC = {
             let { rowcount, header, cells, cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = option;
             let div = createElement();
             let table = option.table = createElement('editable-table',
-                { styles: { 'margin-top': '2rem' } },
+                { styles: { 'margin-top': 'var(--size-indent)' } },
                 { rowcount: rowcount || 3, colcount: header?.length || 3 }
             );
             table.addEventListener('focusin', e => {

@@ -354,7 +354,7 @@ function buildPost(data, renderInfo = true) {
             summury.append(a);
         }
 
-        let hash_regex = /\#index_(\S+)/;
+        let hash_regex = /\#title_(\S+)/;
         if (hash_regex.test(location.hash)) {
             title_list[hash_regex.exec(location.hash)[1]]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         }
