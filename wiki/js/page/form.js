@@ -293,8 +293,8 @@ const COMPONENT_SPEC = {
                 innerHTML: value
             });
         },
-        getData: id => {
-            return document.querySelector(`#${id} [contenteditable]`).innerHTML;
+        getData: component => {
+            return component.querySelector('[contenteditable]').innerHTML;
         }
     },
     image: {
@@ -344,11 +344,11 @@ const COMPONENT_SPEC = {
             }
             return fragment;
         },
-        getData: async id => {
-            let file = document.querySelector(`#${id} input[type="file"]`).files[0];
-            let value = document.querySelector(`#${id} input[type="hidden"]`)?.value;
+        getData: async component => {
+            let file = component.querySelector('input[type="file"]').files[0];
+            let value = component.querySelector('input[type="hidden"]')?.value;
             if (file) {
-                let fileName = `${id}/${file.name}`;
+                let fileName = `${component.getAttribute('id')}/${file.name}`;
                 if (FILE_UPLOAD_METHOD == 0 && `${file.type}`.startsWith('image')) {
                     let result = await uploadByImgur(file);
                     if (result.status === 200) {
@@ -372,14 +372,14 @@ const COMPONENT_SPEC = {
         title: '음악',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.image.input(option, 'audio'),
-        getData: id => COMPONENT_SPEC.image.getData(id)
+        getData: component => COMPONENT_SPEC.image.getData(component)
     },
     video: {
         hidden: true,
         title: '영상',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.image.input(option, 'video'),
-        getData: id => COMPONENT_SPEC.image.getData(id)
+        getData: component => COMPONENT_SPEC.image.getData(component)
     },
     table: {
         title: '도표',
@@ -487,8 +487,8 @@ const COMPONENT_SPEC = {
             div.append(table);
             return div;
         },
-        getData: id => {
-            let table = document.querySelector(`#${id} editable-table`);
+        getData: component => {
+            let table = component.querySelector('editable-table');
             return {
                 rowcount: table.rowcount,
                 header: table.header,
@@ -512,28 +512,28 @@ const COMPONENT_SPEC = {
         input: ({ text = '' }) => {
             return createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '여기에 텍스트를 입력하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true }, innerHTML: text });
         },
-        getData: id => {
-            return { text: document.querySelector(`#${id} [contenteditable]`).innerHTML, depth: document.querySelector(`#${id} .depth>input`).value || 1 };
+        getData: component => {
+            return { text: component.querySelector('[contenteditable]').innerHTML, depth: component.querySelector('.depth>input').value || 1 };
         }
     },
     seperator: {
         title: '구분선',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
-        getData: id => COMPONENT_SPEC.default.getData(id)
+        getData: component => COMPONENT_SPEC.default.getData(component)
     },
     summury: {
         title: '목차',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
-        getData: id => COMPONENT_SPEC.default.getData(id)
+        getData: component => COMPONENT_SPEC.default.getData(component)
     },
     caption: {
         hidden: true,
         title: '틀',
         option: option => COMPONENT_SPEC.default.option(option),
         input: option => COMPONENT_SPEC.default.input(option),
-        getData: id => COMPONENT_SPEC.default.getData(id)
+        getData: component => COMPONENT_SPEC.default.getData(component)
     },
     youtube: {
         title: '유튜브 링크',
@@ -574,8 +574,8 @@ const COMPONENT_SPEC = {
             option.adjust();
             return frag;
         },
-        getData: id => {
-            return { link: document.querySelector(`#${id} [contenteditable]`).innerHTML, start: document.querySelector(`#${id} .start>input`).value || 0 };
+        getData: component => {
+            return { link: component.querySelector('[contenteditable]').innerHTML, start: component.querySelector('.start>input').value || 0 };
         }
     },
     default: {
@@ -585,7 +585,7 @@ const COMPONENT_SPEC = {
         input: () => {
             return document.createDocumentFragment();
         },
-        getData: id => {
+        getData: component => {
             return '';
         }
     }
@@ -824,11 +824,12 @@ async function submit(button) {
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
+    let components = preview.active?preview.frag.children:main__contents.getElementsByClassName('component');
     let contents = [];
-    for (let c of document.getElementsByClassName('component')) {
+    for (let c of components) {
         contents.push({
             type: c.classList[1],
-            value: await COMPONENT_SPEC[c.classList[1]].getData(c.getAttribute('id'))
+            value: await COMPONENT_SPEC[c.classList[1]].getData(c)
         });
     }
     let data = {
@@ -909,3 +910,43 @@ async function makeKeyword(id, data){
 
     await firebase.search.set(id, keyword_data);
 }
+
+const preview = (function(){
+    let _buildPost;
+    let _component_keep_frag = document.createDocumentFragment();
+    let _notEndFlag = false;
+    return async function(){
+        if(_notEndFlag) return;
+        _notEndFlag = true;
+        if(_component_keep_frag.firstChild) {
+            delete preview.active;
+            main__contents.innerHTML = '';
+            while(_component_keep_frag.firstChild) {
+                main__contents.append(_component_keep_frag.firstChild);
+            }
+            input_component.setStyles({display: 'block'});
+            document.querySelector('body > div.index')?.remove();
+        } else {
+            preview.active = true;
+            if(_buildPost == undefined) {
+                const { buildPost } = await import(`../util-post.js?timestamp=${new Date().getTime()}`);
+                _buildPost = buildPost;
+                preview.frag = _component_keep_frag;
+            }
+            let contents = [];
+            for (let c of Array.from(document.getElementsByClassName('component'))) {
+                contents.push({
+                    type: c.classList[1],
+                    value: await COMPONENT_SPEC[c.classList[1]].getData(c)
+                });
+                _component_keep_frag.append(c);
+            }
+            let data = {
+                contents: contents
+            };
+            input_component.setStyles({display: 'none'});
+            _buildPost(data, false);
+        }
+        _notEndFlag = false;
+    }
+})();
