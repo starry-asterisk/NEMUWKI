@@ -24,6 +24,10 @@ footer:hover,
     position: absolute;
 }
 
+.main__header__timestamp {
+    width: auto;
+}
+
 .main__header__title>input {
     display: block;
     height: var(--fs-xxlarge);
@@ -541,10 +545,4 @@ aside {
     .main__contents:empty::after {
         content: '컴포넌트 목록에서 버튼을 눌러 추가해 보세요!';
     }
-}
-
-#test {
-    width: 200px;
-  height: 200px;
-  background-color: yellow;
 }
