@@ -951,7 +951,7 @@ const preview = (function () {
     let _buildPost;
     let _component_keep_frag = document.createDocumentFragment();
     let _notEndFlag = false;
-    return async function () {
+    return async function (input) {
         if (_notEndFlag) return;
         _notEndFlag = true;
         if (_component_keep_frag.firstChild) {
@@ -962,6 +962,7 @@ const preview = (function () {
             }
             input_component.setStyles({ display: 'block' });
             document.querySelector('body > div.index')?.remove();
+            main.classList.remove('preview');
         } else {
             preview.active = true;
             if (_buildPost == undefined) {
@@ -982,6 +983,11 @@ const preview = (function () {
             };
             input_component.setStyles({ display: 'none' });
             _buildPost(data, false);
+            main.classList.add('preview');
+        }
+        if (input) {
+            input.checked = preview.active;
+            input.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
         }
         _notEndFlag = false;
     }

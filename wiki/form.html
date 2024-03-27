@@ -30,10 +30,10 @@
         <button class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></button>
         <indicator></indicator>
     </header>
-    <main>
+    <main id="main">
         <div class="main__header">
             <div class="main__header__title"><input id="main__header__title" type="text" placeholder="제목"
-                    name="post_title" oninput="validate(this)"></div>
+                    name="post_title" oninput="validate(this)"><input type="checkbox" onchange="preview(this)" label="미리보기"/></div>
             <div class="main__header__timestamp"><input id="main__header__timestamp" type="datetime-local"
                     title="업로드 시간"></div>
             <div class="main__header__toolbox"></div>
