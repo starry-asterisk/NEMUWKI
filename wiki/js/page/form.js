@@ -67,10 +67,10 @@ async function loadCategorySuggest() {
 }
 
 async function firebaseLoadCallback() {
-    firebase.auth.check(user => { 
+    firebase.auth.check(user => {
         document.body.classList.remove('non-auth');
         author_uid = author_uid || user.uid;
-     }, () => {
+    }, () => {
         document.body.classList.add('non-auth');
         alert('비 정상적 접근입니다. 로그인을 먼저 진행해 주세요.');
         location.href = ROOT_PATH;
@@ -135,7 +135,7 @@ function buildForm(data) {
     main__header__title.value = title;
     main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
     post_categories.value = category;
-    post_menu.value = board_name_arr?board_name_arr.join(' > '):board_name;
+    post_menu.value = board_name_arr ? board_name_arr.join(' > ') : board_name;
 
     for (let content of contents) {
         if (typeof content.value == 'string') {
@@ -197,6 +197,7 @@ function createComponent(type, option = {}) {
     component.append(component__move_btn_up);
     component.append(component__move_btn_down);
 
+    if (spec.more_option) title.append(spec.more_option(option));
     component.append(spec.option(option));
     component.append(spec.input(option));
 
@@ -226,11 +227,11 @@ function createComponent(type, option = {}) {
         component.remove();
     }
     component__move_btn_up.onclick = function () {
-        if(component.previousElementSibling) component.previousElementSibling.before(component);
+        if (component.previousElementSibling) component.previousElementSibling.before(component);
         component.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }
     component__move_btn_down.onclick = function () {
-        if(component.nextElementSibling) component.nextElementSibling.after(component);
+        if (component.nextElementSibling) component.nextElementSibling.after(component);
         component.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }
 
@@ -262,13 +263,27 @@ function createOption(arr = []) {
     return div;
 }
 
-let lastSelection;
+function createMoreOption(render_fn){
+    let component__more = createElement('button', { attrs: { class: 'component__more' } });
+    let component__more__list = createElement('ul', { attrs: { class: 'component__more__list' } });
+    let component__more__list__close = createElement('button', { attrs: { class: 'component__more__list__close' } });
+
+    component__more.append(component__more__list);
+    component__more__list.append(component__more__list__close);
+    for(let option of render_fn(default_render_li)) component__more__list.append(option);
+
+    return component__more;
+
+    function default_render_li(icon, text, func = ()=>{}){
+        return createElement('li', { attrs:{class: `mdi mdi-${icon}`, tabindex: 1}, on: { mousedown: func }, innerHTML: text });
+    }
+}
 
 const COMPONENT_SPEC = {
     textbox: {
         title: '텍스트 박스',
         option: createTextboxOpt,
-        input: ({ value = '' }) => {
+        input: (option) => {
             return createElement('div', {
                 attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true },
                 on: {
@@ -278,7 +293,7 @@ const COMPONENT_SPEC = {
                     },
                     blur: () => {
                         let s = window.getSelection();
-                        lastSelection = {
+                        option.lastSelection = {
                             anchorNode: s.anchorNode,
                             anchorOffset: s.anchorOffset,
                             focusNode: s.focusNode,
@@ -290,7 +305,7 @@ const COMPONENT_SPEC = {
                         document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
                     }
                 },
-                innerHTML: value
+                innerHTML: option.value || ''
             });
         },
         getData: component => {
@@ -304,7 +319,7 @@ const COMPONENT_SPEC = {
             let tagName = mediaTytpe == 'image' ? 'img' : mediaTytpe;
             let media, fragment = document.createDocumentFragment();
             let input = createElement('input', { attrs: { type: 'file', accept: `${mediaTytpe}/*` } });
-            let inputHidden = createElement('input', { attrs: { type: 'hidden' }});
+            let inputHidden = createElement('input', { attrs: { type: 'hidden' } });
             fragment.append(input);
             fragment.append(inputHidden);
 
@@ -313,7 +328,7 @@ const COMPONENT_SPEC = {
             }
 
             input.onclick = e => {
-                if(mediaTytpe != 'image') return;
+                if (mediaTytpe != 'image') return;
                 e.preventDefault();
                 e.stopPropagation();
                 modal('addImg', src => {
@@ -330,14 +345,14 @@ const COMPONENT_SPEC = {
             }
             if (value) {
                 inputHidden.value = value;
-                if(value.startsWith('http')){
+                if (value.startsWith('http')) {
                     addImg(value);
                 } else {
                     firebase.storage.getUrl(value).then(addImg);
                 }
             }
 
-            function addImg(src){
+            function addImg(src) {
                 if (media) media.remove();
                 media = createElement(tagName, { attrs: { controls: mediaTytpe != 'image', src: src } });
                 input.after(media);
@@ -383,6 +398,16 @@ const COMPONENT_SPEC = {
     },
     table: {
         title: '도표',
+        more_option: (option) => createMoreOption(render_fn=>[
+            render_fn('plus', '왼쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1, true)),
+            render_fn('plus', '오른쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1)),
+            render_fn('plus', '위에 행 1개 삽입', e => option.col_input.oninput(e, 1, true)),
+            render_fn('plus', '아래에 행 1개 삽입', e => option.col_input.oninput(e, 1)),
+            render_fn('minus', '왼쪽에 열 1개 삭제', e => option.col_input.oninput(e, -1, true)),
+            render_fn('minus', '오른쪽에 열 1개 삭제', e => option.col_input.oninput(e, -1)),
+            render_fn('minus', '위에 행 1개 삭제', e => option.col_input.oninput(e, -1, true)),
+            render_fn('minus', '아래에 행 1개 삭제', e => option.col_input.oninput(e, -1)),
+        ]),
         option: (option) => {
             let { rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = option;
             let frag = document.createDocumentFragment();
@@ -393,15 +418,24 @@ const COMPONENT_SPEC = {
                 { name: 'row', type: 'number', value: rowcount || 3, attr: { min: 1 } }
             ]);
 
-            option_1.inputs.col.oninput = function () {
+            option_1.inputs.col.oninput = function (e, v, isPrepend) {
                 if (!this.validity.valid) return false;
+                if (isPrepend) option.table.isPrepend = true;
+                if (v) this.value = parseInt(this.value) + v;
                 option.table.colcount = this.value;
+                if (isPrepend) option.table.isPrepend = false;
             }
 
-            option_1.inputs.row.oninput = function () {
+            option_1.inputs.row.oninput = function (e, v, isPrepend) {
                 if (!this.validity.valid) return false;
+                if (isPrepend) option.table.isPrepend = true;
+                if (v) this.value = parseInt(this.value) + v;
                 option.table.rowcount = this.value;
+                if (isPrepend) option.table.isPrepend = false;
             }
+
+            option.row_input = option_1.inputs.row;
+            option.col_input = option_1.inputs.col;
 
             frag.append(option_1);
 
@@ -550,15 +584,17 @@ const COMPONENT_SPEC = {
         input: (option) => {
             let frag = document.createDocumentFragment();
             let input = createElement('div', { attrs: { contenteditable: 'plaintext-only', placeholder: '링크를 삽입하세요', ondragstart: 'event.preventDefault();event.stopPropagation();', draggable: true }, innerHTML: option.link });
-            let iframe = createElement('iframe',{attrs:{
-                title: 'YouTube video player',
-                frameborder: '0',
-                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
-                referrerpolicy: 'strict-origin-when-cross-origin',
-                allowfullscreen: true,
-                width: 530,
-                height: 315
-            }})
+            let iframe = createElement('iframe', {
+                attrs: {
+                    title: 'YouTube video player',
+                    frameborder: '0',
+                    allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+                    referrerpolicy: 'strict-origin-when-cross-origin',
+                    allowfullscreen: true,
+                    width: 530,
+                    height: 315
+                }
+            })
 
             frag.append(input);
             frag.append(iframe);
@@ -566,7 +602,7 @@ const COMPONENT_SPEC = {
             input.oninput = e => option.adjust(e.target.innerHTML, 'link');
 
             option.adjust = (value, type) => {
-                if(type) option[type] = value;
+                if (type) option[type] = value;
                 let video_id = getYoutubeId(option.link || '');
                 let start = option.start || 0;
                 iframe.src = `//www.youtube.com/embed/${video_id}?start=${start}`
@@ -689,7 +725,7 @@ const commands = [{
     desc: "다시하기"
 }];
 
-function createTextboxOpt() {
+function createTextboxOpt(option) {
     let frag = createElement('div', { attrs: { class: 'component__execList' } });
 
     for (let command of commands) {
@@ -710,7 +746,7 @@ function createTextboxOpt() {
                             change: e => {
                                 if (e != undefined) {
                                     let selection = window.getSelection();
-                                    let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
+                                    let { anchorNode, anchorOffset, focusNode, focusOffset } = option.lastSelection;
                                     let range = document.createRange();
                                     range.setStart(anchorNode, anchorOffset);
                                     range.setEnd(focusNode, focusOffset);
@@ -824,7 +860,7 @@ async function submit(button) {
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
-    let components = preview.active?preview.frag.children:main__contents.getElementsByClassName('component');
+    let components = preview.active ? preview.frag.children : main__contents.getElementsByClassName('component');
     let contents = [];
     for (let c of components) {
         contents.push({
@@ -870,8 +906,8 @@ async function submit(button) {
 
 }
 
-async function makeKeyword(id, data){
-    if(data.hidden) return;
+async function makeKeyword(id, data) {
+    if (data.hidden) return;
     let {
         title,
         board_name,
@@ -885,9 +921,9 @@ async function makeKeyword(id, data){
     let fullText = data.title.replace(/\s+/g, '');
     let title_arr = [];
 
-    for(let start = 0; start < fullText.length; start++){
+    for (let start = 0; start < fullText.length; start++) {
         let max_length = fullText.length - start;
-        for(let length = 1; length <= max_length; length++){
+        for (let length = 1; length <= max_length; length++) {
             title_arr.push(fullText.substr(start, length))
         }
     }
@@ -903,32 +939,32 @@ async function makeKeyword(id, data){
     }
 
     let urlObj = contents.find(content => content.type == 'image');
-    if(urlObj) keyword_data.thumbnail = urlObj.value;
-    if(updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
-    if(old_data.board_name_arr == undefined || data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
-    if(old_data.title == undefined || old_data.title_arr == undefined || data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '')) keyword_data.title_arr = title_arr;
+    if (urlObj) keyword_data.thumbnail = urlObj.value;
+    if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
+    if (old_data.board_name_arr == undefined || data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
+    if (old_data.title == undefined || old_data.title_arr == undefined || data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '')) keyword_data.title_arr = title_arr;
 
     await firebase.search.set(id, keyword_data);
 }
 
-const preview = (function(){
+const preview = (function () {
     let _buildPost;
     let _component_keep_frag = document.createDocumentFragment();
     let _notEndFlag = false;
-    return async function(){
-        if(_notEndFlag) return;
+    return async function () {
+        if (_notEndFlag) return;
         _notEndFlag = true;
-        if(_component_keep_frag.firstChild) {
+        if (_component_keep_frag.firstChild) {
             delete preview.active;
             main__contents.innerHTML = '';
-            while(_component_keep_frag.firstChild) {
+            while (_component_keep_frag.firstChild) {
                 main__contents.append(_component_keep_frag.firstChild);
             }
-            input_component.setStyles({display: 'block'});
+            input_component.setStyles({ display: 'block' });
             document.querySelector('body > div.index')?.remove();
         } else {
             preview.active = true;
-            if(_buildPost == undefined) {
+            if (_buildPost == undefined) {
                 const { buildPost } = await import(`../util-post.js?timestamp=${new Date().getTime()}`);
                 _buildPost = buildPost;
                 preview.frag = _component_keep_frag;
@@ -944,7 +980,7 @@ const preview = (function(){
             let data = {
                 contents: contents
             };
-            input_component.setStyles({display: 'none'});
+            input_component.setStyles({ display: 'none' });
             _buildPost(data, false);
         }
         _notEndFlag = false;

@@ -106,8 +106,9 @@ async function firebaseLoadCallback() {
                     completeDescButton = createElement('button', { innerHTML: '저장' });
                     cancelDescButton = createElement('button', { innerHTML: '취소' });
                     container = createElement('div', { attrs: { class: 'component textbox' } });
-                    textBoxOp = createTextboxOpt();
-                    textBox = createTextbox({ value: self_description.innerHTML });
+                    let option = { value: self_description.innerHTML };
+                    textBoxOp = createTextboxOpt(option);
+                    textBox = createTextbox(option);
 
                     container.append(textBoxOp);
                     container.append(textBox);
@@ -239,8 +240,7 @@ const commands = [{
 }];
 
 
-let lastSelection;
-function createTextbox({ value = '' }) {
+function createTextbox(option) {
     return createElement('div', {
         attrs: { contenteditable: true, placeholder: '여기에 텍스트를 입력하세요' },
         on: {
@@ -250,7 +250,7 @@ function createTextbox({ value = '' }) {
             },
             blur: () => {
                 let s = window.getSelection();
-                lastSelection = {
+                option.lastSelection = {
                     anchorNode: s.anchorNode,
                     anchorOffset: s.anchorOffset,
                     focusNode: s.focusNode,
@@ -262,11 +262,11 @@ function createTextbox({ value = '' }) {
                 document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
             }
         },
-        innerHTML: value
+        innerHTML: option.value || ''
     });
 }
 
-function createTextboxOpt() {
+function createTextboxOpt(option) {
     let frag = createElement('div', { attrs: { class: 'component__execList' } });
 
     for (let command of commands) {
@@ -287,7 +287,7 @@ function createTextboxOpt() {
                             change: e => {
                                 if (e != undefined) {
                                     let selection = window.getSelection();
-                                    let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
+                                    let { anchorNode, anchorOffset, focusNode, focusOffset } = option.lastSelection;
                                     let range = document.createRange();
                                     range.setStart(anchorNode, anchorOffset);
                                     range.setEnd(focusNode, focusOffset);

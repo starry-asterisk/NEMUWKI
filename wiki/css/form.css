@@ -208,12 +208,15 @@ footer:hover,
 .component__move_btn.up {
     top: var(--mg-component);
 }
+
 .component__move_btn.up::before {
     content: '\F0143';
 }
+
 .component__move_btn.down {
     top: calc(var(--mg-component) + calc(var(--size-indent)));
 }
+
 .component__move_btn.down::before {
     content: '\F0140';
 }
@@ -334,6 +337,63 @@ aside {
     position: sticky;
 }
 
+.component__more::before {
+    content: "\F01D8";
+    font-family: var(--ff-icon);
+    margin-left: var(--size-indent);
+}
+
+.component__more__list {
+    text-align: left;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 100%;
+    right: 0;
+    margin: auto;
+    border: var(--bs-small) solid var(--clr-border-lt);
+    border-radius: var(--br-smallest);
+    padding: var(--mg-component);
+    max-width: 30rem;
+    height: fit-content;
+    background-color: var(--clr-background-base);
+    opacity: 0;
+    pointer-events: none;
+    transition-property: bottom, opacity;
+    transition-duration: 200ms;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    z-index: 10;
+}
+
+.component__more__list>li {
+    display: flex;
+    gap: var(--mg-component);
+    border-radius: var(--br-smallest);
+    padding: var(--mg-component-small);
+    cursor: pointer;
+}
+
+.component__more__list__close {
+    display: block;
+    margin-left: auto;
+}
+
+.component__more__list__close::before {
+    content: '\F015A';
+    font-family: var(--ff-icon);
+    font-size: var(--fs-large);
+}
+
+.component__more:focus>.component__more__list {
+    bottom: 0;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.component__more__list>li:hover {
+    background-color: var(--clr-primary-46) !important;
+}
+
 @media (max-width: 500px) {
     main {
         margin: 0 0 var(--size-indent) 0;
@@ -347,13 +407,13 @@ aside {
         --fs-base: calc(var(--root_fs-base) * var(--zoom));
         --fs-small: calc(var(--root_fs-small) * var(--zoom));
         --fs-smallest: calc(var(--root_fs-smallest) * var(--zoom));
-    
+
         --h-control-smaller: calc(var(--root_h-control-smaller) * var(--zoom));
         --h-control-small: calc(var(--root_h-control-small) * var(--zoom));
         --h-control: calc(var(--root_h-control) * var(--zoom));
         --h-control-large: calc(var(--root_h-control-large) * var(--zoom));
         --h-button-large: calc(var(--root_h-button-large) * var(--zoom));
-    
+
         --w-min-button: calc(var(--root_w-min-button) * var(--zoom));
     }
 
@@ -366,7 +426,7 @@ aside {
         padding-inline: 0;
     }
 
-    .component.textbox > p:first-child {
+    .component.textbox>p:first-child {
         margin-inline: calc(var(--size-indent) * 2);
     }
 
@@ -386,8 +446,8 @@ aside {
         padding-inline: var(--size-indent);
     }
 
-    .component.table > .component__option,
-    .component.table > p {
+    .component.table>.component__option,
+    .component.table>p {
         margin-inline: var(--size-indent);
     }
 
@@ -397,7 +457,7 @@ aside {
         overflow-y: auto;
     }
 
-    aside > button {
+    aside>button {
         margin-inline: auto;
     }
 }
@@ -407,10 +467,12 @@ aside {
         top: calc(var(--h-header) + var(--mg-component)) !important;
         height: fit-content;
     }
+
     .component__move_btn {
         display: none;
     }
 }
+
 @media (max-width: 1000px) {
     aside {
         top: -67.5rem !important;

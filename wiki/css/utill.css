@@ -60,6 +60,7 @@
 
     --size-indent: 2rem;
     --mg-component: 1.2rem;
+    --mg-component-small: 0.6rem;
 
     --h-control-smaller: 2.8rem;
     --h-control-small: 3rem;
@@ -999,8 +1000,21 @@ body[developerMode="true"] img {
 body[developerMode="true"] *,
 body[developerMode="true"] *::before,
 body[developerMode="true"] *::after,
-body[developerMode="true"] *::placeholder {
-    color: #eee;
+body[developerMode="true"] *::placeholder,
+body[developerMode="true"] *::file-selector-button,
+body[developerMode="true"] *::-webkit-color-swatch
+ {
+    color: transparent !important;
     border-color: transparent !important;
     background-color: #fff7 !important;
 }
+
+body[developerMode="true"]:hover *,
+body[developerMode="true"]:hover *::before,
+body[developerMode="true"]:hover *::after,
+body[developerMode="true"]:hover *::placeholder,
+body[developerMode="true"]:hover *::file-selector-button,
+body[developerMode="true"]:hover *::-webkit-color-swatch {
+    color: #eee !important;
+}
+
