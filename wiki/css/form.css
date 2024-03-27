@@ -7,6 +7,16 @@ footer:hover,
     background-color: var(--clr-background-dark);
 }
 
+.main__header {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+.main__header__title {
+    max-width: none;
+}
+
 .main__header__title:has(input:invalid)::before {
     content: "\F0028";
     color: var(--clr-invalid);
@@ -18,10 +28,6 @@ footer:hover,
     display: block;
     height: var(--fs-xxlarge);
     transition: 200ms padding;
-}
-
-.main__header {
-    overflow: hidden;
 }
 
 .main__header__title>input:invalid {
@@ -535,4 +541,10 @@ aside {
     .main__contents:empty::after {
         content: '컴포넌트 목록에서 버튼을 눌러 추가해 보세요!';
     }
+}
+
+#test {
+    width: 200px;
+  height: 200px;
+  background-color: yellow;
 }

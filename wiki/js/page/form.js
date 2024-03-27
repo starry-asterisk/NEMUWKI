@@ -175,8 +175,42 @@ function dragover(e) {
     e.preventDefault();
 }
 function dragstart(e) {
-    e.dataTransfer.setData("component", e.target.getAttribute('type'));
+    let type = e.target.getAttribute('type');
+    let df = e.dataTransfer;
+    df.setDragImage(getDragImage(type), e.offsetX, e.offsetY);
+    df.setData("component", type);
 }
+
+getDragImage = (() => {
+    let images = []
+    return function (type) {
+        if (images[type]) return images[type];
+        var canvas = document.createElement("canvas");
+        canvas.height = 50;
+        canvas.width = 150;
+        var ctx = canvas.getContext("2d");
+        ctx.rect(0, 0, 150, 50);
+        ctx.fillStyle = '#f7f9f9';
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 2;
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#000000';
+        ctx.font = `20px "Yeongdeok Sea"`;
+        ctx.fillText(COMPONENT_SPEC[type].title, 48, 31);
+        ctx.beginPath();
+        ctx.arc(25, 25, 14, 0, 2 * Math.PI);
+        ctx.fillStyle = '#1d9bf0aa';
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText('+', 20, 33);
+        dataUrl = canvas.toDataURL();
+        let image = document.createElement('img');
+        image.src = dataUrl;
+        images[type] = image;
+        return image;
+    }
+})();
 
 function createComponent(type, option = {}) {
 
@@ -203,7 +237,7 @@ function createComponent(type, option = {}) {
 
     component.ondragstart = (e) => {
         e.dataTransfer.setData("component", id);
-        e.dataTransfer.setDragImage(component, e.offsetX, e.offsetY);
+        e.dataTransfer.setDragImage(getDragImage(type), 100, 25);
     }
 
     component.ondrop = (e) => {
@@ -263,19 +297,19 @@ function createOption(arr = []) {
     return div;
 }
 
-function createMoreOption(render_fn){
+function createMoreOption(render_fn) {
     let component__more = createElement('button', { attrs: { class: 'component__more' } });
     let component__more__list = createElement('ul', { attrs: { class: 'component__more__list' } });
     let component__more__list__close = createElement('button', { attrs: { class: 'component__more__list__close' } });
 
     component__more.append(component__more__list);
     component__more__list.append(component__more__list__close);
-    for(let option of render_fn(default_render_li)) component__more__list.append(option);
+    for (let option of render_fn(default_render_li)) component__more__list.append(option);
 
     return component__more;
 
-    function default_render_li(icon, text, func = ()=>{}){
-        return createElement('li', { attrs:{class: `mdi mdi-${icon}`, tabindex: 1}, on: { mousedown: func }, innerHTML: text });
+    function default_render_li(icon, text, func = () => { }) {
+        return createElement('li', { attrs: { class: `mdi mdi-${icon}`, tabindex: 1 }, on: { mousedown: func }, innerHTML: text });
     }
 }
 
@@ -398,7 +432,7 @@ const COMPONENT_SPEC = {
     },
     table: {
         title: '도표',
-        more_option: (option) => createMoreOption(render_fn=>[
+        more_option: (option) => createMoreOption(render_fn => [
             render_fn('plus', '왼쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1, true)),
             render_fn('plus', '오른쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1)),
             render_fn('plus', '위에 행 1개 삽입', e => option.col_input.oninput(e, 1, true)),
@@ -954,7 +988,7 @@ const preview = (function () {
     return async function (input) {
         if (_notEndFlag) return;
         _notEndFlag = true;
-        if (_component_keep_frag.firstChild) {
+        if (main.classList.contains('preview')) {
             delete preview.active;
             main__contents.innerHTML = '';
             while (_component_keep_frag.firstChild) {
