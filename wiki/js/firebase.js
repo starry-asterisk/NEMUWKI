@@ -267,6 +267,7 @@ fb.categories = {
 
 //저장소
 fb.storage = {
+    getStaticUrl: fileName => `https://storage.googleapis.com/${firebaseConfig.projectId}.appspot.com/${fileName}`,
     getUrl: async fileName => await getDownloadURL(ref(storage, fileName)),
     delete: async fileName => await deleteObject(ref(storage, fileName)),
     upload: async (fileName, file) => await uploadBytes(ref(storage, fileName), file),

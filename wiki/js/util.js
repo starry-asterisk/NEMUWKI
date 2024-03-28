@@ -607,7 +607,7 @@ function getYoutubeId(url) {
 function imgurThumb(url, size = 'm'){
     let fullName = url.split('/').pop();
     let [name, extension] = fullName.split('.');
-    console.log(fullName,name, extension);
+    if(extension.toLowerCase() === 'png') return url;
     return `https://i.imgur.com/${name}${size}.${extension}`;
 }
 

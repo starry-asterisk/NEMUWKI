@@ -382,7 +382,7 @@ const COMPONENT_SPEC = {
                 if (value.startsWith('http')) {
                     addImg(value);
                 } else {
-                    firebase.storage.getUrl(value).then(addImg);
+                    addImg(firebase.storage.getStaticUrl(value));
                 }
             }
 

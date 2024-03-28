@@ -232,7 +232,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
 
         if (data.thumbnail) {
             if (data.thumbnail.startsWith('http')) img.src = imgurThumb(data.thumbnail,'m');
-            else firebase.storage.getUrl(data.thumbnail).then(url => img.src = url);
+            else img.src = firebase.storage.getStaticUrl(data.thumbnail);
         }
         else img.src = '[ no image ]';
 
@@ -380,7 +380,7 @@ const COMPONENT_BUILD_SPEC = {
         let media = createElement(mediaTytpe, { attrs: { controls: mediaTytpe != 'img' } });
 
         if (value.startsWith('http')) media.src = value;
-        else firebase.storage.getUrl(value).then(url => media.src = url);
+        else media.src = firebase.storage.getStaticUrl(value);
 
         return media;
     },
