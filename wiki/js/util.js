@@ -434,7 +434,7 @@ const MODAL_TEMPLATE = {
         firebase.resources.all().then(r => {
             for (let doc of r.docs) {
                 let data = doc.data();
-                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${data.link})` }, value: data.link });
+                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${imgurThumb(data.link,'m')})` }, value: data.link });
                 gallery_container.append(radio);
             }
 
@@ -602,6 +602,13 @@ function getYoutubeId(url) {
     return (match && match[2].length === 11)
       ? match[2]
       : null;
+}
+
+function imgurThumb(url, size = 'm'){
+    let fullName = url.split('/').pop();
+    let [name, extension] = fullName.split('.');
+    console.log(fullName,name, extension);
+    return `https://i.imgur.com/${name}${size}.${extension}`;
 }
 
 let html_annotation = '';

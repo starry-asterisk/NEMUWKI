@@ -231,7 +231,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
         item.prepend(img);
 
         if (data.thumbnail) {
-            if (data.thumbnail.startsWith('http')) img.src = data.thumbnail;
+            if (data.thumbnail.startsWith('http')) img.src = imgurThumb(data.thumbnail,'m');
             else firebase.storage.getUrl(data.thumbnail).then(url => img.src = url);
         }
         else img.src = '[ no image ]';
