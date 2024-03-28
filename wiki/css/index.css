@@ -1,8 +1,9 @@
 @import url("utill.css");
 @import url("utill-post.css");
 
-.content.board_list_1>div {
+.content.board_list_1>a {
     display: grid;
+    color: var(--clr-font);
     grid-column: 1 / 3;
     grid-template-columns: 1fr 3fr;
     border-bottom: var(--bs-small) solid var(--clr-border-base);
@@ -10,7 +11,7 @@
     cursor: pointer;
 }
 
-.content.board_list_1>div[board_name]::before {
+.content.board_list_1>a[board_name]::before {
     text-overflow: ellipsis;
     content: attr(board_name);
     padding-inline: var(--size-indent);
@@ -18,7 +19,7 @@
     overflow: hidden;
 }
 
-.content.board_list_1>div[title]::after {
+.content.board_list_1>a[title]::after {
     text-overflow: ellipsis;
     content: attr(title);
     padding-inline: var(--size-indent);
@@ -54,11 +55,13 @@
     border-left: var(--bs-small) solid var(--clr-border-dk);
 }
 
-.content.board_list_2>div:nth-child(-n + 4) {
+.content.board_list_2>a:nth-child(-n + 4) {
     border-top: var(--bs-small) solid var(--clr-border-dk);
 }
 
-.content.board_list_2>div {
+.content.board_list_2>a {
+    display: block;
+    color: var(--clr-font);
     text-align: center;
     border-right: var(--bs-small) solid var(--clr-border-dk);
     border-bottom: var(--bs-small) solid var(--clr-border-dk);
@@ -66,18 +69,18 @@
     cursor: pointer;
 }
 
-.content.board_list_2>div>span {
+.content.board_list_2>a>span {
     font-size: var(--fs-base);
     display: block;
 }
 
-.content.board_list_2>div>span.sub {
+.content.board_list_2>a>span.sub {
     font-size: var(--fs-small);
     opacity: 0.9;
 }
 
 
-.content.board_list_2>div>img {
+.content.board_list_2>a>img {
     margin-bottom: 0.5rem;
     width: 100%;
     aspect-ratio: 1;

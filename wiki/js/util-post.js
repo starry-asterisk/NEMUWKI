@@ -71,7 +71,7 @@ function createProfile(user) {
 
     profile__input.onclick = e => {
         e.preventDefault();
-        e.stopPropagation(); 
+        e.stopPropagation();
         modal('addImg', banner_url => {
             profile.setStyles({ '--background-url': `url("${banner_url}")` });
             firebase.auth.updateUser(user.uid, { banner_url });
@@ -177,13 +177,8 @@ async function createList1(keyword, field, operator, targetHeader = total, searc
         for (let doc of docs) {
             let data = doc.data();
             data.board_name = SuggestList['board2Path_2'][data.board_name] || data.board_name;
-            board_list.append(createElement('div', {
-                attrs: { board_name: data.board_name, title: data.title },
-                on: {
-                    click: () => {
-                        location.href = `${ROOT_PATH}?post=${doc.id}`;
-                    }
-                }
+            board_list.append(createElement('a', {
+                attrs: { board_name: data.board_name, title: data.title, href: `${ROOT_PATH}?post=${doc.id}` },
             }));
         }
         if (docs.length < 25) load_more.setStyles({ display: 'none' });
@@ -218,20 +213,16 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
     }
 
     function createList2Item(data, id) {
-        let item = createElement('div', {
+        let item = createElement('a', {
             innerHTML: `<span class="sub">${data.board_name}</span><span>${data.title}</span>`,
-            on: {
-                click: () => {
-                    location.href = `${ROOT_PATH}?post=${id}`;
-                }
-            }
+            attrs: { href: `${ROOT_PATH}?post=${id}` }
         });
         let img = createElement('img');
 
         item.prepend(img);
 
         if (data.thumbnail) {
-            if (data.thumbnail.startsWith('http')) img.src = imgurThumb(data.thumbnail,'m');
+            if (data.thumbnail.startsWith('http')) img.src = imgurThumb(data.thumbnail, 'm');
             else img.src = firebase.storage.getStaticUrl(data.thumbnail);
         }
         else img.src = '[ no image ]';
@@ -410,19 +401,21 @@ const COMPONENT_BUILD_SPEC = {
 
         return frag;
     },
-    youtube: (value)=>{
+    youtube: (value) => {
         let video_id = getYoutubeId(value.link);
         let start = value.start || 0;
-        return createElement('iframe',{attrs:{
-            title: 'YouTube video player',
-            frameborder: '0',
-            allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
-            referrerpolicy: 'strict-origin-when-cross-origin',
-            allowfullscreen: true,
-            width: 530,
-            height: 315,
-            src: `//www.youtube.com/embed/${video_id}?start=${start}`
-        }})
+        return createElement('iframe', {
+            attrs: {
+                title: 'YouTube video player',
+                frameborder: '0',
+                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+                referrerpolicy: 'strict-origin-when-cross-origin',
+                allowfullscreen: true,
+                width: 530,
+                height: 315,
+                src: `//www.youtube.com/embed/${video_id}?start=${start}`
+            }
+        })
     }
 }
 

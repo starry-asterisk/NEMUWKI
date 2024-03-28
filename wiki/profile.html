@@ -25,9 +25,9 @@
 
 <body class="loading non-auth">
     <header>
-        <span class="header__logo" onclick="goHome()">네무위키</span>
-        <button class="right mdi mdi-account-circle account" onclick="goProfile()" title="마이페이지"></button>
-        <button class="right mdi mdi-shuffle-variant" onclick="goRandom()" title="랜덤문서"></button>
+        <a class="header__logo" href="/wiki/" data-href="">네무위키</a>
+        <a class="right mdi mdi-account-circle account" href="/wiki/profile" data-href="profile" title="마이페이지"></a>
+        <a class="right mdi mdi-shuffle-variant" href="/wiki/?post=random" data-href="?post=random" title="랜덤문서"></a>
         <indicator></indicator>
     </header>
     <main>

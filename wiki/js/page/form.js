@@ -7,6 +7,12 @@ window.addEventListener('load', function () {
     init_timestamp();
 });
 
+window.addEventListener('beforeunload', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+});
+
 function init_timestamp() {
     let date = new Date();
     date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));

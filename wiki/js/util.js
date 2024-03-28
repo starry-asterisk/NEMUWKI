@@ -177,7 +177,7 @@ customElements.define('editable-table', class extends HTMLElement {
             on: {
                 input: e => {
                     header.width = parseFloat(e.target.value);
-                    if(header.width <= 0)  cell.setStyles({ width: 'auto', 'min-width': 'auto' });
+                    if (header.width <= 0) cell.setStyles({ width: 'auto', 'min-width': 'auto' });
                     else cell.setStyles({ width: `${header.width}rem`, 'min-width': `${header.width}rem` });
                 }
             },
@@ -434,11 +434,11 @@ const MODAL_TEMPLATE = {
         firebase.resources.all().then(r => {
             for (let doc of r.docs) {
                 let data = doc.data();
-                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${imgurThumb(data.link,'m')})` }, value: data.link });
+                let radio = createElement('input', { attrs: { type: 'radio', class: 'gallery_container_cell', name: 'gallery' }, styles: { 'background-image': `url(${imgurThumb(data.link, 'm')})` }, value: data.link });
                 gallery_container.append(radio);
             }
 
-            for(let i=0;i<6;i++){
+            for (let i = 0; i < 6; i++) {
                 gallery_container.append(createElement('button', { attrs: { class: 'gallery_container_cell empty' } }));
             }
         });
@@ -455,12 +455,6 @@ const MODAL_TEMPLATE = {
         return frag;
     }
 };
-
-function goHome() { location.href = ROOT_PATH }
-
-function goRandom() { firebase.post.random().then(id => location.href = `${ROOT_PATH}?post=${id}`) }
-
-function goProfile() { location.href = `${ROOT_PATH}profile${SUFFIX}` }
 
 function goShare(destination, url = location.href) {
     if (destination == undefined && typeof navigator.share == 'function') {
@@ -600,14 +594,14 @@ function getYoutubeId(url) {
     const match = url.match(regExp);
 
     return (match && match[2].length === 11)
-      ? match[2]
-      : null;
+        ? match[2]
+        : null;
 }
 
-function imgurThumb(url, size = 'm'){
+function imgurThumb(url, size = 'm') {
     let fullName = url.split('/').pop();
     let [name, extension] = fullName.split('.');
-    if(extension.toLowerCase() === 'png') return url;
+    if (extension.toLowerCase() === 'png') return url;
     return `https://i.imgur.com/${name}${size}.${extension}`;
 }
 
@@ -627,7 +621,7 @@ function markdown(html, cell) {
         .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
         .replace(REGEX.link, (full_str, group1) => {
             let [link, namespace] = group1.split(';')
-            return `<a class="link" href="${link.startsWith('http') ? link : ('//' + link)}" target="_blank">${namespace||'링크'}</a>`;
+            return `<a class="link" href="${link.startsWith('http') ? link : ('//' + link)}" target="_blank">${namespace || '링크'}</a>`;
         })
         .replace(REGEX.video, (full_str, group1) => `<iframe width="560" height="315" src="//www.youtube.com/embed/${getYoutubeId(group1)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`);
 }
@@ -702,8 +696,9 @@ const Notify = {
 }
 const dev = console;
 const DEVELOPER_MODE = false;
-const ROOT_PATH = './';
-const SUFFIX = location.hostname.endsWith('nemuwiki.com') ? '' : '.html';
+const ROOT_PATH = '/wiki/';
+const DOMAIN = 'nemuwiki.com';
+const SUFFIX = location.hostname.endsWith(DOMAIN) ? '' : '.html';
 const VISITED_MAX = 5;
 const FILE_UPLOAD_METHOD = 0; // 0 is imgur, 1 is firestorage
 const PAGE_PREFIX = '네무위키 :: ';
@@ -731,6 +726,16 @@ let post_id = params.get('post');
 window.onload = async function () {
     document.body.setAttribute('developerMode', DEVELOPER_MODE);
 
+    for (let a_tag of document.querySelectorAll('[data-href]')) {
+        let href = a_tag.getAttribute('data-href');
+        let [link, param] = href.split('?');
+        let use_suffix = !['', '/'].includes(link);
+        let go_to = ROOT_PATH + link;
+        if (use_suffix) go_to += SUFFIX;
+        if (param) go_to += '?' + param;
+        a_tag.setAttribute('href', go_to);
+    }
+
     const module = await import('./firebase.js');
     firebase = module.default;
 
@@ -738,5 +743,5 @@ window.onload = async function () {
     if (typeof firebaseLoadCallback == 'function') {
         firebaseLoadCallback();
     }
-    if (DEVELOPER_MODE) document.title = '.';
+    if (DEVELOPER_MODE) document.title = '*';
 }
