@@ -19,6 +19,7 @@ async function search({ key }) {
 async function href_move(href) {
     loading(0);
     history.pushState({}, '', href);
+    document.querySelector('html').scrollTop = 0;
     params = new URLSearchParams(href.split('?')[1]);
     for(let el of Array.from(document.querySelectorAll('.content.board_list_1,.content.board_list_2'))) el.remove();
     loading(0.15);
