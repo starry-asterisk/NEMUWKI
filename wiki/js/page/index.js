@@ -22,7 +22,7 @@ async function href_move(href) {
             if(waitRandom) return;
             waitRandom = true;
             loading(0.15);
-            post_id = await firebase.post.random();
+            post_id = await firebase.search.random();
             history.replaceState({}, '', href.replace('post=random', `post=${post_id}`));
             loading(0.35);
             waitRandom = false;
@@ -152,7 +152,7 @@ async function firebaseLoadCallback() {
     loading(0.45);
 
     if (post_id) {
-        if (post_id == 'random') post_id = await firebase.post.random();
+        if (post_id == 'random') post_id = await firebase.search.random();
         await renderPost(post_id);
         document.body.classList.remove('loading');
     } else {

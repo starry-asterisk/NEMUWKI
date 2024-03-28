@@ -367,6 +367,14 @@ fb.search = {
     unset: async (id) => {
         await deleteDoc(doc(db, "keyword", id));
     },
+    random: async () => {
+        let count = Math.min((await getCountFromServer(collection(db, "keyword"))).data().count, 100);
+        let result = await getDocs(query(
+            collection(db, "keyword"),
+            limit(count)
+        ));
+        return result.docs[Math.round(Math.random() * (result.docs.length - 1))].id;
+    },
     list: (search = {}, operator = 'contains') => {
         let param_base = [
             collection(db, "keyword")
