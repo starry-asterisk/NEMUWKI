@@ -1,6 +1,6 @@
 window.addEventListener('click', e => {
     let a_tag = e.target.closest(`a[href^="${ROOT_PATH}?"], a[href="${ROOT_PATH}"]`);
-    if (a_tag) {
+    if (a_tag && !e.ctrlKey) {
         e.preventDefault();
         href_move(a_tag.getAttribute('href'));
     }
@@ -19,7 +19,7 @@ async function href_move(href) {
     document.querySelector('html').scrollTop = 0;
     if (post_id) {
         if (post_id == 'random') {
-            if(waitRandom) return;
+            if (waitRandom) return;
             waitRandom = true;
             loading(0.15);
             post_id = await firebase.search.random();
@@ -34,9 +34,7 @@ async function href_move(href) {
 
 let renderMain, renderPost, timeout_timer, interval_timer, editButton, waitRandom;
 function clearContents() {
-    for(let notice of Array.from(document.querySelectorAll('.main__notice'))) notice.remove();
-    for(let info of Array.from(document.querySelectorAll('.main__document_info'))) info.remove();
-    for(let info of Array.from(document.querySelectorAll('body>.index'))) info.remove();
+    for (let el of Array.from(document.querySelectorAll('.main__document_info, .main__notice, body>.index'))) el.remove();
     if (editButton) editButton.remove();
     if (timeout_timer) clearTimeout(timeout_timer);
     if (interval_timer) clearInterval(interval_timer);
@@ -95,10 +93,11 @@ async function firebaseLoadCallback() {
         main__contents.append(createElement('div', { attrs: { class: 'content title', id: 'total', onclick: 'fold(this)' }, innerHTML: '전체 문서' }));
         main__contents.append(createElement('div', { attrs: { class: 'content title', id: 'people', onclick: 'fold(this)' }, innerHTML: '인물' }));
 
+        for (let el of Array.from(document.querySelectorAll('.content.board_list_1'))) el.remove();
         await createList1(keyword, field, operator);
         loading(0.6);
+        for (let el of Array.from(document.querySelectorAll('.content.board_list_2'))) el.remove();
         await createList2();
-
         loadNotice();
 
     }
@@ -152,7 +151,10 @@ async function firebaseLoadCallback() {
     loading(0.45);
 
     if (post_id) {
-        if (post_id == 'random') post_id = await firebase.search.random();
+        if (post_id == 'random') {
+            post_id = await firebase.search.random();
+            history.replaceState({}, '', `${ROOT_PATH}?post=${post_id}`);
+        }
         await renderPost(post_id);
         document.body.classList.remove('loading');
     } else {

@@ -1,8 +1,29 @@
 
-function search({ key }) {
+let loadBoard;
+window.addEventListener('click', e => {
+    let a_tag = e.target.closest(`a[href^="${ROOT_PATH}profile${SUFFIX}?"], a[href="${ROOT_PATH}profile${SUFFIX}"]`);
+    if (a_tag && !e.ctrlKey) {
+        e.preventDefault();
+        href_move(a_tag.getAttribute('href'));
+    }
+});
+
+async function search({ key }) {
     if (key.toLowerCase() != 'enter') return;
-    let params = new URLSearchParams(document.location.search);
-    location.href = `${ROOT_PATH}/profile${SUFFIX}?keyword=${search_input.value || ''}&uid=${params.get('uid')}`
+    params.delete('operator');
+    params.delete('field');
+    params.set('keyword', search_input.value);
+    href_move(`${ROOT_PATH}profile${SUFFIX}?${params.toString()}`);
+}
+
+async function href_move(href) {
+    loading(0);
+    history.pushState({}, '', href);
+    params = new URLSearchParams(href.split('?')[1]);
+    for(let el of Array.from(document.querySelectorAll('.content.board_list_1,.content.board_list_2'))) el.remove();
+    loading(0.15);
+    await loadBoard();
+    loading(1);
 }
 
 async function firebaseLoadCallback() {
@@ -45,12 +66,11 @@ async function firebaseLoadCallback() {
         SuggestList['board2Path_2'] = board2Path(SuggestList['board'], 2);
         loading(0.4);
 
-        createCategories();
+        createCategories(undefined, `${ROOT_PATH}profile${SUFFIX}`, {uid});
 
         createVisited();
 
         firebase.auth.getUser(uid).then(user_data => {
-            history.pushState({}, null, `${location.origin}/wiki/profile${SUFFIX}?uid=${uid}`);
             let data = user_data.data();
             if (data == undefined) return NotFound();
             if (data.banner_url) document.querySelector('.main__profile').setStyles({ 'background-image': `url(${data.banner_url})` });
@@ -59,13 +79,20 @@ async function firebaseLoadCallback() {
         });
 
         document.body.classList.remove('loading');
+        loadBoard = async function(){
+            params.set('uid', uid);
+            history.replaceState({}, null, `${ROOT_PATH}profile${SUFFIX}?${params.toString()}`);
+            let op = params.get('operator') || 'contains';
+            let field = params.get('field') || 'title_arr';
+            let key = params.get('keyword');
+            let search = key ? { [field]: { op, key } } : {};
+    
+            await createList1(uid, 'author', 'equal', undefined, search);
+            loading(0.7);
+            await createList2(uid, undefined, undefined, undefined, search);
+        }
 
-        let search = params.get('keyword') == null ? {} : { title_arr: { op: 'contains', key: params.get('keyword') } };
-
-        await createList1(uid, 'author', 'equal', undefined, search);
-        loading(0.7);
-        await createList2(uid, undefined, undefined, undefined, search);
-
+        await loadBoard();
         loading(1);
 
         if (isOwner) {

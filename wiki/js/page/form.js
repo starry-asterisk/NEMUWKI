@@ -1,6 +1,7 @@
 let author_uid;
 let old_data = {}
 let isOwner = false;
+let isSubmit = false;
 
 window.addEventListener('load', function () {
     init_componentList();
@@ -8,6 +9,7 @@ window.addEventListener('load', function () {
 });
 
 window.addEventListener('beforeunload', e=>{
+    if(isSubmit) return;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -885,6 +887,7 @@ function remove(button) {
     if (!confirm('정말로 삭제 하시겠습니까?')) return;
     if (!isOwner) return alert('문서 최초 작성자만 삭제가 가능합니다. 필요시, 관리자에게 문의 주세요');
     button.setAttribute('disabled', true);
+    isSubmit = true;
     firebase.post.deleteOne(post_id)
         .then(async () => {
             await firebase.search.unset(post_id);
@@ -900,6 +903,7 @@ async function submit(button) {
     if (!validate(post_categories)) return;
     if (!validate(post_menu)) return;
     button.setAttribute('disabled', true);
+    isSubmit = true;
     let components = preview.active ? preview.frag.children : main__contents.getElementsByClassName('component');
     let contents = [];
     for (let c of components) {
@@ -972,7 +976,9 @@ async function makeKeyword(id, data) {
 
     let keyword_data = {
         title,
+        title_arr,
         board_name,
+        board_name_arr,
         category,
         timestamp,
         author,
@@ -981,9 +987,7 @@ async function makeKeyword(id, data) {
     let urlObj = contents.find(content => content.type == 'image');
     if (urlObj) keyword_data.thumbnail = urlObj.value;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
-    if (old_data.board_name_arr == undefined || data.board_name != old_data.board_name) keyword_data.board_name_arr = board_name_arr;
-    if (old_data.title == undefined || old_data.title_arr == undefined || data.title.replace(/\s+/g, '') != old_data.title.replace(/\s+/g, '')) keyword_data.title_arr = title_arr;
-
+    
     await firebase.search.set(id, keyword_data);
 }
 

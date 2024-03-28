@@ -9,16 +9,22 @@ async function createVisited() {
     }
 }
 
-async function createCategories(pathFromBoard = SuggestList['board2Path_2']) {
+async function createCategories(pathFromBoard = SuggestList['board2Path_2'], path = ROOT_PATH, param_obj = {}) {
+    let params = new URLSearchParams();
+    params.set('field', 'board_name_arr');
+    params.set('operator', 'array-contains');
+    for (let name in param_obj) params.set(name, param_obj[name]);
     for (let pathname in pathFromBoard) {
         let li = createElement('li');
-        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${ROOT_PATH}?keyword=${pathname}&field=board_name_arr&operator=array-contains` } }));
+        params.set('keyword', pathname);
+        li.append(createElement('a', { innerHTML: pathFromBoard[pathname], attrs: { href: `${path}?${params.toString()}` } }));
         category_list.append(li);
     }
 }
 
 function loadNotice() {
     firebase.notice.getNewest().then(ref => {
+        for (let notice of Array.from(document.querySelectorAll('.main__notice'))) notice.remove();
         for (let doc of ref.docs) {
             createNotice(doc.data());
             break;
