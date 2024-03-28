@@ -1,7 +1,7 @@
 
 let loadBoard;
 window.addEventListener('click', e => {
-    let a_tag = e.target.closest(`a[href^="${ROOT_PATH}profile${SUFFIX}?"], a[href="${ROOT_PATH}profile${SUFFIX}"]`);
+    let a_tag = e.target.closest(`a[href^="${ROOT_PATH}profile${SUFFIX}?"]"]`);
     if (a_tag && !e.ctrlKey) {
         e.preventDefault();
         href_move(a_tag.getAttribute('href'));
