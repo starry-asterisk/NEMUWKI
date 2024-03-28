@@ -435,12 +435,12 @@ const COMPONENT_SPEC = {
         more_option: (option) => createMoreOption(render_fn => [
             render_fn('plus', '왼쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1, true)),
             render_fn('plus', '오른쪽에 열 1개 삽입', e => option.col_input.oninput(e, 1)),
-            render_fn('plus', '위에 행 1개 삽입', e => option.col_input.oninput(e, 1, true)),
-            render_fn('plus', '아래에 행 1개 삽입', e => option.col_input.oninput(e, 1)),
+            render_fn('plus', '위에 행 1개 삽입', e => option.row_input.oninput(e, 1, true)),
+            render_fn('plus', '아래에 행 1개 삽입', e => option.row_input.oninput(e, 1)),
             render_fn('minus', '왼쪽에 열 1개 삭제', e => option.col_input.oninput(e, -1, true)),
             render_fn('minus', '오른쪽에 열 1개 삭제', e => option.col_input.oninput(e, -1)),
-            render_fn('minus', '위에 행 1개 삭제', e => option.col_input.oninput(e, -1, true)),
-            render_fn('minus', '아래에 행 1개 삭제', e => option.col_input.oninput(e, -1)),
+            render_fn('minus', '위에 행 1개 삭제', e => option.row_input.oninput(e, -1, true)),
+            render_fn('minus', '아래에 행 1개 삭제', e => option.row_input.oninput(e, -1)),
         ]),
         option: (option) => {
             let { rowcount, header, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc' } = option;
@@ -453,17 +453,17 @@ const COMPONENT_SPEC = {
             ]);
 
             option_1.inputs.col.oninput = function (e, v, isPrepend) {
+                if (v) this.value = parseInt(this.value) + v;
                 if (!this.validity.valid) return false;
                 if (isPrepend) option.table.isPrepend = true;
-                if (v) this.value = parseInt(this.value) + v;
                 option.table.colcount = this.value;
                 if (isPrepend) option.table.isPrepend = false;
             }
 
             option_1.inputs.row.oninput = function (e, v, isPrepend) {
+                if (v) this.value = parseInt(this.value) + v;
                 if (!this.validity.valid) return false;
                 if (isPrepend) option.table.isPrepend = true;
-                if (v) this.value = parseInt(this.value) + v;
                 option.table.rowcount = this.value;
                 if (isPrepend) option.table.isPrepend = false;
             }

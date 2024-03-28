@@ -7,7 +7,7 @@
 */
 @font-face {
     font-family: "Yeongdeok Snow Crab";
-    src: url("../resource/Yeongdeok\ Snow Crab.ttf")format("truetype");
+    src: url("../resource/subset-YeongdeokSnowCrab.woff2")format("woff2");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -15,7 +15,7 @@
 
 @font-face {
     font-family: "Yeongdeok Sea";
-    src: url("../resource/Yeongdeok\ Sea.ttf")format("truetype");
+    src: url("../resource/subset-YeongdeokSea.woff2")format("woff2");
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -556,6 +556,7 @@ main>footer {
     margin-bottom: var(--mg-component);
     max-width: fit-content;
     height: var(--fs-xxlarge);
+    overflow: hidden;
 }
 
 .main__header__timestamp {
