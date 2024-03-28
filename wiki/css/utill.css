@@ -505,6 +505,10 @@ iframe {
     margin-right: auto;
 }
 
+header>a {
+    color: var(--clr-font);
+}
+
 header>[title] {
     padding-right: 0;
     transition: 350ms padding-right;

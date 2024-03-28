@@ -12,20 +12,27 @@ function search({ key }) {
 }
 
 async function href_move(href) {
+    loading(0);
     history.pushState({}, '', href);
     params = new URLSearchParams(href.split('?')[1]);
     post_id = params.get('post');
+    document.querySelector('html').scrollTop = 0;
     if (post_id) {
         if (post_id == 'random') {
+            if(waitRandom) return;
+            waitRandom = true;
+            loading(0.15);
             post_id = await firebase.post.random();
             history.replaceState({}, '', href.replace('post=random', `post=${post_id}`));
+            loading(0.35);
+            waitRandom = false;
         }
         await renderPost(post_id);
     } else await renderMain();
     loading(1);
 }
 
-let renderMain, renderPost, timeout_timer, interval_timer, editButton;
+let renderMain, renderPost, timeout_timer, interval_timer, editButton, waitRandom;
 function clearContents() {
     for(let notice of Array.from(document.querySelectorAll('.main__notice'))) notice.remove();
     for(let info of Array.from(document.querySelectorAll('.main__document_info'))) info.remove();
