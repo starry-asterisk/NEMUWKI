@@ -49,6 +49,7 @@ async function firebaseLoadCallback() {
     let main__header__toolbox = document.querySelector('.main__header__toolbox');
     renderMain = async function () {
         clearContents();
+        createVisited();
         main__header__title.innerHTML = '네무위키:대문';
         main__header__timestamp.innerHTML = new Date().toLocaleString();
         timeout_timer = setTimeout(() => {
@@ -104,6 +105,7 @@ async function firebaseLoadCallback() {
 
     renderPost = async function (post_id) {
         clearContents();
+        createVisited();
         let doc = await firebase.post.selectOne(post_id);
         let data = doc.data();
         loading(0.75);
@@ -147,8 +149,6 @@ async function firebaseLoadCallback() {
     SuggestList['board2Path_2'] = board2Path(SuggestList['board'], 2);
     loading(0.25);
     createCategories();
-
-    createVisited();
     loading(0.45);
 
     if (post_id) {

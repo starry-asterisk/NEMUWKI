@@ -1,4 +1,5 @@
 async function createVisited() {
+    recent_post.innerHTML = '';
     for (let str of visited) {
         let [visited_id, title, board_name] = str.split(':');
         let li = createElement('li');
