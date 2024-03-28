@@ -111,7 +111,7 @@ async function firebaseLoadCallback() {
                 e.stopPropagation();
                 modal('addImg', banner_url => {
                     document.querySelector('.main__profile').setStyles({ 'background-image': `url(${banner_url})` });
-                    document.querySelector('.profile').setStyles({ '--background-url': `url(${banner_url})` });
+                    document.querySelector('.profile').setStyles({ '--background-url': `url(${imgurThumb(banner_url,'m')})` });
                     firebase.auth.updateUser(uid, { banner_url });
                 });
             }

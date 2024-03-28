@@ -63,7 +63,7 @@ function createProfile(user) {
 
     firebase.auth.getUser().then(user => {
         let data = user.data();
-        if (data.banner_url) profile.setStyles({ '--background-url': `url("${data.banner_url}")` });
+        if (data.banner_url) profile.setStyles({ '--background-url': `url("${imgurThumb(data.banner_url,'m')}")` });
         if (data.photo_url) profile__photo__img.src = data.photo_url;
     });
 
@@ -80,7 +80,7 @@ function createProfile(user) {
         e.preventDefault();
         e.stopPropagation();
         modal('addImg', banner_url => {
-            profile.setStyles({ '--background-url': `url("${banner_url}")` });
+            profile.setStyles({ '--background-url': `url("${imgurThumb(banner_url,'m')}")` });
             firebase.auth.updateUser(user.uid, { banner_url });
         });
     }
