@@ -578,6 +578,6 @@ class QRCode {
     str += mode.identifier;
     str += encode_dataSize(mode, data.length);
     str += encode_data(mode, data);
-    str;
+    str += 1;
   };
 }
