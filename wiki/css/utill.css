@@ -659,7 +659,7 @@ main>footer {
 }
 
 .main__document_info>.to_author_page::before {
-    content: '작성자 페이지로';
+    content: '작성자 문서';
     padding-right: 0;
 }
 
