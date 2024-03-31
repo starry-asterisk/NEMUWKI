@@ -1,29 +1,145 @@
-.container {
+@import url("materialdesignicons.css");
+
+#receipt {
+    display: none;
+}
+:root {
+    font-size: 14px;
+}
+
+* {
+    font-size: 1.3rem;
+    box-sizing: border-box;
+    outline: 0;
+    --background-dark: #eee;
+    --background: white;
+}
+body {
+    background: var(--background-dark);
+}
+form {
     display: flex;
     flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     margin: auto;
-    width: fit-content;
-    height: fit-content;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    zoom: 2;
+    width: 36rem;
 }
-#barcode {
-    height: 60px;
-    width: fit-content;
+ul {
+    line-height: 1.5;
+    margin-block: 0;
+    padding-inline: 0;
+}
+
+li {
     display: flex;
+    flex-direction: column;
+    margin-block: 1rem;
+    background: var(--background-dark);
+    --tab-radius: 0.5rem;
 }
-#barcode > .bar {
-    background-color: black;
-    width: 1px;
+li > p {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    min-height: 3rem;
+    background: var(--background);
+    overflow: hidden;
 }
-#barcode > .space {
-    background-color: white;
-    width: 1px;
+li > p > input {
+    flex: 1;
+    margin: 0;
+    border: none;
+    padding: 0 1rem;
+    border-top-left-radius: var(--tab-radius);
+    border-top-right-radius: var(--tab-radius);
+    box-shadow: 0 -2em 0 1rem var(--background-dark);
+}
+li > p > button:first-of-type {
+    padding-right: 2rem;
+    width: 5rem;
+    border-bottom-left-radius: var(--tab-radius);
+}
+li > p > button {
+    position: relative;
+    font-family:"Material Design Icons";
+    margin: 0;
+    border: none;
+    padding: 0;
+    min-width: 3rem;
+    background: var(--background-dark);
+    pointer-events: none;
+}
+li > p > button::before {
+    position: relative;
+    z-index: 1;
+}
+li > p > button.more::before {
+    content: '\F01D8';
+}
+li > p > button.up::before {
+    content: '\F005D';
+}
+li > p > button.down::before {
+    content: '\F0045';
+}
+li > p > button.delete::before {
+    content: '\F0156';
+}
+li > p > button::after {
+    content: '';
+    position: absolute;
+    top: 0.3rem;
+    left: 0.3rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background-color: #fff0;
+    pointer-events: auto;
+    cursor: pointer;
+}
+li > p > button:hover::after{
+    background-color: #fff5;
+}
+li > p > button:active::after{
+    background-color: #fffc;
+}
+li > div {
+    display: flex;
+    flex: 1;
+    border: none;
+    border-radius: var(--tab-radius);
+    border-top-left-radius: 0;
+    padding: 1rem;
+    background: var(--background);
+}
+li > div > input {
+    flex: 1;
+    margin: 0;
+    border: none;
+    border-radius: 1.5rem;
+    padding: 0 1rem;
+    min-height: 3rem;
+    background-color: #f8f8f8;
+}
+form > button[type="button"] {
+    margin: 2rem auto;
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    border: 0;
+    background-color: #fff5;
+}
+form > button[type="submit"] {
+    margin: auto;
+    border: 0;
+    border-radius: 2rem;
+    padding-inline: 5rem;
+    width: fit-content;
+    height: 4rem;
+    background-color: #fff5;
+}
+form > button:hover {
+    background-color: #fffa;
+}
+form > button:active {
+    background-color: #fff;
 }

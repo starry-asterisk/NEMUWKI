@@ -1,0 +1,29 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    zoom: 2;
+}
+#barcode {
+    height: 60px;
+    width: fit-content;
+    display: flex;
+}
+#barcode > .bar {
+    background-color: black;
+    width: 1px;
+}
+#barcode > .space {
+    background-color: white;
+    width: 1px;
+}
