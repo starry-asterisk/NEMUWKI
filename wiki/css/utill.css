@@ -648,22 +648,34 @@ main>footer {
     line-height: var(--h-control);
 }
 
-.main__document_info>a+a:not(.category)::before {
+.main__document_info>a+a::before {
     content: '>';
-    padding-right: var(--size-indent)
+    padding-right: var(--size-indent);
 }
 
 .main__document_info>.category::before {
     content: '카테고리:';
+    padding-right: 0;
 }
 
-.main__document_info>.category {
+.main__document_info>.to_author_page::before {
+    content: '작성자 페이지로';
+    padding-right: 0;
+}
+
+.main__document_info>.category,
+.main__document_info>.to_author_page {
     margin-block: calc(var(--mg-component) / 2);
     margin-left: var(--mg-component);
     border-radius: var(--mg-component);
     padding-inline: var(--size-indent);
     line-height: calc(var(--h-control) - var(--mg-component));
     background: var(--clr-primary-base);
+}
+
+.main__document_info>.to_author_page {
+    border: var(--bs-small) solid var(--clr-border-lt);
+    background: var(--clr-background-base);
 }
 
 .main__contents {

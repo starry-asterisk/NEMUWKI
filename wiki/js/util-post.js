@@ -241,6 +241,7 @@ async function createList2(keyword = '', field = 'author', operator = 'equal', t
 function buildPost(data, renderInfo = true) {
     let {
         title,
+        author,
         board_name,
         board_name_arr,
         category,
@@ -259,7 +260,8 @@ function buildPost(data, renderInfo = true) {
         }
 
         main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}&operator=equal`, class: 'category' }, innerHTML: category }));
-
+        main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}profile${SUFFIX}?uid=${author}`, class: 'to_author_page' } }));
+        
         document.querySelector('.main__header').after(main__document_info);
 
         main__header__title.innerHTML = title;
