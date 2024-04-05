@@ -70,7 +70,7 @@ async function firebaseLoadCallback() {
   }
 
   async function load(uid, isOwner) {
-    load = () => {};
+    load = () => { };
     if (uid == undefined) {
       NotFound();
       return;
@@ -88,17 +88,18 @@ async function firebaseLoadCallback() {
 
     createVisited();
 
-    firebase.auth.getUser(uid).then((user_data) => {
-      let data = user_data.data();
-      if (data == undefined) return NotFound();
-      if (data.banner_url)
-        document
-          .querySelector(".main__profile")
-          .setStyles({ "background-image": `url(${data.banner_url})` });
-      if (data.description) self_description.innerHTML = data.description;
-      else
-        self_description.innerHTML = `<div style="text-align: center;"><span style="font-family: var(--ff-contents); color: var(--clr-font); font-size: 3.8rem;"> </span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 3.9rem; color: var(--clr-primary-base);">사용자 문서</span><span style="font-size: 3.8rem;">입니다</span></div><div style="text-align: center;">※ 이 페이지는 ${data.email}님의 사용자 문서 입니다</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div>`;
-    });
+    let user_data = await firebase.auth.getUser(uid);
+
+    let data = user_data.data();
+    if (data == undefined) return NotFound();
+
+    if (data.banner_url)
+      document
+        .querySelector(".main__profile")
+        .setStyles({ "background-image": `url(${data.banner_url})` });
+
+    self_description.innerHTML = data.description || `<div style="text-align: center;"><span style="font-family: var(--ff-contents); color: var(--clr-font); font-size: 3.8rem;"> </span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 3.9rem; color: var(--clr-primary-base);">사용자 문서</span><span style="font-size: 3.8rem;">입니다</span></div><div style="text-align: center;">※ 이 페이지는 ${data.email}님의 사용자 문서 입니다</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div>`;
+
 
     document.body.classList.remove("loading");
     loadBoard = async function () {
@@ -115,7 +116,7 @@ async function firebaseLoadCallback() {
 
       await createList1(uid, "author", "equal", undefined, search);
       loading(0.7);
-      await createList2(uid, undefined, undefined, undefined, search);
+      await createList2(uid, "author", "equal", undefined, { category: '인물', ...search });
     };
 
     await loadBoard();
@@ -462,4 +463,14 @@ function createTextboxOpt(option) {
   }
 
   return frag;
+}
+
+function createBoardLists(str) {
+  let arr = JSON.parse(str);
+  arr = arr.sort((a, b) => a.order > b.order);
+  for (let boardInfo of arr) {
+    const {
+      board, category, order, title, type
+    } = boardInfo;
+  }
 }

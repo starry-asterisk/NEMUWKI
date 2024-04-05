@@ -97,7 +97,7 @@ async function firebaseLoadCallback() {
         await createList1(keyword, field, operator);
         loading(0.6);
         for (let el of Array.from(document.querySelectorAll('.content.board_list_2'))) el.remove();
-        await createList2();
+        await createList2('인물', 'category', 'equal');
         loadNotice();
 
     }

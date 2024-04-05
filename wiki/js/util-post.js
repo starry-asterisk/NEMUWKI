@@ -63,7 +63,7 @@ function createProfile(user) {
 
     firebase.auth.getUser().then(user => {
         let data = user.data();
-        if (data.banner_url) profile.setStyles({ '--background-url': `url("${imgurThumb(data.banner_url,'m')}")` });
+        if (data.banner_url) profile.setStyles({ '--background-url': `url("${imgurThumb(data.banner_url, 'm')}")` });
         if (data.photo_url) profile__photo__img.src = data.photo_url;
     });
 
@@ -80,7 +80,7 @@ function createProfile(user) {
         e.preventDefault();
         e.stopPropagation();
         modal('addImg', banner_url => {
-            profile.setStyles({ '--background-url': `url("${imgurThumb(banner_url,'m')}")` });
+            profile.setStyles({ '--background-url': `url("${imgurThumb(banner_url, 'm')}")` });
             firebase.auth.updateUser(user.uid, { banner_url });
         });
     }
@@ -192,12 +192,12 @@ async function createList1(keyword, field, operator, targetHeader = total, searc
     }
 }
 
-async function createList2(keyword = '', field = 'author', operator = 'equal', targetHeader = people, searchData = {}) {
+async function createList2(keyword, field, operator, targetHeader = people, searchData = {}) {
 
     let load_more = createElement('button', { innerHTML: 'load more', attrs: { class: 'normal' }, styles: { margin: 'auto' } });
     let board_list_2 = createElement('div', { attrs: { class: 'content board_list_2' } });
 
-    let docs, next = firebase.search.list({ category: '인물', [field]: keyword, ...searchData }, operator).next;
+    let docs, { next } = firebase.search.list({ [field]: keyword, ...searchData }, operator);
 
     load_more.onclick = async () => {
         load_more.disabled = true;
@@ -261,7 +261,7 @@ function buildPost(data, renderInfo = true) {
 
         main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}?field=category&keyword=${category}&operator=equal`, class: 'category' }, innerHTML: category }));
         main__document_info.append(createElement('a', { attrs: { href: `${ROOT_PATH}profile${SUFFIX}?uid=${author}`, class: 'to_author_page' } }));
-        
+
         document.querySelector('.main__header').after(main__document_info);
 
         main__header__title.innerHTML = title;
