@@ -28,8 +28,19 @@
     bottom: var(--mg-component);
 }
 
+.main__header__toolbox>button {
+    padding-inline: var(--mg-component);
+}
+
+.seperator {
+    text-align: right;
+}
+
 .seperator > * {
+    display: inline-flex;
     position: relative;
+    right: 0;
+    margin-right: var(--mg-component);
 }
 
 .input_color>input {

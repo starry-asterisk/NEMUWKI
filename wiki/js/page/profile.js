@@ -21,7 +21,7 @@ async function href_move(href) {
   document.querySelector("html").scrollTop = 0;
   params = new URLSearchParams(href.split("?")[1]);
   for (let el of Array.from(
-    document.querySelectorAll(".content.board_list_1,.content.board_list_2")
+    document.querySelectorAll(".content.board_list_1,.content.board_list_2,.content.title")
   ))
     el.remove();
   loading(0.15);
@@ -69,6 +69,28 @@ async function firebaseLoadCallback() {
     document.body.classList.remove("loading");
   }
 
+  function loadBoardLists(str, uid, search) {
+    if(str == '' || str == undefined) str = '0;1;전체 문서;;,1;2;인물;인물;';
+    let arr = str.split(',');
+    arr = arr.sort((a, b) => parseInt(a.split(';')[0]) > parseInt(b.split(';')[0]));
+    for (let boardInfo of arr) {
+      const [
+        order, type, title, category, board
+       ] = boardInfo.split(';');
+  
+       let boardheader = createElement('div', { attrs: { class: 'content title', onclick: 'fold(this)' }, innerHTML: title });
+      
+       main__contents.append(boardheader);
+  
+       let search_extended = {...search};
+       if(category!='') search_extended.category = category;
+       if(board!='') search_extended.category = board;
+       (fn => {
+        fn(uid, "author", "equal", boardheader, search_extended);
+       })(type==1?createList1:createList2);
+    }
+  }
+
   async function load(uid, isOwner) {
     load = () => { };
     if (uid == undefined) {
@@ -109,14 +131,13 @@ async function firebaseLoadCallback() {
         null,
         `${ROOT_PATH}profile${SUFFIX}?${params.toString()}`
       );
+
       let op = params.get("operator") || "contains";
       let field = params.get("field") || "title_arr";
       let key = params.get("keyword");
       let search = key ? { [field]: { op, key } } : {};
 
-      await createList1(uid, "author", "equal", undefined, search);
-      loading(0.7);
-      await createList2(uid, "author", "equal", undefined, { category: '인물', ...search });
+      loadBoardLists(data.board_setting,uid,search);
     };
 
     await loadBoard();
@@ -124,14 +145,12 @@ async function firebaseLoadCallback() {
 
     if (isOwner) {
       let editBannerButton = createElement("button", { innerHTML: "수정" });
-      let editDescButton = createElement("button", { innerHTML: "수정" });
-      let editBoard1Button = createElement("button", { innerHTML: "수정" });
-      let editBoard2Button = createElement("button", { innerHTML: "수정" });
+      let editDescButton = createElement("button", { innerHTML: "프로필 설명 수정" });
+      let editBoardButton = createElement("button", { innerHTML: "문서 목록 수정" });
 
       toolbox_1.append(editBannerButton);
-      toolbox_2.append(editDescButton);
-      //toolbox_3.append(editBoard1Button);
-      //toolbox_4.append(editBoard2Button);
+      //toolbox_2.append(editBoardButton);
+      toolbox_3.append(editDescButton);
 
       editBannerButton.onclick = (e) => {
         e.preventDefault();
@@ -175,8 +194,8 @@ async function firebaseLoadCallback() {
           container.append(textBoxOp);
           container.append(textBox);
           self_description.after(container);
-          toolbox_2.append(completeDescButton);
-          toolbox_2.append(cancelDescButton);
+          toolbox_3.append(completeDescButton);
+          toolbox_3.append(cancelDescButton);
 
           completeDescButton.onclick = (e) => {
             common(e);
@@ -463,14 +482,4 @@ function createTextboxOpt(option) {
   }
 
   return frag;
-}
-
-function createBoardLists(str) {
-  let arr = JSON.parse(str);
-  arr = arr.sort((a, b) => a.order > b.order);
-  for (let boardInfo of arr) {
-    const {
-      board, category, order, title, type
-    } = boardInfo;
-  }
 }
