@@ -43,6 +43,9 @@ footer:hover,
     top: 0;
     right: 0;
     margin-block: auto;
+}
+
+input[type="checkbox"] {
     border-radius: calc(var(--h-control-small) / 2);
     padding: 0.4rem;
     width: var(--w-min-button);
@@ -52,13 +55,24 @@ footer:hover,
     transition: background-color 350ms;
 }
 
-input[type="checkbox"][label]::after {
+input[type="checkbox"][label]:not(.rightLabel)::after {
     content: attr(label);
     font-size: var(--fs-small);
     position: absolute;
     top: 0;
     right: 100%;
     margin-right: var(--mg-component);
+    line-height: var(--h-control-small);
+}
+
+input.rightLabel[type="checkbox"][label]::after {
+    content: attr(label);
+    font-size: var(--fs-small);
+    position: absolute;
+    top: 0;
+    left: 100%;
+    white-space: pre;
+    margin-left: var(--mg-component);
     line-height: var(--h-control-small);
 }
 
@@ -81,6 +95,27 @@ input[type="checkbox"]:checked {
 
 input[type="checkbox"]:checked::before {
     margin-left: calc(var(--w-min-button) - var(--h-control-small));
+}
+
+.owned::before {
+    content: '\F04CE';
+    font-family: var(--ff-icon);
+    margin-right: var(--mg-component);
+}
+
+.remove_btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: var(--bs-small) solid var(--clr-border-dk);
+    height: 100%;
+    aspect-ratio: 1;
+    background: var(--clr-border-lt);
+}
+
+.remove_btn::before {
+    content: "\F0159";
+    font-family: var(--ff-icon);
 }
 
 .main__contents {

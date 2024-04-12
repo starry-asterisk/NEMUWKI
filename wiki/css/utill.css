@@ -294,6 +294,12 @@ sup {
     transition: outline-color 200ms;
 }
 
+.input_container.readonly {
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.5;
+}
+
 .input_container::before {
     content: "";
     font-size: 1.35em;
@@ -932,6 +938,10 @@ body.loading aside>*::after {
     background-color: var(--clr-background-base);
     opacity: 1;
     z-index: 1;
+}
+
+body.loading input[type="checkbox"] {
+    display: none;
 }
 
 /* non-auth style */

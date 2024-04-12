@@ -8,8 +8,8 @@ window.addEventListener('load', function () {
     init_timestamp();
 });
 
-window.addEventListener('beforeunload', e=>{
-    if(isSubmit) return;
+window.addEventListener('beforeunload', e => {
+    if (isSubmit) return;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -93,6 +93,7 @@ async function firebaseLoadCallback() {
     loading(0.3);
 
     if (post_id) {
+        isTemplate.setStyles({ display: 'none' });
         document.querySelector('aside').append(createElement('button', {
             attrs: { class: 'danger' },
             on: { click: e => { remove(e.target) } },
@@ -117,6 +118,23 @@ async function firebaseLoadCallback() {
         for (let doc of docs) {
             let data = doc.data();
             let li = createElement('li', { attrs: { value: data.title } });
+            if (data.author == _user.uid) {
+                li.innerHTML = data.title;
+                li.classList.add('owned');
+                li.append(createElement('button', {
+                    attrs: { class: 'remove_btn' }, on: {
+                        mousedown: function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!confirm('정말로 삭제 하시겠습니까?')) return;
+                            e.target.setAttribute('disabled', true);
+                            firebase.post.deleteOne(doc.id)
+                                .then(() => li.remove())
+                                .catch(firebaseErrorHandler);
+                        }
+                    }
+                }));
+            }
             li.onmousedown = () => {
                 li.parentNode.previousElementSibling.value = data.title;
                 buildForm(data);
@@ -128,6 +146,9 @@ async function firebaseLoadCallback() {
     }).catch(firebaseErrorHandler);
 }
 function buildForm(data) {
+
+    main__contents.innerHTML = '';
+
     let {
         title,
         board_name,
@@ -988,9 +1009,24 @@ async function makeKeyword(id, data) {
     let urlObj = contents.find(content => content.type == 'image');
     if (urlObj) keyword_data.thumbnail = urlObj.value;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
-    
+
     await firebase.search.set(id, keyword_data);
 }
+const setTemplate = (function () {
+    let oldValue;
+    return (input) => {
+        if (input.checked) {
+            oldValue = post_menu.value;
+            post_menu.value = 'template';
+            input_template.classList.add('readonly');
+            input_menu.classList.add('readonly');
+        } else {
+            post_menu.value = (oldValue != 'template') ? oldValue : '';
+            input_template.classList.remove('readonly');
+            input_menu.classList.remove('readonly');
+        }
+    };
+})();
 
 const preview = (function () {
     let _buildPost;

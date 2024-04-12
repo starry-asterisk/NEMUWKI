@@ -183,7 +183,11 @@ async function firebaseLoadCallback() {
 
         for (let board of parseBoardSetting(data.board_setting)) addLine(board);
 
-        addButton.onclick = e => addLine({title: '목록명을 입력해 주세요.', category: '', board: '', type: '1'});
+        addButton.onclick = e => {
+          let lines = Array.from(container.querySelectorAll('.setting__line'));
+          if(lines.length > 4) return alert('목록은 5개 까지 생성 가능합니다.');
+          addLine({title: '목록명을 입력해 주세요.', category: '', board: '', type: '1'});
+        };
 
         function addLine(board){
 
@@ -195,6 +199,12 @@ async function firebaseLoadCallback() {
 
           let setting__line = createElement("div", {attrs: { class: "setting__line" }});
 
+          let select_wrap = createElement("div",{attrs:{title:'목록형태'}});
+          let input_wrap = createElement("div",{attrs:{title:'목록명'}});
+          let select_wrap_2 = createElement("div",{attrs:{title:'카테고리'}});
+          let select_wrap_3 = createElement("div",{attrs:{title:'분류'}});
+          let button_wrap = createElement("div");
+
           let select_type = createSelect('type',[{value: 1, text: '게시판형'},{value: 2, text: '앨범형'}]);
           let input_title = createElement("input", {attrs: { type: 'text'}});
           let select_category = createSelect('category',arr_cate);
@@ -204,13 +214,18 @@ async function firebaseLoadCallback() {
           let button_down = createElement("button", {attrs: {class: 'mdi mdi-arrow-down-bold-circle'}});
           let button_delete = createElement("button", {attrs: {class: 'mdi mdi-close-circle'}});
 
-          setting__line.append(select_type);
-          setting__line.append(input_title);
-          setting__line.append(select_category);
-          setting__line.append(select_board);
-          setting__line.append(button_up);
-          setting__line.append(button_down);
-          setting__line.append(button_delete);
+          setting__line.append(select_wrap);
+          select_wrap.append(select_type);
+          setting__line.append(input_wrap);
+          input_wrap.append(input_title);
+          setting__line.append(select_wrap_2);
+          select_wrap_2.append(select_category);
+          setting__line.append(select_wrap_3);
+          select_wrap_3.append(select_board);
+          setting__line.append(button_wrap);
+          button_wrap.append(button_up);
+          button_wrap.append(button_down);
+          button_wrap.append(button_delete);
 
           select_type.value = board.type;
           select_category.value = board.category;
@@ -232,6 +247,8 @@ async function firebaseLoadCallback() {
 
           button_delete.onclick = e => {
             if(!confirm('정말 삭제 하시겠습니까?')) return;
+            let lines = Array.from(container.querySelectorAll('.setting__line'));
+            if(lines.length < 2) return alert('목록은 최소 1개는 있어야 합니다.');
             setting__line.remove();
           }
         }
