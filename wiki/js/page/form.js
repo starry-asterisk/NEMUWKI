@@ -76,6 +76,7 @@ async function loadCategorySuggest() {
 
 async function firebaseLoadCallback() {
     firebase.auth.check(user => {
+        _user = user;
         document.body.classList.remove('non-auth');
         author_uid = author_uid || user.uid;
     }, () => {

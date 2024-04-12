@@ -13,6 +13,26 @@ HTMLElement.prototype.switchClass = function (oldClass, newClass, replace = fals
     }
 }
 
+HTMLElement.prototype.prev = function (s) {
+    var el = this.previousElementSibling;
+
+    while (el != null) {
+        if (Element.prototype.matches.call(el, s)) return el;
+        el = el.previousElementSibling;
+    }
+    return null;
+}
+
+HTMLElement.prototype.next = function (s) {
+    var el = this.nextElementSibling;
+
+    while (el != null) {
+        if (Element.prototype.matches.call(el, s)) return el;
+        el = el.nextElementSibling;
+    };
+    return null;
+}
+
 customElements.define('editable-table', class extends HTMLElement {
     _beforeInit = true;
     _rowcount = 0;
@@ -332,10 +352,11 @@ const MODAL_TEMPLATE = {
             e.preventDefault();
             if (text_input.value) {
                 if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
-                    firebase.categories.insertOne({ name: text_input.value })
+                    if(SuggestList['category'].find(obj => obj.name === text_input.value)) return alert('동일 명칭의 카테고리가 이미 존재합니다!!');
+                    firebase.categories.insertOne({ name: text_input.value, owner: _user.uid })
                         .then(() => {
                             alert('카테고리가 추가되었습니다.');
-                            SuggestList['category'].push({ name: text_input.value });
+                            SuggestList['category'].push({ name: text_input.value, owner: _user.uid });
                             loadCategorySuggest();
                             container.close();
                         })
@@ -371,10 +392,11 @@ const MODAL_TEMPLATE = {
             e.preventDefault();
             if (text_input.value) {
                 if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
-                    firebase.board.insertOne({ name: text_input.value, parent: parent_input.value })
+                    if(SuggestList['board'].find(obj => obj.name === text_input.value)) return alert('동일 명칭의 메뉴가 이미 존재합니다!!');
+                    firebase.board.insertOne({ name: text_input.value, parent: parent_input.value, owner: _user.uid })
                         .then(() => {
                             alert('메뉴가 추가되었습니다.');
-                            SuggestList['board'].push({ name: text_input.value, parent: parent_input.value });
+                            SuggestList['board'].push({ name: text_input.value, parent: parent_input.value, owner: _user.uid });
                             loadBoardSuggest();
                             container.close();
                         })
@@ -720,6 +742,7 @@ let SuggestList = {
     board2Path_1: [],
     board2Path_2: [],
 };
+let _user;
 
 let post_id = params.get('post');
 

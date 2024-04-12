@@ -29,6 +29,12 @@ async function href_move(href) {
   loading(1);
 }
 
+function createSelect(name, options){
+  let selectTag = createElement("select", {attrs: { name }});
+  for(let op of options) selectTag.append(createElement("option", {value: op.value, innerHTML: op.text}));
+  return selectTag;
+}
+
 async function firebaseLoadCallback() {
   loading(0);
   const {
@@ -69,25 +75,28 @@ async function firebaseLoadCallback() {
     document.body.classList.remove("loading");
   }
 
-  function loadBoardLists(str, uid, search) {
-    if(str == '' || str == undefined) str = '0;1;전체 문서;;,1;2;인물;인물;';
-    let arr = str.split(',');
-    arr = arr.sort((a, b) => parseInt(a.split(';')[0]) > parseInt(b.split(';')[0]));
-    for (let boardInfo of arr) {
+  function parseBoardSetting(str) {
+    if (str == '' || str == undefined) str = '0;1;전체 문서;;,1;2;인물;인물;';
+
+    return str.split(',').map(boardInfo => {
       const [
-        order, type, title, category, board
-       ] = boardInfo.split(';');
-  
-       let boardheader = createElement('div', { attrs: { class: 'content title', onclick: 'fold(this)' }, innerHTML: title });
-      
-       main__contents.append(boardheader);
-  
-       let search_extended = {...search};
-       if(category!='') search_extended.category = category;
-       if(board!='') search_extended.category = board;
-       (fn => {
-        fn(uid, "author", "equal", boardheader, search_extended);
-       })(type==1?createList1:createList2);
+        order_str, type, title, category, board
+      ] = boardInfo.split(';');
+      return { order: parseInt(order_str), fn: type == '1' ? createList1 : createList2, type, title, category, board };
+    });
+  }
+  function loadBoardLists(str, uid, search) {
+    let arr = parseBoardSetting(str);
+
+    arr = arr.sort((a, b) => a.order > b.order);
+    for (let info of arr) {
+      let boardheader = createElement('div', { attrs: { class: 'content title', onclick: 'fold(this)' }, innerHTML: info.title });
+      main__contents.append(boardheader);
+
+      let search_extended = { ...search };
+      if (info.category) search_extended.category = { key: info.category, op: 'equal' };
+      if (info.board) search_extended.board = { key: info.board, op: 'contains' };
+      info.fn(uid, "author", "equal", boardheader, search_extended);
     }
   }
 
@@ -137,7 +146,7 @@ async function firebaseLoadCallback() {
       let key = params.get("keyword");
       let search = key ? { [field]: { op, key } } : {};
 
-      loadBoardLists(data.board_setting,uid,search);
+      loadBoardLists(data.board_setting, uid, search);
     };
 
     await loadBoard();
@@ -149,8 +158,105 @@ async function firebaseLoadCallback() {
       let editBoardButton = createElement("button", { innerHTML: "문서 목록 수정" });
 
       toolbox_1.append(editBannerButton);
-      //toolbox_2.append(editBoardButton);
+      toolbox_2.append(editBoardButton);
       toolbox_3.append(editDescButton);
+
+      editBoardButton.onclick = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        let board_items = document.querySelectorAll(".content.board_list_1,.content.board_list_2,.content.title");
+        let container = createElement("div", {attrs: { class: "component setting" }});
+        let completeButton = createElement("button", { innerHTML: "저장" });
+        let cancelButton = createElement("button", { innerHTML: "취소" });
+
+        toolbox_2.append(completeButton);
+        toolbox_2.append(cancelButton);
+
+        editBoardButton.setStyles({ display: 'none' });
+        for (let el of board_items) el.setStyles({ display: 'none' });
+
+        if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
+        
+        main__contents.append(container);
+        for (let board of parseBoardSetting(data.board_setting)) addLine(board);
+
+        function addLine(board){
+
+          let arr_cate = SuggestList['category'].map(obj => {return {value: obj.name, text: obj.name}});
+          let arr_board = SuggestList['board2Path_1'].map(obj => {return {value: obj.name, text: obj.path}});
+
+          arr_cate.unshift({value: '', text: '전체'});
+          arr_board.unshift({value: '', text: '전체'});
+
+          let setting__line = createElement("div", {attrs: { class: "setting__line" }});
+
+          let select_type = createSelect('type',[{value: 1, text: '게시판형'},{value: 2, text: '앨범형'}]);
+          let input_title = createElement("input", {attrs: { type: 'text'}});
+          let select_category = createSelect('category',arr_cate);
+          let select_board = createSelect('board',arr_board);
+
+          let button_up = createElement("button", {attrs: {class: 'mdi mdi-arrow-up-bold-circle'}});
+          let button_down = createElement("button", {attrs: {class: 'mdi mdi-arrow-down-bold-circle'}});
+          let button_delete = createElement("button", {attrs: {class: 'mdi mdi-close-circle'}});
+
+          setting__line.append(select_type);
+          setting__line.append(input_title);
+          setting__line.append(select_category);
+          setting__line.append(select_board);
+          setting__line.append(button_up);
+          setting__line.append(button_down);
+          setting__line.append(button_delete);
+
+          select_type.value = board.type;
+          select_category.value = board.category;
+          select_board.value = board.board;
+          input_title.value = board.title;
+
+          container.append(setting__line);
+
+          button_up.onclick = e => {
+            let prev = setting__line.prev('.setting__line');
+            console.log(prev);
+            if(prev) prev.before(setting__line);
+          }
+
+          button_down.onclick = e => {
+            let next = setting__line.next('.setting__line');
+            if(next) next.after(setting__line);
+          }
+
+          button_delete.onclick = e => {
+            if(!confirm('정말 삭제 하시겠습니까?')) return;
+            setting__line.remove();
+          }
+        }
+
+        cancelButton.onclick = e => {
+          e.preventDefault();
+          e.stopPropagation();
+          editBoardButton.setStyles({ display: '' });
+          for (let el of board_items) el.setStyles({ display: '' });
+          completeButton.remove();
+          cancelButton.remove();
+          container.remove();
+        }
+
+        completeButton.onclick = async e => {
+          e.preventDefault();
+          e.stopPropagation();
+          if(confirm('변경사항을 저장 할까요?')){
+            let lines = Array.from(container.querySelectorAll('.setting__line'));
+            if(lines.length > 5) return alert('목록은 5개 까지 생성 가능합니다.');
+            let board_setting = [];
+            for(let index in lines){
+              let line = lines[index];
+              board_setting.push(`${index};${line.querySelector('[name="type"]').value};${line.querySelector('input').value};${line.querySelector('[name="category"]').value};${line.querySelector('[name="board"]').value}`);
+            }
+            await firebase.auth.updateUser(uid, { board_setting: board_setting.join(',') });
+          }
+          location.reload();
+        }
+      }
 
       editBannerButton.onclick = (e) => {
         e.preventDefault();
@@ -180,6 +286,7 @@ async function firebaseLoadCallback() {
           completeDescButton.setStyles({ display: "block" });
           cancelDescButton.setStyles({ display: "block" });
           container.setStyles({ display: "block" });
+          textBox.innerHTML = self_description.innerHTML;
         } else {
           editorInitialized = true;
           completeDescButton = createElement("button", { innerHTML: "저장" });

@@ -50,3 +50,37 @@
     width: 100%;
     height: 1.3rem;
 }
+
+.component.setting:hover {
+    background: none;
+}
+
+.setting__line {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: var(--mg-component);
+    border-radius: var(--br-smallest);
+    height: var(--h-control);
+    background-color: var(--clr-background-dark);
+}
+.setting__line > select {
+    padding-inline: var(--mg-component);
+    min-width: 12rem;
+    background-color: transparent;
+}
+.setting__line > button {
+    font-size: var(--fs-large);
+    line-height: var(--h-control);
+    width: var(--h-control);
+    height: var(--h-control);
+    background-color: transparent;
+}
+.setting__line > input {
+    flex: 1;
+    padding-inline: var(--mg-component);
+    min-width: 15rem;
+    background-color: transparent;
+}
+.setting__line > * + *:not(button) {
+    border-left: var(--bs-small) solid var(--clr-border-base);
+}

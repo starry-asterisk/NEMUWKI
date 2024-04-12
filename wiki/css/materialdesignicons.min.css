@@ -24,3 +24,6 @@
 .mdi-format-strikethrough::before{content:"\F0280"}
 .mdi-format-italic::before{content:"\F0277"}
 .mdi-format-bold::before{content:"\F0264"}
+.mdi-arrow-up-bold-circle::before{content:"\F005F"}
+.mdi-arrow-down-bold-circle::before{content:"\F0047"}
+.mdi-close-circle::before{content:"\F0159"}
