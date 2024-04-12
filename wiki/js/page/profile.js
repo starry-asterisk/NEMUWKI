@@ -158,7 +158,7 @@ async function firebaseLoadCallback() {
       let editBoardButton = createElement("button", { innerHTML: "문서 목록 수정" });
 
       toolbox_1.append(editBannerButton);
-      //toolbox_2.append(editBoardButton);
+      toolbox_2.append(editBoardButton);
       toolbox_3.append(editDescButton);
 
       editBoardButton.onclick = async (e) => {
@@ -168,6 +168,7 @@ async function firebaseLoadCallback() {
         let container = createElement("div", {attrs: { class: "component setting" }});
         let completeButton = createElement("button", { innerHTML: "저장" });
         let cancelButton = createElement("button", { innerHTML: "취소" });
+        let addButton = createElement("button", { attrs:{class: 'setting__add'} });
 
         toolbox_2.append(completeButton);
         toolbox_2.append(cancelButton);
@@ -178,7 +179,11 @@ async function firebaseLoadCallback() {
         if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
         
         main__contents.append(container);
+        container.append(addButton);
+
         for (let board of parseBoardSetting(data.board_setting)) addLine(board);
+
+        addButton.onclick = e => addLine({title: '목록명을 입력해 주세요.', category: '', board: '', type: '1'});
 
         function addLine(board){
 
@@ -212,7 +217,7 @@ async function firebaseLoadCallback() {
           select_board.value = board.board;
           input_title.value = board.title;
 
-          container.append(setting__line);
+          addButton.before(setting__line);
 
           button_up.onclick = e => {
             let prev = setting__line.prev('.setting__line');
@@ -250,7 +255,7 @@ async function firebaseLoadCallback() {
             let board_setting = [];
             for(let index in lines){
               let line = lines[index];
-              board_setting.push(`${index};${line.querySelector('[name="type"]').value};${line.querySelector('input').value};${line.querySelector('[name="category"]').value};${line.querySelector('[name="board"]').value}`);
+              board_setting.push(`${index};${line.querySelector('[name="type"] > option:checked')?.getAttribute('value') || ''};${line.querySelector('input').value};${line.querySelector('[name="category"] > option:checked')?.getAttribute('value') || ''};${line.querySelector('[name="board"] > option:checked')?.getAttribute('value') || ''}`);
             }
             await firebase.auth.updateUser(uid, { board_setting: board_setting.join(',') });
           }

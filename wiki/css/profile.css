@@ -53,6 +53,19 @@
 
 .component.setting:hover {
     background: none;
+    text-align: center;
+}
+
+.setting__add {
+    margin: auto;
+    border-radius: 50%;
+    width: var(--h-control);
+    height: var(--h-control);
+}
+.setting__add::before {
+    content: '\F11EC';
+    font-family: var(--ff-icon);
+    font-size: var(--fs-xlarge);
 }
 
 .setting__line {
