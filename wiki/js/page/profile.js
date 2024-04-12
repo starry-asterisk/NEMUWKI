@@ -158,7 +158,7 @@ async function firebaseLoadCallback() {
       let editBoardButton = createElement("button", { innerHTML: "문서 목록 수정" });
 
       toolbox_1.append(editBannerButton);
-      toolbox_2.append(editBoardButton);
+      //toolbox_2.append(editBoardButton);
       toolbox_3.append(editDescButton);
 
       editBoardButton.onclick = async (e) => {
