@@ -30,6 +30,7 @@ footer:hover,
 
 .main__header__title>input {
     display: block;
+    max-width: 100%;
     height: var(--fs-xxlarge);
     transition: 200ms padding;
 }
