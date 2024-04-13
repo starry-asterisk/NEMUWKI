@@ -636,21 +636,23 @@ main>footer {
 
 .main__document_info {
     display: flex;
+    flex-wrap: wrap;
     border: var(--bs-small) solid var(--clr-border-lt);
     border-radius: var(--br-smallest);
     padding-inline: var(--size-indent);
-    height: var(--h-control);
     line-height: var(--h-control);
     background-color: var(--clr-background-dark);
 }
 
 .main__document_info::before {
     content: '분류:';
+    height: var(--h-control);
 }
 
 .main__document_info>a {
     color: black;
     padding-inline: calc(var(--size-indent) / 2);
+    height: var(--h-control);
     line-height: var(--h-control);
 }
 
@@ -675,6 +677,7 @@ main>footer {
     margin-left: var(--mg-component);
     border-radius: var(--mg-component);
     padding-inline: var(--size-indent);
+    height: calc(var(--h-control) - var(--mg-component));
     line-height: calc(var(--h-control) - var(--mg-component));
     background: var(--clr-primary-base);
 }

@@ -53,8 +53,31 @@ function init_componentList() {
 async function loadBoardSuggest() {
     if (typeof input_menu != 'undefined') {
         input_menu.querySelector('.input_suggest').innerHTML = '';
-        if (SuggestList['board'] == undefined || SuggestList['board'].length < 1) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
-        for (let data of board2Path(SuggestList['board'])) addSuggest(data, input_menu);
+        if (SuggestList['board'] == undefined || SuggestList['board'].length < 1) SuggestList['board'] = (await firebase.board.list()).docs.map(doc => { return { ...doc.data(), _id: doc.id }; });
+        SuggestList['board2Path_1'] = board2Path(SuggestList['board'], 1);
+        SuggestList['board2Path_1'].sort((a, b) => {
+            return (a.owner != b.owner && a.owner == _user.uid) ? -1 : 0;
+        });
+        for (let data of SuggestList['board2Path_1']) {
+            let li = addSuggest(data, input_menu);
+            if (data.owner == _user.uid) {
+                li.innerHTML = data.path;
+                li.classList.add('owned');
+                li.append(createElement('button', {
+                    attrs: { class: 'remove_btn' }, on: {
+                        mousedown: function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!confirm('정말로 삭제 하시겠습니까?')) return;
+                            e.target.setAttribute('disabled', true);
+                            firebase.board.deleteOne(data._id)
+                                .then(() => li.remove())
+                                .catch(firebaseErrorHandler);
+                        }
+                    }
+                }));
+            }
+        }
 
         let li = createElement('li', { innerHTML: '+ 새로운 메뉴 추가', styles: { background: 'var(--clr-primary-46)', cursor: 'pointer' } });
         li.onmousedown = () => modal('addMenu');
@@ -65,8 +88,29 @@ async function loadBoardSuggest() {
 async function loadCategorySuggest() {
     if (typeof input_categories != 'undefined') {
         input_categories.querySelector('.input_suggest').innerHTML = '';
-        if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => doc.data());
-        for (let data of SuggestList['category']) addSuggest(data, input_categories);
+        if (SuggestList['category'] == undefined || SuggestList['category'].length < 1) SuggestList['category'] = (await firebase.categories.list()).docs.map(doc => { return { ...doc.data(), _id: doc.id } });
+        for (let data of SuggestList['category'].sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => {
+            return (a.owner != b.owner && a.owner == _user.uid) ? -1 : 0;
+        })) {
+            let li = addSuggest(data, input_categories);
+            if (data.owner == _user.uid) {
+                li.innerHTML = data.name;
+                li.classList.add('owned');
+                li.append(createElement('button', {
+                    attrs: { class: 'remove_btn' }, on: {
+                        mousedown: function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!confirm('정말로 삭제 하시겠습니까?')) return;
+                            e.target.setAttribute('disabled', true);
+                            firebase.categories.deleteOne(data._id)
+                                .then(() => li.remove())
+                                .catch(firebaseErrorHandler);
+                        }
+                    }
+                }));
+            }
+        }
 
         let li = createElement('li', { innerHTML: '+ 새로운 카테고리 추가', styles: { background: 'var(--clr-primary-46)', cursor: 'pointer' } });
         li.onmousedown = () => modal('addCategory');

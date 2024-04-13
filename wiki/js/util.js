@@ -277,6 +277,7 @@ function addSuggest(data, input) {
         li.parentNode.previousElementSibling.value = data.path || data.name;
     }
     input.querySelector('.input_suggest').append(li);
+    return li;
 }
 
 function modal(mode = 'emailPrompt', option) {
@@ -351,7 +352,7 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (confirm('카테고리를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (confirm('카테고리를 생성하시겠습니까?')) {
                     if(SuggestList['category'].find(obj => obj.name === text_input.value)) return alert('동일 명칭의 카테고리가 이미 존재합니다!!');
                     firebase.categories.insertOne({ name: text_input.value, owner: _user.uid })
                         .then(() => {
@@ -391,7 +392,7 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (confirm('메뉴를 생성하시겠습니까? \n ※삭제는 관리자에게 문의해주세요.')) {
+                if (confirm('메뉴를 생성하시겠습니까?')) {
                     if(SuggestList['board'].find(obj => obj.name === text_input.value)) return alert('동일 명칭의 메뉴가 이미 존재합니다!!');
                     firebase.board.insertOne({ name: text_input.value, parent: parent_input.value, owner: _user.uid })
                         .then(() => {
@@ -584,7 +585,7 @@ function board2Path(arr_original, type) {
 
     function stripe_1(data, prefix = []) {
         prefix.push(data.name);
-        striped_menu.push({ path: prefix.join(' > '), name: data.name, path_arr: prefix.slice() });
+        striped_menu.push({ path: prefix.join(' > '), name: data.name, path_arr: prefix.slice(), _id: data._id, owner: data.owner });
         for (let child of data.child || []) stripe(child, prefix.slice());
     }
 

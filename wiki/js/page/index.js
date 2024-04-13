@@ -143,7 +143,7 @@ async function firebaseLoadCallback() {
         document.body.classList.add('non-auth');
     });
 
-    SuggestList['board'] = (await firebase.board.list()).docs.map(doc => doc.data());
+    SuggestList['board'] = (await firebase.board.list()).docs.map(doc => { return {...doc.data(), _id: doc.id}; });
     SuggestList['board2Path_1'] = board2Path(SuggestList['board'], 1);
     SuggestList['board2Path_2'] = board2Path(SuggestList['board'], 2);
     loading(0.25);
