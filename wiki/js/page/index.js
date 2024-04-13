@@ -34,7 +34,8 @@ async function href_move(href) {
 
 let renderMain, renderPost, timeout_timer, interval_timer, editButton, waitRandom;
 function clearContents() {
-    for (let el of Array.from(document.querySelectorAll('.main__document_info, .main__notice, body>.index'))) el.remove();
+    document.body.classList.remove('error');
+    for (let el of Array.from(document.querySelectorAll('.main__document_info, .main__notice, body>.index, body>error'))) el.remove();
     if (editButton) editButton.remove();
     if (timeout_timer) clearTimeout(timeout_timer);
     if (interval_timer) clearInterval(interval_timer);
