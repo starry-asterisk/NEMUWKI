@@ -192,7 +192,7 @@ function shiftPrevLetterPos(node, pos, offset, inline = false) {
         else node = node.previousSibling;
         if (node == undefined) return undefined;
         while (node.nodeType != 3) node = node.lastChild;
-        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow + 1);
+        return shiftPrevLetterPos(node, node.nodeValue.length - 1, overflow + 1, inline);
     } else return {
         node,
         pos: pos + offset
