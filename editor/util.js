@@ -215,6 +215,7 @@ function contextMenuHandler(e, context) {
     contextMunuInfos.sort((info1, info2) => (info1.order || 0) - (info2.order || 0));
 
     for (let tabIndex in contextMunuInfos) {
+        if(isNaN(tabIndex)) continue;
         let contextMunuInfo = contextMunuInfos[tabIndex];
         let { name, disabled, callback, icon, shortcut } = contextMunuInfo;
         let contextMenuItem = (() => {
