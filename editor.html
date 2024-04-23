@@ -36,9 +36,9 @@
             <span class="header__button mdi mdi-arrow-left"></span>
             <span class="header__button mdi mdi-arrow-right"></span>
             <div class="header__search" tabindex="1">
-                <input type="text" value="text_sample" autocomplete="off" name="search" spellcheck="false" v-model="keyword">
+                <input type="text" placeholder="Search files by name (append : to go to line or @ to go to symbol)" autocomplete="off" name="search" spellcheck="false" v-model="keyword">
                 <div class="header__search__suggestion">
-                    <p v-for="(suggestion, index) in search(keyword)">{{suggestion}}</p>
+                    <p v-for="(suggestion, index) in search(keyword)" v-on:click="getOnTab().addSubTab(suggestion, true)">{{suggestion.name}}</p>
                 </div>
             </div>
         </header>

@@ -6,9 +6,9 @@ let global_range;
 let fileDB;
 
 const suggestions = [
-    '테스트 입니다',
-    '테스트입니다',
-    '스 트입 니다'
+    // { name: '테스트 입니다' },
+    // { name: '테스트입니다' },
+    // { name: '스 트입 니다' }
 ]
 
 window.onload = () => {
@@ -57,7 +57,7 @@ window.onload = () => {
                 e.target.closest('.aside_folder').classList.remove('dragover');
                 let find_folder = this.files.find(id);
                 let find_file = this.files.find(e.dataTransfer.getData("file"));
-                if(invalidMovePath(find_file, find_folder)) return dev('warn','same directory');
+                if (invalidMovePath(find_file, find_folder)) return dev('warn', 'same directory');
                 let scope = this.files;
                 let target = find_file.path.pop();
                 find_file.path.shift();
@@ -68,7 +68,9 @@ window.onload = () => {
                 find_folder.node.children.push(find_file.node);
             },
             search: function (keyword) {
-                return suggestions.filter(str => str.replaceAll(' ', '').indexOf(keyword) > -1);
+                let result = suggestions.filter(obj => obj.name.replaceAll(' ', '').includes(keyword));
+                if (app?.files) result = result.concat(getAllFileList(app.files).filter(file => file.name.includes(keyword)));
+                return result;
             },
             addTab: function (TabClass) {
                 let tab = new TabClass(this);

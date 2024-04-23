@@ -10,11 +10,11 @@ function w3CodeColor(elmntTxt, mode) {
     var csspropertyvaluecolor = "mediumblue";
     var cssdelimitercolor = "black";
     var cssimportantcolor = "red";  
-    var jscolor = "black";
+    var jscolor = "lightgrey";
     var jskeywordcolor = "mediumblue";
     var jsstringcolor = "brown";
     var jsnumbercolor = "red";
-    var jspropertycolor = "black";
+    var jspropertycolor = "cornflowerblue";
     if (!lang) {lang = "html"; }
     if (lang == "html") {elmntTxt = htmlMode(elmntTxt);}
     if (lang == "css") {elmntTxt = cssMode(elmntTxt);}
@@ -225,19 +225,19 @@ function w3CodeColor(elmntTxt, mode) {
       for (i = 0; i < esc.length; i++) {
         rest = rest.replace("W3JSESCAPE", esc[i]);
       }
-      return "<span style=color:" + jscolor + ">" + rest + "</span>";
+      return "<span style=color:" + jscolor + ">" + rest.replaceAll('\n',"</span>\n<span style=color:" + jscolor + ">") + "</span>";
     }
     function jsStringMode(txt) {
-      return "<span style=color:" + jsstringcolor + ">" + txt + "</span>";
+      return "<span style=color:" + jsstringcolor + ">" + txt.replaceAll('\n',"</span>\n<span style=color:" + jsstringcolor + ">") + "</span>";
     }
     function jsKeywordMode(txt) {
-      return "<span style=color:" + jskeywordcolor + ">" + txt + "</span>";
+      return "<span style=color:" + jskeywordcolor + ">" + txt.replaceAll('\n',"</span>\n<span style=color:" + jskeywordcolor + ">") + "</span>";
     }
     function jsNumberMode(txt) {
-      return "<span style=color:" + jsnumbercolor + ">" + txt + "</span>";
+      return "<span style=color:" + jsnumbercolor + ">" + txt.replaceAll('\n',"</span>\n<span style=color:" + jsnumbercolor + ">") + "</span>";
     }
     function jsPropertyMode(txt) {
-      return "<span style=color:" + jspropertycolor + ">" + txt + "</span>";
+      return "<span style=color:" + jspropertycolor + ">" + txt.replaceAll('\n',"</span>\n<span style=color:" + jspropertycolor + ">") + "</span>";
     }
     function getDotPos(txt, func) {
       var x, i, j, s, e, arr = [".","<", " ", ";", "(", "+", ")", "[", "]", ",", "&", ":", "{", "}", "/" ,"-", "*", "|", "%"];

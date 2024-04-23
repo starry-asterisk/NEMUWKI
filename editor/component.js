@@ -193,7 +193,15 @@ async function FileFactory(entry) {
         return directory;
     }
 }
-
+function getAllFileList(entry){
+    let arr = []
+    if(entry instanceof CFile){
+        arr.push(entry);
+    }else if(entry instanceof CDirectory){
+        for(let child of entry.children) arr = arr.concat(getAllFileList(child));
+    }
+    return arr;
+}
 Vue.component("file", {
     props: {
         id: {},

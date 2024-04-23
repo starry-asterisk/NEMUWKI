@@ -460,6 +460,7 @@ code {
     max-width: 70vw;
     border-color: var(--highligh-color);
     text-align: left;
+    color: var(--color);
     height: 2.7rem;
     line-height: 2.5rem;
 }
@@ -498,6 +499,8 @@ code {
     padding: 3.5rem 0.8rem 0.8rem 0.8rem;
     box-shadow: 0 0 10px 2px #00000055;
     z-index: -1;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .subTab__contents {
@@ -757,6 +760,7 @@ span.sel.empty::after {
 
 .contextMenu__item.disabled {
     color: #9AA0A6;
+    cursor: default;
 }
 
 .contextMenu__item.mdi::before {
