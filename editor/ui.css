@@ -225,9 +225,11 @@ aside button.rect_button {
 
 .subTab__buttonContianer>div>button>span {
     font-style: normal;
-    margin: -0.3rem -0.3rem -0.3rem 0.2rem;
+    display: inline-block;
+    margin: -0.3rem -0.5rem -0.3rem 0.5rem;
     width: 2.1rem;
     height: 2.1rem;
+    border-radius: 20%;
 }
 
 .subTab__buttonContianer>div>button>span:hover {
