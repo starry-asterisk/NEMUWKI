@@ -163,11 +163,11 @@ class CDirectory {
     }
 }
 
-async function getFolder() {
+async function getFolder(useRecent = true) {
     navigator.userActivation.isActive = true;
     // Open file picker and destructure the result the first handle
     fileDB.get('workingDirectory', async ({ directoryHandle }) => {
-        if (directoryHandle == undefined) {
+        if (!useRecent || directoryHandle == undefined) {
             directoryHandle = await window.showDirectoryPicker({
                 id: 'some_id',
                 mode: 'read' || 'readWrite',

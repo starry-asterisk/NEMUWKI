@@ -70,7 +70,10 @@
                 <file v-if="files" v-bind="file_prop_factory(files, 0)" :class="['root','open']"></file>
                 <span v-if="files" class="v-scrollbar overlay" target=".root.aside_folder"
                     style="margin-top: 3.5rem;"></span>
-                <button v-else onclick="getFolder();" class="rect_button">Open Folder</button>
+                <div v-else style="text-align: center;">
+                    <button onclick="getFolder();" class="rect_button">Open Recent Folder</button>
+                    <button onclick="getFolder(false);" class="rect_button">Open New Folder</button>
+                </div>
             </aside>
             <aside v-else-if="onTab && onTab._name == 'finder'" v-show="!hide_side">
                 <p>파인더</p>
