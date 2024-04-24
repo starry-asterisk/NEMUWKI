@@ -24,6 +24,7 @@ window.onload = () => {
                 account: false,
                 setting: false,
             },
+            hide_side: false,
             files,
             tabs: [],
             onTab: undefined,
@@ -68,16 +69,42 @@ window.onload = () => {
                 find_folder.node.children.push(find_file.node);
             },
             search: function (keyword) {
-                let result = suggestions.filter(obj => obj.name.replaceAll(' ', '').includes(keyword));
-                if (app?.files) result = result.concat(getAllFileList(app.files).filter(file => file.name.includes(keyword)));
+                keyword = keyword.toLowerCase();
+                let result = suggestions.filter(obj => obj.name.replaceAll(' ', '').toLowerCase().includes(keyword));
+                result.push(undefined);
+                if (this.files) result = result.concat(getAllFileList(this.files).filter(file => file.name.toLowerCase().includes(keyword)));
                 return result;
+            },
+            openFromSearch: async function (suggestion) {
+                if(suggestions.includes(suggestion)) suggestions.splice(suggestions.indexOf(suggestion),1);
+                suggestions.push(suggestion);
+                header__search.blur();
+                if (this.onTab == undefined || !['TextEditorTab', 'FinderTab'].includes(this.onTab.constructor.name))
+                    this.changeTab(this.tabs.find(tab => tab.constructor.name === 'TextEditorTab'));
+                await this.onTab.addSubTab(suggestion);
+                await this.onTab.addSubTab(suggestion);
+            },
+            parseSuggestion: function(suggestion, keyword){
+                let html = "";
+                if(suggestion === undefined) html = '<hr/>';
+                else {
+                    if(keyword) html += suggestion.name.replace(new RegExp(keyword, 'gi'), p1=>`<span class="match">${p1}</span>`);
+                    else html += suggestion.name;
+                    if(suggestion.path) html += `<span class="path">${suggestion.path.substring(1)}</span>`;
+                }
+                return html;
             },
             addTab: function (TabClass) {
                 let tab = new TabClass(this);
                 this.tabs.push(tab);
             },
-            changeTab: function (tab) {
-                this.onTab = (tab == this.onTab) ? undefined : tab;
+            changeTab: function (tab, force = false) {
+                if(tab == this.onTab) {
+                    if(!force) this.hide_side = !this.hide_side;
+                } else {
+                    this.hide_side = false;
+                    this.onTab = tab;
+                }
             },
             hideTab: function (tab, bool) {
                 this.onTab = bool ? (tab == this.onTab ? undefined : this.onTab) : tab;
@@ -108,7 +135,7 @@ window.onload = () => {
         if (ctrlKey) document.body.setAttribute('ctrlKey', ctrlKey);
         switch (key.toLowerCase()) {
             case 'b':
-                if (ctrlKey) app.changeTab(undefined);
+                if (ctrlKey) app.changeTab(app.onTab);
                 break;
         }
     }

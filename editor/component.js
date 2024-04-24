@@ -57,7 +57,9 @@ class SubTab {
     set = (p, v) => (this["_" + p] = v);
 
     get file (){
-        return this._tab._app.files.find(this._uid).node.file;
+        let _node = this._tab._app.files.find(this._uid).node;
+        this._type = _node.type;
+        return _node.file;
     }
 }
 
@@ -115,7 +117,7 @@ class ScrollEventManager {
 }
 
 class CFile {
-    constructor(fileHandle, file) {
+    constructor(fileHandle, file, path) {
         this.id = Math.random();
         if (fileHandle == null) return;
         this.name = fileHandle.name;
@@ -124,6 +126,7 @@ class CFile {
         this.children = [];
         this.handle = fileHandle;
         this.file = file;
+        this.path = path;
     }
 
     write = async function (blob) {
@@ -139,13 +142,14 @@ class CFile {
 }
 
 class CDirectory {
-    constructor(fileHandle) {
+    constructor(fileHandle, path) {
         this.id = Math.random();
         if (fileHandle == null) return;
         this.name = fileHandle.name;
         this.kind = fileHandle.kind;
         this.children = [];
         this.handle = fileHandle;
+        this.path = path;
     }
 
     find = (id, path = []) => {
@@ -182,13 +186,14 @@ async function getFolder() {
         } else app.files = await FileFactory(directoryHandle);
     });
 }
-async function FileFactory(entry) {
+async function FileFactory(entry, path = "") {
     if (entry.kind === "file") {
-        return new CFile(entry, await entry.getFile());
+        return new CFile(entry, await entry.getFile(), path);
     } else if (entry.kind === "directory") {
-        let directory = new CDirectory(entry);
+        let directory = new CDirectory(entry, path);
         for await (const handle of entry.values()) {
-            directory.children.push(await FileFactory(handle));
+            let child_path = (handle.kind === "directory") ? path + "/" + handle.name : path;
+            directory.children.push(await FileFactory(handle, child_path));
         }
         return directory;
     }

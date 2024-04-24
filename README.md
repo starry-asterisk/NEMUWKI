@@ -1,7 +1,7 @@
 Goal List
 
-- [ ] 검색창
-- [ ] 검색추천
+- [/] 검색창
+- [/] 검색추천
 - [ ] Syntax Highlighting (js, html, css, a lot etc)
 - [ ] Semantics Highlighting (js, html, css, a lot etc)
 - [ ] Drag&Drop Upload
