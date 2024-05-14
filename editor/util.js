@@ -50,11 +50,7 @@ Element.prototype.scrollIntoViewIfNeeded = function () {
 };
 
 HTMLElement.prototype.empty = function () {
-    let removed = Array.from(this.childNodes)
-    for (let c of removed) {
-        c.remove();
-    }
-    return removed;
+    this.replaceChildren();
 }
 
 HTMLElement.prototype.setStyles = function (obj) {
@@ -65,6 +61,19 @@ HTMLElement.prototype.setStyles = function (obj) {
 
 Array.prototype.compare = function (target) {
     return this.length === target.length && this.every((element, index) => element === target[index]);
+}
+
+function debounce(fn, delay = 100){
+    let timer;
+    return function(){
+        if(timer) {
+            clearTimeout(timer);
+            timer = setTimeout(()=>fn(arguments), delay);
+        } else {
+            fn(arguments);
+            timer = setTimeout(()=>{},delay);
+        }
+    }
 }
 
 let devMode = true;

@@ -605,6 +605,7 @@ code {
     counter-reset: line_number;
     background-color: inherit;
     overflow: hidden;
+    opacity: 1;
     --scrollTop: 0px;
     --scrollLeft: 0px;
 }
@@ -870,4 +871,53 @@ span.sel.empty::after {
     background-color: #ffffff20;
     height: 0.1rem;
     margin: 0.8rem 0.5rem;
+}
+
+.imsi-highlight {
+    white-space: pre;
+    margin-left: 6.8rem;
+    font-size: 1.4rem;
+    line-height: 1.9rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.imsi-highlight * {
+    font-size: 1.4rem;
+    line-height: 1.9rem;
+}
+
+.type-comment {
+    color: green;
+}
+.type-string {
+    color: red;
+}
+.type-formatted-string {
+    color: rgb(132, 0, 0);
+    
+}
+.type-formatted-string-variable {
+    color: #0078d4;
+}
+.type-formatted-string-variable::before {
+    content: '${';
+    color: rebeccapurple;
+}
+.type-formatted-string-variable::after {
+    content: '}';
+    color: rebeccapurple;
+}
+.type-operator {
+    color: yellow;
+}
+.type-number {
+    color: lime;
+}
+.type-variable {
+    color: lightblue;
+}
+.type-reserved {
+    color: plum;
 }

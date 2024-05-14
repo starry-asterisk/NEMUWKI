@@ -76,7 +76,7 @@ window.onload = () => {
                 return result;
             },
             openFromSearch: async function (suggestion) {
-                if(suggestions.includes(suggestion)) suggestions.splice(suggestions.indexOf(suggestion),1);
+                if (suggestions.includes(suggestion)) suggestions.splice(suggestions.indexOf(suggestion), 1);
                 suggestions.push(suggestion);
                 header__search.blur();
                 if (this.onTab == undefined || !['TextEditorTab', 'FinderTab'].includes(this.onTab.constructor.name))
@@ -84,13 +84,13 @@ window.onload = () => {
                 await this.onTab.addSubTab(suggestion);
                 await this.onTab.addSubTab(suggestion);
             },
-            parseSuggestion: function(suggestion, keyword){
+            parseSuggestion: function (suggestion, keyword) {
                 let html = "";
-                if(suggestion === undefined) html = '<hr/>';
+                if (suggestion === undefined) html = '<hr/>';
                 else {
-                    if(keyword) html += suggestion.name.replace(new RegExp(keyword, 'gi'), p1=>`<span class="match">${p1}</span>`);
+                    if (keyword) html += suggestion.name.replace(new RegExp(keyword, 'gi'), p1 => `<span class="match">${p1}</span>`);
                     else html += suggestion.name;
-                    if(suggestion.path) html += `<span class="path">${suggestion.path.substring(1)}</span>`;
+                    if (suggestion.path) html += `<span class="path">${suggestion.path.substring(1)}</span>`;
                 }
                 return html;
             },
@@ -99,8 +99,8 @@ window.onload = () => {
                 this.tabs.push(tab);
             },
             changeTab: function (tab, force = false) {
-                if(tab == this.onTab) {
-                    if(!force) this.hide_side = !this.hide_side;
+                if (tab == this.onTab) {
+                    if (!force) this.hide_side = !this.hide_side;
                 } else {
                     this.hide_side = false;
                     this.onTab = tab;
@@ -208,7 +208,7 @@ class Editor {
             this._selectionContainer.classList.add('selectionContainer');
             this.container.append(this._selectionContainer);
         }
-        this._selectionContainer.empty();
+
         if (this._selected.startNode == undefined) {
             this.caret = undefined;
             return;
@@ -230,8 +230,11 @@ class Editor {
         let eline = endNode.parentNode.closest('.line');
 
         let old_caret_on_line = this.container.querySelector('.line_number.focused');
-        if (old_caret_on_line) old_caret_on_line.classList.remove('focused');
-        (direction ? eline : sline).prev('.line_number').classList.add('focused');
+        let new_caret_on_line = (direction ? eline : sline).prev('.line_number');
+        if (old_caret_on_line && new_caret_on_line != old_caret_on_line) {
+            old_caret_on_line.classList.remove('focused');
+            new_caret_on_line.classList.add('focused');
+        }
 
         this.caret.scrollIntoViewIfNeeded();
 
@@ -255,7 +258,7 @@ class Editor {
             create2(l_rect => create(l_rect.x, l_rect.y, endRect.left - l_rect.x, l_rect.height));
         }
 
-        this._selectionContainer.append(fragment);
+        this._selectionContainer.replaceChildren(fragment);
     }
     clear = function () {
         let container = this.container;
@@ -400,9 +403,35 @@ class Editor {
             line = this.addLine(line);
             line.lastChild.before(node = document.createTextNode(lineText));
         }
+        this.codeHighLight();
         let pos = node.nodeValue.length;
         node.nodeValue += tailText;
         return shiftLetterPos(node, 0, pos);
+    }
+
+    codeHighLight_fn = () => {
+        this.timer = undefined;
+        let content = (() => {
+            let el = document.querySelector('.imsi-highlight');
+            el?.empty();
+            return el;
+        })() || (() => {
+            let el = document.createElement('div');
+            el.classList.add('imsi-highlight');
+            this.container.append(el);
+            return el;
+        })();
+        let text = this.lines.map(line => line.innerHTML).join("");
+        content.innerHTML = comment(text);
+    }
+
+    codeHighLight = () => {
+        return;
+        if (this.timer) this.timer = setTimeout(this.codeHighLight_fn, 100);
+        else {
+            this.codeHighLight_fn();
+            this.timer = setTimeout(()=>{}, 100);
+        }
     }
 
     loadVideo = (blob) => {
@@ -459,10 +488,10 @@ class Editor {
         this.container.append(img);
     }
 
-    redrawScroll = () => {
+    redrawScroll = debounce(() => {
         repaintScrollbar(document.querySelector('.h-scrollbar[target=".subTab__contents"]'));
         repaintScrollbar(document.querySelector('.v-scrollbar[target=".subTab__contents"]'), false);
-    }
+    }, 150)
 
     onkeydown = function ({ keyCode, key, ctrlKey, shiftKey, altKey, metaKey }) {
         if (this._mime != 'text') return;
@@ -538,6 +567,7 @@ class Editor {
                         break;
                 }
             }
+            this.codeHighLight();
             return;
         }
         if (key.length < 2) {
@@ -649,6 +679,7 @@ class Editor {
         }
 
         this.redrawScroll();
+        this.codeHighLight();
     };
     onkeyup = function ({ keyCode }) { };
     onmouseup = function (e) {
