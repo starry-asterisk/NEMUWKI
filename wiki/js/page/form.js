@@ -181,6 +181,8 @@ async function firebaseLoadCallback() {
             }
             li.onmousedown = () => {
                 li.parentNode.previousElementSibling.value = data.title;
+                delete data.author;
+                delete data.timestamp;
                 buildForm(data);
                 post_menu.value = '';
             }
@@ -207,7 +209,7 @@ function buildForm(data) {
     author_uid = author || author_uid;
 
     main__header__title.value = title;
-    main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
+    if (timestamp) main__header__timestamp.value = new Date(1000 * timestamp.seconds + (1000 * 60 * 60 * 9)).toISOString().split('.')[0];
     post_categories.value = category;
     post_menu.value = board_name_arr ? board_name_arr.join(' > ') : board_name;
 
