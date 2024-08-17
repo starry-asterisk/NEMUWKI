@@ -15,9 +15,13 @@ async function search({ key }) {
   href_move(`${ROOT_PATH}profile${SUFFIX}?${params.toString()}`);
 }
 
-async function href_move(href) {
+function href_move(href) {
+  history.pushState({}, '', href);
+  updateContent(href);
+}
+
+async function updateContent(href) {
   loading(0);
-  history.pushState({}, "", href);
   document.querySelector("html").scrollTop = 0;
   params = new URLSearchParams(href.split("?")[1]);
   for (let el of Array.from(
@@ -28,6 +32,10 @@ async function href_move(href) {
   await loadBoard();
   loading(1);
 }
+
+window.addEventListener('popstate', function(){
+  updateContent(location.pathname + location.search);
+});
 
 function createSelect(name, options){
   let selectTag = createElement("select", {attrs: { name }});

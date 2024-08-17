@@ -11,9 +11,13 @@ function search({ key }) {
     href_move(`${ROOT_PATH}?keyword=${search_input.value || ''}`);
 }
 
-async function href_move(href) {
-    loading(0);
+function href_move(href) {
     history.pushState({}, '', href);
+    updateContent(href);
+}
+
+async function updateContent(href) {
+    loading(0);
     params = new URLSearchParams(href.split('?')[1]);
     post_id = params.get('post');
     document.querySelector('html').scrollTop = 0;
@@ -31,6 +35,10 @@ async function href_move(href) {
     } else await renderMain();
     loading(1);
 }
+
+window.addEventListener('popstate', function(){
+    updateContent(location.pathname + location.search);
+});
 
 let renderMain, renderPost, timeout_timer, interval_timer, editButton, waitRandom;
 function clearContents() {
