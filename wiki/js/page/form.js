@@ -1052,8 +1052,34 @@ async function makeKeyword(id, data) {
         author,
     }
 
-    let urlObj = contents.find(content => content.type == 'image');
-    if (urlObj) keyword_data.thumbnail = urlObj.value;
+    let thumbnail, regex_result;
+    for(let content of contents) {
+        switch(content.type) {
+            case 'image':
+                thumbnail = content.value;
+                break;
+            case 'table':
+                if(content.value.cells) for(let cell of content.value.cells) {
+                    REGEX.image.lastIndex = 0;
+                    regex_result = REGEX.image.exec(cell);
+                    if(regex_result) {
+                        thumbnail = regex_result[1];
+                        break;
+                    }
+                }
+                break;
+            case 'textbox':
+                REGEX.image.lastIndex = 0;
+                regex_result = REGEX.image.exec(content.value);
+                if(regex_result) {
+                    thumbnail = regex_result[1];
+                    break;
+                }
+                break;
+        }
+        if(thumbnail) break;
+    }
+    if (thumbnail) keyword_data.thumbnail = thumbnail;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
 
     await firebase.search.set(id, keyword_data);
