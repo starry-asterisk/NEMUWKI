@@ -103,7 +103,7 @@ async function firebaseLoadCallback() {
 
       let search_extended = { ...search };
       if (info.category) search_extended.category = { key: info.category, op: 'equal' };
-      if (info.board) search_extended.board = { key: info.board, op: 'contains' };
+      if (info.board) search_extended.board_name_arr = { key: info.board, op: 'contains' };
       info.fn(uid, "author", "equal", boardheader, search_extended);
     }
   }
