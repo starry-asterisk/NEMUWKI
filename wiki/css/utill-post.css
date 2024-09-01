@@ -157,7 +157,7 @@ a[data-tooltip]:hover::before {
 }
 
 editable-table {
-    overflow-x: auto;
+    overflow-x: hidden;
     max-width: 100%;
     display: inline-block;
     border: var(--outer-line-width) solid var(--outer-line);

@@ -94,6 +94,7 @@ customElements.define('editable-table', class extends HTMLElement {
         this.resizeHeader(newValue, this.isPrepend, true, this._header, this.addCell);
         for (let row of this._rows) this.resize(newValue, this.isPrepend, row, this.addCell);
         this._colcount = newValue;
+        this.fixOverSize();
     }
     set rowcount(newValue) {
         newValue = parseInt(newValue);
@@ -154,6 +155,7 @@ customElements.define('editable-table', class extends HTMLElement {
         if (this._beforeInit) {
             this.append(this._tbody);
             this._beforeInit = false;
+            this.fixOverSize();
         }
     }
 
@@ -199,6 +201,7 @@ customElements.define('editable-table', class extends HTMLElement {
                     header.width = parseFloat(e.target.value);
                     if (header.width <= 0) cell.setStyles({ width: 'auto', 'min-width': 'auto' });
                     else cell.setStyles({ width: `${header.width}rem`, 'min-width': `${header.width}rem` });
+                    this.fixOverSize();
                 }
             },
             value: this._DEFAULT_WIDTH
@@ -209,6 +212,7 @@ customElements.define('editable-table', class extends HTMLElement {
 
     resize(count, isPrepend = false, parent, func) {
         this.resizeHeader(count, isPrepend, false, parent, func);
+        this.fixOverSize();
     }
 
     resizeHeader(count, isPrepend = false, isHeader = false, parent, func) {
@@ -231,6 +235,25 @@ customElements.define('editable-table', class extends HTMLElement {
         }
         if (isRow) this._tbody.append(this._frag);
     }
+
+    fixOverSize() {
+        if (this.parentElement) {
+            let cells = Array.from(this.querySelectorAll('.editable-table__cell>*'));
+            this.style.removeProperty('zoom');
+            for(let cell of cells) cell.style.removeProperty('zoom');
+            let {width} = this.getBoundingClientRect();
+            width -= parseInt(window.getComputedStyle(this).borderWidth);
+            let innerWidth = this.scrollWidth;
+            this.style.zoom = Math.floor(width / innerWidth * 1000) / 1000;
+            let cellZoom = Math.floor(innerWidth / width * 1000) / 1000;;
+            for(let cell of cells) cell.style.zoom = cellZoom;
+            
+        }
+    }
+});
+
+window.addEventListener("resize", function () {
+    for(let c_table of this.document.querySelectorAll('editable-table')) c_table.fixOverSize();
 });
 
 function createElement(tagName = 'div', option, prop = {}) {
