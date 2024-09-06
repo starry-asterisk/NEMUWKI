@@ -243,6 +243,7 @@ customElements.define('n-table', class extends HTMLElement {
         return this._editable = new_value;
     }
     set lastSelection(el) {
+        if(!el) return;
         this._lastSelection = el;
         if (this.lastSelection && this.onSelChange) this.onSelChange(this.lastSelection);
     }

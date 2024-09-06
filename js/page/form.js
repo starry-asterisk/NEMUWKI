@@ -4,7 +4,7 @@ class asideForm extends asideBase {
         app.blockMode = true;
         this.data.Board = new Model(
             Options.get('board'),
-            function (data) { this.ul.append(createOption({...data, value: data.value, text: data.path, is_owner: data.owner == app.user?.uid }, this)) },
+            function (data) { this.ul.append(createOption({ ...data, value: data.value, text: data.path, is_owner: data.owner == app.user?.uid }, this)) },
             function () { for (let option of Array.from(this.ul.children)) if (option.tagName == 'N-OPTION') option.remove(); }
         );
         this.data.Categories = new Model(
@@ -24,7 +24,7 @@ class asideForm extends asideBase {
             return true;
         }
         boardSelect.ul.append(createElement('button').addClass('n-option-add').props({
-            innerHTML: '+ 새로운 분류 추가', onmousedown(e){
+            innerHTML: '+ 새로운 분류 추가', onmousedown(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 modal('addMenu');
@@ -37,7 +37,7 @@ class asideForm extends asideBase {
             return true;
         }
         cateSelect.ul.append(createElement('button').addClass('n-option-add').props({
-            innerHTML: '+ 새로운 카테고리 추가', onmousedown(e){
+            innerHTML: '+ 새로운 카테고리 추가', onmousedown(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 modal('addCategory');
@@ -883,15 +883,15 @@ const ToolBase = {
         );
         return wrap;
     },
-    insertCellImage(wrap, option) {//이미지 처리 모달 / conv_fn: val => val.startsWith('http') ? val : 'http://' + val
+    insertCellImage(wrap, focusedElement) {//이미지 처리 모달 / conv_fn: val => val.startsWith('http') ? val : 'http://' + val
+        let table = focusedElement.querySelector('n-table');
         wrap.attrs({ title: '링크 기반 이미지 삽입' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-image-plus'
             }).props({
-                onclick: () => execModal('insertHTML', 'addImg', val => {
-                    val = val.startsWith('http') ? val : 'http://' + val;
-                    return `[image:${val}]`;
+                onclick: () => modal('addImg', val => {
+                    table.lastSelection && table.lastSelection.append(document.createTextNode(`[image:${val}]`));
                 })
             })
         );
