@@ -540,6 +540,13 @@ function preview() {
         ))
     }
 
+    if (html_annotation.length > 0) {
+        let annotation = createElement('div').attrs({ class: 'content annotation' });
+        annotation.innerHTML = html_annotation;
+        html_annotation = '';
+        contents.push(annotation);
+    }
+
     article.append.apply(article, contents);
 }
 
