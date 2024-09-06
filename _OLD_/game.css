@@ -1,0 +1,166 @@
+[mode="shooting"] {
+    display: block;
+    position: absolute;
+    height: 0;
+    width: 34%;
+    margin: 0 auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: linear-gradient(180deg, #030915, #283055, #966E6C);
+    transition: height 300ms;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+[mode="game"] [mode="shooting"]{
+    height: 100%;
+    pointer-events: auto;
+}
+[mode="shooting"] > canvas {
+    height: 100%;
+    width: 100%;
+}
+[mode="game"] [status="lobby"] .logo {
+    position: absolute;
+    width: 100%;
+    top: 23%;
+    left: 0%;
+    font-size: 5rem;
+    text-align: center;
+    font-family: pixel;
+    text-shadow: -3px -3px white, -3px 3px white, 3px 3px white, 3px -3px white, -3px 0 white, 3px 0 white;
+    z-index: 2;
+    transform: skewX(-30deg);
+    filter: drop-shadow(-2rem 0 #FF00FF88) drop-shadow(2rem 0 #00FF0088);
+
+}
+[mode="game"] [status="lobby"] .logo * {
+    position: relative;
+    font-family: inherit;
+}
+[mode="game"] [status="lobby"] .logo .front {
+    position: absolute;
+    z-index: 3;
+}
+[mode="game"] [status="lobby"] .logo .front::before  {
+    content: '';
+    position: absolute;
+    background: url(/resource/logo/halo2.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 3;
+    width: 16rem;
+    height: 16rem;
+    top: -9.5rem;
+    left: -9.5rem;
+    transform: skewX(30deg) rotate(30deg);
+    transform-origin: bottom center;
+    filter: drop-shadow(3px 0 white) drop-shadow(-3px 0 white) drop-shadow(0 3px white) drop-shadow(0 -3px white);
+}
+[mode="game"] [status="lobby"] .logo .front::after  {
+    content: 'Ar';
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    text-align: right;
+    text-overflow: clip;
+    width: 2rem;
+}
+[mode="game"] [status="lobby"] .logo .subtitle {
+    position: absolute;
+    font-size: 0.5em;
+    right: 3.2rem;
+    bottom: -1.2em;
+    font-weight: bold;
+    text-shadow: 2px 0 white, -2px 0 white,0 2px white, 0 -2px white, 2px 2px white, -2px -2px white,-2px 2px white, -2px -2px white;
+}
+[mode="game"] [status="lobby"] .logo_img {
+    position: absolute;
+    width: 74%;
+    top: 17%;
+    left: 13%;
+    filter: drop-shadow(-2rem 0 #FF00FF88) drop-shadow(2rem 0 #00FF0088);
+}
+[mode="game"] .gameContainer:not([status="lobby"]) .logo,
+[mode="game"] .gameContainer:not([status="lobby"]) .logo_img{
+    display: none !important;
+}
+/*
+[mode="game"] [status="lobby"]::before {
+    content: '';
+    background: 
+    url("/resource/logo/closed.png") 0 0/100% 50% no-repeat;
+    position: absolute;
+    width: 70%;
+    top: 20%;
+    left: 15%;
+    aspect-ratio: 1206 / 1250;
+    z-index: 1;
+}
+
+[mode="game"] [status="lobby"]:hover::before {
+    background: 
+    url("/resource/logo/leed.png") 21% 19%/63.59% 8.93% no-repeat,
+    url("/resource/logo/gamePack.png") 24.5% 39%/49.75% 38.18% no-repeat,
+    url("/resource/logo/opened-no_leed.png") 0 0/100% 50% no-repeat;
+}*/
+
+
+.gameContainer__message {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameContainer__message > h1 {
+    position: relative;
+    font-size: 10rem;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    transform: skew(-6deg);
+}
+
+.gameContainer__message > h1::after {
+    content: attr(content);
+    position: absolute;
+    left:0;
+}
+
+.gameContainer__message.start > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px var(--blue);
+}
+.gameContainer__message.start > h1::after {
+    background: linear-gradient(to right bottom, var(--bright-blue), var(--theme));
+    background-clip:text;
+    -webkit-background-clip: text;
+}
+
+.gameContainer__message.clear > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px #dbb621;
+    filter: drop-shadow(1px 1px 0 #00000055) drop-shadow(7px 7px 8px #FEEB50AA);
+}
+.gameContainer__message.clear > h1::after {
+    background: linear-gradient(to bottom, #FEEB50, #FFD52D);
+    background-clip:text;
+    -webkit-background-clip: text;
+}
+
+
+.gameContainer__message.dead > h1::before {
+    content: attr(content);
+    -webkit-text-stroke: 1px #83252F;
+}
+.gameContainer__message.dead > h1::after {
+    background: linear-gradient(to bottom, #FBB1AC, #E87C7E);
+    background-clip:text;
+    -webkit-background-clip: text;
+}

@@ -1,29 +1,8 @@
-Goal List
-
-- [/] 검색창
-- [/] 검색추천
-- [ ] Syntax Highlighting (js, html, css, a lot etc)
-- [ ] Semantics Highlighting (js, html, css, a lot etc)
-- [ ] Drag&Drop Upload
-- [ ] Notion Api 연동
-- [ ] File from url
-- [ ] File from Drive
-- [ ] Game Senario Editor
-- [ ] bottom Status bar
-- [ ] Image Copy Function
-- [ ] Image Viewer control by wheel
-- [ ] Undo / Redo
-- [ ] NextPage / PrevPage (SearchBox)
-- [ ] workspace select option
-- [ ] login (if you need but only password)
-- [ ] js Loader
-- [ ] make min.js file
-- [ ] more mime-type support
-- [ ] Settings
-- [ ] ~~url tester?~~
-- [ ] ~~remote desktop?~~
-- [ ] ~~JsonParser?~~
-- [ ] ~~scheduler~~
-- [ ] clock&welcomepage
-- [ ] preview
-- [ ] open local exploer
+1. 이미지 리-사이징 기능
+2. 도표 full-width 기능
+3. 마이페이지 목록 설정 (개수 재한 및 저장 구현 필요, 코드도 정리할 것)
+4. 비밀번호 찾기, 아이디 삭제 등(비번 찾기/인증 모달 및 기능 추가, 수정)
+5. 지연삭제 firebase 자동화 기능 제작
+6. 플젝 백업
+7. 버튼 디자인
+8. 코드 정리
