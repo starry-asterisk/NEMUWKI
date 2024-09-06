@@ -251,12 +251,14 @@ function loadBoardLists(str, uid, search, permission) {
         let button3 = createElement('button').props({ innerHTML: '+ 메뉴 추가' });
 
         button3.onclick = function () {
+            if(document.querySelectorAll('.form.board_setting').length > 4) return Notify.alert('문서 목록은 5개 까지 생성 가능합니다!'); 
             buttons2.before(app_article.createForm('board_setting', undefined, { type: 1, title: '', category: '', board: '' }, true, true))
         }
 
         button.onmousedown = e => e.stopPropagation();
         button.onclick = function (e) {
             e => e.stopPropagation();
+            button.onclick = save;
             this.innerHTML = TEXTS.form.apply;
             button2.css({flex: 1});
             button3.css({flex: 1});
@@ -271,6 +273,17 @@ function loadBoardLists(str, uid, search, permission) {
 
         buttons.append(button);
         appendList.unshift(buttons);
+
+        async function save(){
+            if(!confirm('변경사항을 저장 할까요?')) return;
+            let settings = document.querySelectorAll('.form.board_setting');
+            if(settings.length > 5) return alert('목록은 5개 까지 생성 가능합니다.');
+            await firebase.auth.updateUser(uid, { board_setting: Array.from(settings).map((wrap, index) => {
+                let { type, title, category, board } = wrap.getData();
+                return `${index};${type};${title};${category};${board}`;
+            }).join(',') });
+            location.reload();
+        }
     }
 
     appendList.push(footer);
