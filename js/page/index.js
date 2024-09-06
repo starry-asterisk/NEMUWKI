@@ -86,13 +86,13 @@ class articleIndex extends articleBase {
                         ), post_id
                     }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date(1000 * data.timestamp.seconds).toLocaleString() }),
-                    createElement('div').css({'text-align':'left'})
+                    createElement('div').css({'text-align':'left'}).css({ 'line-height': '2rem' })
                 ];
 
                 appendList[3].append(
-                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.category}`}).props({innerHTML: `카테고리:${data.category}`}),
-                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}`}).props({innerHTML: `분류:${data.board_name_arr.join(' > ')}`}), 
-                    createElement('a').attrs({class: 'tag', href: `/profile?uid=${data.author}`}).props({innerHTML: `사용자 페이지`})
+                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.category}`}).props({innerHTML: `카테고리:${data.category}`}).css({ display: 'inline-block', 'line-height': 1.2}),
+                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}`}).props({innerHTML: `분류:${data.board_name_arr.join(' > ')}`}).css({ display: 'inline-block', 'line-height': 1.2}), 
+                    createElement('a').attrs({class: 'tag', href: `/profile?uid=${data.author}`}).props({innerHTML: `사용자 페이지`}).css({ display: 'inline-block', 'line-height': 1.2})
                 );
 
                 let summuryList = [];
