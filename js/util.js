@@ -954,7 +954,7 @@ const MODAL_TEMPLATE = {
         container.css({ overflow: 'visible' });
         let frag = document.createDocumentFragment();
         let h3 = createElement('h3').props({ innerHTML: '분류 추가' });
-        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input').css({ 'margin-bottom': 'var(--spacing-small)' });
+        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
         let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '분류명' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
         let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
         let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '생성' });
