@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <!--
+    <link href="https://db.onlinewebfonts.com/c/4735dd9ca25670c44600021e7428b8d3?family=Segoe" rel="stylesheet"
+        type="text/css" />
+    <link href="https://db.onlinewebfonts.com/c/623c7118249e082fe87a78e08506cb4b?family=Segoe+UI" rel="stylesheet"
+        type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet"
+        type="text/css" />
+    -->
+    <link href="./editor/Segoe.css" rel="stylesheet" type="text/css">
+    <link href="./editor/Segoe-UI.css" rel="stylesheet" type="text/css" />
+    <link href="./editor/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="./editor/ui.css" rel="stylesheet" type="text/css">
+    <!--<link href="./cursor.css" rel="stylesheet" type="text/css">-->
+    <link href="#" rel="short icon">
+    <script src="https://fastly.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./editor/codeHighlight.js"></script>
+    <script src="./editor/hangul.js"></script>
+    <script src="./editor/util.js"></script>
+    <script src="./editor/contextMenu.js"></script>
+    <script src="./editor/component.js"></script>
+    <script src="./editor/db.js"></script>
+    <script src="./editor/editor-util.js"></script>
+    <script src="./editor/editor-main.js"></script>
+    <!--<script src="./cursor.js"></script>-->
+    <title>편집기</title>
+</head>
+
+<body>
+    <!-- Vue App Root -->
+    <div class="bodyContainer">
+        <!-- Serch Box -->
+        <header>
+            <span class="header__button mdi mdi-arrow-left"></span>
+            <span class="header__button mdi mdi-arrow-right"></span>
+            <div class="header__search" tabindex="1" id="header__search">
+                <input type="text" placeholder="Search files by name (append : to go to line or @ to go to symbol)"
+                    autocomplete="off" name="search" spellcheck="false" v-model="keyword">
+                <div class="header__search__suggestion_wrap">
+                    <div class="header__search__suggestion">
+                        <p v-for="(suggestion, index) in search(keyword)" v-on:click="openFromSearch(suggestion);"
+                            v-html="parseSuggestion(suggestion, keyword)"></p>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="rootContainer">
+            <!-- Left Side Navigation -->
+            <nav context="nav_tab">
+                <p class="mdi mdi-menu" onclick="contextMenuHandler(event, 'nav_menu')" title="메뉴"
+                    v-show="!hide.nav_menu" v-on:hide="hide.nav_menu = !hide.nav_menu"></p>
+                <!-- Navigate Button -->
+                <button v-for="(tab, index) in tabs"
+                    :class="{mdi:true,[tab._icon]:true, on:onTab && onTab._uid == tab._uid }"
+                    v-on:click="changeTab(tab)" :key="index" v-on:hide="hideTab(tab, !tab._hide)" v-show="!tab._hide"
+                    :title="tab._alias">
+                </button>
+                <span style="flex:1"></span>
+                <button class="mdi mdi-account-circle-outline" onclick="contextMenuHandler(event, 'account')" title="계정"
+                    v-show="!hide.account" v-on:hide="hide.account = !hide.account"></button>
+                <button class="mdi mdi-cog-outline" onclick="contextMenuHandler(event, 'setting')" title="설정"
+                    v-show="!hide.setting" v-on:hide="hide.setting = !hide.setting"></button>
+            </nav>
+            <!-- Side Menu -->
+            <aside v-if="onTab && onTab._name == 'text'" v-show="!hide_side">
+                <p>소스제어</p>
+                <button class="resizer" onmousedown="repaintResizer(event);"></button>
+                <file v-if="files" v-bind="file_prop_factory(files, 0)" :class="['root','open']"></file>
+                <span v-if="files" class="v-scrollbar overlay" target=".root.aside_folder"
+                    style="margin-top: 3.5rem;"></span>
+                <div v-else style="text-align: center;">
+                    <button onclick="getFolder();" class="rect_button">Open Recent Folder</button>
+                    <button onclick="getFolder(false);" class="rect_button">Open New Folder</button>
+                </div>
+            </aside>
+            <aside v-else-if="onTab && onTab._name == 'finder'" v-show="!hide_side">
+                <p>파인더</p>
+            </aside>
+            <aside v-else-if="onTab && onTab._name == 'game'" v-show="!hide_side">
+                <p>게임 탭</p>
+            </aside>
+            <aside v-else v-show="false"></aside>
+            <!-- Working Section -->
+            <section>
+                <div class="subTab__buttonContianer" v-if="onTab && onTab._subTabs.length > 0">
+                    <div class="subTab__buttonContianer__div">
+                        <button v-for="(subTab, index) in onTab._subTabs" :type="subTab._type"
+                            :class="{subTab_button: true, on:subTab._uid == onTab._onSubTab._uid}"
+                            :state="subTab._state" v-on:click="onTab.addSubTab({id:subTab._uid},true)">{{subTab._name}}<span v-on:click="onTab.closeSubTab(subTab._uid)"
+                            :key="index">✕</span></button>
+                    </div>
+                    <span class="h-scrollbar" target=".subTab__buttonContianer__div"></span>
+                </div>
+                <div v-show="onTab && onTab._subTabs.length > 0" class="subTab__contents" tabindex="0" context="editor"
+                    ondblclick="editor.ondblclick(event)" onkeydown="editor.onkeydown(event)" onkeyup=""
+                    onclick="editor.onkeyup(event)" onmousedown="editor.onmousedown(event)"
+                    onmouseup="editor.onmouseup(event)" onblur="editor.blur()"></div>
+                <!-- scrollBar(Working Section) -->
+                <span class="h-scrollbar overlay" target=".subTab__contents"></span>
+                <span class="v-scrollbar overlay" target=".subTab__contents"></span>
+                <!-- Tips for short-cut -->
+                <div v-show="onTab == undefined || onTab._subTabs.length < 1" class="section__empty">
+                    <span class="section__empty__icon mdi mdi-alert-octagon"></span>
+                    <p class="section__empty__command">
+                        <span>모든 명령 표시</span>
+                        <span><code>Ctrl</code>+<code>Shift</code>+<code>P</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>파일로 이동</span>
+                        <span><code>Ctrl</code>+<code>P</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>파일에서 찾기</span>
+                        <span><code>Ctrl</code>+<code>Shift</code>+<code>F</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>전체 화면 설정/해제</span>
+                        <span><code>F11</code></span>
+                    </p>
+                    <p class="section__empty__command">
+                        <span>설정 표시</span>
+                        <span><code>Ctrl</code>+<code>,</code></span>
+                    </p>
+                </div>
+            </section>
+        </div>
+        <footer>
+            <span class="right" :class="hangulMode?'mdi mdi-syllabary-hangul':'mdi mdi-alphabet-latin'"></span>
+        </footer>
+    </div>
+    <div id="loadOverlay"
+        style="background-color:#333; position:fixed; top:0px; left:0px; width:100%; height:100%; z-index:2000;"></div>
+</body>
+
+</html>
