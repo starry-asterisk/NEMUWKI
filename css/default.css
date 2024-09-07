@@ -1859,12 +1859,37 @@ n-option.placeholder {
     margin: var(--spacing-small);
 }
 
-.form__image > img {
+.form__image__wrap {
+    display: flex;
+    flex-direction: row;
+}
+
+.form__image__wrap > img {
+    flex: 1;
     max-height: 30rem;
-    width: 100%;
+    width: 25%;
+    aspect-ratio: 1;
     object-fit: contain;
     margin: var(--spacing-small);
+    order: 1;
 }
+
+.form__image__wrap > div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    order: 2;
+    margin-block: auto;
+}
+
+.form__image__wrap p {
+    display: flex;
+    text-align: left;
+    align-items: center;
+    margin: 0;
+    gap: var(--spacing-small);
+}
+
 .seperator .form__inputs {
     display: flex;
     font-size: var(--font-size-medium);

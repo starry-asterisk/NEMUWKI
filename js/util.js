@@ -280,8 +280,12 @@ const ContentBase = {
     },
     image: {
         initialize(id, wrap, imgInfo) {
-            let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
             if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
+            if(imgInfo.hidden) {
+                wrap.style.display = 'none';
+                return;
+            }
+            let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
             img.src = imgInfo.src.startsWith('http') ? imgInfo.src : firebase.storage.getStaticUrl(imgInfo.src);
             wrap.append(img);
         }

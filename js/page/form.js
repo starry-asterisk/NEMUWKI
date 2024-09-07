@@ -357,12 +357,12 @@ const FormContent = {
                 },
                 ondrop(e) {
                     const NewText = document.createTextNode(e.dataTransfer.getData('text/plain'));
-                    if(NewText.textContent.startsWith('$$nemuwiki$$')) return;
+                    if (NewText.textContent.startsWith('$$nemuwiki$$')) return;
                     e.preventDefault();
                     let range;
-                    if('caretRangeFromPoint' in document) {
+                    if ('caretRangeFromPoint' in document) {
                         range = document.caretRangeFromPoint(e.clientX, e.clientY);
-                    } else if('caretPositionFromPoint' in document) {
+                    } else if ('caretPositionFromPoint' in document) {
                         range = document.caretPositionFromPoint(e.clientX, e.clientY);
                     } else return;
                     range.insertNode(NewText);
@@ -402,7 +402,7 @@ const FormContent = {
             let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left' } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
-            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({'data-align':align|| 'left'});
+            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left' });
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
             form__inputs.append(nTable);
             wrap.append(form__inputs);
@@ -417,16 +417,33 @@ const FormContent = {
                     align: nTable.dataset.align || 'left'
                 };
             };
-        },  
+        },
         buttons: ['rowSize', 'colSize', 'tableToLeft', 'tableToCenter', 'tableToRight', 'outerLineColor', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
     },
     image: {
         text: '사진',
         icon: '󰋩',
         initialize(id, wrap, imgInfo = {}) {
-            if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
+            if (typeof imgInfo == 'string') imgInfo = { src: imgInfo };
             let form__inputs = createElement('div').addClass('form__image');
-            let form__img = createElement('img');
+            let form__inputs__wrap = createElement('div').addClass('form__image__wrap');
+            let form__img = new Image();
+            let info__wrap = createElement('div');
+            let isThumb = imgInfo.isThumb || false;
+            let hidden = imgInfo.hidden || false
+            
+            let isThumb__p = createElement('p');
+            let isThumb__input = createElement('input').attrs({ type: 'checkbox' }).props({ onchange() { isThumb = this.checked; } });
+            let hidden__p = createElement('p');
+            let hidden__input = createElement('input').attrs({ type: 'checkbox' }).props({ onchange() { hidden = this.checked; } });
+            isThumb__p.append(isThumb__input, document.createTextNode('대표 이미지 설정'));
+            hidden__p.append(hidden__input, document.createTextNode('이미지 감추기'));
+
+            info__wrap.append(isThumb__p, hidden__p);
+
+            if (isThumb) isThumb__input.checked = true;
+            if (hidden) hidden__input.checked = true;
+
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
             let file_url = '';
             let adjust_src = src => {
@@ -437,9 +454,16 @@ const FormContent = {
                 modal('addImg', adjust_src);
             }
             if (imgInfo.src) adjust_src(imgInfo.src);
-            form__inputs.append(btn, form__img);
+            form__inputs__wrap.append(info__wrap, form__img);
+            form__inputs.append(btn, form__inputs__wrap);
             wrap.append(form__inputs);
-            wrap.getData = () => file_url;
+            wrap.getData = () => {
+                return {
+                    src: file_url, 
+                    isThumb,
+                    hidden
+                };
+            };
         }
     },
     youtube: {
@@ -942,14 +966,14 @@ const ToolBase = {
         );
         return wrap;
     },
-    
+
     tableToLeft(wrap, focusedElement) {
         let table = focusedElement.querySelector('n-table');
         wrap.attrs({ title: '좌측 정렬' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-align-left'
-            }).props({ onclick: () => table.dataset.align='left' })
+            }).props({ onclick: () => table.dataset.align = 'left' })
         );
         return wrap;
     },
@@ -959,7 +983,7 @@ const ToolBase = {
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-align-center'
-            }).props({ onclick: () => table.dataset.align='center' })
+            }).props({ onclick: () => table.dataset.align = 'center' })
         );
         return wrap;
     },
@@ -969,7 +993,7 @@ const ToolBase = {
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-align-right'
-            }).props({ onclick: () => table.dataset.align='right' })
+            }).props({ onclick: () => table.dataset.align = 'right' })
         );
         return wrap;
     }
@@ -1096,9 +1120,11 @@ async function makeKeyword(id, data) {
     for (let content of contents) {
         switch (content.type) {
             case 'image':
-                thumbnail = content.value;
+                if (thumbnail && !content.value.isThumb) break;
+                thumbnail = content.value.src;
                 break;
             case 'table':
+                if (thumbnail) break;
                 if (content.value.cells) for (let cell of content.value.cells) {
                     REGEX.image.lastIndex = 0;
                     regex_result = REGEX.image.exec(cell.value);
@@ -1109,6 +1135,7 @@ async function makeKeyword(id, data) {
                 }
                 break;
             case 'textbox':
+                if (thumbnail) break;
                 REGEX.image.lastIndex = 0;
                 regex_result = REGEX.image.exec(content.value);
                 if (regex_result) {
@@ -1117,7 +1144,6 @@ async function makeKeyword(id, data) {
                 }
                 break;
         }
-        if (thumbnail) break;
     }
     if (thumbnail) keyword_data.thumbnail = thumbnail;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
