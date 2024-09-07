@@ -269,11 +269,11 @@ const ContentBase = {
     },
     table: {
         initialize(id, wrap, tableInfo) {
-            let { cells, header, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth } = tableInfo;
+            let { cells, header, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth, align } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
 
-            let nTable = createElement('n-table').props({ cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth, editable: false });
+            let nTable = createElement('n-table').props({ cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth, editable: false }).attrs({'data-align':align});
 
             wrap.append(nTable);
         }
@@ -487,14 +487,14 @@ const Notify = {
 }
 const dev = console;
 const REGEX = {
-    annotation: /\[\*(\S+)\s([^\[\]]+)\]/gi,
-    link: /\[link\:([^\s\[\]]+)\]/gi,
-    image: /\[image\:([^\s\[\]]+)\]/gi,
-    video: /\[video\:([^\s\[\]]+)\]/gi,
-    music: /\[music\:([^\s\[\]]+)\]/gi,
-    colspan: /\[colspan\:([^\s\[\]]+)\]/gi,
-    rowspan: /\[rowspan\:([^\s\[\]]+)\]/gi,
-    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/gi,
+    annotation: /\[\*(\S+)\s([^\[\]]+)\]/i,
+    link: /\[link\:([^\s\[\]]+)\]/i,
+    image: /\[image\:([^\s\[\]]+)\]/i,
+    video: /\[video\:([^\s\[\]]+)\]/i,
+    music: /\[music\:([^\s\[\]]+)\]/i,
+    colspan: /\[colspan\:([^\s\[\]]+)\]/i,
+    rowspan: /\[rowspan\:([^\s\[\]]+)\]/i,
+    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/i,
 };
 
 window.onload = async function () {
@@ -769,18 +769,6 @@ function modal(mode = 'emailPrompt', callback, option) {
 const MODAL_TEMPLATE = {
     colorPicker: (container, callback, value) => {
         let Saturation = 1, Brightness = 1, Hue = 0;
-        // if (false) { 위치 설정 보류
-        //     container.css({
-        //         top: `${event.clientY}px`,
-        //         left: `${event.clientX}px`,
-        //         margin: 0
-        //     });
-        // }
-        container.addClass('minSize').addEventListener('click', (event) => {
-            if (event.target === container) {
-                container.close();
-            }
-        });
         let pallet = document.createElement('div').addClass('pallet');
         let pallet__pick = document.createElement('span').addClass('pallet__picker');
         let hue = document.createElement('div').addClass('hue');

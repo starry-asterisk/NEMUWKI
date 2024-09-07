@@ -59,7 +59,7 @@ class asideForm extends asideBase {
                     .attrs({ draggable: true })
                     .props({
                         ondragstart(e) {
-                            e.dataTransfer.setData("text", namespace);
+                            e.dataTransfer.setData("text", `$$nemuwiki$$-${namespace}`);
                             article.ondragover = e2 => {
                                 e2.preventDefault();
                             }
@@ -355,6 +355,27 @@ const FormContent = {
                     e.preventDefault();
                     document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
                 },
+                ondrop(e) {
+                    const NewText = document.createTextNode(e.dataTransfer.getData('text/plain'));
+                    if(NewText.textContent.startsWith('$$nemuwiki$$')) return;
+                    e.preventDefault();
+                    let range;
+                    if('caretRangeFromPoint' in document) {
+                        range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                    } else if('caretPositionFromPoint' in document) {
+                        range = document.caretPositionFromPoint(e.clientX, e.clientY);
+                    } else return;
+                    range.insertNode(NewText);
+
+                    range.setStart(NewText, 0);
+                    range.setEnd(NewText, NewText.length);
+
+                    const selection = window.getSelection();
+                    selection.removeAllRanges(); // 기존 선택 제거
+                    selection.addRange(range);   // 새로운 선택 추가
+
+                    this.oninput();
+                },
                 onblur() {
                     let s = window.getSelection();
                     lastSelection = {
@@ -378,10 +399,10 @@ const FormContent = {
         text: '도표',
         icon: '󰓫',
         initialize(id, wrap, tableInfo = {}) {
-            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false } = tableInfo;
+            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
-            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth });
+            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({'data-align':align});
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
             form__inputs.append(nTable);
             wrap.append(form__inputs);
@@ -392,11 +413,12 @@ const FormContent = {
                     outerLineWidth: nTable.outerLineWidth,
                     outerLineColor: nTable.outerLineColor,
                     innerLineColor: nTable.innerLineColor,
-                    isFullWidth: nTable.isFullWidth
+                    isFullWidth: nTable.isFullWidth,
+                    align: nTable.dataset.align || 'left'
                 };
             };
-        },
-        buttons: ['rowSize', 'colSize', 'outerLineColor', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
+        },  
+        buttons: ['rowSize', 'colSize', 'outerLineColor', 'tableToLeft', 'tableToCenter', 'tableToRight', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
     },
     image: {
         text: '사진',
@@ -919,6 +941,37 @@ const ToolBase = {
         );
         return wrap;
     },
+    
+    tableToLeft(wrap, focusedElement) {
+        let table = focusedElement.querySelector('n-table');
+        wrap.attrs({ title: '좌측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-left'
+            }).props({ onclick: () => table.dataset.align='left' })
+        );
+        return wrap;
+    },
+    tableToCenter(wrap, focusedElement) {
+        let table = focusedElement.querySelector('n-table');
+        wrap.attrs({ title: '가운데 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-center'
+            }).props({ onclick: () => table.dataset.align='center' })
+        );
+        return wrap;
+    },
+    tableToRight(wrap, focusedElement) {
+        let table = focusedElement.querySelector('n-table');
+        wrap.attrs({ title: '우측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-right'
+            }).props({ onclick: () => table.dataset.align='right' })
+        );
+        return wrap;
+    }
 }
 
 function logoutCallback() {
@@ -1047,7 +1100,7 @@ async function makeKeyword(id, data) {
             case 'table':
                 if (content.value.cells) for (let cell of content.value.cells) {
                     REGEX.image.lastIndex = 0;
-                    regex_result = REGEX.image.exec(cell);
+                    regex_result = REGEX.image.exec(cell.value);
                     if (regex_result) {
                         thumbnail = regex_result[1];
                         break;

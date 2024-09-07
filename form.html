@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta property="og:title" content="네무위키">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="description" content="personal wiki project for NEMU">
+    <meta property="og:description" content="personal wiki project for NEMU">
+    <meta property="og:url" content="https://www.nemuwiki.com/wiki">
+    <meta property="og:site_name" content="네무위키">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta property="twitter:title" content="네무위키">
+    <link rel="canonical" href="https://www.nemuwiki.com/wiki">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <link rel="icon" href="/resource/favicon.png">
+    <link rel="stylesheet" href="/css/default.css?_v=20240906" type="text/css">
+    <script>
+        // 오류를 저장할 배열을 초기화합니다.
+        let errorLogs = [];
+
+        // window.onerror 이벤트 핸들러를 설정합니다.
+        window.onerror = function (message, source, lineno, colno, error) {
+            handleError(undefined, error);
+            return true;
+        };
+
+        window.onunhandledrejection = function (event) {
+            handleError('async=unhandledrejection', event.reason);
+        };
+
+        function handleError(type = 'sync=error', error) {
+            const errorLog = {
+                type: type,
+                message: error.message,
+                stack: error.stack
+            };
+            errorLogs.push(errorLog);
+            if (firebase) firebase?.history?.insertError(errorLog);
+            if (Notify) alert(errorLog.stack || errorLog.message);
+        }
+    </script>
+    <script src="/js/util.js?_v=20240906"></script>
+    <script src="/js/base.js?_v=20240906"></script>
+    <title>index</title>
+</head>
+
+<body class="none-auth">
+    <header>
+        <nav>
+            <a class="logo" tabindex="0" href="./">네무위키</a>
+            <a tabindex="1" href="./?post=random" class="icon icon-shuffle-variant"></a>
+            <a tabindex="2"
+                href="javascript:search_wrap.scrollIntoViewIfNeeded();search__input.focus({preventScroll: true});"
+                class="icon icon-magnify"></a>
+            <a tabindex="3">
+                <span id="nav__my_btn"></span>
+                <div class="profile popup" id="pop_profile" tabindex="4">
+                    <div class="profile__background">
+                        <img id="profile__background" onerror="this.css({display: 'none'});" />
+                    </div>
+                    <div class="profile__avatar">
+                        <img id="profile__avatar" onerror="this.css({display: 'none'});" />
+                    </div>
+                    <span class="profile__username" id="profile__username" style="display: none;">[추가예정]</span>
+                    <span class="profile__email" id="profile__email"></span>
+                    <div class="profile__buttons">
+                        <button onmousedown="move('form')">글쓰기</button>
+                        <button onmousedown="move('profile')">마이페이지</button>
+                        <button onmousedown="logout();">로그아웃</button>
+                    </div>
+                    <button class="popup__close icon icon-close"></button>
+                </div>
+            </a>
+        </nav>
+    </header>
+    <section>
+        <main>
+            <article id="article">
+            </article>
+            <hr />
+            <aside id="aside" class="preventable">
+            </aside>
+        </main>
+    </section>
+</body>
+<script>
+</script>
+
+</html>

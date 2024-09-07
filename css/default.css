@@ -1290,7 +1290,7 @@ blockquote {
 }
 
 n-table {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     background-color: var(--inner-line-color);
     border-color: var(--outer-line-color);
@@ -1300,6 +1300,13 @@ n-table {
     text-align: left;
     font-size: var(--font-size-medium);
     max-width: 100%;
+}
+
+n-table[data-align="right"] {
+    margin-left: auto;
+}
+n-table[data-align="center"] {
+    margin-inline: auto;
 }
 
 n-table.full-width {
