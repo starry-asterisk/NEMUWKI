@@ -418,7 +418,7 @@ const FormContent = {
                 };
             };
         },  
-        buttons: ['rowSize', 'colSize', 'outerLineColor', 'tableToLeft', 'tableToCenter', 'tableToRight', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
+        buttons: ['rowSize', 'colSize', 'tableToLeft', 'tableToCenter', 'tableToRight', 'outerLineColor', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
     },
     image: {
         text: '사진',
