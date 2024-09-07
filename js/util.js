@@ -279,9 +279,10 @@ const ContentBase = {
         }
     },
     image: {
-        initialize(id, wrap, src) {
+        initialize(id, wrap, imgInfo) {
             let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
-            img.src = src.startsWith('http') ? src : firebase.storage.getStaticUrl(src);
+            if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
+            img.src = imgInfo.src.startsWith('http') ? imgInfo.src : firebase.storage.getStaticUrl(imgInfo.src);
             wrap.append(img);
         }
     },
@@ -471,7 +472,7 @@ let Listerners = {};
 
 let app = {}, app_aside = {}, app_article = {}, now = {};
 let devmode = false;
-let version = devmode ? new Date().getTime() : 'v2.0.0';
+let version = devmode ? new Date().getTime() : 'v2.0.8';
 const DOMAIN = 'nemuwiki.com';
 const SUFFIX = location.hostname.endsWith(DOMAIN) ? '' : '.html';
 

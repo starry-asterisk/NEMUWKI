@@ -399,10 +399,10 @@ const FormContent = {
         text: '도표',
         icon: '󰓫',
         initialize(id, wrap, tableInfo = {}) {
-            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align } = tableInfo;
+            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left' } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
-            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({'data-align':align});
+            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({'data-align':align|| 'left'});
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
             form__inputs.append(nTable);
             wrap.append(form__inputs);
@@ -423,11 +423,12 @@ const FormContent = {
     image: {
         text: '사진',
         icon: '󰋩',
-        initialize(id, wrap, src) {
+        initialize(id, wrap, imgInfo = {}) {
+            if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
             let form__inputs = createElement('div').addClass('form__image');
             let form__img = createElement('img');
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
-            let file_url = 'undefined';
+            let file_url = '';
             let adjust_src = src => {
                 file_url = src;
                 form__img.src = src.startsWith('http') ? src : firebase.storage.getStaticUrl(src);;
@@ -435,7 +436,7 @@ const FormContent = {
             btn.onclick = () => {
                 modal('addImg', adjust_src);
             }
-            if (src) adjust_src(src);
+            if (imgInfo.src) adjust_src(imgInfo.src);
             form__inputs.append(btn, form__img);
             wrap.append(form__inputs);
             wrap.getData = () => file_url;
