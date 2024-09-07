@@ -388,7 +388,10 @@ fb.search = {
         await setDoc(doc(db, "keyword", id), data);
     },
     unset: async (id) => {
-        await deleteDoc(doc(db, "keyword", id));
+        const docRef = doc(db, "keyword", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) await deleteDoc(doc(db, "keyword", id));
     },
     random: async () => {
         let count = Math.min((await getCountFromServer(collection(db, "keyword"))).data().count, 100);

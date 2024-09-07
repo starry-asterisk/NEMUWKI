@@ -1058,7 +1058,7 @@ function toggleSubmitMode(bool = true) {
 }
 
 async function makeKeyword(id, data) {
-    if (data.hidden) return;
+    if (data.hidden) return await firebase.search.unset(id);
     let {
         title,
         board_name,
