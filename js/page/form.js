@@ -386,6 +386,8 @@ const FormContent = {
                     };
                 },
                 oninput() {
+                    this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
+                    this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
                     this.toggleClass('empty', this.textContent.trim().length < 1);
                 }
             });

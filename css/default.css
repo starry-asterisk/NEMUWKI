@@ -961,22 +961,22 @@ button:disabled,
 .content.hide {
     display: none !important;
 }
-
+.content.main_header {
+    display: flex;
+}
 .content .main_header__title {
     display: flex;
     flex-direction: row;
     align-items: center;
     font-size: var(--font-size-xxlarge);
     font-weight: 600;
+    margin-right: auto;
 }
 
 .content .main_header__buttons {
     display: flex;
     flex-direction: row;
     align-items: center;
-    position: absolute;
-    right: 0;
-    top: 0;
 }
 
 .profile_header__buttons {
@@ -1181,7 +1181,7 @@ button:disabled,
 }
 
 .content.title {
-    height: 4rem;
+    min-height: 4rem;
     align-content: center;
     font-size: var(--font-size-large);
     border-bottom: 1px solid var(--color-border);
@@ -1191,31 +1191,24 @@ button:disabled,
 .content.title::before {
     content: '\F0140';
     text-align: center;
-    width: 3rem;
-    transition: 200ms transform;
+    vertical-align: middle;
+    line-height: 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    margin-inline: 0.5rem;
+    transition: 200ms transform, 200ms background-color;
 }
 
 .content.title.fold::before {
     transform: rotate(-90deg);
 }
 
-.content.title::after {
-    content: '';
-    position: absolute;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    transition: 200ms background-color;
-    bottom: 1.2rem;
-    left: 0.5rem;
-    z-index: -1;
-}
-
-.content.title:hover::after {
+.content.title:hover::before {
     background-color: var(--blue-gray-50);
 }
 
-.content.title:active::after {
+.content.title:active::before {
     background-color: var(--blue-gray-100);
 }
 
@@ -1269,6 +1262,12 @@ button:disabled,
 
 .content:not(.title, .list) a:visited>span {
     color: var(--blue-gray-300);
+}
+
+.content.textbox,
+.form.textbox [contenteditable] {
+    --font-size-medium: inherit;
+    --blue-gray-50: transparent;
 }
 
 .content.annotation {
