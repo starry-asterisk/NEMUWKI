@@ -2355,6 +2355,7 @@ dialog button.button:active {
     }
     .form__image__wrap > img {
         width: 100%;
+        margin-inline: auto;
         aspect-ratio: 2;
     }
 }

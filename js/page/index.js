@@ -173,7 +173,7 @@ class articleIndex extends articleBase {
                 this.createContent('textbox', undefined, '<br><div style="text-align: center;"><span style="color: #039BE5; font-size: 38px;">환영합니다!</span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 39px; color: #039BE5;">네무위키</span><span style="font-size: 38px;">입니다</span></div><div style="text-align: center;">※ 정확하지 않은 내용이 있을 수있으며</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div><br>'),
                 this.createContent('table', undefined, {
                     cellColors: ["", ""],
-                    cells: ["%{display:block;text-align:center}처음이라면\n[link:https://www.nemuwiki.com/wiki/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%", "%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/wiki/profile;사용자_문서]%"],
+                    cells: ["%{display:block;text-align:center}처음이라면\n[link:https://www.nemuwiki.com/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%", "%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/profile;사용자_문서]%"],
                     header: [0, 0],
                     innerLineColor: 'var(--clr-primary-base)',
                     outerLineColor: 'transparent',
