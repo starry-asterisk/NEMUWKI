@@ -76,7 +76,7 @@
             </a>
         </nav>
     </header>
-    <section>
+    <section id="section">
         <main>
             <article id="article">
             </article>
@@ -85,6 +85,10 @@
             </aside>
         </main>
     </section>
+    <div class="scroller">
+        <button class="scroller__top" onclick="section.scrollTop = 0;"></button>
+        <button class="scroller__bottom" onclick="section.scrollTop = section.scrollHeight;"></button>
+    </div>
 </body>
 <script>
 </script>

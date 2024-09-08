@@ -286,6 +286,8 @@ const ContentBase = {
                 return;
             }
             let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
+            if(imgInfo.width) img.width = imgInfo.width;
+            if(imgInfo.align) img.dataset.align = imgInfo.align;
             img.src = imgInfo.src.startsWith('http') ? imgInfo.src : firebase.storage.getStaticUrl(imgInfo.src);
             wrap.append(img);
         }

@@ -435,15 +435,32 @@ const FormContent = {
             let hidden = imgInfo.hidden || false
             
             let isThumb__p = createElement('p');
-            let isThumb__input = createElement('input').attrs({ type: 'checkbox' }).props({ onchange() { isThumb = this.checked; } });
+            let isThumb__input = createElement('input').attrs({ type: 'checkbox', label: '대표 이미지 설정' }).props({ onchange() { form__inputs__wrap.toggleClass('main', isThumb = this.checked); } });
             let hidden__p = createElement('p');
-            let hidden__input = createElement('input').attrs({ type: 'checkbox' }).props({ onchange() { hidden = this.checked; } });
-            isThumb__p.append(isThumb__input, document.createTextNode('대표 이미지 설정'));
-            hidden__p.append(hidden__input, document.createTextNode('이미지 감추기'));
+            let hidden__input = createElement('input').attrs({ type: 'checkbox', label: '이미지 감추기' }).props({ onchange() { hidden = this.checked; } });
+            let width__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
+            let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
+            let size__p = createElement('p').addClass('input_l');
+            
+            form__img.onload = function() {
+                let ratio = form__img.naturalWidth / form__img.naturalHeight;
+                width__input.value = imgInfo.width || form__img.naturalWidth;
+                height__input.value = parseInt(width__input.value / ratio);
+                width__input.oninput = () => {
+                    height__input.value = parseInt(width__input.value / ratio);
+                }
+                height__input.oninput = () => {
+                    width__input.value = parseInt(height__input.value * ratio);
+                }
+            }
 
-            info__wrap.append(isThumb__p, hidden__p);
+            size__p.append(document.createTextNode('W'),width__input, document.createTextNode('H'), height__input);
+            isThumb__p.append(isThumb__input);
+            hidden__p.append(hidden__input);
 
-            if (isThumb) isThumb__input.checked = true;
+            info__wrap.append(size__p, isThumb__p, hidden__p);
+
+            if (isThumb) isThumb__input.checked = true &&  isThumb__input.onchange();
             if (hidden) hidden__input.checked = true;
 
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
@@ -456,17 +473,20 @@ const FormContent = {
                 modal('addImg', adjust_src);
             }
             if (imgInfo.src) adjust_src(imgInfo.src);
-            form__inputs__wrap.append(info__wrap, form__img);
+            form__inputs__wrap.append(form__img, info__wrap);
             form__inputs.append(btn, form__inputs__wrap);
             wrap.append(form__inputs);
             wrap.getData = () => {
                 return {
+                    width: width__input.value || 10,
                     src: file_url, 
                     isThumb,
-                    hidden
+                    hidden,
+                    align: form__img.dataset.align || 'left'
                 };
             };
-        }
+        },
+        buttons: ['imageToLeft','imageToCenter','imageToRight']
     },
     youtube: {
         text: '유튜브 링크',
@@ -968,7 +988,6 @@ const ToolBase = {
         );
         return wrap;
     },
-
     tableToLeft(wrap, focusedElement) {
         let table = focusedElement.querySelector('n-table');
         wrap.attrs({ title: '좌측 정렬' });
@@ -996,6 +1015,36 @@ const ToolBase = {
             createElement('button').attrs({
                 class: 'icon icon-format-align-right'
             }).props({ onclick: () => table.dataset.align = 'right' })
+        );
+        return wrap;
+    },
+    imageToLeft(wrap, focusedElement) {
+        let image = focusedElement.querySelector('img');
+        wrap.attrs({ title: '좌측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-left'
+            }).props({ onclick: () => image.dataset.align = 'left' })
+        );
+        return wrap;
+    },
+    imageToCenter(wrap, focusedElement) {
+        let image = focusedElement.querySelector('img');
+        wrap.attrs({ title: '가운데 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-center'
+            }).props({ onclick: () => image.dataset.align = 'center' })
+        );
+        return wrap;
+    },
+    imageToRight(wrap, focusedElement) {
+        let image = focusedElement.querySelector('img');
+        wrap.attrs({ title: '우측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-right'
+            }).props({ onclick: () => image.dataset.align = 'right' })
         );
         return wrap;
     }
