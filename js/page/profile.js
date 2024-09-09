@@ -44,7 +44,7 @@ class asideProfile extends asideBase {
     }
 
     createSearch(id, param) {
-        let wrap = createElement('div').addClass('f_block').css({ marginBottom: 'var(--spacing-large)' }).props({ id: `${id}_wrap` });
+        let wrap = createElement('div').addClass('f_block', 'flex-horizontal').css({ marginBottom: 'var(--spacing-large)' }).props({ id: `${id}_wrap` });
         let fold_btn = createElement('button').attrs({ class: 'menu_fold icon' }).props({ onclick() { aside.toggleClass('fold') } });
         let input = this.createInput(id).addClass('icon');
         let input_run = createElement('button').attrs({ class: 'input_run icon' }).props({ onclick() { search(); } });
@@ -239,7 +239,7 @@ function loadBoardLists(str, uid, search, permission) {
     }
 
     if (permission >= FINAL.PERMISSION.RW && appendList.length > 0) {
-        let buttons = createElement('div').attrs({ class: `profile_header__buttons` });
+        let buttons = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
         let button = createElement('button').props({ innerHTML: '목록 수정' }).css({flex: 1});
         let button2 = createElement('button').props({ innerHTML: TEXTS.form.cancel });
 
@@ -247,7 +247,7 @@ function loadBoardLists(str, uid, search, permission) {
             if(Notify.confirm('목록 설정을 취소하시겠습니까?')) location.reload();
         }
         
-        let buttons2 = createElement('div').attrs({ class: `profile_header__buttons` });
+        let buttons2 = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
         let button3 = createElement('button').props({ innerHTML: '+ 메뉴 추가' });
 
         button3.onclick = function () {
@@ -298,7 +298,7 @@ const IndexContent = {
     textbox: {
         initialize(id, wrap, model) {
             ContentBase.textbox.initialize.call(this, id, wrap, model.text);
-            let buttons = createElement('div').attrs({ class: `profile_header__buttons` }).css({ float: 'right' });
+            let buttons = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
 
             buttons.append(
                 createElement('button').props({
@@ -314,7 +314,7 @@ const IndexContent = {
                         article.prepend(toolbar);
                         wrap.after(textbox);
 
-                        let textbox_buttons = createElement('div').attrs({ class: `profile_header__buttons` }).css({ 'margin-left': 'auto' });
+                        let textbox_buttons = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
                         textbox_buttons.append(
                             createElement('button').props({
                                 innerHTML: TEXTS.form.apply, onclick: () => {
@@ -347,7 +347,7 @@ const IndexContent = {
     },
     profile_header: {
         initialize(id, wrap, model) {
-            let buttons = createElement('div').attrs({ class: `profile_header__buttons` });
+            let buttons = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
 
             buttons.append(
                 createElement('button').props({ innerHTML: TEXTS.share, onclick: () => goShare('twitter') }).css({ display: model.permission >= FINAL.PERMISSION.R ? 'block' : 'none' }),
@@ -371,7 +371,7 @@ const IndexContent = {
         async initialize(id, wrap, model) {
             let { keyword, field, operator, searchData = {} } = model
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
-
+            let itemFlexClass = model.style == 'galary' ? 'flex-vertical':'flex-horizontal';
             let load = async () => {
                 list__footer.disabled = true;
 
@@ -380,7 +380,7 @@ const IndexContent = {
                 for (let doc of docs) {
                     let data = doc.data();
 
-                    let row = createElement('span').attrs({ class: 'list__item' });
+                    let row = createElement('span').addClass('list__item', itemFlexClass);
                     let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `./profile?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
                     let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `./?post=${doc.id}` }).props({ innerHTML: data.title });
 
@@ -407,15 +407,15 @@ const IndexContent = {
                 if (this.data.Board) this.data.Board.proceed();
             }
 
-            let list__header = createElement('span').attrs({ class: 'list__header' });
-            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).attrs({ class: 'list__footer b_button' });
+            let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
+            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
 
             list__header.append(
                 createElement('a').attrs({ class: 'list__item__board_name' }).props({ innerHTML: TEXTS.document_cate }),
                 createElement('a').attrs({ class: 'list__item__title' }).props({ innerHTML: TEXTS.title })
             );
 
-            wrap.addClass(model.style).append(list__header, list__footer);
+            wrap.addClass('flex-vertical', model.style).append(list__header, list__footer);
 
             await load();
         }

@@ -38,7 +38,7 @@
                 stack: error.stack
             };
             errorLogs.push(errorLog);
-            if (firebase) firebase?.history?.insertError(errorLog);
+            //if (firebase) firebase?.history?.insertError(errorLog);
             if (Notify) alert(errorLog.stack || errorLog.message);
         }
     </script>
@@ -49,7 +49,7 @@
 
 <body class="none-auth">
     <header>
-        <nav>
+        <nav class="flex-horizontal">
             <a class="logo" tabindex="0" href="./">네무위키</a>
             <a tabindex="1" href="./?post=random" class="icon icon-shuffle-variant"></a>
             <a tabindex="2"
@@ -77,15 +77,15 @@
         </nav>
     </header>
     <section id="section">
-        <main>
-            <article id="article">
+        <main class="flex-horizontal">
+            <article id="article" class="flex-vertical">
             </article>
             <hr />
             <aside id="aside" class="preventable">
             </aside>
         </main>
     </section>
-    <div class="scroller">
+    <div class="scroller flex-vertical">
         <button class="scroller__top" onclick="section.scrollTop = 0;"></button>
         <button class="scroller__bottom" onclick="section.scrollTop = section.scrollHeight;"></button>
     </div>

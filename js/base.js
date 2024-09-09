@@ -18,7 +18,7 @@ class asideBase {
     destroy() { }
 
     createInput(id, type = 'text', validate_fn = Validator.default) {
-        let wrap = createElement().attrs({ id, class: 'input' });
+        let wrap = createElement().attrs({ id, class: 'input flex-horizontal' });
         let input = createElement('input').attrs({ id: `${id}__input`, type });
 
         wrap.append(input);

@@ -17,8 +17,8 @@ HTMLElement.prototype.props = function (propObj) {
     return this;
 };
 
-HTMLElement.prototype.addClass = function (classNmae) {
-    this.classList.add(classNmae);
+HTMLElement.prototype.addClass = function () {
+    this.classList.add.apply(this.classList, arguments);
     return this;
 };
 
@@ -232,14 +232,14 @@ const ContentBase = {
     },
     main_header: {
         initialize(id, wrap, model) {
-            let title = createElement('span').attrs({ class: `main_header__title` }).props({ innerHTML: model.text });
+            let title = createElement('span').addClass('main_header__title', 'flex-horizontal').props({ innerHTML: model.text });
             let buttons = createElement('div').attrs({ class: `main_header__buttons buttons` });
 
             model.permission >= FINAL.PERMISSION.R && buttons.append(createElement('button').props({ innerHTML: TEXTS.share, onclick: () => goShare('twitter') }));
             model.permission >= FINAL.PERMISSION.RW && buttons.append(createElement('button').props({ innerHTML: TEXTS.edit, onclick: () => move(`form?post=${model.post_id}`) }));
             model.permission >= FINAL.PERMISSION.RWD && buttons.append(createElement('button').props({ innerHTML: TEXTS.delete, onclick: function () { remove(this, model.post_id); } }));
 
-            wrap.addClass('fold-end').append(title, buttons);
+            wrap.addClass('fold-end', 'flex-horizontal').append(title, buttons);
         }
     },
     sub_header: {
@@ -949,7 +949,7 @@ const MODAL_TEMPLATE = {
         container.css({ overflow: 'visible' });
         let frag = document.createDocumentFragment();
         let h3 = createElement('h3').props({ innerHTML: '분류 추가' });
-        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
+        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input','flex-horizontal').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
         let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '분류명' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
         let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
         let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '생성' });

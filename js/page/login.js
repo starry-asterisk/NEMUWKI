@@ -43,7 +43,7 @@ class asideIndex extends asideBase {
     }
 
     createSearch(id, param) {
-        let wrap = createElement('div').addClass('f_block').css({marginBottom: 'var(--spacing-large)'});
+        let wrap = createElement('div').addClass('f_block', 'flex-horizontal').css({marginBottom: 'var(--spacing-large)'});
         let fold_btn = createElement('button').attrs({ class: 'menu_fold icon' }).props({ onclick(){ aside.toggleClass('fold') } });
         let input = this.createInput(id).addClass('icon');
         let input_run = createElement('button').attrs({ class: 'input_run icon' }).props({ onclick(){search();} });
@@ -114,6 +114,8 @@ const IndexContent = {
             wrap_i_id.append(createElement('input').props({ id: 'input_id' }).attrs({ placeholder: TEXTS.empty }));
             wrap_i_password.append(createElement('input').props({ id: 'input_pw', type: 'password' }).attrs({ placeholder: TEXTS.empty }));
             wrap_i_password_re.append(createElement('input').props({ id: 'input_pw_re', type: 'password' }).attrs({ placeholder: TEXTS.empty }));
+
+            wrap.addClass('flex-vertical');
 
             if (app.now == '/login') {
                 wrap.append(

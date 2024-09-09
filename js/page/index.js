@@ -44,7 +44,7 @@ class asideIndex extends asideBase {
     }
 
     createSearch(id, param) {
-        let wrap = createElement('div').addClass('f_block').css({ marginBottom: 'var(--spacing-large)' }).props({ id: `${id}_wrap` });
+        let wrap = createElement('div').addClass('f_block', 'flex-horizontal').css({ marginBottom: 'var(--spacing-large)' }).props({ id: `${id}_wrap` });
         let fold_btn = createElement('button').attrs({ class: 'menu_fold icon' }).props({ onclick() { aside.toggleClass('fold') } });
         let input = this.createInput(id).addClass('icon');
         let input_run = createElement('button').attrs({ class: 'input_run icon' }).props({ onclick() { search(); } });
@@ -235,7 +235,7 @@ const IndexContent = {
             let n_timestamp = this.components[id].timestamp = createElement('span').attrs({ class: "notice__timestamp" }).props({ innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
             let n_content = this.components[id].content = createElement('span').attrs({ class: "notice__content" }).props({ innerHTML: markdown(data.content) });
 
-            wrap.append(n_title, n_timestamp, n_content);
+            wrap.addClass('flex-vertical').append(n_title, n_timestamp, n_content);
             wrap.style.removeProperty('display');
         }
     },
@@ -243,7 +243,7 @@ const IndexContent = {
         async initialize(id, wrap, model) {
             let { keyword, field, operator, searchData = {} } = model
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
-
+            let itemFlexClass = model.style == 'galary' ? 'flex-vertical':'flex-horizontal';
             let load = async () => {
                 list__footer.disabled = true;
 
@@ -252,7 +252,7 @@ const IndexContent = {
                 for (let doc of docs) {
                     let data = doc.data();
 
-                    let row = createElement('span').attrs({ class: 'list__item' });
+                    let row = createElement('span').addClass('list__item', itemFlexClass);
                     let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `./index?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
                     let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `./?post=${doc.id}` }).props({ innerHTML: data.title });
 
@@ -279,15 +279,15 @@ const IndexContent = {
                 if (this.data.Board) this.data.Board.proceed();
             }
 
-            let list__header = createElement('span').attrs({ class: 'list__header' });
-            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).attrs({ class: 'list__footer b_button' });
+            let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
+            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
 
             list__header.append(
                 createElement('a').attrs({ class: 'list__item__board_name' }).props({ innerHTML: TEXTS.document_cate }),
                 createElement('a').attrs({ class: 'list__item__title' }).props({ innerHTML: TEXTS.title })
             );
 
-            wrap.addClass(model.style).append(list__header, list__footer);
+            wrap.addClass('flex-vertical', model.style).append(list__header, list__footer);
 
             await load();
         }

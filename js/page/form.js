@@ -12,9 +12,9 @@ class asideForm extends asideBase {
             function (data) { this.ul.append(createOption(data, this)) },
             function () { for (let option of Array.from(this.ul.children)) if (option.tagName == 'N-OPTION') option.remove(); }
         );
-        let boardSelect = this.components.board = createSelect([], 0, true, '문서 분류').addClass('input');
-        let cateSelect = this.components.cate = createSelect([], 0, true, '카테고리').addClass('input');
-        let templateSelect = this.components.template = createSelect([], 0, true, '템플릿').addClass('input');
+        let boardSelect = this.components.board = createSelect([], 0, true, '문서 분류').addClass('input','flex-horizontal');
+        let cateSelect = this.components.cate = createSelect([], 0, true, '카테고리').addClass('input','flex-horizontal');
+        let templateSelect = this.components.template = createSelect([], 0, true, '템플릿').addClass('input','flex-horizontal');
         this.data.Board.bind(boardSelect);
         this.data.Categories.bind(cateSelect);
 
@@ -350,7 +350,7 @@ const FormContent = {
                 여기에 텍스트를 입력하세요.`,
                 class: 'form__textbox'
             }).props({
-                innerHTML: markdown(html || ''),
+                innerHTML: html || '',
                 onpaste(e) {
                     e.preventDefault();
                     document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
@@ -428,7 +428,7 @@ const FormContent = {
         initialize(id, wrap, imgInfo = {}) {
             if (typeof imgInfo == 'string') imgInfo = { src: imgInfo };
             let form__inputs = createElement('div').addClass('form__image');
-            let form__inputs__wrap = createElement('div').addClass('form__image__wrap');
+            let form__inputs__wrap = createElement('div').addClass('form__image__wrap', 'flex-horizontal');
             let form__img = new Image();
             let info__wrap = createElement('div');
             let isThumb = imgInfo.isThumb || false;
