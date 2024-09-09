@@ -148,7 +148,7 @@ class articleIndex extends articleBase {
 
 
                 if (html_annotation.length > 0) {
-                    let annotation = createElement('div').attrs({ class: 'content annotation' });
+                    let annotation = createElement('div').addClass('content','annotation','flex-vertical');
                     annotation.innerHTML = html_annotation;
                     html_annotation = '';
                     appendList.push(annotation);
@@ -243,7 +243,7 @@ const IndexContent = {
         async initialize(id, wrap, model) {
             let { keyword, field, operator, searchData = {} } = model
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
-            let itemFlexClass = model.style == 'galary' ? 'flex-vertical':'flex-horizontal';
+            let itemFlexClass = model.style == 'galery' ? 'flex-vertical':'flex-horizontal';
             let load = async () => {
                 list__footer.disabled = true;
 

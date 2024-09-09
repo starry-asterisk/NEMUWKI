@@ -99,7 +99,7 @@ class asideForm extends asideBase {
         )
 
 
-        let templateChk = createElement('input').attrs({ type: 'checkbox', class: '' }).props({ id: 'template_chk', onclick: setTemplate });
+        let templateChk = createElement('input').attrs({ type: 'checkbox', class: 'toggle_chk' }).props({ id: 'template_chk', onclick: setTemplate });
         let div = createElement('div').props({ innerHTML: '템플릿으로 사용' }).addClass('flex-horizontal');
 
         div.append(templateChk);
@@ -160,7 +160,7 @@ class articleForm extends articleBase {
         let ToolBarModel = new Model(
             [],
             function (namespace) {
-                this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace), _this._focusedElement));
+                this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace,'flex-horizontal'), _this._focusedElement));
             },
             function () { emptyNode(this.wrap) }
         );
@@ -214,10 +214,10 @@ class articleForm extends articleBase {
     }
 
     createForm(type, id = randomId(), model, focusable = false) {
-        let wrap = createElement('div').attrs({ class: `form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
+        let wrap = createElement('div').attrs({ class: `flex-horizontal form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
 
         if (focusable) {
-            let form__move = createElement('div').addClass('form__move');
+            let form__move = createElement('div').addClass('form__move', 'flex-vertical');
             let form__move__up = createElement('button').addClass('form__move__up').props({ onclick() { wrap.prev('.focusable')?.before(wrap) } });
             let fomr__move__down = createElement('button').addClass('form__move__down').props({ onclick() { wrap.next('.focusable')?.after(wrap) } });
             let form__drag = createElement('button').addClass('form__drag');
@@ -285,7 +285,7 @@ class articleForm extends articleBase {
 
 const FormContent = {
     toolbar: {
-        initialize(id, wrap, model) { }
+        initialize(id, wrap, model) { wrap.addClass('flex-horizontal'); }
     },
     bottomtoolbar: {
         initialize(id, wrap, model) {
@@ -306,7 +306,7 @@ const FormContent = {
                 else article.append(textbox);
                 textbox.scrollIntoViewIfNeeded();
             };
-            wrap.append(select, addBtn, previewBtn, submitBtn);
+            wrap.addClass('flex-horizontal').append(select, addBtn, previewBtn, submitBtn);
         }
     },
     main_header: {
@@ -430,7 +430,7 @@ const FormContent = {
             let form__inputs = createElement('div').addClass('form__image');
             let form__inputs__wrap = createElement('div').addClass('form__image__wrap', 'flex-horizontal');
             let form__img = new Image();
-            let info__wrap = createElement('div');
+            let info__wrap = createElement('div').addClass('flex-vertical');
             let isThumb = imgInfo.isThumb || false;
             let hidden = imgInfo.hidden || false
             

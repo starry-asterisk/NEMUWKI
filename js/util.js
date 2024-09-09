@@ -314,7 +314,7 @@ const ContentBase = {
         initialize(id, wrap, model) { wrap.addClass('fold-end'); }
     },
     summury: {
-        initialize(id, wrap, model) { wrap.addClass('fold-end'); }
+        initialize(id, wrap, model) { wrap.addClass('fold-end','flex-vertical'); }
     },
 }
 

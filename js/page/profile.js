@@ -116,12 +116,12 @@ class articleProfile extends articleBase {
 
 
     createForm(type, id = randomId(), model, focusable = false, movable = false) {
-        let wrap = createElement('div').attrs({ class: `form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
+        let wrap = createElement('div').attrs({ class: `flex-horizontal form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
 
         if (focusable) wrap.addClass('focusable').onfocus = wrap.onfocusin = wrap.onclick = () => this.focusedElement = wrap;
 
         if (movable) {
-            let form__move = createElement('div').addClass('form__move');
+            let form__move = createElement('div').addClass('form__move', 'flex-vertical');
             let form__move__up = createElement('button').addClass('form__move__up').props({ onclick() { wrap.prev('.focusable')?.before(wrap) } });
             let fomr__move__down = createElement('button').addClass('form__move__down').props({ onclick() { wrap.next('.focusable')?.after(wrap) } });
             let form__drag = createElement('button').addClass('form__drag');
@@ -305,7 +305,7 @@ const IndexContent = {
                     innerHTML: TEXTS.edit, onclick: () => {
                         let ToolBarModel = new Model(
                             [],
-                            function (namespace) { this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace), app_article._focusedElement)); },
+                            function (namespace) { this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace, 'flex-horizontal'), app_article._focusedElement)); },
                             function () { emptyNode(this.wrap) }
                         );
                         let toolbar = app_article.createForm('toolbar', 'toolbar', ToolBarModel);
@@ -371,7 +371,7 @@ const IndexContent = {
         async initialize(id, wrap, model) {
             let { keyword, field, operator, searchData = {} } = model
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
-            let itemFlexClass = model.style == 'galary' ? 'flex-vertical':'flex-horizontal';
+            let itemFlexClass = model.style == 'galey' ? 'flex-vertical':'flex-horizontal';
             let load = async () => {
                 list__footer.disabled = true;
 
@@ -456,7 +456,7 @@ function execModal(command, modal_type, conv_fn = v => v, option) {
 
 const FormContent = {
     toolbar: {
-        initialize(id, wrap, model) { }
+        initialize(id, wrap, model) { wrap.addClass('flex-horizontal'); }
     },
     textbox: {
         text: '텍스트박스',
@@ -486,7 +486,7 @@ const FormContent = {
                 }
             });
             input_text.toggleClass('empty', input_text.textContent.trim().length < 1);
-            wrap.append(input_text);
+            wrap.addClass('flex-horizontal').append(input_text);
             wrap.getData = () => input_text.innerHTML;
         },
         buttons: ['foreColor', 'backColor', 'bold', 'italic', 'strikeThrough', 'underline', 'fontSize', 'justifyLeft', 'justifyCenter', 'justifyRight', 'formatBlock', 'createLink', 'insertImage', 'unlink', 'removeFormat', 'selectAll', 'undo', 'redo']

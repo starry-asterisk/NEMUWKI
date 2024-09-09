@@ -16,7 +16,7 @@
     --light-blue-600: #039BE5;
     --light-blue-700: #0288D1;
     --light-blue-800: #0277BD;
-    --light-blue-a400: #00B0FF;
+    --light-blue-a400: #00B0FF97; /*0.6 Opacity로 수정됨*/
 
     --light-blue-visited: #91bcd3;
 
@@ -81,11 +81,54 @@
     background-color: #B0BEC5AA;
 }
 
+::-webkit-scrollbar {
+    width: var(--spacing-small);
+    height: var(--spacing-small);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #00000044;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00000077;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #00000088;
+}
+
 html, body {
     padding: 0;
     margin: 0;
     height: 100%;
     background-color: var(--color-bg-light);
+}
+
+li,
+ol,
+ul {
+    list-style: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:visited {
+    color: var(--blue-gray-300);
+}
+
+img {
+    object-position: center;
+    object-fit: cover;
+    max-width: 100%;
 }
 
 /* Layout */
@@ -96,8 +139,222 @@ html, body {
     justify-content: center;
 }
 
-/* not-used */
 .flex-vertical {
     display: flex;
     flex-direction: column;
 }
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3rem;
+    overflow: visible;
+    text-align: center;
+    z-index: 99;
+    backdrop-filter: blur(4px);
+    background-color: var(--light-blue-a400);
+}
+
+section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding-top: 3rem;
+    overflow: hidden auto;
+    text-align: center;
+    scroll-behavior: smooth;
+}
+
+nav,
+main {
+    display: flex;
+    flex-direction: row;
+    max-width: 90rem;
+    min-height: 100%;
+    margin: auto;
+}
+
+nav>a {
+    align-content: center;
+    color: var(--blue-gray-900) !important;
+    height: 3rem;
+    word-break: keep-all;
+}
+
+nav>a.text {
+    padding-inline: var(--spacing-medium);
+}
+
+nav>.a:first-child {
+    margin-right: auto;
+}
+
+nav>a.icon {
+    padding: var(--spacing-small);
+}
+
+nav>a.icon::before {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 1.4em;
+    align-content: center;
+}
+
+nav>a.icon:hover::before {
+    background-color: var(--light-blue-300);
+}
+
+/* ScrollTop 버튼 */
+.scroller {
+    position: fixed;
+    bottom: var(--spacing-large);
+    right: var(--spacing-large);
+    width: 3rem;
+    border: 1px solid var(--blue-gray-100);
+    border-radius: var(--border-radius-medium);
+    background-color: var(--blue-gray-50);
+    opacity: 0.75;
+    box-shadow: 0 0 16px -3px var(--blue-gray-200);
+}
+
+.scroller>button {
+    font-size: var(--font-size-medium);
+    font-family: "Material Design Icons";
+    height: 3rem;
+    border: 1px solid transparent;
+    margin: -1px;
+    background-color: transparent;
+}
+
+.scroller>button:hover {
+    background-color: var(--blue-gray-100);
+    border: 1px solid var(--blue-gray-200);
+}
+
+.scroller>button:active {
+    background-color: var(--blue-gray-200);
+    border: 1px solid var(--blue-gray-300);
+}
+
+.scroller__top {
+    border-top-left-radius: var(--border-radius-medium);
+    border-top-right-radius: var(--border-radius-medium);
+}
+
+.scroller__bottom {
+    border-bottom-left-radius: var(--border-radius-medium);
+    border-bottom-right-radius: var(--border-radius-medium);
+}
+
+.scroller__top::before {
+    content: '\F0795';
+}
+
+.scroller__bottom::before {
+    content: '\F0792';
+}
+
+/* Component */
+/* Logo */
+.logo {
+    font-weight: bold;
+    font-size: 1.3em;
+    color: var(--blue-gray-900) !important;
+}
+
+/* checkbox 1(toggle) */
+.toggle_chk {
+    appearance: none;
+    position: relative;
+    padding: 0.3rem;
+    cursor: pointer;
+    transition: 200ms background-color;
+    background-color: var(--blue-gray-100);
+    border-radius: 1.05rem;
+}
+
+.toggle_chk::after {
+    content: '';
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-inline: 0 1.5rem;
+    background-color: var(--color-bg-light);
+    border-radius: 50%;
+    position: relative;
+    transition: 200ms margin;
+    box-shadow: 0 0 16px -3px var(--blue-gray-200);
+    border: 1px solid var(--blue-gray-100);
+}
+
+.toggle_chk:checked {
+    background-color: var(--color-valid);
+}
+
+.toggle_chk:checked::after {
+    margin-inline: 1.5rem 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
