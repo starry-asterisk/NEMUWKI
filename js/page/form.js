@@ -91,7 +91,7 @@ class asideForm extends asideBase {
                         }
                     });
                 li.append(
-                    createElement('span').attrs({ class: 'tag icon', 'data-icon': FormContent[namespace].icon }).props({ onclick() { article.append(app_article.createForm(namespace, undefined, undefined, true)) } }),
+                    createElement('span').attrs({ class: 'tag icon'}).addClass(FormContent[namespace].icon).props({ onclick() { article.append(app_article.createForm(namespace, undefined, undefined, true)) } }),
                     createElement('span').attrs({ 'data-type': namespace }).props({ innerHTML: FormContent[namespace].text })
                 );
                 this.ul.append(li);
@@ -322,7 +322,7 @@ const FormContent = {
     },
     title: {
         text: '소제목',
-        icon: '󰗴',
+        icon: 'icon-format-title',
         initialize(id, wrap, model = {}) {
             let form__inputs = createElement('div').addClass('form__inputs').css({ 'grid-template-columns': 'auto 1fr' });
             let input_depth = createElement('input')
@@ -342,7 +342,7 @@ const FormContent = {
     },
     textbox: {
         text: '텍스트박스',
-        icon: '󱄽',
+        icon: 'icon-format-textbox',
         initialize(id, wrap, html) {
             let input_text = createElement('div').attrs({
                 contenteditable: true,
@@ -399,7 +399,7 @@ const FormContent = {
     },
     table: {
         text: '도표',
-        icon: '󰓫',
+        icon: 'icon-table',
         initialize(id, wrap, tableInfo = {}) {
             let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left' } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
@@ -424,7 +424,7 @@ const FormContent = {
     },
     image: {
         text: '사진',
-        icon: '󰋩',
+        icon: 'icon-image',
         initialize(id, wrap, imgInfo = {}) {
             if (typeof imgInfo == 'string') imgInfo = { src: imgInfo };
             let form__inputs = createElement('div').addClass('form__image');
@@ -490,7 +490,7 @@ const FormContent = {
     },
     youtube: {
         text: '유튜브 링크',
-        icon: '󰗃',
+        icon: 'icon-youtube',
         initialize(id, wrap, model = {}) {
             let oninput = () => {
                 let video_id = getYoutubeId(input_link.value);
@@ -526,7 +526,7 @@ const FormContent = {
     },
     seperator: {
         text: '구분선',
-        icon: '󱋰',
+        icon: 'icon-drag-horizontal-variant',
         initialize(id, wrap) {
             let form__inputs = createElement('div').addClass('form__inputs');
             form__inputs.innerHTML = '구분선';
@@ -536,7 +536,7 @@ const FormContent = {
     },
     summury: {
         text: '목차',
-        icon: '󰉻',
+        icon: 'icon-format-list-numbered',
         initialize(id, wrap) {
             let form__inputs = createElement('div').addClass('form__inputs');
             form__inputs.innerHTML = '목차';

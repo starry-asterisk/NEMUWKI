@@ -46,3 +46,12 @@
 .icon-format-color-fill::before{content:"\F0266"}
 .icon-tray-arrow-up::before{content:"\F011D"}
 .icon-fit-to-page-outline::before{content:"\F0EF6"}
+
+
+.icon-format-title::before{content:"\F05F4"}
+.icon-format-textbox::before{content:"\F0D11"}
+.icon-table::before{content:"\F04EB"}
+.icon-image::before{content:"\F02E9"}
+.icon-youtube::before{content:"\F05C3"}
+.icon-drag-horizontal-variant::before{content:"\F12F0"}
+.icon-format-list-numbered::before{content:"\F027B"}
