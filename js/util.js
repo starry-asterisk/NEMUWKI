@@ -520,7 +520,7 @@ let Listerners = {};
 
 let app = {}, app_aside = {}, app_article = {}, now = {};
 let devmode = false;
-let version = devmode ? new Date().getTime() : 'v2.0.8';
+let version = devmode ? new Date().getTime() : 'v2.1.0';
 const DOMAIN = 'nemuwiki.com';
 const SUFFIX = location.hostname.endsWith(DOMAIN) ? '' : '.html';
 
