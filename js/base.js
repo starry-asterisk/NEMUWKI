@@ -1,3 +1,78 @@
+class Router {
+    VISITED_MAX = 5;
+    pageClasses = {};
+    histories = [];
+    visited = [];
+    now = '';
+    state = null;
+    user = null;
+    blockMode = false;
+
+    loginCallback = () => { };
+    logoutCallback = () => { };
+    constructor() {
+        if (localStorage.getItem('visited')) this.visited = localStorage.getItem('visited').split(',');
+    }
+    async load(path = location.pathname, search = location.search) {
+        now = { path, search };
+        let params = new URLSearchParams(search);
+        let page = await this.getClass(`/${path.split('/').pop()}`);
+        document.body.removeClass('preview-mode');
+        this.blockMode = false;
+        __CallStack__ = {
+            categories: [],
+            board: []
+        }
+        this.loginCallback = page.loginCallback || (() => { });
+        this.logoutCallback = page.logoutCallback || (() => { });
+        app_aside = new page.aside(params);
+        app_article = new page.article(params);
+        this.histories.push({ app_aside, app_article });
+    }
+    async getClass(path) {
+        let className = '404';
+        switch (path) {
+            case '/':
+            case `/index`:
+                className = 'index';
+                break;
+            case `/login`:
+            case `/signup`:
+                className = 'login';
+                break;
+            case `/form`:
+                className = 'form';
+                break;
+            case `/profile`:
+                className = 'profile';
+                break;
+
+        }
+        this.now = path;
+        return this.pageClasses[className] || (this.pageClasses[className] = await import(`./page/${className}.js?version=${version}`));
+    }
+
+    getVisited() {
+        return this.visited.map(str => {
+            let arr = str.split(':');
+            return {
+                visited_id: decodeVisited(arr[0]),
+                title: decodeVisited(arr[1]),
+                board_name: decodeVisited(arr[2])
+            };
+        });
+    }
+
+    saveVisited(post_id, title, board_name) {
+        let str = `${encodeVisited(post_id)}:${encodeVisited(title)}:${encodeVisited(board_name)}`;
+        let old_visited_index = this.visited.indexOf(str);
+        if (old_visited_index > -1) this.visited.splice(old_visited_index, 1);
+        this.visited.unshift(str);
+        this.visited.splice(this.VISITED_MAX);
+        localStorage.setItem('visited', this.visited);
+    }
+}
+
 class asideBase {
 
     data = {};
@@ -396,3 +471,447 @@ function createOption(data, select) {
     }
     return opt;
 }
+
+const ContentBase = {
+    zoom: {
+        initialize(id, wrap, model) {
+            let zoomIndicator = createElement('span').props({ id: '' });
+
+            wrap.append(
+                createElement('button').props({ innerHTML: TEXTS.zoomin, onclick: () => zoomArticle(0.1, false) }),
+                zoomIndicator,
+                createElement('button').props({ innerHTML: TEXTS.zoomout, onclick: () => zoomArticle(-0.1, false) }),
+            );
+
+            let oldZoom = localStorage.getItem('zoom') || 1;
+            zoomArticle(oldZoom, true);
+
+            function zoomArticle(diff, initialize) {
+                const currentZoom = parseFloat(article.style.zoom || 1);
+                let newZoom = initialize ? parseFloat(diff) : Math.max((parseFloat(currentZoom) + parseFloat(diff)).toFixed(1), 0.1);
+                article.style.zoom = newZoom;
+                wrap.style.zoom = (1 / newZoom).toFixed(2);
+                zoomIndicator.innerHTML = `${Math.floor(newZoom * 100)}%`;
+                if (!initialize) localStorage.setItem('zoom', newZoom);
+            }
+        }
+    },
+    main_header: {
+        initialize(id, wrap, model) {
+            let title = createElement('span').addClass('main_header__title', 'flex-horizontal').props({ innerHTML: model.text });
+            let buttons = createElement('div').attrs({ class: `main_header__buttons buttons` });
+
+            model.permission >= FINAL.PERMISSION.R && buttons.append(createElement('button').props({ innerHTML: TEXTS.share, onclick: () => goShare('twitter') }));
+            model.permission >= FINAL.PERMISSION.RW && buttons.append(createElement('button').props({ innerHTML: TEXTS.edit, onclick: () => move(`form?post=${model.post_id}`) }));
+            model.permission >= FINAL.PERMISSION.RWD && buttons.append(createElement('button').props({ innerHTML: TEXTS.delete, onclick: function () { remove(this, model.post_id); } }));
+
+            wrap.addClass('fold-end', 'flex-horizontal').append(title, buttons);
+        }
+    },
+    sub_header: {
+        initialize(id, wrap, model) { wrap.addClass('fold-end').innerHTML = model.text; }
+    },
+    title: {
+        initialize(id, wrap, model) {
+            wrap.addClass('icon').addClass('fold-end').props({
+                innerHTML: model.text,
+                onclick() {
+                    wrap.toggleClass('fold');
+                    let isFold = wrap.classList.contains('fold');
+                    let next = wrap;
+                    while (next = next.nextElementSibling) {
+                        if (next.classList.contains('fold-end')) return;
+                        next.toggleClass('hide', isFold);
+                    }
+                }
+            });
+        }
+    },
+    textbox: {
+        initialize(id, wrap, html) {
+            let tpl = createElement('template').props({ innerHTML: markdown(html) });
+            wrap.appendChild(tpl.content);
+        }
+    },
+    table: {
+        initialize(id, wrap, tableInfo) {
+            let { cells, header, cellColors = [], outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth, align } = tableInfo;
+            if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
+            if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
+
+            let nTable = createElement('n-table').props({ cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth, editable: false }).attrs({'data-align':align});
+
+            wrap.append(nTable);
+        }
+    },
+    image: {
+        initialize(id, wrap, imgInfo) {
+            if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
+            if(imgInfo.hidden) {
+                wrap.style.display = 'none';
+                return;
+            }
+            let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
+            if(imgInfo.width) img.width = imgInfo.width;
+            if(imgInfo.align) img.dataset.align = imgInfo.align;
+            img.src = imgInfo.src.startsWith('http') ? imgInfo.src : firebase.storage.getStaticUrl(imgInfo.src);
+            wrap.append(img);
+        }
+    },
+    youtube: {
+        initialize(id, wrap, model) {
+            let video_id = getYoutubeId(model.link);
+            let start = model.start || 0;
+            let content_el = createElement('iframe').attrs({
+                title: 'YouTube video player',
+                frameborder: '0',
+                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+                referrerpolicy: 'strict-origin-when-cross-origin',
+                allowfullscreen: true,
+                width: 530,
+                height: 315,
+                src: `//www.youtube.com/embed/${video_id}?start=${start}`
+            });
+
+            wrap.append(content_el);
+        }
+    },
+    seperator: {
+        initialize(id, wrap, model) { wrap.addClass('fold-end'); }
+    },
+    summury: {
+        initialize(id, wrap, model) { wrap.addClass('fold-end','flex-vertical'); wrap.id='summury'; }
+    },
+    list: {
+        async initialize(id, wrap, model) {
+            let { keyword, field, operator, searchData = {} } = model
+            let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
+            let cardMode = model.style == 'galery';
+            let itemFlexClass = cardMode ? 'flex-vertical':'flex-horizontal';
+            let load = async () => {
+                list__footer.disabled = true;
+
+                docs = await next();
+
+                for (let doc of docs) {
+                    let data = doc.data();
+
+                    let row = createElement('span').addClass('list__item', itemFlexClass);
+                    let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
+                    let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `index?post=${doc.id}` }).props({ innerHTML: data.title });
+
+
+                    if (cardMode) {
+                        let onclick = function () { move(post_anchor.href); }
+                        let img_alt = createElement('div').addClass('list__item__alt').props({ onclick })
+                        if (data.thumbnail && data.thumbnail != 'undefined') {
+                            let img = createElement('img').attrs({ class: 'list__item__img' }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
+                            img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
+                            row.append(img);
+                        } else {
+                            row.append(img_alt);
+                        }
+                    }
+                    row.append(board_anchor, post_anchor);
+                    wrap.append(row);
+
+                }
+
+                if (docs.length < (model.page_offset || 25)) list__footer.remove();
+
+                list__footer.disabled = false;
+                if (this.data.Board) this.data.Board.proceed();
+            }
+
+            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
+
+            if(cardMode) wrap.addClass(model.style).append(list__footer);
+            else {
+                let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
+                list__header.append(
+                    createElement('a').attrs({ class: 'list__item__board_name' }).props({ innerHTML: TEXTS.document_cate }),
+                    createElement('a').attrs({ class: 'list__item__title' }).props({ innerHTML: TEXTS.title })
+                );
+                wrap.addClass('flex-vertical', model.style).append(list__header, list__footer);
+            }
+
+            await load();
+        }
+    },
+}
+
+const MODAL_TEMPLATE = {
+    colorPicker: (container, callback, value) => {
+        let Saturation = 1, Brightness = 1, Hue = 0;
+        let pallet = document.createElement('div').addClass('pallet');
+        let pallet__pick = document.createElement('span').addClass('pallet__picker');
+        let hue = document.createElement('div').addClass('hue');
+        let hue_rotater = document.createElement('span').addClass('hue__picker');
+
+        pallet.append(pallet__pick);
+        pallet.onmousedown = pallet.ontouchstart = e_donw => {
+            let { width, height, x, y } = pallet.getBoundingClientRect();
+            pickColor(e_donw);
+            window.onmousemove = window.ontouchmove = e_move => pickColor(e_move);
+            window.onmouseup = window.onmouseleave = window.ontouchend = e_up => {
+                pickColor(e_up);
+                window.onmouseup = window.ontouchmove = window.ontouchend = window.onmouseleave = window.onmousemove = null;
+            };
+            function pickColor(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (e.touches) e = e.touches[0];
+                if (!e) return;
+                let { clientX, clientY } = e;
+                let poxX = Math.max(Math.min(clientX - x, width), 0);
+                let posY = Math.max(Math.min(clientY - y, height), 0);
+                Saturation = poxX / width;
+                Brightness = 1 - (posY / height);
+                displayColor();
+            }
+        }
+
+        hue.append(hue_rotater);
+        hue.onmousedown = hue.ontouchstart = e_donw => {
+            let { width, x } = hue.getBoundingClientRect();
+            pickHue(e_donw);
+            window.onmousemove = window.ontouchmove = e_move => pickHue(e_move);
+            window.onmouseup = window.onmouseleave = window.ontouchend = e_up => {
+                pickHue(e_up);
+                window.onmouseup = window.ontouchmove = window.ontouchend = window.onmouseleave = window.onmousemove = null;
+            };
+            function pickHue(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (e.touches) e = e.touches[0];
+                if (!e) return;
+                let { clientX } = e;
+                let poxX = Math.max(Math.min(clientX - x, width), 0);
+                Hue = Math.floor(poxX / width * 361);
+                displayColor();
+            }
+        }
+
+
+        let hex_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: 'hex' }).css({ 'margin-block': '1rem' });
+        let hex_input = createElement('input').attrs({ placeholder: '', maxlength: 7 }).props({
+            value: '#FFFFFF',
+            oninput() {
+                let { h, s, v } = hexToHsv(hex_input.value);
+                Hue = h, Saturation = s, Brightness = v;
+                displayColor(false);
+            }
+        });
+        let eyedropper_btn = createElement('button').addClass('icon').addClass('icon-eyedropper').props({
+            onclick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let dropper = new EyeDropper();
+                dropper.open().then(({ sRGBHex }) => {
+                    let { h, s, v } = hexToHsv(sRGBHex);
+                    Hue = h, Saturation = s, Brightness = v;
+                    displayColor();
+                });
+            }
+        });
+
+        let button_confirm = createElement('button').props({
+            onclick(e) {
+                e.preventDefault();
+                container.close();
+                callback(hex_input.value);
+            }
+        }).attrs({ class: 'button primary' }).props({ innerHTML: TEXTS.form.apply });
+
+        hex_input_wrap.append(hex_input, eyedropper_btn);
+        if (!('EyeDropper' in window)) eyedropper_btn.remove();
+        let frag = document.createDocumentFragment();
+        frag.append(pallet, hue, hex_input_wrap, button_confirm);
+
+        if (value) {
+            let { h, s, v } = hexToHsv(value);
+            Hue = h, Saturation = s, Brightness = v;
+            displayColor();
+        }
+
+        return frag;
+
+        function displayColor(reflow = true) {
+            pallet__pick.css({ bottom: `${Brightness * 100}%`, left: `${Saturation * 100}%` });
+            pallet.css({ 'filter': `hue-rotate(${Hue}deg)` });
+            hue_rotater.css({ left: `${Hue / 3.6}%` });
+            if (reflow) hex_input.value = hsvToHex(Hue, Saturation, Brightness);
+        }
+    },
+    emailPrompt: container => {
+        let frag = document.createDocumentFragment();
+        let h3 = createElement('h3').props({ innerHTML: '비밀번호 초기화' });
+        let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '이메일' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
+        let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
+        let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '요청전송' });
+
+        frag.append(h3, text_input_container, button_confirm);
+        text_input_container.append(text_input);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (validate(text_input, undefined, 'email')) {
+                firebase.auth.sendPasswordResetEmail(text_input.value)
+                    .then(result => {
+                        if (result) dev.log(result);
+                        alert('메일이 전송되었습니다.');
+                        container.close();
+                    })
+                    .catch(firebaseErrorHandler);
+            } else alert('옳바른 이메일을 입력하세요!');
+        }
+        return frag;
+    },
+    emailConfirm: container => {
+        let frag = document.createDocumentFragment();
+        let h3 = createElement('h3').props({ innerHTML: '메일 인증 요청 보내기' });
+        let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '요청' });
+        frag.append(h3, button_confirm);
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            (async () => await firebase.auth.sendEmailVerification())()
+                .then(result => {
+                    if (result) dev.log(result);
+                    alert('메일이 전송되었습니다.');
+                    container.close();
+                })
+                .catch(firebaseErrorHandler);
+        }
+        return frag;
+    },
+    addCategory: container => {
+        let frag = document.createDocumentFragment();
+        let h3 = createElement('h3').props({ innerHTML: '카테고리 추가' });
+        let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '카테고리명' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
+        let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
+        let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '생성' });
+
+        frag.append(h3, text_input_container, button_confirm);
+        text_input_container.append(text_input);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            if (text_input.value) {
+                if (confirm('카테고리를 생성하시겠습니까?')) {
+                    if (Options.categories.find(obj => obj.value === text_input.value)) return alert('동일 명칭의 카테고리가 이미 존재합니다!!');
+                    firebase.categories.insertOne({ name: text_input.value, owner: app.user.uid })
+                        .then(() => {
+                            alert('카테고리가 추가되었습니다.');
+                            container.close();
+                        })
+                        .catch(firebaseErrorHandler);
+                }
+            } else {
+                alert('카테고리 명칭을 입력해 주세요.')
+            }
+        }
+        return frag;
+    },
+    addMenu: container => {
+        container.css({ overflow: 'visible' });
+        let frag = document.createDocumentFragment();
+        let h3 = createElement('h3').props({ innerHTML: '분류 추가' });
+        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input','flex-horizontal').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
+        let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '분류명' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
+        let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
+        let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '생성' });
+
+        frag.append(h3, parent_select, text_input_container, button_confirm);
+        text_input_container.append(text_input);
+
+        button_confirm.onclick = e => {
+            e.preventDefault();
+
+            if (text_input.value) {
+                if (confirm('메뉴를 생성하시겠습니까?')) {
+                    if (Options.board.find(obj => obj.name === text_input.value)) return Notify.alert('동일 명칭의 메뉴가 이미 존재합니다!!');
+                    let parent_data = { depth: 0, name: '' };
+                    if (parent_select.dataset.value) {
+                        let find_data = Options.board.find(obj => obj.name === parent_select.dataset.value);
+                        if (find_data) parent_data = find_data;
+                        else return Notify.alert('존재하지 않는 상위 메뉴입니다!!');
+                    }
+                    firebase.board.insertOne({ name: text_input.value, parent: parent_data.name, depth: parent_data.depth + 1, owner: app.user.uid })
+                        .then(() => {
+                            Notify.alert('메뉴가 추가되었습니다.');
+                            container.close();
+                        })
+                        .catch(firebaseErrorHandler);
+                }
+            } else {
+                Notify.alert('메뉴 명칭을 입력해 주세요.')
+            }
+        }
+        setTimeout(() => {
+            document.activeElement?.blur();  // 포커스 해제
+        }, 10);
+        return frag;
+    },
+    addImg: (container, callback) => {
+        container.classList.add('imgSelector', 'fullSize');
+        let frag = document.createDocumentFragment();
+        let imgSelector__header = createElement('div').attrs({ class: 'imgSelector__header' }).props({ innerHTML: '이미지 선택' });
+        let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ value: 'default', innerHTML: '선택' });
+
+        let imgSelector__list = createElement('div').attrs({ class: 'imgSelector__list' });
+        let input_file = createElement('input').attrs({ type: 'file', accept: 'image/*' });
+        let imgSelector__list__stored = createElement('label').attrs({ class: 'imgSelector__list__item icon icon-tray-arrow-up' });
+        let imgSelector__list__link = createElement('button').attrs({ class: 'imgSelector__list__item link' });
+
+        frag.append(imgSelector__header);
+        frag.append(button_confirm);
+        frag.append(imgSelector__list);
+        imgSelector__list__stored.append(input_file);
+        imgSelector__list.append(imgSelector__list__stored);
+        imgSelector__list.append(imgSelector__list__link);
+
+        input_file.onchange = async () => {
+            let file = input_file.files[0];
+            if (file) {
+                let result = await uploadByImgur(file);
+                if (result.status === 200) {
+                    container.close();
+                    callback(result.data.link);
+                } else {
+                    alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                    input_file.setAttribute('type', 'text');
+                    input_file.value = '';
+                    input_file.setAttribute('type', 'file');
+                }
+            }
+        }
+
+        imgSelector__list__link.onclick = e => {
+            e.preventDefault();
+            let link = prompt('사용할 이미지의 URL을 입력해 주세요');
+            if (link) {
+                container.close();
+                callback(link);
+            }
+        }
+
+        firebase.resources.all().then(r => {
+            for (let doc of r.docs) {
+                let data = doc.data();
+                let radio = createElement('input').attrs({ type: 'radio', class: 'imgSelector__list__item', name: 'gallery' }).css({ 'background-image': `url(${imgurThumb(data.link, 'm')})` }).props({ value: data.link });
+                imgSelector__list.append(radio);
+            }
+        });
+        button_confirm.onclick = e => {
+            e.preventDefault();
+            let i = imgSelector__list.querySelector(':checked');
+            if (i) {
+                container.close();
+                callback(i.value);
+            } else {
+                alert('이미지를 선택해 주세요!!');
+            }
+        }
+        return frag;
+    }
+};

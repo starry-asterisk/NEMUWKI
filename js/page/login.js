@@ -91,6 +91,7 @@ const IndexContent = {
     ...ContentBase,
     notice: {
         async initialize(id, wrap) {
+            wrap.style.display = 'none';
             let snaps = await firebase.notice.getNewest();
             let doc = snaps.docs[0];
 
@@ -102,7 +103,8 @@ const IndexContent = {
             let n_timestamp = this.components[id].timestamp = createElement('span').attrs({ class: "notice__timestamp" }).props({ innerHTML: new Date(data.timestamp.seconds * 1000).toLocaleDateString() });
             let n_content = this.components[id].content = createElement('span').attrs({ class: "notice__content" }).props({ innerHTML: markdown(data.content) });
 
-            wrap.append(n_title, n_timestamp, n_content);
+            wrap.addClass('flex-vertical').append(n_title, n_timestamp, n_content);
+            wrap.style.removeProperty('display');
         }
     },
     login: {

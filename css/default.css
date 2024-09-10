@@ -1273,26 +1273,33 @@ body:not(.none-auth) #btn_login {
         margin-left: var(--spacing-small);
     }
 
-    .toolbar, .bottomtoolbar {    
+    .toolbar,
+    .bottomtoolbar {
         max-width: 100vw;
     }
 
     .content.profile_header {
         aspect-ratio: 2;
     }
+
     .form__image__wrap {
         flex-direction: column;
     }
-    .form__image__wrap > img {
+
+    .form__image__wrap>img {
         width: 100%;
         margin-inline: auto;
         aspect-ratio: 2;
     }
-    
+
     .content n-table,
     .form .form__textbox,
     .form .form__inputs {
         zoom: 0.8;
+    }
+
+    #search__input {
+        width: 0;
     }
 }
 
