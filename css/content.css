@@ -1,0 +1,289 @@
+/* Content 링크 스타일 */
+.content a,
+.content.title a:visited {
+    color: var(--light-blue-700);
+}
+
+.content a:visited {
+    color: var(--light-blue-visited);
+}
+
+.content.summury a:visited>span {
+    color: var(--blue-gray-300);
+}
+
+a.list__item__board_name,
+a.list__item__title {
+    color: var(--blue-gray-900);
+}
+
+.link {
+    color: var(--color-valid) !important;
+}
+
+.link::before {
+    content: "\F0339";
+    display: inline-block;
+    font-family: "Material Design Icons";
+    font-size: inherit;
+    color: var(--color-bg-light);
+    line-height: 1;
+    background-color: var(--color-valid);
+}
+
+/* 리스트 */
+.content .main_header__title {
+    font-size: var(--font-size-xxlarge);
+    font-weight: 600;
+    margin-right: auto;
+}
+
+.content.sub_header {
+    margin-top: calc(0px - var(--spacing-medium));
+    font-size: var(--font-size-small);
+}
+
+.content.notice {
+    font-size: var(--font-size-regular);
+    border: 1px solid var(--light-blue-600);
+    border-radius: var(--border-radius-small);
+    overflow: hidden;
+}
+
+.content.notice::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--light-blue-500);
+    opacity: 0.6;
+}
+
+.notice__title {
+    line-height: 3rem;
+    padding-inline: var(--spacing-medium);
+    outline: 1px solid var(--light-blue-600);
+    box-shadow: 0 0 10px 3px var(--light-blue-500);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.notice__title::before {
+    margin-right: var(--spacing-medium);
+}
+
+.notice__timestamp {
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 3rem;
+    padding-inline: var(--spacing-medium);
+}
+
+.notice__content {
+    max-height: 0rem;
+    height: 15rem;
+    transition: 200ms max-height, 200ms padding;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    padding-inline: var(--spacing-medium);
+    white-space: pre-line;
+}
+
+.open .notice__content {
+    max-height: 30rem;
+    overflow-y: auto;
+    padding-block: var(--spacing-medium);
+    line-height: 2;
+}
+
+.table .list__item__title::before,
+.table .list__item__board_name::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    border-radius: 1.5rem;
+}
+
+.list__header .list__item__title::before,
+.list__header .list__item__board_name::before {
+    background-color: transparent !important;
+}
+
+.galery .list__header {
+    display: none;
+}
+
+.galery .list__footer {
+    margin: 0;
+}
+
+.galery .list__item {
+    background: #FFFFFF;
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--blue-gray-50);
+    overflow: hidden;
+    transform: scale(1.0);
+    transition: all 200ms;
+}
+
+.galery .list__item:hover {
+    box-shadow: 0 0 10px -1px var(--blue-gray-100);
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+.list__item__img,
+.list__item__alt {
+    aspect-ratio: 1;
+    background-color: var(--blue-gray-100);
+    object-position: top center;
+    cursor: pointer;
+}
+
+/* 컴포넌트 스타일 */
+
+.content.title {
+    min-height: 4rem;
+    align-content: center;
+    font-size: var(--font-size-large);
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+}
+
+.content.title::before {
+    content: '\F0140';
+    text-align: center;
+    vertical-align: middle;
+    line-height: 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    margin-inline: 0.5rem;
+    transition: 200ms transform, 200ms background-color;
+}
+
+.content.title.fold::before {
+    transform: rotate(-90deg);
+}
+
+.content.title:hover::before {
+    background-color: var(--blue-gray-50);
+}
+
+.content.title:active::before {
+    background-color: var(--blue-gray-100);
+}
+
+.content.seperator {
+    margin-block: var(--spacing-medium);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.content.login {
+    padding-block: 8rem 10rem;
+    background: var(--color-bg-light);
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--blue-gray-50);
+    overflow: hidden;
+    gap: var(--spacing-medium);
+    text-align: center;
+}
+
+.content.login>* {
+    width: 18rem;
+    margin-inline: auto;
+}
+
+.content.image img {
+    max-width: 100%;
+    display: block;
+}
+
+.content.summury {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-medium);
+}
+
+.content.summury::before {
+    content: '목차';
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.content.annotation {
+    font-size: var(--font-size-regular);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    border-top: 1px solid var(--blue-gray-100);
+    padding-block: var(--spacing-medium);
+}
+
+/* 확대/축소 */
+.zoom {
+    text-align: right !important;
+}
+
+.zoom button {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    font-size: 1.2em;
+}
+
+/* 프로필 페이지 전용 */
+.profile_header__buttons {
+    background-color: inherit;
+    border: 1px solid var(--blue-gray-200);
+    border-radius: var(--border-radius-medium);
+    overflow: hidden;
+    float: right;
+    margin-left: auto;
+}
+
+article>.profile_header__buttons {
+    margin-left: 0;
+}
+
+.profile_header__buttons>button {
+    background-color: inherit;
+    margin: 0;
+    width: auto;
+    height: auto;
+    padding: var(--spacing-small) var(--spacing-medium);
+    border: 0;
+    font-size: var(--font-size-regular);
+    word-break: keep-all;
+}
+.profile_header__buttons>button:hover {
+    background-color: var(--blue-gray-50);
+
+}
+.profile_header__buttons>button:active {
+    background-color: var(--blue-gray-200);
+}
+
+.content.profile_header {
+    aspect-ratio: 3;
+    border-radius: var(--border-radius-large);
+    background-color: var(--blue-gray-100);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: var(--spacing-medium);
+    text-align: right;
+}

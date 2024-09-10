@@ -96,7 +96,7 @@ fb.post = {
     },
     deleteTemporary: async (id, title) => {
         fb.history.insertOne({ crud: 'TEMPDEL', target: `postList-${id}`, text: title || `(임시삭제됨-${id})` });
-        return await updateDoc(doc(db, "postList", id), {deleted: true, deleted_timestamp: Timestamp.fromDate(new Date())});
+        return await updateDoc(doc(db, "postList", id), { deleted: true, deleted_timestamp: Timestamp.fromDate(new Date()) });
     },
     updateOne: async (id, data) => {
         if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
@@ -405,7 +405,7 @@ fb.search = {
         let param_base = [
             collection(db, "keyword"),
             orderBy(order_by, order_direction)
-        ], params, documentSnapshots, isEnd = false;
+        ], params, documentSnapshots, isEnd = false, already_contains_used = false;
         for (let field in search) {
             if (search[field] == '' || search[field] == undefined) continue;
             let method, keyword;
@@ -418,7 +418,9 @@ fb.search = {
             }
             switch (method) {
                 case 'contains':
+                    if (already_contains_used) break;
                     param_base.push(where(field, 'array-contains', keyword));
+                    already_contains_used = true;
                     break;
                 case 'equal':
                     param_base.push(where(field, '==', keyword));

@@ -52,7 +52,8 @@ class asideProfile extends asideBase {
 
         function search(e) {
             if (e) e.preventDefault();
-            move(`./?keyword=${input.firstChild.value}`);
+            let params = new URLSearchParams(location.search);
+            move(`./profile?keyword=${input.firstChild.value}&uid=${params.get('uid')}`);
         }
 
         wrap.append(fold_btn, input);

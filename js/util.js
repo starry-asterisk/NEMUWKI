@@ -339,7 +339,7 @@ const ContentBase = {
                         let onclick = function () { move(post_anchor.href); }
                         let img_alt = createElement('div').addClass('list__item__alt').props({ onclick })
                         if (data.thumbnail && data.thumbnail != 'undefined') {
-                            let img = createElement('img').attrs({ class: 'list__item__img', width: 200, height: 200 }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
+                            let img = createElement('img').attrs({ class: 'list__item__img' }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
                             img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
                             row.append(img);
                         } else {
@@ -765,6 +765,11 @@ function markdown(html, cell) {
         .replace(REGEX.video, (full_str, group1) => `<iframe width="560" height="315" src="//www.youtube.com/embed/${getYoutubeId(group1)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`);
 }
 
+function focusSearch(){
+    if (typeof search_wrap != 'undefined') search_wrap?.scrollIntoViewIfNeeded();
+    if (typeof search__input != 'undefined') search__input?.focus({preventScroll: true});
+}
+
 async function uploadByImgur(file) {
     loading(0);
     let bodyData = new FormData();
@@ -1082,8 +1087,6 @@ const MODAL_TEMPLATE = {
             if (link) {
                 container.close();
                 callback(link);
-            } else {
-                alert('URL을 입력해 주세요!!');
             }
         }
 

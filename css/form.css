@@ -1,0 +1,492 @@
+/* form CSS */
+
+.toolbar,
+.bottomtoolbar {
+    position: sticky;
+    z-index: 3;
+    display: flex;
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--blue-gray-100);
+    background-color: var(--color-bg-light);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-small);
+    margin-inline: auto;
+}
+
+
+.toolbar::before {
+    content: '';
+    position: absolute;
+}
+
+.toolbar {
+    margin-top: -1rem;
+    top: 0;
+    font-size: var(--font-size-medium);
+    box-sizing: content-box;
+    height: 3rem;
+    overflow-y: hidden;
+    justify-content: unset !important;
+}
+
+.toolbar:empty {
+    opacity: 0;
+    height: 0rem;
+}
+
+.toolbar>.group::before {
+    content: '';
+    position: absolute;
+    top: var(--spacing-small);
+    left: 0;
+    right: 0;
+    bottom: var(--spacing-small);
+    border-left: 1px solid var(--blue-gray-100);
+    border-right: 1px solid var(--blue-gray-100);
+}
+
+.toolbar input {
+    border-block: 2px solid transparent;
+}
+
+.toolbar input:focus {
+    border-block-end-color: var(--light-blue-600);
+}
+
+.toolbar .backColor,
+.toolbar .foreColor {
+    --input-color: #000;
+}
+
+.toolbar .backColor::before,
+.toolbar .foreColor::before {
+    content: '';
+    background-color: var(--input-color);
+    position: absolute;
+    left: var(--spacing-small);
+    right: var(--spacing-small);
+    bottom: var(--spacing-small);
+    height: var(--spacing-small);
+}
+
+.bottomtoolbar {
+    bottom: 0;
+    margin-block: auto -1rem;
+    order: 1;
+    overflow: visible;
+    font-size: var(--font-size-regular);
+}
+
+.bottomtoolbar>*:first-child {
+    flex: 1;
+}
+
+.toolbar>span,
+.bottomtoolbar>span {
+    display: flex;
+}
+
+.toolbar input,
+.toolbar button,
+.bottomtoolbar input,
+.bottomtoolbar button {
+    width: 3rem;
+    max-width: 6rem;
+    font-size: inherit;
+}
+
+.toolbar button:hover,
+.bottomtoolbar button:hover {
+    background-color: #ECEFF1AA;
+}
+
+.toolbar *,
+.bottomtoolbar *:not(n-select>*) {
+    display: inline-block;
+    height: 3rem;
+    border: none;
+    background-color: transparent;
+    text-align: center;
+    word-break: keep-all;
+}
+
+.bottomtoolbar * {
+    min-width: 3rem;
+}
+
+.toolbar input::-webkit-inner-spin-button,
+.toolbar input::-webkit-outer-spin-button {
+    appearance: none;
+}
+
+.toolbar .color_swap {
+    aspect-ratio: 1;
+    height: 2rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: 50%;
+    border: 1px solid var(--blue-gray-100);
+}
+
+.form {
+    display: flex;
+    transition-property: opacity, background-color;
+    transition-duration: 150ms;
+}
+
+.form.vertical {
+    flex-direction: column;
+}
+
+.form__placeholder {
+    display: block;
+    width: 100%;
+    height: 0;
+    margin-block: calc(0rem - var(--spacing-small));
+}
+
+.form__placeholder::before {
+    content: '';
+    position: absolute;
+    top: -0.2rem;
+    left: 0;
+    right: 0;
+    bottom: -0.2rem;
+    background-color: var(--light-blue-300);
+    opacity: 0.5;
+}
+
+.form.focusable {
+    border-radius: var(--border-radius-small);
+    align-items: unset !important;
+}
+
+.form.focusable:focus,
+.form.focusable:focus-within {
+    background-color: var(--blue-gray-50);
+}
+
+.form.dragging {
+    z-index: 10;
+    opacity: 0.6;
+}
+
+.form__del,
+.form__drag,
+.form__move__up,
+.form__move__down {
+    cursor: pointer;
+    touch-action: none;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.form__del:hover,
+.form__drag:hover,
+.form__move__up:hover,
+.form__move__down:hover {
+    background-color: var(--blue-gray-50);
+}
+
+.form__move__up:hover,
+.form__move__down:hover {
+    border-radius: 50%;
+}
+
+.form__del {
+    order: 3;
+    border-radius: var(--border-radius-small);
+    margin: var(--spacing-small);
+    width: 2rem;
+    height: 2rem;
+}
+
+.form__drag {
+    height: 3rem;
+    cursor: grab;
+    border-radius: var(--border-radius-small);
+}
+
+.form__drag:active {
+    cursor: grabbing;
+}
+
+.form__move {
+    display: flex;
+    flex-direction: column;
+    width: 2rem;
+}
+
+.form__move>button {
+    aspect-ratio: 1;
+}
+
+.form__del::before {
+    content: "\F0156";
+    font: normal normal normal 24px/1 "Material Design Icons";
+}
+
+.form__drag::before {
+    content: "\F01DD";
+    font: normal normal normal 24px/1 "Material Design Icons";
+}
+
+.form__move__up::before {
+    content: "\F0143";
+    font: normal normal normal 24px/1 "Material Design Icons";
+}
+
+.form__move__down::before {
+    content: "\F0140";
+    font: normal normal normal 24px/1 "Material Design Icons";
+}
+
+.form__move__up,
+.focusable:last-of-type .form__move__down {
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.focusable~.focusable .form__move__up {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.form__inputs {
+    flex: 1;
+    display: grid;
+    text-align: left;
+    overflow: auto;
+    margin-block: auto;
+}
+
+.form__inputs>label {
+    grid-row: 1;
+    margin-top: var(--spacing-small);
+    padding-inline: var(--spacing-small);
+    min-width: fit-content;
+    align-content: center;
+    display: block;
+    font-size: var(--font-size-medium);
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.form__inputs>input,
+.form__inputs>select {
+    grid-row: 2;
+    padding: var(--spacing-small);
+    margin-block: var(--spacing-small);
+    border: none;
+    background-color: var(--color-bg-light);
+    font-size: var(--font-size-medium);
+    border-bottom: 2px solid var(--blue-gray-100);
+    line-height: 2.5;
+    min-width: 4rem;
+}
+
+.form__inputs>select {
+    width: auto;
+    border-radius: 0;
+}
+
+.form__inputs>input:focus,
+.form__inputs>select:focus {
+    border-bottom-color: var(--light-blue-600);
+
+}
+
+.form__textbox {
+    min-height: calc(var(--font-size-medium) * 6 + var(--spacing-medium));
+    flex: 1;
+    padding: var(--spacing-small);
+    text-align: left;
+    font-size: var(--font-size-medium);
+    border-block: 1px solid var(--color-border-light);
+    line-height: 1.5;
+    white-space: pre-line;
+    overflow: auto;
+}
+
+.form__textbox:empty::before,
+.form__textbox.empty::before {
+    position: absolute;
+    content: attr(placeholder);
+    top: var(--spacing-small);
+    font-size: inherit;
+    opacity: 0.8;
+    white-space: pre-line;
+    color: inherit;
+    zoom: 1;
+}
+
+.form__image {
+    flex: 1;
+    display: grid;
+}
+
+.form__image>.f_button {
+    margin: var(--spacing-small);
+}
+
+.form__image__wrap>img {
+    flex: 1;
+    max-height: 30rem;
+    width: 25%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    margin: var(--spacing-small);
+    order: 1;
+}
+
+.form__image__wrap>img+ ::after {
+    content: '정렬 방향: 기본(좌측)';
+    text-align: left;
+    font-size: var(--font-size-regular);
+}
+
+.form__image__wrap>img[data-align="center"]+ ::after {
+    content: '정렬 방향: 가운데 정렬';
+}
+
+.form__image__wrap>img[data-align="right"]+ ::after {
+    content: '정렬 방향: 우측 정렬';
+}
+
+.form__image__wrap>div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    order: 2;
+    margin-block: auto;
+    margin-right: auto;
+}
+
+.form__image__wrap p {
+    display: flex;
+    text-align: left;
+    align-items: center;
+    margin: 0 0 var(--spacing-small) 0;
+    gap: var(--spacing-small);
+}
+
+.seperator .form__inputs {
+    display: flex;
+    font-size: var(--font-size-medium);
+}
+
+.seperator .form__inputs::before,
+.seperator .form__inputs::after {
+    content: '';
+    flex: 1;
+    margin-block: auto;
+    height: 1px;
+    background: var(--color-border);
+}
+
+.summury .form__inputs {
+    border: 1px solid var(--color-border);
+    height: 100%;
+    align-content: center;
+    text-align: center;
+    font-size: var(--font-size-medium);
+    min-height: 7rem;
+}
+
+.main_header .form__inputs {
+    margin-inline: var(--spacing-medium);
+}
+
+.form.main_header:last-child .form__inputs::after {
+    content: '여기로 컴포넌트를 드랍하여 추가해 보세요';
+    margin-block: 5rem;
+    font-size: var(--font-size-medium);
+    text-align: center;
+}
+
+/* 미리보기 모드 */
+
+.preview-mode .form:not(.bottomtoolbar) {
+    display: none !important;
+}
+
+.preview-mode .bottomtoolbar {
+    overflow: hidden;
+}
+
+.preview-mode .bottomtoolbar::before {
+    content: '(❁´◡`❁)미리보기 모드 사용중!!';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    right: 0;
+    bottom: 0;
+    background-color: #0005;
+    align-content: center;
+    color: var(--blue-gray-50);
+    animation: slide 10s infinite linear;
+    white-space: pre;
+    z-index: 1;
+}
+
+@keyframes slide {
+    0% {
+        padding-left: 0;
+        padding-right: 150%;
+    }
+
+    100% {
+        padding-left: 150%;
+        padding-right: 0;
+    }
+}
+
+.preview-mode .preventable,
+.preventable.disabled {
+    opacity: 0.5;
+}
+
+.preview-mode .preventable,
+.preview-mode .preventable::before,
+.preview-mode .preventable::after,
+.preview-mode .preventable *,
+.preview-mode .preventable *::before,
+.preview-mode .preventable *::after,
+.preventable.disabled,
+.preventable.disabled::before,
+.preventable.disabled::after,
+.preventable.disabled *,
+.preventable.disabled *::before,
+.preventable.disabled *::after {
+    pointer-events: none !important;
+}
+
+.previewBtn {
+    width: 5rem !important;
+    padding: 0;
+    color: var(--blue-gray-800);
+}
+
+.previewBtn::before {
+    content: '';
+    position: absolute;
+    top: var(--spacing-small);
+    left: 0;
+    right: 0;
+    bottom: var(--spacing-small);
+    background-color: var(--blue-gray-100);
+    border: 1px solid var(--blue-gray-300);
+    border-radius: var(--border-radius-large);
+    z-index: -1;
+    transition: 200ms all;
+}
+
+.preview-mode .previewBtn {
+    z-index: 10;
+}
+
+.preview-mode .previewBtn::before {
+    background-color: var(--light-blue-400);
+    border-color: var(--light-blue-800);
+}
