@@ -131,6 +131,32 @@ img {
     max-width: 100%;
 }
 
+/* select 기본 스타일 */
+select {
+    font-size: 16px;
+    color: var(--blue-gray-900);
+    width: 200px;
+    padding: 10px;
+    border: 0;
+    border-radius: 0;
+}
+
+/* 선택된 옵션의 색상과 배경색 */
+select option {
+    color: var(--blue-gray-900);
+    background-color: var(--color-bg-light);
+}
+
+select.empty {
+    color: var(--blue-gray-400);
+}
+
+hr {
+    margin: 0;
+    border: 0;
+    background-color: var(--color-border-light);
+}
+
 /* Layout */
 .flex-horizontal {
     display: flex;
@@ -210,6 +236,179 @@ nav>a.icon:hover::before {
     background-color: var(--light-blue-300);
 }
 
+aside {
+    margin-bottom: auto;
+    min-width: 25rem;
+    padding: var(--spacing-medium);
+}
+
+aside>* {
+    margin: 0 auto var(--spacing-medium);
+}
+
+aside>n-select{
+    width: unset;
+    min-width: unset;
+}
+
+article {
+    flex: 1;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-medium);
+    max-width: 65rem;
+    scroll-behavior: smooth;
+}
+
+footer {
+    text-align: right !important;
+    font-size: var(--font-size-small) !important;
+    margin-top: auto;
+    padding-top: var(--spacing-large);
+}
+
+.block {
+    padding: var(--spacing-small);
+    width: 23rem;
+    text-align: center;
+    vertical-align: top;
+}
+
+.inline {
+    display: inline-block;
+}
+
+/* content Layout */
+.content {
+    text-align: left;
+    font-size: var(--font-size-medium);
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.content.hide {
+    display: none !important;
+}
+
+/* List Layout */
+
+.list__header {
+    order: 0;
+}
+
+.list__item {
+    order: 1;
+}
+
+.list__footer {
+    order: 2;
+}
+
+.list__item__title {
+    flex: 1;
+    padding: var(--spacing-small) var(--spacing-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.list__item__board_name {
+    min-width: 9rem;
+    max-width: 9rem;
+    width: 9rem;
+    padding: var(--spacing-small) var(--spacing-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.content.galery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, min(30%, 14rem));
+    justify-content: center;
+    gap: var(--spacing-medium);
+}
+
+[data-align="right"] {
+    margin-left: auto;
+}
+
+[data-align="center"] {
+    margin-inline: auto;
+}
+
+@media (min-width: 800px) {
+    hr {
+        width: 1px;
+    }
+
+    aside {
+        position: sticky;
+        top: 0;
+        max-width: 25rem;
+    }
+}
+
+@media (max-width: 799px) {
+    hr {
+        height: 1px;
+    }
+
+    main {
+        flex-direction: column-reverse;
+    }
+
+    aside {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--spacing-medium);
+        justify-content: center;
+    }
+
+    aside>* {
+        width: 100%;
+        margin: 0;
+    }
+
+    #B000 {
+        margin-inline: 3rem;
+    }
+
+    aside.fold>*:not(:has(#search)) {
+        display: none;
+    }
+
+    aside.fold>*:has(#search) {
+        margin: 0 !important;
+    }
+
+    .block {
+        width: auto;
+        min-width: 21rem;
+    }
+
+    .b_block {
+        max-width: 21rem;
+        margin-bottom: auto;
+    }
+
+    .content.galery {
+        gap: var(--spacing-small) !important;
+    }
+
+    .menu_fold {
+        display: block;
+    }
+}
+
+/* Component */
+/* Logo */
+.logo {
+    font-weight: bold;
+    font-size: 1.3em;
+    color: var(--blue-gray-900) !important;
+}
+
 /* ScrollTop 버튼 */
 .scroller {
     position: fixed;
@@ -260,12 +459,208 @@ nav>a.icon:hover::before {
     content: '\F0792';
 }
 
-/* Component */
-/* Logo */
-.logo {
-    font-weight: bold;
-    font-size: 1.3em;
-    color: var(--blue-gray-900) !important;
+/* Custom Styled Table */
+n-table {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--inner-line-color);
+    border: var(--outer-line-width) solid var(--outer-line-color);
+    gap: 1px;
+    text-align: left;
+    font-size: var(--font-size-medium);
+    max-width: 100%;
+}
+
+n-table.full-width {
+    width: 100% !important;
+}
+
+n-table .n-th {
+    display: grid;
+    grid-template-columns: var(--columns);
+    gap: 1px;
+}
+
+n-table:not(.editable) .n-th {
+    display: none !important;
+}
+
+n-table .n-tbody {
+    display: grid;
+    grid-template-rows: repeat(var(--rowcount), auto);
+    grid-template-columns: var(--columns);
+    gap: 1px;
+}
+
+n-table .n-td {
+    border: none;
+    font-size: inherit;
+    padding: 0.9rem;
+    background-color: var(--color-bg-light);
+    min-width: 1rem;
+    min-height: 3rem;
+}
+
+n-table .n-td[data-fit-to-cell="true"] {
+    padding: 0;
+}
+
+.n-td * {
+    max-width: 100%;
+}
+
+.n-td img {
+    display: block;
+}
+
+n-table.editable .n-td:focus {
+    z-index: 1;
+    outline: 2px solid var(--light-blue-700);
+}
+
+/* Custom Select */
+
+n-select {
+    display: block;
+    width: 30rem;
+    min-width: 20rem;
+    font-size: var(--font-size-regular);
+    pointer-events: none;
+    cursor: pointer;
+    --max-dropdown-height: 50vh;
+}
+n-select:focus {
+    outline: 2px solid var(--light-blue-600);
+    outline-offset: -2px;
+}
+n-select:focus, n-select:focus-within, n-select:hover {
+    z-index: 98;
+}
+n-select > * {
+    display: flex;
+    flex-direction: column;
+    font-size: inherit;
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + var(--spacing-medium));
+    width: 100%;
+    height: auto;
+    max-height: 0vh;
+    border: 1px solid var(--blue-gray-200);
+    border-radius: var(--border-radius-small);
+    background-color: var(--color-border-light);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    pointer-events: none;
+    transition: 300ms max-height, 300ms opacity;
+    opacity: 0;
+    z-index: 99;
+}
+n-select.to_down > * {
+    top: calc(100% + var(--spacing-medium));
+    bottom: unset;
+}
+n-select:before {
+    content: attr(data-selectedtext);
+    font-size: inherit;
+    text-align: left;
+    align-content: center;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: inherit;
+    padding-inline: var(--spacing-medium);
+    pointer-events: all;
+}
+n-select:after {
+    content: '\F0141';
+    font-family: "Material Design Icons";
+    font-size: inherit;
+    text-align: center;
+    align-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    aspect-ratio: 1;
+}
+n-select:focus:before {
+    pointer-events: none;
+}
+n-select:focus:after {
+    content: '\F0143';
+}
+n-select.to_down:focus:after {
+    content: '\F0140';
+}
+
+n-select:focus:not(:has(:focus)) > *,
+n-select > *:has(input:focus) {
+    max-height: var(--max-dropdown-height);
+    pointer-events: all;
+    opacity: 1;
+}
+
+n-select>*>input, 
+n-option {
+    text-align: left;
+    width: 100%;
+    min-height: 3rem;
+    padding-inline: var(--spacing-medium);
+    align-content: center;
+}
+
+n-select>*>input {
+    font-size: inherit;
+    position: sticky;
+    top: 0;
+    border: 1px solid var(--blue-gray-200);
+    border-radius: inherit;
+    background-color: var(--color-bg-light) !important;
+    z-index: 1;
+    order: -2;
+}
+
+.n-option-add {
+    order: 1;
+    border: 1px solid var(--blue-gray-400);
+    border-radius: var(--border-radius-small);
+}
+
+n-option:hover {
+    background-color: var(--blue-gray-100);
+}
+
+n-option[data-selected="true"] {
+    border-left: 4px solid var(--light-blue-600);
+}
+
+n-option[data-owner="true"] {
+    order: -1;
+}
+ 
+n-option[data-owner="true"]::before{
+    content: '\F1566';
+    font-family: "Material Design Icons";
+    margin-right: 0.5rem;
+}
+n-option button.del {
+    aspect-ratio: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border: 0;
+    background: none;
+}
+n-option button.del::after {
+    content: '\F1398';
+    font-family: "Material Design Icons";
+}
+
+n-option.placeholder {
+    display: none;
 }
 
 /* checkbox 1(toggle) */
@@ -273,24 +668,24 @@ nav>a.icon:hover::before {
     appearance: none;
     position: relative;
     padding: 0.3rem;
-    cursor: pointer;
-    transition: 200ms background-color;
-    background-color: var(--blue-gray-100);
     border-radius: 1.05rem;
+    background-color: var(--blue-gray-100);
+    transition: 200ms background-color;
+    cursor: pointer;
 }
 
 .toggle_chk::after {
     content: '';
     display: block;
+    position: relative;
     width: 1.5rem;
     height: 1.5rem;
+    border: 1px solid var(--blue-gray-100);
+    border-radius: 50%;
     margin-inline: 0 1.5rem;
     background-color: var(--color-bg-light);
-    border-radius: 50%;
-    position: relative;
-    transition: 200ms margin;
     box-shadow: 0 0 16px -3px var(--blue-gray-200);
-    border: 1px solid var(--blue-gray-100);
+    transition: 200ms margin;
 }
 
 .toggle_chk:checked {
@@ -301,17 +696,92 @@ nav>a.icon:hover::before {
     margin-inline: 1.5rem 0;
 }
 
+/* Simple checkbox */
+
+.s_chk {
+    appearance: none;
+    aspect-ratio: 1;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: white;
+    border: 2px solid var(--blue-gray-300);
+    border-radius: var(--border-radius-medium);
+    padding: 0;
+    font-weight: bold;
+    font-size: var(--font-size-regular);
+    text-align: center;
+    align-content: center;
+}
+
+.s_chk::after {
+    content: '\F012C';
+    font-family: "Material Design Icons";
+    border: none;
+    background: none;
+    box-shadow: none;
+    width: 100%;
+    height: 100%;
+    align-content: center;
+    margin: 0;
+    color: transparent;
+}
+
+.s_chk::before {
+    content: attr(label);
+    color: var(--blue-gray-900);
+    position: absolute;
+    top: 0;
+    left: 1.3rem;
+    bottom: 0;
+    width: fit-content;
+    padding-left: 0.7rem;
+    border-radius: 0;
+    white-space: pre;
+    font-weight: normal;
+    background-color: transparent !important;
+}
+
+.s_chk:checked {
+    background-color: var(--blue-gray-300);
+}
+
+.s_chk:checked:after {
+    color: inherit;
+}
 
 
+/* Content 링크 스타일 */
+.content a,
+.content.title a:visited {
+    color: var(--light-blue-700);
+}
 
+.content a:visited {
+    color: var(--light-blue-visited);
+}
 
+.content.summury a:visited>span {
+    color: var(--blue-gray-300);
+}
 
+a.list__item__board_name,
+a.list__item__title {
+    color: var(--blue-gray-900);
+}
 
+.link {
+    color: var(--color-valid) !important;
+}
 
-
-
-
-
+.link::before {
+    content: "\F0339";
+    display: inline-block;
+    font-family: "Material Design Icons";
+    font-size: inherit;
+    color: var(--color-bg-light);
+    line-height: 1;
+    background-color: var(--color-valid);
+}
 
 
 

@@ -7,239 +7,8 @@ body:not(.none-auth) #btn_login {
 }
 
 
-input[type="checkbox"] {
-    appearance: none;
-    position: relative;
-    padding: 0.3rem;
-    cursor: pointer;
-}
-
-input[type="checkbox"]::after {
-    content: '';
-    display: block;
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-inline: 0 1.5rem;
-    background-color: var(--clr-bg-light);
-    border-radius: 50%;
-    position: relative;
-    transition: 200ms margin;
-    box-shadow: 0 0 16px -3px var(--blue-gray-200);
-    border: 1px solid var(--blue-gray-100);
-}
-
-input[type="checkbox"]:checked::after {
-    margin-inline: 1.5rem 0;
-}
-
-input[type="checkbox"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    transition: 200ms background-color;
-    background-color: var(--blue-gray-100);
-    border-radius: 1.05rem;
-}
-
-input[type="checkbox"]:checked::before {
-    background-color: var(--clr-valid);
-}
-
-/* select 기본 스타일 */
-select {
-    width: 200px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    font-size: 16px;
-    color: #333;
-    appearance: none; /* 기본 화살표 제거 */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
-/* 선택된 옵션의 색상과 배경색 */
-select option {
-    color: #333;
-    background-color: #fff;
-}
-
-select.empty {
-    color: var(--blue-gray-400);
-}
-
-li,
-ol,
-ul {
-    list-style: none;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-a:visited {
-    color: var(--blue-gray-300);
-}
-
-img {
-    object-position: center;
-    object-fit: cover;
-    max-width: 100%;
-}
-
-::-webkit-scrollbar {
-    width: var(--spacing-small);
-    height: var(--spacing-small);
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00000044;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #00000077;
-}
-
-::-webkit-scrollbar-thumb:active {
-    background: #00000088;
-}
-
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--header-h);
-    overflow: visible;
-    text-align: center;
-    z-index: 99;
-    backdrop-filter: blur(4px);
-}
-
-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--light-blue-a400);
-    opacity: 0.6;
-}
-
-section {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding-top: var(--header-h);
-    overflow: hidden auto;
-    text-align: center;
-    scroll-behavior: smooth;
-}
-
-nav,
-main {
-    max-width: 90rem;
-    min-height: 100%;
-    margin: auto;
-}
 
 
-nav>a {
-    align-content: center;
-    color: var(--blue-gray-900) !important;
-    line-height: 3rem;
-}
-
-nav>a:not(.icon) {
-    padding-inline: var(--spacing-medium);
-}
-
-nav>a.icon::before {
-    display: block;
-    border-radius: 50%;
-    width: 2rem;
-    height: 2rem;
-    margin: 0.5rem;
-    font-size: 1.4em;
-    line-height: 1.9rem;
-}
-
-nav>a.icon:hover::before {
-    background-color: var(--light-blue-300);
-}
-
-nav>.logo {
-    margin-right: auto;
-}
-
-.logo {
-    font-weight: bold;
-    font-size: 1.3em;
-    color: var(--blue-gray-900) !important;
-}
-
-.scroller {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 3rem;
-    border-radius: var(--border-radius-medium);
-    background-color: var(--blue-gray-50);
-    border: 1px solid var(--blue-gray-100);
-    opacity: 0.75;
-    box-shadow: 0 0 16px -3px var(--blue-gray-200);
-}
-.scroller > button {
-    height: 3rem;
-    background-color: transparent;
-    border:0;
-    font-family: "Material Design Icons";
-    font-size: var(--font-size-medium);
-    border: 1px solid transparent;
-    margin: -1px;
-}
-
-.scroller > button:hover {
-    background-color: var(--blue-gray-100);
-    border: 1px solid var(--blue-gray-200);
-}
-
-.scroller > button:active {
-    background-color: var(--blue-gray-200);
-    border: 1px solid var(--blue-gray-2300);
-}
-
-.scroller__top {
-    border-top-left-radius: var(--border-radius-medium);
-    border-top-right-radius: var(--border-radius-medium);
-}
-
-.scroller__bottom {
-    border-bottom-left-radius: var(--border-radius-medium);
-    border-bottom-right-radius: var(--border-radius-medium);
-}
-
-.scroller__top::before  {
-    content: '\F0795';
-}
-
-.scroller__bottom::before  {
-    content: '\F0792';
-}
 
 #pop_profile {
     position: absolute;
@@ -365,52 +134,8 @@ a:hover>#pop_profile,
 }
 
 
-aside {
-    margin-bottom: auto;
-    min-width: 25rem;
-    padding: var(--spacing-medium);
-}
 
-aside>* {
-    margin: 0 auto var(--spacing-medium);
-}
 
-aside>n-select{
-    width: unset;
-    min-width: unset;
-}
-
-hr {
-    margin: 0;
-    border: 0;
-    background-color: var(--color-border-light);
-}
-
-article {
-    flex: 1;
-    gap: var(--spacing-medium);
-    padding: var(--spacing-medium);
-    max-width: 65rem;
-    scroll-behavior: smooth;
-}
-
-footer {
-    text-align: right !important;
-    font-size: var(--font-size-small) !important;
-    margin-top: auto;
-    padding-top: var(--spacing-large);
-}
-
-.block {
-    padding: var(--spacing-small);
-    width: 23rem;
-    text-align: center;
-    vertical-align: top;
-}
-
-.inline {
-    display: inline-block;
-}
 
 .b_block {
     background-color: var(--blue-gray-50);
@@ -629,7 +354,7 @@ footer {
     top: 0;
     left: 0;
     margin: var(--spacing-medium);
-    background-color: #ffffff;
+    background-color: var(--color-bg-light);
     border-radius: 0.5rem;
     transition: 200ms all;
     pointer-events: none;
@@ -708,88 +433,18 @@ footer {
 }
 
 @media (min-width: 800px) {
-    hr {
-        width: 1px;
-    }
-
-    aside {
-        position: sticky;
-        top: 0;
-        max-width: 25rem;
-    }
-
-    article {
-        max-width: calc(100vw - 25rem);
-    }
 }
 
 @media (max-width: 799px) {
-
-    body,
-    main {
-        overflow-x: visible;
-    }
-
-    hr {
-        height: 1px;
-    }
-
-    main {
-        flex-direction: column-reverse;
-    }
-
-    .block {
-        width: auto;
-        min-width: 21rem;
-    }
-
-    .b_block {
-        max-width: 21rem;
-        margin-bottom: auto;
-    }
-
-    .content.galery {
-        gap: var(--spacing-small) !important;
-    }
-
-    .galery .list__item {
-        font-size: var(--font-size-small);
-    }
-
-    aside {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: var(--spacing-medium);
-        justify-content: center;
-    }
-
-    aside>*,
-    aside>n-select {
-        width: 100%;
-        margin: 0;
-    }
-
-    #B000 {
-        margin-inline: 3rem;
-    }
-
-    aside.fold>*:not(:has(#search)) {
-        display: none;
-    }
-
-    aside.fold>*:has(#search) {
-        margin: 0 !important;
-    }
-
-    .menu_fold {
-        display: block;
-    }
 
     .content n-table,
     .form .form__textbox,
     .form .form__inputs {
         zoom: 0.8;
+    }
+
+    .galery .list__item {
+        font-size: var(--font-size-small);
     }
 
     .main_header__title {
@@ -876,17 +531,6 @@ button:disabled,
 }
 
 
-/*content CSS*/
-.content {
-    text-align: left;
-    font-size: var(--font-size-medium);
-    line-height: 1.5;
-    white-space: pre-line;
-}
-
-.content.hide {
-    display: none !important;
-}
 
 .content .main_header__title {
     font-size: var(--font-size-xxlarge);
@@ -992,35 +636,7 @@ button:disabled,
     line-height: 2;
 }
 
-.list__header {
-    order: 0;
-}
 
-.list__item {
-    order: 1;
-}
-
-.list__footer {
-    order: 2;
-}
-
-.list__item__title {
-    flex: 1;
-    padding: var(--spacing-small) var(--spacing-medium);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.list__item__board_name {
-    min-width: 9rem;
-    max-width: 9rem;
-    width: 9rem;
-    padding: var(--spacing-small) var(--spacing-medium);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
 
 .table .list__item__title::before,
 .table .list__item__board_name::before {
@@ -1039,12 +655,7 @@ button:disabled,
     background-color: transparent !important;
 }
 
-.content.galery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, min(30%, 14rem));
-    justify-content: center;
-    gap: var(--spacing-medium);
-}
+
 
 .galery .list__header {
     display: none;
@@ -1145,30 +756,11 @@ button:disabled,
     margin-bottom: 1rem;
 }
 
-.content:not(.list) a {
-    color: var(--light-blue-700);
-}
-
-.content:not(.title, .list) a:visited {
-    color: var(--light-blue-visited);
-}
-
-.content:not(.title, .list) a:visited>span {
-    color: var(--blue-gray-300);
-}
 
 .content.textbox,
 .form.textbox [contenteditable] {
     --font-size-medium: inherit;
     --blue-gray-50: transparent;
-}
-
-img[data-align="center"] {
-    margin-inline: auto;
-}
-
-img[data-align="right"] {
-    margin-left: auto;
 }
 
 .content.annotation {
@@ -1189,233 +781,8 @@ blockquote {
     background: var(--blue-gray-50);
 }
 
-n-table {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--inner-line-color);
-    border-color: var(--outer-line-color);
-    border-width: var(--outer-line-width);
-    border-style: solid;
-    gap: 1px;
-    text-align: left;
-    font-size: var(--font-size-medium);
-    max-width: 100%;
-}
 
-n-table[data-align="right"] {
-    margin-left: auto;
-}
-n-table[data-align="center"] {
-    margin-inline: auto;
-}
 
-n-table.full-width {
-    width: 100% !important;
-}
-
-n-table .n-th {
-    display: grid;
-    grid-template-columns: var(--columns);
-    gap: 1px;
-}
-
-n-table:not(.editable) .n-th {
-    display: none !important;
-}
-
-n-table .n-tbody {
-    display: grid;
-    grid-template-rows: repeat(var(--rowcount), auto);
-    grid-template-columns: var(--columns);
-    gap: 1px;
-}
-
-n-table .n-td {
-    border: none;
-    font-size: inherit;
-    padding: 0.9rem;
-    background-color: var(--clr-bg-light);
-    min-width: 1rem;
-    min-height: 3rem;
-}
-
-n-table .n-td[data-fit-to-cell="true"] {
-    padding: 0;
-}
-
-.n-td * {
-    max-width: 100%;
-}
-
-.n-td img {
-    display: block;
-}
-
-n-table.editable .n-td:focus {
-    z-index: 1;
-    outline: 2px solid var(--light-blue-700);
-}
-
-n-select {
-    display: block;
-    min-width: 20rem;
-    width: 30rem;
-    transform: scale(1);
-    cursor: pointer;
-    pointer-events: none;
-    font-size: var(--font-size-regular);
-    --max-dropdown-height: 50vh;
-}
-n-select:focus {
-    outline: 2px solid var(--light-blue-600);
-    outline-offset: -2px;
-}
-n-select:focus, n-select:focus-within, n-select:hover {
-    z-index: 98;
-}
-n-select > * {
-    position: fixed;
-    left: 0;
-    bottom: calc(100% + var(--spacing-medium));
-    width: 100%;
-    max-height: 0vh;
-    height: auto !important;
-    background-color: var(--color-border-light) !important;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    border-radius: var(--border-radius-small);
-    border: 1px solid var(--blue-gray-200) !important;
-    overflow-x: hidden;
-    overflow-y: auto;
-    z-index: 99;
-    pointer-events: none;
-    transition: 300ms max-height, 300ms opacity;
-    opacity: 0;
-    overflow-y: scroll;
-    font-size: inherit;
-    display: flex;
-    flex-direction: column;
-}
-n-select.to_down > * {
-    top: calc(100% + var(--spacing-medium));
-    bottom: unset;
-}
-n-select:before {
-    content: attr(data-selectedtext);
-    display: block;
-    height: inherit;
-    padding-inline: var(--spacing-medium);
-    text-align: left;
-    align-content: center;
-    pointer-events: all;
-    font-size: inherit;
-    width: 100%;
-    box-sizing: border-box;
-}
-n-select:after {
-    content: '\F0141';
-    font-family: "Material Design Icons";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    aspect-ratio: 1;
-    text-align: center;
-    align-content: center;
-    font-size: inherit;
-}
-n-select:focus:before {
-    pointer-events: none;
-}
-n-select:focus:after {
-    content: '\F0143';
-}
-n-select.to_down:focus:after {
-    content: '\F0140';
-}
-
-n-select:focus:not(:has(:focus)) > *,
-n-select > *:has(input:focus) {
-    max-height: var(--max-dropdown-height);
-    pointer-events: all;
-    opacity: 1;
-}
-
-n-select>*>input, 
-n-option {
-    min-height: 3rem !important;
-    width: 100%;
-    text-align: left !important;
-    padding-inline: var(--spacing-medium);
-    align-content: center;
-}
-
-n-select>*>input {
-    position: sticky;
-    top: 0;
-    background-color: var(--clr-bg-light) !important;
-    border: 1px solid var(--blue-gray-200);
-    border-radius: inherit;
-    z-index: 1;
-    font-size: inherit;
-    order: -2;
-}
-
-.n-option-add {
-    order: 1;
-    border: 1px solid var(--blue-gray-400);
-    border-radius: var(--border-radius-small);
-}
-
-n-option:hover {
-    background-color: var(--blue-gray-100);
-}
-
-n-option[data-selected="true"] {
-    border-left: 4px solid var(--light-blue-600);
-}
-
-n-option[data-owner="true"] {
-    order: -1;
-}
- 
-n-option[data-owner="true"]::before{
-    content: '\F1566';
-    font-family: "Material Design Icons";
-    margin-right: 0.5rem;
-}
-n-option button.del {
-    aspect-ratio: 1;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    border: 0;
-    background: none;
-}
-n-option button.del::after {
-    content: '\F1398';
-    font-family: "Material Design Icons";
-}
-
-n-option.placeholder {
-    display: none;
-}
-
-.link {
-    color: var(--clr-valid) !important;
-}
-
-.link::before {
-    content: "\F0339";
-    display: inline-block;
-    font: normal normal normal 24px/1 "Material Design Icons";
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--clr-valid);
-    color: white;
-}
 
 .zoom {
     text-align: right;
@@ -1439,7 +806,7 @@ n-option.placeholder {
     max-width: 100%;
     overflow-x: auto;
     border: 1px solid var(--blue-gray-100);
-    background-color: var(--clr-bg-light);
+    background-color: var(--color-bg-light);
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     border-radius: var(--border-radius-small);
     margin-inline: auto;
@@ -1708,7 +1075,7 @@ n-option.placeholder {
     padding: var(--spacing-small);
     margin-block: var(--spacing-small);
     border: none;
-    background-color: var(--clr-bg-light);
+    background-color: var(--color-bg-light);
     font-size: var(--font-size-medium);
     border-bottom: 2px solid var(--blue-gray-100);
     line-height: 2.5;
@@ -1812,58 +1179,9 @@ p.input_l input {
     border: 1px solid var(--blue-gray-100);
     border-radius: var(--border-radius-small);
     padding-inline: var(--spacing-small);
-    background-color: var(--clr-bg-light);
+    background-color: var(--color-bg-light);
 }
 
-.form input[type="checkbox"] {
-    aspect-ratio: 1;
-    width: 1.5rem;
-    height: 1.5rem;
-    color: white;
-    border: 2px solid var(--blue-gray-300);
-    border-radius: var(--border-radius-medium);
-    padding: 0;
-    font-weight: bold;
-    font-size: var(--font-size-regular);
-    text-align: center;
-    align-content: center;
-}
-
-.form input[type="checkbox"]::after {
-    content: '\F012C';
-    font-family: "Material Design Icons";
-    border: none;
-    background: none;
-    box-shadow: none;
-    width: 100%;
-    height: 100%;
-    align-content: center;
-    margin: 0;
-    color: transparent;
-}
-
-.form input[type="checkbox"]::before {
-    content: attr(label);
-    color: var(--blue-gray-900);
-    position: absolute;
-    top: 0;
-    left: 1.3rem;
-    bottom: 0;
-    width: fit-content;
-    padding-left: 0.7rem;
-    border-radius: 0;
-    white-space: pre;
-    font-weight: normal;
-    background-color: transparent !important;
-}
-
-.form input[type="checkbox"]:checked {
-    background-color: var(--blue-gray-300);
-}
-
-.form input[type="checkbox"]:checked:after {
-    color: inherit;
-}
 
 .seperator .form__inputs {
     display: flex;
@@ -2028,18 +1346,18 @@ dialog button.button {
 
 dialog button.primary {
     background-color: var(--light-blue-500);
-    color: var(--clr-bg-light);
+    color: var(--color-bg-light);
     border: 1px solid var(--light-blue-700);
 }
 
 dialog button.secondary {
-    background-color: var(--clr-bg-light);
+    background-color: var(--color-bg-light);
     color: var(--light-blue-600); 
     border: 1px solid var(--blue-gray-100);
 }
 
 dialog button.danger {
-    background-color: var(--clr-invalid);
+    background-color: var(--color-invalid);
     color: var(--color-border);
     border: 1px solid var(--color-border-light);
 }
@@ -2157,7 +1475,7 @@ dialog button.button:active {
 .imgSelector__list__item:hover {
     transform: scale(1.1);
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    outline: 1px solid var(--clr-bg-light);
+    outline: 1px solid var(--color-bg-light);
     z-index: 1;
 }
 

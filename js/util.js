@@ -251,11 +251,11 @@ const ContentBase = {
                 innerHTML: model.text,
                 onclick() {
                     wrap.toggleClass('fold');
+                    let isFold = wrap.classList.contains('fold');
                     let next = wrap;
                     while (next = next.nextElementSibling) {
                         if (next.classList.contains('fold-end')) return;
-                        if (wrap.classList.contains('fold')) next.style.display = 'none';
-                        else next.style.removeProperty('display');
+                        next.toggleClass('hide', isFold);
                     }
                 }
             });
@@ -314,7 +314,63 @@ const ContentBase = {
         initialize(id, wrap, model) { wrap.addClass('fold-end'); }
     },
     summury: {
-        initialize(id, wrap, model) { wrap.addClass('fold-end','flex-vertical'); }
+        initialize(id, wrap, model) { wrap.addClass('fold-end','flex-vertical'); wrap.id='summury'; }
+    },
+    list: {
+        async initialize(id, wrap, model) {
+            let { keyword, field, operator, searchData = {} } = model
+            let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
+            let cardMode = model.style == 'galery';
+            let itemFlexClass = cardMode ? 'flex-vertical':'flex-horizontal';
+            let load = async () => {
+                list__footer.disabled = true;
+
+                docs = await next();
+
+                for (let doc of docs) {
+                    let data = doc.data();
+
+                    let row = createElement('span').addClass('list__item', itemFlexClass);
+                    let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
+                    let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `index?post=${doc.id}` }).props({ innerHTML: data.title });
+
+
+                    if (cardMode) {
+                        let onclick = function () { move(post_anchor.href); }
+                        let img_alt = createElement('div').addClass('list__item__alt').props({ onclick })
+                        if (data.thumbnail && data.thumbnail != 'undefined') {
+                            let img = createElement('img').attrs({ class: 'list__item__img', width: 200, height: 200 }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
+                            img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
+                            row.append(img);
+                        } else {
+                            row.append(img_alt);
+                        }
+                    }
+                    row.append(board_anchor, post_anchor);
+                    wrap.append(row);
+
+                }
+
+                if (docs.length < (model.page_offset || 25)) list__footer.remove();
+
+                list__footer.disabled = false;
+                if (this.data.Board) this.data.Board.proceed();
+            }
+
+            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
+
+            if(cardMode) wrap.addClass(model.style).append(list__footer);
+            else {
+                let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
+                list__header.append(
+                    createElement('a').attrs({ class: 'list__item__board_name' }).props({ innerHTML: TEXTS.document_cate }),
+                    createElement('a').attrs({ class: 'list__item__title' }).props({ innerHTML: TEXTS.title })
+                );
+                wrap.addClass('flex-vertical', model.style).append(list__header, list__footer);
+            }
+
+            await load();
+        }
     },
 }
 
@@ -634,7 +690,8 @@ window.addEventListener('click', function (e) {
         if (!full_url) return;
         if (full_url.startsWith('#')) {
             e.preventDefault();
-            document.querySelector(full_url).scrollIntoViewIfNeeded();
+            document.querySelector(full_url)?.scrollIntoViewIfNeeded();
+            history.pushState({}, '', full_url);
             return;
         }
         if (move(full_url)) e.preventDefault();

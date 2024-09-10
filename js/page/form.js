@@ -350,7 +350,7 @@ const FormContent = {
                 여기에 텍스트를 입력하세요.`,
                 class: 'form__textbox'
             }).props({
-                innerHTML: html || '',
+                innerHTML: (html || ''),
                 onpaste(e) {
                     e.preventDefault();
                     document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
@@ -435,9 +435,9 @@ const FormContent = {
             let hidden = imgInfo.hidden || false
             
             let isThumb__p = createElement('p');
-            let isThumb__input = createElement('input').attrs({ type: 'checkbox', label: '대표 이미지 설정' }).props({ onchange() { form__inputs__wrap.toggleClass('main', isThumb = this.checked); } });
+            let isThumb__input = createElement('input').attrs({ type: 'checkbox', label: '대표 이미지 설정' }).addClass('s_chk').props({ onchange() { form__inputs__wrap.toggleClass('main', isThumb = this.checked); } });
             let hidden__p = createElement('p');
-            let hidden__input = createElement('input').attrs({ type: 'checkbox', label: '이미지 감추기' }).props({ onchange() { hidden = this.checked; } });
+            let hidden__input = createElement('input').attrs({ type: 'checkbox', label: '이미지 감추기' }).addClass('s_chk').props({ onchange() { hidden = this.checked; } });
             let width__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
             let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
             let size__p = createElement('p').addClass('input_l');

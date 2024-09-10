@@ -367,59 +367,6 @@ const IndexContent = {
             wrap.append(buttons);
         }
     },
-    list: {
-        async initialize(id, wrap, model) {
-            let { keyword, field, operator, searchData = {} } = model
-            let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
-            let itemFlexClass = model.style == 'galey' ? 'flex-vertical':'flex-horizontal';
-            let load = async () => {
-                list__footer.disabled = true;
-
-                docs = await next();
-
-                for (let doc of docs) {
-                    let data = doc.data();
-
-                    let row = createElement('span').addClass('list__item', itemFlexClass);
-                    let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `./profile?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
-                    let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `./?post=${doc.id}` }).props({ innerHTML: data.title });
-
-
-                    if (model.style == 'galery') {
-                        let onclick = function () { move(post_anchor.href); }
-                        let img_alt = createElement('div').addClass('list__item__alt').props({ onclick })
-                        if (data.thumbnail && data.thumbnail != 'undefined') {
-                            let img = createElement('img').attrs({ class: 'list__item__img' }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
-                            img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
-                            row.append(img);
-                        } else {
-                            row.append(img_alt);
-                        }
-                    }
-                    row.append(board_anchor, post_anchor);
-                    wrap.append(row);
-
-                }
-
-                if (docs.length < (model.page_offset || 25)) list__footer.remove();
-
-                list__footer.disabled = false;
-                if (this.data.Board) this.data.Board.proceed();
-            }
-
-            let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
-            let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
-
-            list__header.append(
-                createElement('a').attrs({ class: 'list__item__board_name' }).props({ innerHTML: TEXTS.document_cate }),
-                createElement('a').attrs({ class: 'list__item__title' }).props({ innerHTML: TEXTS.title })
-            );
-
-            wrap.addClass('flex-vertical', model.style).append(list__header, list__footer);
-
-            await load();
-        }
-    }
 }
 
 
@@ -467,7 +414,7 @@ const FormContent = {
                 여기에 텍스트를 입력하세요.`,
                 class: 'form__textbox'
             }).props({
-                innerHTML: markdown(html || ''),
+                innerHTML: (html || ''),
                 onpaste(e) {
                     e.preventDefault();
                     document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
