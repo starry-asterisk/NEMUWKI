@@ -92,7 +92,7 @@ class asideBase {
 
     destroy() { }
 
-    createInput(id, type = 'text', validate_fn = Validator.default) {
+    createInput(id, type = 'text') {
         let wrap = createElement().attrs({ id, class: 'input flex-horizontal' });
         let input = createElement('input').attrs({ id: `${id}__input`, type });
 
@@ -102,9 +102,7 @@ class asideBase {
 
         Object.defineProperty(this.data, id, {
             get: () => this.components[id].input.value,
-            set: newValue => {
-                if (validate_fn(newValue)) return this.components[id].input.value = newValue;
-            }
+            set: newValue => this.components[id].input.value = newValue
         });
 
         return wrap;

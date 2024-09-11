@@ -215,11 +215,7 @@ function logout() {
         .catch(firebaseErrorHandler);
 }
 
-const Validator = {
-    default: () => true
-}
-
-const checkLogin = () => {
+function checkLogin() {
     firebase.auth.check(user => {
         nav__my_btn.innerHTML = TEXTS.form.profile;
         nav__my_btn.onclick = null;
@@ -422,8 +418,8 @@ function goShare(destination, url = location.href) {
         switch (destination) {
             case 'twitter':
                 searchParams.set("url", url);
-                searchParams.set("text", `${document.title}\n`);
-                window.open(`https://twitter.com/intent/post?${searchParams.toString()}`, '_blank').focus();
+                searchParams.set("text", `${document.title}\n#NEMUWIKI #네무위키\n`);
+                window.open(`https://twitter.com/intent/tweet?${searchParams.toString()}`, '_blank').focus();
                 break;
         }
     }
