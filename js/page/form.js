@@ -467,7 +467,7 @@ const FormContent = {
             let file_url = '';
             let adjust_src = src => {
                 file_url = src;
-                form__img.src = src.startsWith('http') ? src : firebase.storage.getStaticUrl(src);;
+                form__img.src = src.startsWith('http') ? imgurThumb(src, 'm') : firebase.storage.getStaticUrl(src);;
             };
             btn.onclick = () => {
                 modal('addImg', adjust_src);

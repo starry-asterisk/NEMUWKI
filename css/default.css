@@ -666,11 +666,6 @@ n-option.placeholder {
     border-radius: var(--border-radius-medium);
 }
 
-.s_chk::after {
-    content: '\F0E1E';
-    font-family: "Material Design Icons";
-}
-
 .s_chk::before {
     content: attr(label);
     color: var(--blue-gray-900);
@@ -687,6 +682,10 @@ n-option.placeholder {
     background-color: var(--blue-gray-300);
 }
 
+.s_chk:checked::after {
+    content: '\F0E1E';
+    font-family: "Material Design Icons";
+}
 /* input (검색창 스타일) */
 .input_run {
     height: 3rem;
