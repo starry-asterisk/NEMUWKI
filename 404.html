@@ -37,7 +37,7 @@
             };
             errorLogs.push(errorLog);
             if (firebase) firebase?.history?.insertError(errorLog);
-            if (Notify) alert(errorLog.stack || errorLog.message);
+            if (Notify) Notify.alert(errorLog.stack || errorLog.message);
         }
     </script>
     <script src="/js/base.js?_v=20240911"></script>

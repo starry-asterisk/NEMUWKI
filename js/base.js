@@ -757,11 +757,11 @@ const MODAL_TEMPLATE = {
                 firebase.auth.sendPasswordResetEmail(text_input.value)
                     .then(result => {
                         if (result) dev.log(result);
-                        alert('메일이 전송되었습니다.');
+                        Notify.alert('메일이 전송되었습니다.');
                         container.close();
                     })
                     .catch(firebaseErrorHandler);
-            } else alert('옳바른 이메일을 입력하세요!');
+            } else Notify.alert('옳바른 이메일을 입력하세요!');
         }
         return frag;
     },
@@ -775,7 +775,7 @@ const MODAL_TEMPLATE = {
             (async () => await firebase.auth.sendEmailVerification())()
                 .then(result => {
                     if (result) dev.log(result);
-                    alert('메일이 전송되었습니다.');
+                    Notify.alert('메일이 전송되었습니다.');
                     container.close();
                 })
                 .catch(firebaseErrorHandler);
@@ -795,17 +795,17 @@ const MODAL_TEMPLATE = {
         button_confirm.onclick = e => {
             e.preventDefault();
             if (text_input.value) {
-                if (confirm('카테고리를 생성하시겠습니까?')) {
-                    if (Options.categories.find(obj => obj.value === text_input.value)) return alert('동일 명칭의 카테고리가 이미 존재합니다!!');
+                if (Notify.confirm('카테고리를 생성하시겠습니까?')) {
+                    if (Options.categories.find(obj => obj.value === text_input.value)) return Notify.alert('동일 명칭의 카테고리가 이미 존재합니다!!');
                     firebase.categories.insertOne({ name: text_input.value, owner: app.user.uid })
                         .then(() => {
-                            alert('카테고리가 추가되었습니다.');
+                            Notify.alert('카테고리가 추가되었습니다.');
                             container.close();
                         })
                         .catch(firebaseErrorHandler);
                 }
             } else {
-                alert('카테고리 명칭을 입력해 주세요.')
+                Notify.alert('카테고리 명칭을 입력해 주세요.')
             }
         }
         return frag;
@@ -826,7 +826,7 @@ const MODAL_TEMPLATE = {
             e.preventDefault();
 
             if (text_input.value) {
-                if (confirm('메뉴를 생성하시겠습니까?')) {
+                if (Notify.confirm('메뉴를 생성하시겠습니까?')) {
                     if (Options.board.find(obj => obj.name === text_input.value)) return Notify.alert('동일 명칭의 메뉴가 이미 존재합니다!!');
                     let parent_data = { depth: 0, name: '' };
                     if (parent_select.dataset.value) {
@@ -876,7 +876,7 @@ const MODAL_TEMPLATE = {
                     container.close();
                     callback(result.data.link);
                 } else {
-                    alert('Imgur사이트 파일 업로드에 실패했습니다.');
+                    Notify.alert('Imgur사이트 파일 업로드에 실패했습니다.');
                     input_file.setAttribute('type', 'text');
                     input_file.value = '';
                     input_file.setAttribute('type', 'file');
@@ -886,7 +886,7 @@ const MODAL_TEMPLATE = {
 
         imgSelector__list__link.onclick = e => {
             e.preventDefault();
-            let link = prompt('사용할 이미지의 URL을 입력해 주세요');
+            let link = Notify.prompt('사용할 이미지의 URL을 입력해 주세요');
             if (link) {
                 container.close();
                 callback(link);
@@ -907,7 +907,7 @@ const MODAL_TEMPLATE = {
                 container.close();
                 callback(i.value);
             } else {
-                alert('이미지를 선택해 주세요!!');
+                Notify.alert('이미지를 선택해 주세요!!');
             }
         }
         return frag;

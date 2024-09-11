@@ -276,9 +276,9 @@ function loadBoardLists(str, uid, search, permission) {
         appendList.unshift(buttons);
 
         async function save(){
-            if(!confirm('변경사항을 저장 할까요?')) return;
+            if(!Notify.confirm('변경사항을 저장 할까요?')) return;
             let settings = document.querySelectorAll('.form.board_setting');
-            if(settings.length > 5) return alert('목록은 5개 까지 생성 가능합니다.');
+            if(settings.length > 5) return Notify.alert('목록은 5개 까지 생성 가능합니다.');
             await firebase.auth.updateUser(uid, { board_setting: Array.from(settings).map((wrap, index) => {
                 let { type, title, category, board } = wrap.getData();
                 return `${index};${type};${title};${category};${board}`;
@@ -380,7 +380,7 @@ function execBuildVal(command, val) {
 
 function execBuildPrompt(command, prompt_text, conv_fn = v => v) {
     return function () {
-        var val = prompt(prompt_text) || "";
+        var val = Notify.prompt(prompt_text) || "";
         document.execCommand("styleWithCSS", 0, true);
         document.execCommand(command, false, conv_fn(val));
     };

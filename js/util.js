@@ -196,7 +196,7 @@ function firebaseErrorHandler(error) {
 
 
 function remove(button, post_id) {
-    if (!confirm('정말로 삭제 하시겠습니까?') || !confirm('삭제시 5영업일 이내의 글의 복구는 개발자에게 문의주세요')) return;
+    if (!Notify.confirm('정말로 삭제 하시겠습니까?') || !Notify.confirm('삭제시 5영업일 이내의 글의 복구는 개발자에게 문의주세요')) return;
     button.setAttribute('disabled', true);
     firebase.post.deleteTemporary(post_id)
         .then(async () => {
@@ -518,7 +518,6 @@ let app = {}, app_aside = {}, app_article = {}, now = {};
 let devmode = false;
 let version = devmode ? new Date().getTime() : 'v2.1.0';
 const DOMAIN = 'nemuwiki.com';
-const SUFFIX = location.hostname.endsWith(DOMAIN) ? '' : '.html';
 
 const OLD_ROOT_PATH = '/wiki';
 const ROOT_PATH = '/';

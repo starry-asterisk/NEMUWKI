@@ -628,7 +628,7 @@ function execBuildVal(command, val) {
 
 function execBuildPrompt(command, prompt_text, conv_fn = v => v) {
     return function () {
-        var val = prompt(prompt_text) || "";
+        var val = Notify.prompt(prompt_text) || "";
         document.execCommand("styleWithCSS", 0, true);
         document.execCommand(command, false, conv_fn(val));
     };
@@ -1082,8 +1082,8 @@ async function submit() {
             }
         }
 
-        if (formData.title.length > 25) return alert('문서 명은 최대 25자 까지 가능합니다.');
-        if (formData.title.length < 1) return alert('문서 명은 비워 둘 수 없습니다.');
+        if (formData.title.length > 25) return Notify.alert('문서 명은 최대 25자 까지 가능합니다.');
+        if (formData.title.length < 1) return Notify.alert('문서 명은 비워 둘 수 없습니다.');
 
         toggleSubmitMode();
 
@@ -1108,7 +1108,7 @@ async function submit() {
             firebase.post.insertOne(formData)
                 .then(async ref => {
                     if (ref == undefined) {
-                        alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
+                        Notify.alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
                         app.blockMode = false;
                         move('/');
                         return;
