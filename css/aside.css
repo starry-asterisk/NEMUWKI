@@ -190,6 +190,25 @@ button:disabled,
     opacity: 0.5;
 }
 
+.s_button::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 50%;
+    background-color: var(--light-blue-600);
+    width: 0px;
+    height: 0px;
+    margin-inline: 0px;
+    transition-property: width, height, margin;
+    transition-duration: 200ms;
+}
+
+.s_button.on::before {
+    width: var(--spacing-small);
+    height: var(--spacing-small);
+    margin-inline: var(--spacing-small);
+}
+
 .b_button {
     line-height: 2rem;
     margin: var(--spacing-medium) auto;

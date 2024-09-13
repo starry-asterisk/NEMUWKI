@@ -67,6 +67,7 @@ class articleIndex extends articleBase {
         this.contentBase = IndexContent;
         let post_id = params.get('post');
         if (post_id) {
+            document.title = `${TEXTS.sitename} :: 로딩중`;
             (async () => {
                 if (post_id == 'random') post_id = await firebase.search.random();
 

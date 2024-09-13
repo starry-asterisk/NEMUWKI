@@ -176,6 +176,7 @@ class articleForm extends articleBase {
 
         let post_id = params.get('post');
         if (post_id) {
+            document.title = `${TEXTS.sitename} :: 문서 편집 - 로딩중`;
             (async () => {
                 if (post_id == 'random') post_id = await firebase.search.random();
 
@@ -186,7 +187,7 @@ class articleForm extends articleBase {
 
                 if (!data) return move('404');
 
-                document.title = `${TEXTS.sitename} :: ${data.title}`;
+                document.title = `${TEXTS.sitename} :: 문서 편집 - ${data.title}`;
 
                 if (app_aside) {
                     app_aside.components.board.set(data.board_name);

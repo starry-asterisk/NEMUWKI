@@ -33,18 +33,21 @@ class Router {
         let className = '404';
         switch (path) {
             case '/':
-            case `/index`:
+            case '/index':
                 className = 'index';
                 break;
-            case `/login`:
-            case `/signup`:
+            case '/login':
+            case '/signup':
                 className = 'login';
                 break;
-            case `/form`:
+            case '/form':
                 className = 'form';
                 break;
-            case `/profile`:
+            case '/profile':
                 className = 'profile';
+                break;
+            case '/setting':
+                //className = 'setting';
                 break;
 
         }
@@ -316,7 +319,7 @@ customElements.define('n-table', class extends HTMLElement {
         return this._editable = new_value;
     }
     set lastSelection(el) {
-        if(!el) return;
+        if (!el) return;
         this._lastSelection = el;
         if (this.lastSelection && this.onSelChange) this.onSelChange(this.lastSelection);
     }
@@ -455,13 +458,13 @@ function createOption(data, select) {
     });
     if (data.is_owner) {
         opt.append(
-            createElement('button').addClass('del').props({ 
+            createElement('button').addClass('del').props({
                 onmousedown(e) {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     if (select.ondelete(data.id, opt)) opt.remove();
                 }
             })
-            );
+        );
     }
     if (select.dataset.value === data.value) {
         opt.dataset.selected = true;
@@ -537,21 +540,21 @@ const ContentBase = {
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
 
-            let nTable = createElement('n-table').props({ cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth, editable: false }).attrs({'data-align':align});
+            let nTable = createElement('n-table').props({ cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth, editable: false }).attrs({ 'data-align': align });
 
             wrap.append(nTable);
         }
     },
     image: {
         initialize(id, wrap, imgInfo) {
-            if(typeof imgInfo == 'string') imgInfo = {src: imgInfo};
-            if(imgInfo.hidden) {
+            if (typeof imgInfo == 'string') imgInfo = { src: imgInfo };
+            if (imgInfo.hidden) {
                 wrap.style.display = 'none';
                 return;
             }
             let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
-            if(imgInfo.width) img.width = imgInfo.width;
-            if(imgInfo.align) img.dataset.align = imgInfo.align;
+            if (imgInfo.width) img.width = imgInfo.width;
+            if (imgInfo.align) img.dataset.align = imgInfo.align;
             img.src = imgInfo.src.startsWith('http') ? imgInfo.src : firebase.storage.getStaticUrl(imgInfo.src);
             wrap.append(img);
         }
@@ -578,14 +581,14 @@ const ContentBase = {
         initialize(id, wrap, model) { wrap.addClass('fold-end'); }
     },
     summury: {
-        initialize(id, wrap, model) { wrap.addClass('fold-end','flex-vertical'); wrap.id='summury'; }
+        initialize(id, wrap, model) { wrap.addClass('fold-end', 'flex-vertical'); wrap.id = 'summury'; }
     },
     list: {
         async initialize(id, wrap, model) {
             let { keyword, field, operator, searchData = {} } = model
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
             let cardMode = model.style == 'galery';
-            let itemFlexClass = cardMode ? 'flex-vertical':'flex-horizontal';
+            let itemFlexClass = cardMode ? 'flex-vertical' : 'flex-horizontal';
             let load = async () => {
                 list__footer.disabled = true;
 
@@ -623,7 +626,7 @@ const ContentBase = {
 
             let list__footer = createElement('button').props({ innerHTML: TEXTS.load_more, onclick: load }).addClass('list__footer', 'b_button', itemFlexClass);
 
-            if(cardMode) wrap.addClass(model.style).append(list__footer);
+            if (cardMode) wrap.addClass(model.style).append(list__footer);
             else {
                 let list__header = createElement('span').addClass('list__header', 'flex-horizontal');
                 list__header.append(
@@ -814,7 +817,7 @@ const MODAL_TEMPLATE = {
         container.css({ overflow: 'visible' });
         let frag = document.createDocumentFragment();
         let h3 = createElement('h3').props({ innerHTML: '분류 추가' });
-        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input','flex-horizontal').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
+        let parent_select = createSelect(Options.get('board'), 0, true, '상위 분류').addClass('input', 'flex-horizontal').css({ 'margin-bottom': 'var(--spacing-small)', 'max-width': '100%', 'min-width': '15rem' });
         let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '분류명' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
         let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
         let button_confirm = createElement('button').attrs({ class: 'button primary' }).props({ innerHTML: '생성' });
