@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { initializeFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL, deleteObject, uploadBytes, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -94,9 +94,17 @@ fb.post = {
         fb.history.insertOne({ crud: 'DELETE', target: `postList-${id}`, text: title || `(삭제됨-${id})` });
         return await deleteDoc(doc(db, "postList", id));
     },
-    deleteTemporary: async (id, title) => {
+    deleteTemporary: async (id, title, isTemplate) => {
         fb.history.insertOne({ crud: 'TEMPDEL', target: `postList-${id}`, text: title || `(임시삭제됨-${id})` });
-        return await updateDoc(doc(db, "postList", id), { deleted: true, deleted_timestamp: Timestamp.fromDate(new Date()) });
+        let data = { deleted: true, deleted_timestamp: Timestamp.fromDate(new Date()) };
+        if(isTemplate) data.board_name = 'deleted-template';
+        return await updateDoc(doc(db, "postList", id), data);
+    },
+    recover: async (id, title, isTemplate) => {
+        fb.history.insertOne({ crud: 'RECOVER', target: `postList-${id}`, text: title || `(복구됨-${id})` });
+        let data = { deleted: deleteField(), deleted_timestamp: deleteField() };
+        if(isTemplate) data.board_name = 'template';
+        return await updateDoc(doc(db, "postList", id), data);
     },
     updateOne: async (id, data) => {
         if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
@@ -107,13 +115,13 @@ fb.post = {
     selectOne: async id => await getDoc(doc(db, "postList", id)),
     list: (search = {}, hidden = false, operator = 'contains') => {
         let param_base = [
-            collection(db, "postList"),
-            where('hidden', '==', hidden)
+            collection(db, "postList")
         ], params, documentSnapshots, isEnd = false;
+        if(hidden !== null) param_base.push( where('hidden', '==', hidden));
         for (let field in search) {
             if (search[field] == '' || search[field] == undefined) continue;
             let method, keyword;
-            if (typeof search[field] == 'string') {
+            if (['boolean', 'string'].indexOf(typeof search[field]) > -1) {
                 method = operator;
                 keyword = search[field];
             } else {
@@ -314,6 +322,10 @@ fb.resources = {
         await setDoc(doc(db, "resources", data.id), formatted);
         fb.history.insertOne({ crud: 'INSERT', target: `resources-${data.id}` });
         return true;
+    },
+    delete: async (id, hash, url) => {
+        fb.history.insertOne({ crud: 'DELETE', target: `resource-${id}`, hash, text: url || `(삭제됨-리소스{${id}})`});
+        return await deleteDoc(doc(db, "resources", id))
     },
     all: async () => await getDocs(query(collection(db, "resources"), where('owner_id', '==', auth.currentUser?.uid))),
 }

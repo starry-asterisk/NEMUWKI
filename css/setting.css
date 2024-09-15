@@ -1,0 +1,76 @@
+.setting__title {
+    font-size: 2.5rem;
+    text-align: left;
+    margin-block: var(--spacing-medium);
+}
+
+.setting__wrap {
+    margin: var(--spacing-medium);
+    padding-bottom: var(--spacing-medium);
+    border: 1px solid var(--blue-gray-100);
+    border-radius: var(--border-radius-medium);
+    background-color: var(--blue-gray-50);
+}
+
+.setting__wrap li {
+    display: flex;
+    height: 3rem;
+    min-height: fit-content;
+}
+
+.setting__wrap li:hover:not(.header) {
+    background-color: var(--blue-gray-100);
+}
+
+.setting__wrap li>span {
+    flex: 1;
+    font-size: var(--font-size-regular);
+    align-content: center;
+    white-space: pre-line;
+    padding-inline: var(--spacing-small);
+}
+.setting__wrap li>span>img {
+    max-height: 100%;
+}
+
+.setting__wrap li.header {
+    font-weight: bold;
+    border-bottom: 1px solid var(--blue-gray-100);
+    padding-block: var(--spacing-small);
+    margin-bottom: var(--spacing-small);
+}
+
+.setting__li__button {
+    cursor: pointer;
+}
+
+.setting__li__tag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid var(--blue-gray-800);
+    border-radius: 0.8rem;
+    margin: 0.6rem;
+    background-color: var(--blue-gray-300);
+    opacity: 0.55;
+}
+
+.icon-open::before {
+    content: '\F03CC';
+    font-family: 'Material Design Icons';
+}
+.icon-edit::before {
+    content: '수정';
+}
+.icon-recover::before {
+    content: '복구';
+    color: var(--color-valid);
+}
+.icon-del::before,
+.icon-deletehash::before {
+    content: '삭제';
+    color: var(--color-invalid);
+}

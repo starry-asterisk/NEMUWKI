@@ -16,7 +16,7 @@
     <link rel="canonical" href="https://www.nemuwiki.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <link rel="icon" href="/resource/favicon.png">
-    <link rel="stylesheet" href="/css/default.css?_v=20240911" type="text/css">
+    <link rel="stylesheet" href="/css/default.css?_v=20240915" type="text/css">
     <script>
         let errorLogs = [];
 
@@ -40,8 +40,8 @@
             if (Notify) Notify.alert(errorLog.stack || errorLog.message);
         }
     </script>
-    <script src="/js/base.js?_v=20240911"></script>
-    <script src="/js/util.js?_v=20240911"></script>
+    <script src="/js/base.js?_v=20240915"></script>
+    <script src="/js/util.js?_v=20240915"></script>
     <title>네무위키</title>
 </head>
 
@@ -67,7 +67,8 @@
                     <div class="profile__buttons">
                         <button onmousedown="move('form')">글쓰기</button>
                         <button onmousedown="move('profile')">마이페이지</button>
-                        <button onmousedown="logout();">로그아웃</button>
+                        <button onmousedown="logout()">로그아웃</button>
+                        <button onmousedown="move('setting')" class="icon icon-cog" style="padding-inline: 0.6rem"></button>
                     </div>
                     <button class="profile__close icon icon-close"></button>
                 </div>

@@ -45,7 +45,7 @@ class asideForm extends asideBase {
         }));
         templateSelect.ondelete = id => {
             if (!Notify.confirm('정말로 삭제 하시겠습니까?')) return false;
-            firebase.post.deleteTemporary(id).catch(firebaseErrorHandler);
+            firebase.post.deleteTemporary(id, undefined, true).catch(firebaseErrorHandler);
             return true;
         }
 
@@ -119,7 +119,7 @@ class asideForm extends asideBase {
         next().then(docs => {
             for (let doc of docs) {
                 let data = datas[doc.id] = doc.data();
-                templateSelect.ul.append(createOption({ value: doc.id, text: data.title, is_owner: data.author == app.user?.uid }, templateSelect));
+                templateSelect.ul.append(createOption({ id: doc.id, value: doc.id, text: data.title, is_owner: data.author == app.user?.uid }, templateSelect));
             }
             templateSelect.onselchange = (id) => {
                 let { contents } = datas[id];

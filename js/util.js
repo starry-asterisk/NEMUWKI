@@ -195,10 +195,10 @@ function firebaseErrorHandler(error) {
 }
 
 
-function remove(button, post_id) {
-    if (!Notify.confirm('정말로 삭제 하시겠습니까?') || !Notify.confirm('삭제시 5영업일 이내의 글의 복구는 개발자에게 문의주세요')) return;
+function remove(button, post_id, isTemplate) {
+    if (!Notify.confirm('정말로 삭제 하시겠습니까?') || !Notify.confirm('안내 : 삭제 이후 5일 이상이 경과하면 삭제가 불가할 수 있습니다')) return;
     button.setAttribute('disabled', true);
-    firebase.post.deleteTemporary(post_id)
+    firebase.post.deleteTemporary(post_id, undefined, isTemplate)
         .then(async () => {
             await firebase.search.unset(post_id);
             move('/');
@@ -367,9 +367,9 @@ function markdown(html, cell) {
         .replace(REGEX.video, (full_str, group1) => `<iframe width="560" height="315" src="//www.youtube.com/embed/${getYoutubeId(group1)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`);
 }
 
-function focusSearch(){
+function focusSearch() {
     if (typeof search_wrap != 'undefined') search_wrap?.scrollIntoViewIfNeeded();
-    if (typeof search__input != 'undefined') search__input?.focus({preventScroll: true});
+    if (typeof search__input != 'undefined') search__input?.focus({ preventScroll: true });
 }
 
 async function uploadByImgur(file) {
@@ -390,6 +390,20 @@ async function uploadByImgur(file) {
     loading(0.9);
     if (result.status === 200) firebase.resources.regist(result.data).catch(dev.error);
     loading(1);
+    return result;
+}
+
+
+async function deleteImgurImg(id, deleteHash, url) {
+    const response = await fetch(`https://api.imgur.com/3/image/${deleteHash}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Client-ID cfb9241edbf292e',
+            Accept: 'application/json'
+        }
+    })
+    let result = await response.json();
+    if (result.status === 200) firebase.resources.delete(id, deleteHash, url).catch(dev.error);
     return result;
 }
 
@@ -435,6 +449,13 @@ function modal(mode = 'emailPrompt', callback, option) {
     form.append(button_cancel);
     container.showModal();
     container.onclose = () => container.remove();
+}
+
+function loadStyle(namespace) {
+    if (document.querySelectorAll(`link[href*="${namespace}"]`).length > 0) return;
+    document.head.append(
+        createElement('link').attrs({ rel: 'stylesheet', href: `./css/${namespace}.css?_v=${version}` })
+    );
 }
 
 const TEXTS = {
@@ -516,7 +537,7 @@ let Listerners = {};
 
 let app = {}, app_aside = {}, app_article = {}, now = {};
 let devmode = false;
-let version = devmode ? new Date().getTime() : 'v2.1.0';
+let version = devmode ? new Date().getTime() : 'v2.1.1';
 const DOMAIN = 'nemuwiki.com';
 
 const OLD_ROOT_PATH = '/wiki';

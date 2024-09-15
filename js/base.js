@@ -47,7 +47,7 @@ class Router {
                 className = 'profile';
                 break;
             case '/setting':
-                //className = 'setting';
+                className = 'setting';
                 break;
 
         }
@@ -461,6 +461,7 @@ function createOption(data, select) {
             createElement('button').addClass('del').props({
                 onmousedown(e) {
                     e.stopPropagation();
+                    console.log(data);
                     if (select.ondelete(data.id, opt)) opt.remove();
                 }
             })
