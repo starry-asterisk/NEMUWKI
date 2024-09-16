@@ -196,7 +196,7 @@ function parseField(setting, value, doc_id, data) {
             break;
         case 'button':
             let cb_id = `cb${randomId()}`;
-            while(typeof cb[cb_id] == 'function') cb_id = `cb${randomId()}`;
+            while (typeof cb[cb_id] == 'function') cb_id = `cb${randomId()}`;
             cb[cb_id] = () => {
                 modifyRecord(doc_id, setting.name, data, isTemplate);
             }
@@ -221,11 +221,11 @@ function parseField(setting, value, doc_id, data) {
     return span.outerHTML;
 }
 
-function displayVolume(v){
+function displayVolume(v) {
     v = Number(v);
-    let prefix = ['Byte','Kb','Mb','Gb'];
+    let prefix = ['Byte', 'Kb', 'Mb', 'Gb'];
     let prefix_level = 0;
-    while(v > 1023) {
+    while (v > 1023) {
         v /= 1024;
         prefix_level++;
     }
@@ -256,36 +256,114 @@ const SettingTabs = {
                 (sec2_img = new Image()).addClass('setting_default_avatar')
             );
 
-            sec2.append(
-                createElement('span').addClass('setting_default_email').props({innerHTML: user.email}),
-                createElement('button').addClass('s_button').css({'margin-inline': 'auto'}).props({
-                    innerHTML: '프로필 이미지 변경',
+            let sec2_buttons = createElement('div');
+            sec2_buttons.append(
+                createElement('button').addClass('s_button').css({ 'margin-inline': 'auto' }).props({
+                    innerHTML: '프로필 사진 변경',
                     onclick: e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        modal("addImg", (photo_url) => {
-                            sec2_img.src = photo_url;
-                            firebase.auth.updateUser(model.uid, { photo_url });
-                        });
+                        modal("addImg", (photo_url) => sec2_img.src = photo_url);
                     }
                 }),
-                createElement('button').addClass('s_button').css({'margin-inline': 'auto'}).props({
-                    innerHTML: '배너 이미지 변경',
+                createElement('button').addClass('s_button').css({ 'margin-inline': 'auto' }).props({
+                    innerHTML: '배너 사진 변경',
                     onclick: e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        modal("addImg", (banner_url) => {
-                            sec2_img.src = banner_url;
-                            firebase.auth.updateUser(model.uid, { banner_url });
+                        modal("addImg", (banner_url) => sec1_img.src = banner_url);
+                    }
+                }),
+            );
+
+            let theme_color = '#039AE5';
+            let handler = e => {
+                e.preventDefault();
+                e.stopPropagation();
+                modal('colorPicker',color => {
+                    theme_color=color;
+                    theme_input.value = color;
+                },theme_color)
+            }
+            let theme_wrap = createElement('div');
+            let theme_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '테마색상' }).css({ 'margin': '1rem auto 0', display: 'inline-block'}).props({onclick: handler});
+            let theme_input = createElement('input').attrs({ placeholder: '', maxlength: 7, readonly: true });
+            theme_input_wrap.append(theme_input);
+            theme_wrap.append(theme_input_wrap, createElement('button').addClass('s_button').props({
+                innerHTML: '초기화',
+                onclick: e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    theme_color='#039AE5';
+                    theme_input.value = '';
+                }
+            }));
+
+            let theme_sub_color = '#FAFAFA';
+            let handler2 = e => {
+                e.preventDefault();
+                e.stopPropagation();
+                modal('colorPicker',color => {
+                    theme_sub_color=color;
+                    theme_sub_input.value = color;
+                },theme_sub_color)
+            }
+            let theme_sub_wrap = createElement('div');
+            let theme_sub_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '보조 테마색상' }).css({ 'margin': '1rem auto', display: 'inline-block'}).props({onclick: handler2});
+            let theme_sub_input = createElement('input').attrs({ placeholder: '', maxlength: 7, readonly: true });
+            theme_sub_input_wrap.append(theme_sub_input);
+            theme_sub_wrap.append(theme_sub_input_wrap, createElement('button').addClass('s_button').props({
+                innerHTML: '초기화',
+                onclick: e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    theme_sub_color='#FAFAFA';
+                    theme_sub_input.value = '';
+                }
+            }));
+
+            let sec2_buttons2 = createElement('div');
+
+            sec2_buttons2.append(
+                createElement('button').addClass('s_button').css({ 'margin-inline': 'auto' }).props({
+                    innerHTML: '취소',
+                    onclick: () => {
+                        if(!confirm('수정된 내용을 취소하시겠습니까?')) return;
+                        app_article.showTab('default')
+                    }
+                }),
+                createElement('button').addClass('s_button').css({ 'margin-inline': 'auto' }).props({
+                    innerHTML: '적용',
+                    onclick: () => {
+                        if(!confirm('수정된 내용을 적용하시겠습니까?')) return;
+                        let data = {};
+                        if (sec1_img.src) data.banner_url = sec1_img.src;
+                        if (sec2_img.src) data.photo_url = sec2_img.src;
+                        data.theme_color = theme_input.value == '#039AE5'?'':theme_input.value;
+                        data.theme_sub_color = theme_sub_input.value == '#FAFAFA'?'':theme_sub_input.value;
+                        console.log(data);
+                        firebase.auth.updateUser(user.uid, data).then(()=>{
+                            location.reload();
                         });
                     }
                 })
             );
 
+            sec2.append(
+                createElement('span').addClass('setting_default_email').props({ innerHTML: user.email }),
+                sec2_buttons,
+                theme_wrap,
+                //theme_sub_wrap,
+                sec2_buttons2
+            );
+
+            
             firebase.auth.getUser().then(user => {
                 let data = user.data();
                 if (data.banner_url) sec1_img.src = data.banner_url;
                 if (data.photo_url) sec2_img.src = data.photo_url;
+                if (data.theme_color) theme_input.value = data.theme_color;
+                if (data.theme_sub_color) theme_sub_input.value = data.theme_sub_color;
                 profile__email.innerHTML = data.email;
             }).catch(firebaseErrorHandler);
 
@@ -345,7 +423,7 @@ const SettingTabs = {
                 for (let doc of r.docs) {
                     let data = doc.data();
                     wrap.append(
-                        createElement('li').props({ innerHTML: field.map(info => parseField(info, data[info.name], doc.id, data)).join('') }).css({height: '5rem'})
+                        createElement('li').props({ innerHTML: field.map(info => parseField(info, data[info.name], doc.id, data)).join('') }).css({ height: '5rem' })
                     );
                 }
             });

@@ -225,6 +225,17 @@ function checkLogin() {
             let data = user.data();
             if (data.banner_url) profile__background.css({ display: 'block' }) && (profile__background.src = data.banner_url);
             if (data.photo_url) profile__avatar.css({ display: 'block' }) && (profile__avatar.src = data.photo_url);
+            if (data.theme_color) {
+                document.body.style.setProperty('--light-blue-300', data.theme_color);
+                document.body.style.setProperty('--light-blue-400', data.theme_color);
+                document.body.style.setProperty('--light-blue-500', data.theme_color);
+                document.body.style.setProperty('--light-blue-600', data.theme_color);
+                document.body.style.setProperty('--light-blue-700', data.theme_color);
+                document.body.style.setProperty('--light-blue-800', data.theme_color);
+                document.body.style.setProperty('--light-blue-a400', data.theme_color+'97');
+                document.body.style.setProperty('--light-blue-visited', data.theme_color+'aa');
+            }
+            if (data.theme_sub_color) document.body.style.setProperty('--color-bg-light', data.theme_sub_color);
             profile__email.innerHTML = data.email;
         }).catch(firebaseErrorHandler);
         app.loginCallback(user);
