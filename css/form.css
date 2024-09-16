@@ -78,10 +78,6 @@
     font-size: var(--font-size-regular);
 }
 
-.bottomtoolbar>*:first-child {
-    flex: 1;
-}
-
 .toolbar>span,
 .bottomtoolbar>span {
     display: flex;

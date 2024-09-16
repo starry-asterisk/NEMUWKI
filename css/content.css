@@ -159,6 +159,10 @@ a.list__item__title {
     cursor: pointer;
 }
 
+.content.table {
+    overflow-x: auto;
+}
+
 .content.title::before {
     content: '\F0140';
     text-align: center;

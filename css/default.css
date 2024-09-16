@@ -414,6 +414,10 @@ n-table {
     max-width: 100%;
 }
 
+n-table[data-fit="false"] {
+    max-width: unset;
+}
+
 n-table.full-width {
     width: 100% !important;
 }

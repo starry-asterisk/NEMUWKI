@@ -9,7 +9,7 @@ class asideSetting extends asideBase {
         svg.append(path);
         aside.append(
             createElement('div').props({ innerHTML: `${svg.outerHTML} 설정` }).css({ "text-align": "left", padding: "var(--spacing-medium)" }),
-            // this.createTab('default', '일반', tabs),
+            this.createTab('default', '일반', tabs),
             this.createTab('template', '템플릿', tabs),
             // this.createTab('categories', '카테고리', tabs),
             // this.createTab('board', '문서 분류', tabs),
@@ -188,7 +188,7 @@ window.modifyRecord = function (doc_id, task, data, isTemplate) {
 };
 
 function parseField(setting, value, doc_id, data) {
-    let span = createElement('span').css({ 'max-width': setting.width });
+    let span = createElement('span').css({ 'max-width': setting.width, 'min-width': setting.minWidth });
     let isTemplate = data.board_name == 'deleted-template';
     switch (setting.type) {
         case 'timestamp':
@@ -235,7 +235,7 @@ function displayVolume(v){
 function parsseHeader(field) {
     return createElement('li').addClass('header').props({
         innerHTML: field.map(setting => {
-            return createElement('span').css({ 'max-width': setting.width }).props({ innerHTML: setting.displayName || setting.name }).outerHTML;
+            return createElement('span').css({ 'max-width': setting.width, 'min-width': setting.minWidth }).props({ innerHTML: setting.displayName || setting.name }).outerHTML;
         }).join('')
     });
 }
@@ -244,6 +244,51 @@ const SettingTabs = {
     default: {
         title: '일반',
         init(wrap, user) {
+            let sec1, sec2, sec1_img, sec2_img;
+            wrap = createElement('div').addClass('flex-vertical');
+            wrap.append(
+                sec1 = createElement('div').addClass('setting_default'),
+                sec2 = createElement('div').addClass('flex-vertical')
+            )
+
+            sec1.append(
+                (sec1_img = new Image()).addClass('setting_default_banner'),
+                (sec2_img = new Image()).addClass('setting_default_avatar')
+            );
+
+            sec2.append(
+                createElement('span').addClass('setting_default_email').props({innerHTML: user.email}),
+                createElement('button').addClass('s_button').css({'margin-inline': 'auto'}).props({
+                    innerHTML: '프로필 이미지 변경',
+                    onclick: e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal("addImg", (photo_url) => {
+                            sec2_img.src = photo_url;
+                            firebase.auth.updateUser(model.uid, { photo_url });
+                        });
+                    }
+                }),
+                createElement('button').addClass('s_button').css({'margin-inline': 'auto'}).props({
+                    innerHTML: '배너 이미지 변경',
+                    onclick: e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal("addImg", (banner_url) => {
+                            sec2_img.src = banner_url;
+                            firebase.auth.updateUser(model.uid, { banner_url });
+                        });
+                    }
+                })
+            );
+
+            firebase.auth.getUser().then(user => {
+                let data = user.data();
+                if (data.banner_url) sec1_img.src = data.banner_url;
+                if (data.photo_url) sec2_img.src = data.photo_url;
+                profile__email.innerHTML = data.email;
+            }).catch(firebaseErrorHandler);
+
             return wrap;
         }
     },
@@ -252,16 +297,15 @@ const SettingTabs = {
         init(wrap, user) {
             let docs, { next } = firebase.post.list({ board_name: 'template', author: user.uid }, true);
             let field = [
-                { displayName: '이름', name: 'title', width: 'auto', type: 'text' },
-                { displayName: '생성 날짜', name: 'timestamp', width: '7rem', type: 'timestamp' },
-                { displayName: '열기', name: 'open', width: '4rem', type: 'button' },
-                { displayName: '수정', name: 'edit', width: '4rem', type: 'button' },
-                { displayName: '삭제', name: 'del', width: '4rem', type: 'button' },
+                { displayName: '이름', name: 'title', width: 'auto', minWidth: '10rem', type: 'text' },
+                { displayName: '생성 날짜', name: 'timestamp', width: '7rem', minWidth: '7rem', type: 'timestamp' },
+                { displayName: '열기', name: 'open', width: '4rem', minWidth: '7rem', type: 'button' },
+                { displayName: '수정', name: 'edit', width: '4rem', minWidth: '7rem', type: 'button' },
+                { displayName: '삭제', name: 'del', width: '4rem', minWidth: '7rem', type: 'button' },
             ]
             wrap.append(parsseHeader(field));
             let load = async () => {
                 docs = await next();
-                console.log(docs);
                 docs.map(doc => {
                     let data = doc.data();
                     wrap.append(
@@ -291,10 +335,10 @@ const SettingTabs = {
         title: '이미지 관리',
         init(wrap, user) {
             let field = [
-                { displayName: '이미지', name: 'link', width: '7rem', type: 'image' },
-                { displayName: '사이즈', name: '', width: 'auto', type: 'size' },
-                { displayName: '크기', name: 'size', width: 'auto', type: 'volume' },
-                { displayName: '삭제', name: 'deletehash', width: 'auto', type: 'button' },
+                { displayName: '이미지', name: 'link', width: 'auto', minWidth: '7rem', type: 'image' },
+                { displayName: '사이즈', name: '', width: 'auto', minWidth: '10rem', type: 'size' },
+                { displayName: '크기', name: 'size', width: 'auto', minWidth: '10rem', type: 'volume' },
+                { displayName: '삭제', name: 'deletehash', width: '6rem', minWidth: '6rem', type: 'button' },
             ]
             wrap.append(parsseHeader(field));
             firebase.resources.all().then(r => {
@@ -313,11 +357,11 @@ const SettingTabs = {
         init(wrap, user) {
             let docs, { next } = firebase.post.list({ deleted: true, author: user.uid }, null, 'equal');
             let field = [
-                { displayName: '분류', name: 'board_name', width: '7rem', type: 'board_name' },
-                { displayName: '이름', name: 'title', width: 'auto', type: 'text' },
-                { displayName: '생성 날짜', name: 'timestamp', width: '7rem', type: 'timestamp' },
-                { displayName: '삭제 날짜', name: 'deleted_timestamp', width: '7rem', type: 'timestamp' },
-                { displayName: '복구', name: 'recover', width: '4rem', type: 'button' },
+                { displayName: '분류', name: 'board_name', width: '7rem', minWidth: '7rem', type: 'board_name' },
+                { displayName: '이름', name: 'title', width: 'auto', minWidth: '10rem', type: 'text' },
+                { displayName: '생성 날짜', name: 'timestamp', width: '7rem', minWidth: '7rem', type: 'timestamp' },
+                { displayName: '삭제 날짜', name: 'deleted_timestamp', width: '7rem', minWidth: '7rem', type: 'timestamp' },
+                { displayName: '복구', name: 'recover', width: '4rem', minWidth: '4rem', type: 'button' },
             ]
             wrap.append(parsseHeader(field));
             let load = async () => {

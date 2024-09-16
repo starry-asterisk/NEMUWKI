@@ -5,17 +5,22 @@
 }
 
 .setting__wrap {
+    display: flex;
+    flex-direction: column;
     margin: var(--spacing-medium);
     padding-bottom: var(--spacing-medium);
     border: 1px solid var(--blue-gray-100);
     border-radius: var(--border-radius-medium);
     background-color: var(--blue-gray-50);
+    overflow-x: auto;
+    min-height: 15rem;
 }
 
 .setting__wrap li {
     display: flex;
     height: 3rem;
     min-height: fit-content;
+    min-width: fit-content;
 }
 
 .setting__wrap li:hover:not(.header) {
@@ -28,9 +33,12 @@
     align-content: center;
     white-space: pre-line;
     padding-inline: var(--spacing-small);
+    white-space: nowrap;
+    min-width: fit-content;
 }
 .setting__wrap li>span>img {
     max-height: 100%;
+    max-width: 6rem;
 }
 
 .setting__wrap li.header {
@@ -73,4 +81,42 @@
 .icon-deletehash::before {
     content: '삭제';
     color: var(--color-invalid);
+}
+
+.setting_default {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.setting_default_banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 50%;
+    width: 100%;
+    border-bottom-left-radius: var(--border-radius-medium);
+    border-bottom-right-radius: var(--border-radius-medium);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2), 0px 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.setting_default_avatar {
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin: 5rem auto;
+    border: 2px solid var(--color-bg-light);
+    border-radius: var(--border-radius-medium);
+    width: 50%;
+    max-width: 12rem;
+    background-color: var(--blue-gray-100);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2), 0px 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.setting_default_email {
+    margin: -3rem auto 2rem;
+    border: 1px solid var(--blue-gray-300);
+    border-radius: 2rem;
+    padding: var(--spacing-small) var(--spacing-medium);
+    background-color: var(--blue-gray-200);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2), 0px 4px 20px rgba(0, 0, 0, 0.1);
 }

@@ -289,7 +289,7 @@ const FormContent = {
         initialize(id, wrap, model) { wrap.addClass('flex-horizontal'); }
     },
     bottomtoolbar: {
-        initialize(id, wrap, model) {
+        __initialize(id, wrap, model) {
             let addBtn = createElement('button').attrs({ class: 'icon icon-plus preventable' });
             let previewBtn = createElement('button').props({ innerHTML: '미리보기', onclick: preview }).attrs({ class: 'previewBtn' });
             let submitBtn = createElement('button').props({ innerHTML: '게시', onclick: submit }).addClass('preventable').addClass('submit_btn');
@@ -302,12 +302,33 @@ const FormContent = {
             select.submit = () => addBtn.onmousedown();
             addBtn.onmousedown = e => {
                 if (e) e.preventDefault();
-                let textbox = this.createForm(select.dataset.value, undefined, undefined, true);
+                add(select.dataset.value);
+            };
+            wrap.addClass('flex-horizontal').append(select, addBtn, previewBtn, submitBtn);
+
+            let add = type => {
+                let textbox = this.createForm(type, undefined, undefined, true);
                 if (this.focusedElement) this.focusedElement.after(textbox);
                 else article.append(textbox);
                 textbox.scrollIntoViewIfNeeded();
-            };
-            wrap.addClass('flex-horizontal').append(select, addBtn, previewBtn, submitBtn);
+            }
+        },
+        initialize(id, wrap, model) {
+            let previewBtn = createElement('button').props({ innerHTML: '미리보기', onclick: preview }).attrs({ class: 'previewBtn' });
+            let submitBtn = createElement('button').props({ innerHTML: '게시', onclick: submit }).addClass('preventable').addClass('submit_btn');
+            for (let namespace in this.formBase) {
+                let {text, icon} = this.formBase[namespace];
+                if (!text) continue;
+                wrap.append(createElement('button').attrs({ class: `icon ${icon} preventable`, title: text }).props({onclick(){add(namespace);}}));
+            }
+            wrap.addClass('flex-horizontal').append(previewBtn, submitBtn);
+
+            let add = type => {
+                let textbox = this.createForm(type, undefined, undefined, true);
+                if (this.focusedElement) this.focusedElement.after(textbox);
+                else article.append(textbox);
+                textbox.scrollIntoViewIfNeeded();
+            }
         }
     },
     main_header: {
@@ -402,10 +423,10 @@ const FormContent = {
         text: '도표',
         icon: 'icon-table',
         initialize(id, wrap, tableInfo = {}) {
-            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left' } = tableInfo;
+            let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left', fit = 'true' } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
-            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left' });
+            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left', 'data-fit': fit});
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
             form__inputs.append(nTable);
             wrap.append(form__inputs);
@@ -417,11 +438,12 @@ const FormContent = {
                     outerLineColor: nTable.outerLineColor,
                     innerLineColor: nTable.innerLineColor,
                     isFullWidth: nTable.isFullWidth,
-                    align: nTable.dataset.align || 'left'
+                    align: nTable.dataset.align || 'left',
+                    fit: nTable.dataset.fit || 'true'
                 };
             };
         },
-        buttons: ['rowSize', 'colSize', 'tableToLeft', 'tableToCenter', 'tableToRight', 'outerLineColor', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell']
+        buttons: ['rowSize', 'colSize', 'tableToLeft', 'tableToCenter', 'tableToRight', 'outerLineColor', 'innerLineColor', 'cellBackgroundColor', 'outerLineWidth', 'insertCellImage', 'insertCellLink', 'fitToCell', 'tableFitHoriontal']
     },
     image: {
         text: '사진',
@@ -604,8 +626,8 @@ function preview() {
     for (let sumurry of summuryList) {
         sumurry.append.apply(sumurry, t_infos.map(
             info =>
-                createElement('a').attrs({ href: `#${info.index_str.split('.').join('_')}` })
-                    .props({ innerHTML: `${info.index_str} <span>${info.title}</span>`, onclick(e) { e.preventDefault(); history.pushState({}, '', `#${info.index_str.split('.').join('_')}`); info.content.scrollIntoViewIfNeeded(); } })
+                createElement('a').attrs({ href: `#_${info.index_str.split('.').join('_')}` })
+                    .props({ innerHTML: `${info.index_str} <span>${info.title}</span>`, onclick(e) { e.preventDefault(); history.pushState({}, '', `#_${info.index_str.split('.').join('_')}`); info.content.scrollIntoViewIfNeeded(); } })
                     .css({ 'margin-left': `${info.depth * 1.5}rem` })
         ))
     }
@@ -1048,7 +1070,17 @@ const ToolBase = {
             }).props({ onclick: () => image.dataset.align = 'right' })
         );
         return wrap;
-    }
+    },
+    tableFitHoriontal(wrap, focusedElement) {
+        let table = focusedElement.querySelector('n-table');
+        wrap.attrs({ title: '전체 넓이 초과시 가로 맞춤' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-arrow-expand-horizontal'
+            }).props({ onclick: () => table.dataset.fit = table.dataset.fit == 'true'?'false':'true' })
+        );
+        return wrap;
+    },
 }
 
 function logoutCallback() {
