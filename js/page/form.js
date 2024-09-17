@@ -100,9 +100,14 @@ class asideForm extends asideBase {
 
 
         let templateChk = createElement('input').attrs({ type: 'checkbox', class: 'toggle_chk' }).props({ id: 'template_chk', onclick: setTemplate });
-        let div = createElement('div').props({ innerHTML: '템플릿으로 사용' }).addClass('flex-horizontal');
+        let templateDiv = createElement('div').props({ innerHTML: '템플릿으로 사용' }).addClass('flex-horizontal');
 
-        div.append(templateChk);
+        templateDiv.append(templateChk);
+
+        let hiddenChk = createElement('input').attrs({ type: 'checkbox', class: 'toggle_chk' }).props({ id: 'hidden_chk' });
+        let hiddenDiv = createElement('div').props({ innerHTML: '숨긴 문서' }).addClass('flex-horizontal');
+
+        hiddenDiv.append(hiddenChk);
 
         aside.append(
             cateSelect,
@@ -110,7 +115,8 @@ class asideForm extends asideBase {
             templateSelect,
             this.createBlockList('components', '컴포넌트', ComponentModel),
             createElement('button').props({ innerHTML: '게시하기', onclick: submit }).addClass('f_button').addClass('submit_btn').css({ 'max-width': '23rem', width: '100%' }),
-            div
+            templateDiv,
+            hiddenDiv,
         );
 
         listenCategories();
@@ -186,6 +192,9 @@ class articleForm extends articleBase {
                 this.BeforeData = { id: doc.id, ...data };
 
                 if (!data) return move('404');
+
+                if(hidden_chk) hidden_chk.checked = data.hidden;
+                if(data.board_name == 'template') template_chk.checked = true;
 
                 document.title = `${TEXTS.sitename} :: 문서 편집 - ${data.title}`;
 
@@ -1294,7 +1303,7 @@ async function submit() {
             category: cate.dataset.value || '전체',
             title: '[이 값이 보이면 개발자한테 알려주세요]',
             contents: [],
-            hidden: board.dataset.value == 'template'
+            hidden: hidden_chk.checked
         }
 
         for (let el of article.children) {
@@ -1441,10 +1450,14 @@ const setTemplate = (function () {
             board.set('template');
             board.addClass('disabled');
             template.addClass('disabled');
+            hidden_chk.checked = true;
+            hidden_chk.setAttribute('disabled', true);
         } else {
             board.set(oldValue || '');
             board.removeClass('disabled');
             template.removeClass('disabled');
+            hidden_chk.checked = false;
+            hidden_chk.removeAttribute('disabled');
         }
         setTimeout(() => { template_chk.disabled = false }, 100);
     };

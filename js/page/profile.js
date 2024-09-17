@@ -224,7 +224,7 @@ function loadBoardLists(str, uid, search, permission) {
     for (let info of parseBoardSetting(str)) {
         let id = randomId();
 
-        let searchData = { ...search, hidden: { op: 'equal', key: false } };
+        let searchData = { ...search };
         if (info.category) searchData.category = { key: info.category, op: 'equal' };
         if (info.board) searchData.board_name_arr = { key: info.board, op: 'contains' };
         appendList.push(

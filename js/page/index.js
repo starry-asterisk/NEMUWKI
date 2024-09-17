@@ -75,6 +75,11 @@ class articleIndex extends articleBase {
                 let data = doc.data();
 
                 if (data == undefined) return move('404', true);
+                if (data.hidden && data.author != app.user?.uid) {
+                    Notify.alert('타인의 숨긴 문서는 조회가 불가합니다.');
+                    history.back();
+                    return;
+                }
 
                 history.replaceState({}, '', location.href.replace('post=random', `post=${post_id}`));
                 app.saveVisited(post_id, data.title, data.board_name);
