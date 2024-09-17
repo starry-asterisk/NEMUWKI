@@ -564,7 +564,7 @@ let Listerners = {};
 
 let app = {}, app_aside = {}, app_article = {}, now = {};
 let devmode = false;
-let version = devmode ? new Date().getTime() : 'v2.1.1';
+let version = devmode ? new Date().getTime() : 'v2.2.0';
 const DOMAIN = 'nemuwiki.com';
 
 const OLD_ROOT_PATH = '/wiki';
