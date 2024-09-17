@@ -461,21 +461,10 @@ const FormContent = {
                     e.preventDefault();
                     e.stopPropagation();
                     if (!selection.first) return;
-                    if (selection.first !== selection.last) {
-                        app_article.focusedElement = null;
-                        app_article._focusedElement = nTable;
-                        app_article.update('toolbar', ['cellAlign']);
-                        app_article._focusedElement = null;
-                    } else {
-                        let focusedElement = app_article.createSubForm('textbox', undefined, selection.first.innerHTML, selection.first);
-
-                        wrap.after(focusedElement);
-
-                        app_article.focusedElement = focusedElement;
-
-                        focusedElement.scrollIntoViewIfNeeded();
-
-                    }
+                    app_article.focusedElement = null;
+                    app_article._focusedElement = nTable;
+                    app_article.update('toolbar', ['foreColor', 'backColor', 'bold', 'italic', 'strikeThrough', 'underline', 'fontSize', 'cellAlign', 'fitToCell', 'removeFormat']);
+                    app_article._focusedElement = null;
                 }
             }));
             form__inputs.append(nTable);
@@ -502,10 +491,10 @@ const FormContent = {
                 let cellRect = cell_1.getBoundingClientRect();
                 let cellRect_2 = cell_2.getBoundingClientRect();
                 cellTool.css({
-                    width: `${Math.floor(Math.max(cellRect.right, cellRect_2.right) - Math.min(cellRect.left, cellRect_2.left))}px`,
-                    height: `${Math.floor(Math.max(cellRect.bottom, cellRect_2.bottom) - Math.min(cellRect.top, cellRect_2.top))}px`,
-                    top: `${Math.floor(Math.min(cellRect.y, cellRect_2.y) - parentRect.y)}px`,
-                    left: `${Math.floor(Math.min(cellRect.x, cellRect_2.x) - parentRect.x + form__inputs.scrollLeft)}px`
+                    width: `${Math.round(Math.max(cellRect.right, cellRect_2.right) - Math.min(cellRect.left, cellRect_2.left))}px`,
+                    height: `${Math.round(Math.max(cellRect.bottom, cellRect_2.bottom) - Math.min(cellRect.top, cellRect_2.top))}px`,
+                    top: `${Math.round(Math.min(cellRect.y, cellRect_2.y) - parentRect.y)}px`,
+                    left: `${Math.round(Math.min(cellRect.x, cellRect_2.x) - parentRect.x + form__inputs.scrollLeft)}px`
                 })
             }
 
@@ -725,10 +714,11 @@ function preview() {
     article.append.apply(article, contents);
 }
 
-function execBuildVal(command, val) {
+function execBuildVal(command, val, altFn) {
     return function () {
         document.execCommand("styleWithCSS", 0, true);
         document.execCommand(command, false, val || "");
+        altFn && altFn();
     };
 }
 
@@ -757,13 +747,17 @@ function execModal(command, modal_type, conv_fn = v => v, option) {
 }
 
 const ToolBase = {
-    foreColor(wrap, option) {
+    foreColor(wrap, el) {
         wrap.attrs({ title: '글씨에 형광펜 효과를 줍니다.' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-color-text'
             }).props({
                 onclick: () => execModal('foreColor', 'colorPicker', hex => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<div style="color:' + hex + '"> </div>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'color': hex });
+                    });
                     wrap.style.setProperty('--input-color', hex);
                     wrap.dataset.foreColor = hex;
                     return hex;
@@ -772,13 +766,17 @@ const ToolBase = {
         );
         return wrap;
     },
-    backColor(wrap, option) {
+    backColor(wrap, el) {
         wrap.attrs({ title: '글씨에 형광펜 효과를 줍니다.' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-color-highlight'
             }).props({
                 onclick: () => execModal('backColor', 'colorPicker', hex => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<span style="background-color:' + hex + '"> </span>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'background-color': hex }, 'span');
+                    });
                     wrap.style.setProperty('--input-color', hex);
                     wrap.dataset.backColor = hex;
                     return hex;
@@ -787,61 +785,95 @@ const ToolBase = {
         );
         return wrap;
     },
-    bold(wrap, option) {
+    bold(wrap, el) {
         wrap.attrs({ title: '굵은 글씨 효과' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-bold'
-            }).props({ onclick: execBuildVal('bold') })
+            }).props({
+                onclick: execBuildVal('bold', undefined, () => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<b> </b>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {}, 'b');
+                    });
+                })
+            })
         );
         return wrap;
     },
-    italic(wrap, option) {
+    italic(wrap, el) {
         wrap.attrs({ title: '기울임 꼴' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-italic'
-            }).props({ onclick: execBuildVal('italic') })
+            }).props({
+                onclick: execBuildVal('italic', undefined, () => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<i> </i>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {}, 'i');
+                    });
+                })
+            })
         );
         return wrap;
     },
-    strikeThrough(wrap, option) {
+    strikeThrough(wrap, el) {
         wrap.attrs({ title: '취소선 효과' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-strikethrough'
-            }).props({ onclick: execBuildVal('strikeThrough') })
+            }).props({
+                onclick: execBuildVal('strikeThrough', undefined, () => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<s> </s>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {}, 's');
+                    });
+                })
+            })
         );
         return wrap;
     },
-    underline(wrap, option) {
+    underline(wrap, el) {
         wrap.attrs({ title: '밑줄 효과' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-underline'
-            }).props({ onclick: execBuildVal('underline') })
+            }).props({
+                onclick: execBuildVal('underline', undefined, () => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => {
+                        if (cell.innerHTML == '') cell.innerHTML = '<u> </u>';
+                        else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {}, 'u');
+                    });
+                })
+            })
         );
         return wrap;
     },
-    fontSize(wrap, option) {
+    fontSize(wrap, el) {
         wrap.addClass('group').attrs({ title: '폰트 사이즈를 지정합니다. 기본값은 17px입니다.' });
 
         let bigger_btn = createElement('button').attrs({ class: `icon icon-plus` }).props({ onclick() { size_input.value = Number(size_input.value) + 1; size_input.dispatchEvent(new Event('change')); } });
         let size_input = createElement('input').props({
             value: 17, onchange(e) {
-                if (e != undefined && 'anchorNode' in lastSelection) {
-                    let selection = window.getSelection();
-                    let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
-                    let range = document.createRange();
-                    range.setStart(anchorNode, anchorOffset);
-                    range.setEnd(focusNode, focusOffset);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
-                document.execCommand("styleWithCSS", 0, true);
-                document.execCommand("fontSize", false, "7");
-                for (let font of article.querySelectorAll('[style*="xxx-large"]')) {
-                    font.style.fontSize = `${size_input.value}px` || "17px";
+                if (el.matches('n-table')) getCells(el).forEach(cell => {
+                    if (cell.innerHTML == '') cell.innerHTML = '<span style="font-size:'+size_input.value+'px;"> </span>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'font-size':`${size_input.value}px`}, 'span');
+                });
+                else {
+                    if (e != undefined && 'anchorNode' in lastSelection) {
+                        let selection = window.getSelection();
+                        let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
+                        let range = document.createRange();
+                        range.setStart(anchorNode, anchorOffset);
+                        range.setEnd(focusNode, focusOffset);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                    document.execCommand("styleWithCSS", 0, true);
+                    document.execCommand("fontSize", false, "7");
+                    for (let font of article.querySelectorAll('[style*="xxx-large"]')) {
+                        font.style.fontSize = `${size_input.value}px` || "17px";
+                    }
                 }
             }
         }).attrs({ type: 'number', min: 12, step: 1 });
@@ -913,12 +945,14 @@ const ToolBase = {
         );
         return wrap;
     },
-    removeFormat(wrap, option) {
+    removeFormat(wrap, el) {
         wrap.attrs({ title: '서식 지우기' });
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-clear'
-            }).props({ onclick: execBuildVal('removeFormat') })
+            }).props({ onclick: execBuildVal('removeFormat', undefined, () => {
+                if (el.matches('n-table')) getCells(el).forEach(cell => cell.innerHTML = cell.innerText);
+            }) })
         );
         return wrap;
     },
@@ -1028,7 +1062,7 @@ const ToolBase = {
         return wrap;
     },
     cellBackgroundColor(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
+        let table = focusedElement.matches('n-table') ? focusedElement : focusedElement.querySelector('n-table');
         let span = createElement('span').addClass('color_swap').css({
             'background-color': (
                 table.lastSelection?.dataset.color || '#ffffff'
@@ -1081,7 +1115,7 @@ const ToolBase = {
         return wrap;
     },
     fitToCell(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
+        let table = focusedElement.matches('n-table') ? focusedElement : focusedElement.querySelector('n-table');
         wrap.attrs({ title: '셀 여백 사용 설정' });
         wrap.append(
             createElement('button').attrs({
@@ -1090,7 +1124,7 @@ const ToolBase = {
                 onclick: () => {
                     let fit;
                     getCells(table).forEach(cell => {
-                        if(fit) cell.dataset.fitToCell = fit;
+                        if (fit) cell.dataset.fitToCell = fit;
                         else fit = cell.dataset.fitToCell = cell.dataset.fitToCell != 'true'
                     });
                 }
@@ -1176,24 +1210,24 @@ const ToolBase = {
                 class: 'icon icon icon-format-align-left'
             }).props({
                 onclick: () => getCells(table).forEach(cell => {
-                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:left"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'left'});
+                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:left"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'left' });
                 })
             }),
             createElement('button').attrs({
                 class: 'icon icon icon-format-align-center'
             }).props({
                 onclick: () => getCells(table).forEach(cell => {
-                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:center"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'center'});
+                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:center"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'center' });
                 })
             }),
             createElement('button').attrs({
                 class: 'icon icon icon-format-align-right'
             }).props({
                 onclick: () => getCells(table).forEach(cell => {
-                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:right"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'right'});
+                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:right"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'right' });
                 })
             })
         );
@@ -1203,15 +1237,17 @@ const ToolBase = {
     },
 }
 
-function cellCss(parent, node, css){
-    if(node.nodeType == 3) {
-        let span = createElement('div').css(css);
+function cellCss(parent, node, css, tagName = 'div') {
+    if (node.nodeType == 3) {
+        let span = createElement(tagName).css(css);
         span.innerHTML = node.textContent;
+        console.log('1', parent, '2', node, '3', span);
         parent.replaceChild(span, node);
-    }else{
-        node.css(css);
-        for (let child of Array.from(node.children)) {
-            if(child.nodeType != 3) cellCss(node, child, css);
+    } else {
+        let isTarget = node.tagName.toLowerCase() == tagName;
+        if (isTarget) node.css(css);
+        for (let child of Array.from(node.childNodes)) {
+            if (child.nodeType != 3 || !isTarget) cellCss(node, child, css, tagName);
         }
     }
 }
@@ -1225,10 +1261,10 @@ function getCells(table) {
         eRow = Number(last.dataset.row),
         eCol = Number(last.dataset.col);
     let temp;
-    if(eRow < sRow) {
+    if (eRow < sRow) {
         temp = eRow, eRow = sRow, sRow = temp;
     }
-    if(eCol < sCol) {
+    if (eCol < sCol) {
         temp = eCol, eCol = sCol, sCol = temp;
     }
     for (let cell of Array.from(table._tbody.children)) {
