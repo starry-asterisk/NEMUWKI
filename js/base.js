@@ -175,9 +175,14 @@ class articleBase {
 
     set focusedElement(el) {
         if (this._focusedElement == el) return el;
-        if (el && el.parentElement != article) return;
-        this._focusedElement = el;
-        if (el && this.formBase[el.dataset.type]) this.update('toolbar', this.formBase[el.dataset.type].buttons || []);
+        if (el) {
+            if (el.parentElement != article) return;
+            this._focusedElement = el;
+            if (this.formBase[el.dataset.type]) this.update('toolbar', this.formBase[el.dataset.type].buttons || []);
+        } else {
+            this._focusedElement = null;
+            this.update('toolbar', []);
+        }
         lastSelection = {};
     }
 }
@@ -321,7 +326,10 @@ customElements.define('n-table', class extends HTMLElement {
     set lastSelection(el) {
         if (!el) return;
         this._lastSelection = el;
-        if (this.lastSelection && this.onSelChange) this.onSelChange(this.lastSelection);
+        if (this.lastSelection) {
+            this.onSelChange && this.onSelChange(this.lastSelection);
+            this.onResize && this.onResize(this.lastSelection);
+        }
     }
 
     constructor() {
@@ -348,7 +356,7 @@ customElements.define('n-table', class extends HTMLElement {
     getTh(size) {
         return createElement('input').addClass('n-td').attrs({ type: 'number' }).props({
             value: size, oninput: () => {
-                this.setWidth(Array.from(this._header.children).map(el => el.value))
+                this.setWidth(Array.from(this._header.children).map(el => el.value));
             }
         });
     }

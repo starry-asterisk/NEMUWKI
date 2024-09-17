@@ -68,6 +68,22 @@ function parseHTML(htmlText) {
     return frag.firstChild;
 }
 
+function scrollToCaret() {
+    // 현재 선택된 커서 위치 가져오기
+    const selection = window.getSelection();
+    
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if(!rect.top) return;
+      // 화면에서 커서 위치의 절대 좌표 가져오기
+      const absoluteCaretY = section.scrollTop + rect.top;
+  
+      // 커서가 보이지 않는 위치에 있을 때 스크롤 맞추기
+      section.scrollTop = absoluteCaretY - (section.clientHeight / 2);
+    }
+  }
+
 function hsvToHex(H, S, V) {
     let C = V * S;
     let X = C * (1 - Math.abs((H / 60) % 2 - 1));

@@ -3,7 +3,6 @@
 .toolbar,
 .bottomtoolbar {
     position: sticky;
-    z-index: 3;
     display: flex;
     max-width: 100%;
     overflow-x: auto;
@@ -28,6 +27,7 @@
     height: 3rem;
     overflow-y: hidden;
     justify-content: unset !important;
+    z-index: 4;
 }
 
 .toolbar:empty {
@@ -74,8 +74,8 @@
     bottom: 0;
     margin-block: auto -1rem;
     order: 1;
-    overflow: visible;
     font-size: var(--font-size-regular);
+    z-index: 2;
 }
 
 .toolbar>span,
@@ -90,6 +90,10 @@
     width: 3rem;
     max-width: 6rem;
     font-size: inherit;
+}
+
+.bottomtoolbar button {
+    min-width: fit-content;
 }
 
 .toolbar button:hover,
@@ -317,6 +321,39 @@
     zoom: 1;
 }
 
+.form__table__tool {
+    position: absolute;
+    outline: 2px solid var(--light-blue-700);
+    outline-offset: -1px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.table__tool__button {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    font-size: 1.5rem;
+    text-align: center;
+    opacity: 0.4;
+    pointer-events: all;
+    background-color: var(--light-blue-700);
+    border: 1px solid var(--light-blue-700);
+    color: var(--color-bg-light);
+    margin: 0px -1px;
+}
+
+.table__tool__button:hover {
+    opacity: 1;
+}
+
+.table__tool__button::before {
+    vertical-align: middle;
+}
+
 .form__image {
     flex: 1;
     display: grid;
@@ -485,4 +522,24 @@
 .preview-mode .previewBtn::before {
     background-color: var(--light-blue-400);
     border-color: var(--light-blue-800);
+}
+
+.backdrop {
+    z-index: 3;
+}
+
+.backdrop::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    backdrop-filter: blur(1px);
+}
+
+
+section:has(.backdrop) ~ .scroller {
+    display: none !important;
 }

@@ -446,6 +446,7 @@ n-table .n-td {
     background-color: var(--color-bg-light);
     min-width: 1rem;
     min-height: 3rem;
+    word-break: break-word;
 }
 
 n-table .n-td[data-fit-to-cell="true"] {
@@ -462,7 +463,6 @@ n-table .n-td[data-fit-to-cell="true"] {
 
 n-table.editable .n-td:focus {
     z-index: 1;
-    outline: 2px solid var(--light-blue-700);
 }
 
 /* Custom Select */
@@ -1314,5 +1314,9 @@ body:not(.none-auth) #btn_login {
 
     .main_header__title {
         font-size: var(--font-size-xlarge) !important;
+    }
+
+    .form__table__tool {
+        zoom: 1.25;
     }
 }

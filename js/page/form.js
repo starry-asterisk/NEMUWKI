@@ -12,9 +12,9 @@ class asideForm extends asideBase {
             function (data) { this.ul.append(createOption(data, this)) },
             function () { for (let option of Array.from(this.ul.children)) if (option.tagName == 'N-OPTION') option.remove(); }
         );
-        let boardSelect = this.components.board = createSelect([], 0, true, '문서 분류').addClass('input','flex-horizontal');
-        let cateSelect = this.components.cate = createSelect([], 0, true, '카테고리').addClass('input','flex-horizontal');
-        let templateSelect = this.components.template = createSelect([], 0, true, '템플릿').addClass('input','flex-horizontal');
+        let boardSelect = this.components.board = createSelect([], 0, true, '문서 분류').addClass('input', 'flex-horizontal');
+        let cateSelect = this.components.cate = createSelect([], 0, true, '카테고리').addClass('input', 'flex-horizontal');
+        let templateSelect = this.components.template = createSelect([], 0, true, '템플릿').addClass('input', 'flex-horizontal');
         this.data.Board.bind(boardSelect);
         this.data.Categories.bind(cateSelect);
 
@@ -91,7 +91,7 @@ class asideForm extends asideBase {
                         }
                     });
                 li.append(
-                    createElement('span').attrs({ class: 'tag icon'}).addClass(FormContent[namespace].icon).props({ onclick() { article.append(app_article.createForm(namespace, undefined, undefined, true)) } }),
+                    createElement('span').attrs({ class: 'tag icon' }).addClass(FormContent[namespace].icon).props({ onclick() { article.append(app_article.createForm(namespace, undefined, undefined, true)) } }),
                     createElement('span').attrs({ 'data-type': namespace }).props({ innerHTML: FormContent[namespace].text })
                 );
                 this.ul.append(li);
@@ -160,7 +160,7 @@ class articleForm extends articleBase {
         let ToolBarModel = new Model(
             [],
             function (namespace) {
-                this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace,'flex-horizontal'), _this._focusedElement));
+                this.wrap.append(ToolBase[namespace](createElement('span').addClass(namespace, 'flex-horizontal'), _this._focusedElement));
             },
             function () { emptyNode(this.wrap) }
         );
@@ -281,6 +281,26 @@ class articleForm extends articleBase {
         return wrap;
     }
 
+    createSubForm(type, id = randomId(), data, resultTarget) {
+        let wrap = createElement('div').attrs({ class: `flex-horizontal form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
+
+        let form__del = createElement('button').addClass('form__del');
+
+        wrap.addClass('focusable', 'backdrop').onfocus = wrap.onfocusin = wrap.onclick = () => this.focusedElement = wrap;
+
+        form__del.onclick = () => {
+            wrap.remove();
+            delete this.components[id];
+            if (this.focusedElement == wrap) this.focusedElement = null;
+        };
+
+        wrap.append(form__del);
+
+        this.components[id] = { wrap };
+        if (this.formBase[type]) { this.formBase[type].initialize.call(this, id, wrap, data, resultTarget); }
+        return wrap;
+    }
+
     destroy() { }
 }
 
@@ -317,9 +337,9 @@ const FormContent = {
             let previewBtn = createElement('button').props({ innerHTML: '미리보기', onclick: preview }).attrs({ class: 'previewBtn' });
             let submitBtn = createElement('button').props({ innerHTML: '게시', onclick: submit }).addClass('preventable').addClass('submit_btn');
             for (let namespace in this.formBase) {
-                let {text, icon} = this.formBase[namespace];
+                let { text, icon } = this.formBase[namespace];
                 if (!text) continue;
-                wrap.append(createElement('button').attrs({ class: `icon ${icon} preventable`, title: text }).props({onclick(){add(namespace);}}));
+                wrap.append(createElement('button').attrs({ class: `icon ${icon} preventable`, title: text }).props({ onclick() { add(namespace); } }));
             }
             wrap.addClass('flex-horizontal').append(previewBtn, submitBtn);
 
@@ -365,7 +385,7 @@ const FormContent = {
     textbox: {
         text: '텍스트박스',
         icon: 'icon-format-textbox',
-        initialize(id, wrap, html) {
+        initialize(id, wrap, html, cell) {
             let input_text = createElement('div').attrs({
                 contenteditable: true,
                 placeholder: `텍스트박스.
@@ -411,6 +431,8 @@ const FormContent = {
                     this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
                     this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
                     this.toggleClass('empty', this.textContent.trim().length < 1);
+                    cell && (cell.innerHTML = this.innerHTML);
+                    scrollToCaret();
                 }
             });
             input_text.toggleClass('empty', input_text.textContent.trim().length < 1);
@@ -426,9 +448,53 @@ const FormContent = {
             let { cells = [{ value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }, { value: '' }], header = [20, 20, 20], cellColors, outerLineWidth = 1, outerLineColor = '#cccccc', innerLineColor = '#cccccc', isFullWidth = false, align = 'left', fit = 'true' } = tableInfo;
             if (typeof cells[0] == 'string') cells = cells.map((value, idx) => { return { value }; });// 버전 차이 보정을 위한 코드
             if ('cellColors' in tableInfo) cellColors.forEach((color, idx) => { cells[idx].color = color; });// 버전 차이 보정을 위한 코드
-            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left', 'data-fit': fit});
+            let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left', 'data-fit': fit });
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
+
+            let cellTool = createElement('div').addClass('form__table__tool');
+            cellTool.append(createElement('button').addClass('table__tool__button', 'icon', 'icon-plus').props({
+                onclick(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    let cell = nTable.lastSelection;
+                    if (!cell) return;
+                    let focusedElement = app_article.createSubForm('textbox', undefined, cell.innerHTML, cell);
+                    
+                    wrap.after(focusedElement);
+
+                    app_article.focusedElement = focusedElement;
+
+                    focusedElement.scrollIntoViewIfNeeded();
+                }
+            }));
             form__inputs.append(nTable);
+            nTable.onResize = () => {
+                let cell = nTable.lastSelection;
+                if (!cell) return;
+                let parentRect = form__inputs.getBoundingClientRect();
+                let cellRect = cell.getBoundingClientRect();
+                cellTool.css({
+                    width: `${cellRect.width}px`,
+                    height: `${cellRect.height}px`,
+                    top: `${cellRect.y - parentRect.y}px`,
+                    left: `${cellRect.x - parentRect.x}px`
+                })
+                form__inputs.append(cellTool);
+            }
+            const resizeObserver = new ResizeObserver((entries) => {
+                let cell = nTable.lastSelection;
+                if (!cell) return;
+                let parentRect = form__inputs.getBoundingClientRect();
+                let cellRect = cell.getBoundingClientRect();
+                cellTool.css({
+                    width: `${cellRect.width}px`,
+                    height: `${cellRect.height}px`,
+                    top: `${cellRect.y - parentRect.y}px`,
+                    left: `${cellRect.x - parentRect.x}px`
+                })
+            });
+
+            resizeObserver.observe(nTable);
             wrap.append(form__inputs);
             wrap.getData = () => {
                 return {
@@ -456,16 +522,16 @@ const FormContent = {
             let info__wrap = createElement('div').addClass('flex-vertical');
             let isThumb = imgInfo.isThumb || false;
             let hidden = imgInfo.hidden || false
-            
+
             let isThumb__p = createElement('p');
             let isThumb__input = createElement('input').attrs({ type: 'checkbox', label: '대표 이미지 설정' }).addClass('s_chk').props({ onchange() { form__inputs__wrap.toggleClass('main', isThumb = this.checked); } });
             let hidden__p = createElement('p');
             let hidden__input = createElement('input').attrs({ type: 'checkbox', label: '이미지 감추기' }).addClass('s_chk').props({ onchange() { hidden = this.checked; } });
-            let width__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
-            let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1});
+            let width__input = createElement('input').attrs({ type: 'number', min: 10, step: 1 });
+            let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1 });
             let size__p = createElement('p').addClass('input_l');
-            
-            form__img.onload = function() {
+
+            form__img.onload = function () {
                 let ratio = form__img.naturalWidth / form__img.naturalHeight;
                 width__input.value = imgInfo.width || form__img.naturalWidth;
                 height__input.value = parseInt(width__input.value / ratio);
@@ -477,13 +543,13 @@ const FormContent = {
                 }
             }
 
-            size__p.append(document.createTextNode('W'),width__input, document.createTextNode('H'), height__input);
+            size__p.append(document.createTextNode('W'), width__input, document.createTextNode('H'), height__input);
             isThumb__p.append(isThumb__input);
             hidden__p.append(hidden__input);
 
             info__wrap.append(size__p, isThumb__p, hidden__p);
 
-            if (isThumb) isThumb__input.checked = true &&  isThumb__input.onchange();
+            if (isThumb) isThumb__input.checked = true && isThumb__input.onchange();
             if (hidden) hidden__input.checked = true;
 
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
@@ -502,14 +568,14 @@ const FormContent = {
             wrap.getData = () => {
                 return {
                     width: width__input.value || 10,
-                    src: file_url, 
+                    src: file_url,
                     isThumb,
                     hidden,
                     align: form__img.dataset.align || 'left'
                 };
             };
         },
-        buttons: ['imageToLeft','imageToCenter','imageToRight']
+        buttons: ['imageToLeft', 'imageToCenter', 'imageToRight']
     },
     youtube: {
         text: '유튜브 링크',
@@ -1077,7 +1143,7 @@ const ToolBase = {
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-arrow-expand-horizontal'
-            }).props({ onclick: () => table.dataset.fit = table.dataset.fit == 'true'?'false':'true' })
+            }).props({ onclick: () => table.dataset.fit = table.dataset.fit == 'true' ? 'false' : 'true' })
         );
         return wrap;
     },
