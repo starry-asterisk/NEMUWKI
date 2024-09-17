@@ -69,6 +69,7 @@ function parseHTML(htmlText) {
 }
 
 function scrollToCaret() {
+    return;//임시조치
     // 현재 선택된 커서 위치 가져오기
     const selection = window.getSelection();
     
@@ -633,4 +634,18 @@ window.addEventListener('beforeunload', e => {
         e.stopPropagation();
         e.stopImmediatePropagation();
     }
+});
+
+let keyboardStatus = {};
+window.addEventListener('keydown', e => {
+    keyboardStatus.shift = e.shiftKey;
+    keyboardStatus.ctrl = e.shiftKey;
+
+});
+window.addEventListener('keyup', e => {
+    keyboardStatus.shift = e.shiftKey;
+    keyboardStatus.ctrl = e.ctrlKey;
+});
+window.addEventListener('blur', () => {
+    keyboardStatus = {};
 });
