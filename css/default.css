@@ -263,7 +263,7 @@ article {
     flex: 1;
     gap: var(--spacing-medium);
     padding: var(--spacing-medium);
-    max-width: 65rem;
+    max-width: calc(100% - 25rem);
     scroll-behavior: smooth;
 }
 
@@ -690,6 +690,7 @@ n-option.placeholder {
     content: '\F0E1E';
     font-family: "Material Design Icons";
 }
+
 /* input (검색창 스타일) */
 .input_run {
     height: 3rem;
@@ -1318,5 +1319,19 @@ body:not(.none-auth) #btn_login {
 
     .form__table__tool {
         zoom: 1.25;
+    }
+
+    n-table,
+    n-table .n-th,
+    n-table .n-tbody {
+        gap: 1.25px;
+    }
+
+    n-table {
+        border-width: calc(var(--outer-line-width) * 1.25);
+    }
+
+    article {
+        max-width: 65rem;
     }
 }

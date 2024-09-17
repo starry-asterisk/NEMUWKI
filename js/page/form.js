@@ -451,48 +451,63 @@ const FormContent = {
             let nTable = createElement('n-table').props({ editable: true, cells, header, outerLineWidth, outerLineColor, innerLineColor, isFullWidth }).attrs({ 'data-align': align || 'left', 'data-fit': fit });
             let form__inputs = createElement('div').addClass('form__inputs').css({ display: 'block' });
 
+            let selection = nTable.selection = {
+                first: null,
+                last: null
+            };
             let cellTool = createElement('div').addClass('form__table__tool');
             cellTool.append(createElement('button').addClass('table__tool__button', 'icon', 'icon-plus').props({
-                onclick(e){
+                onclick(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    let cell = nTable.lastSelection;
-                    if (!cell) return;
-                    let focusedElement = app_article.createSubForm('textbox', undefined, cell.innerHTML, cell);
-                    
-                    wrap.after(focusedElement);
+                    if (!selection.first) return;
+                    if (selection.first !== selection.last) {
+                        app_article.focusedElement = null;
+                        app_article._focusedElement = nTable;
+                        app_article.update('toolbar', ['cellAlign']);
+                        app_article._focusedElement = null;
+                    } else {
+                        let focusedElement = app_article.createSubForm('textbox', undefined, selection.first.innerHTML, selection.first);
 
-                    app_article.focusedElement = focusedElement;
+                        wrap.after(focusedElement);
 
-                    focusedElement.scrollIntoViewIfNeeded();
+                        app_article.focusedElement = focusedElement;
+
+                        focusedElement.scrollIntoViewIfNeeded();
+
+                    }
                 }
             }));
             form__inputs.append(nTable);
             nTable.onResize = () => {
                 let cell = nTable.lastSelection;
                 if (!cell) return;
-                let parentRect = form__inputs.getBoundingClientRect();
-                let cellRect = cell.getBoundingClientRect();
-                cellTool.css({
-                    width: `${cellRect.width}px`,
-                    height: `${cellRect.height}px`,
-                    top: `${cellRect.y - parentRect.y}px`,
-                    left: `${cellRect.x - parentRect.x}px`
-                })
+                if (keyboardStatus.shift) {
+                    if (selection.first) selection.last = cell;
+                    else selection.first = selection.last = cell;
+                } else {
+                    selection.first = selection.last = cell;
+                }
                 form__inputs.append(cellTool);
+                adjustToolPosition();
             }
-            const resizeObserver = new ResizeObserver((entries) => {
-                let cell = nTable.lastSelection;
-                if (!cell) return;
-                let parentRect = form__inputs.getBoundingClientRect();
-                let cellRect = cell.getBoundingClientRect();
-                cellTool.css({
-                    width: `${cellRect.width}px`,
-                    height: `${cellRect.height}px`,
-                    top: `${cellRect.y - parentRect.y}px`,
-                    left: `${cellRect.x - parentRect.x}px`
-                })
+            const resizeObserver = new ResizeObserver(() => {
+                adjustToolPosition();
             });
+
+            function adjustToolPosition() {
+                if (!cellTool.parentElement) return;
+                let parentRect = form__inputs.getBoundingClientRect();
+                let cell_1 = selection.first, cell_2 = selection.last;
+                let cellRect = cell_1.getBoundingClientRect();
+                let cellRect_2 = cell_2.getBoundingClientRect();
+                cellTool.css({
+                    width: `${Math.floor(Math.max(cellRect.right, cellRect_2.right) - Math.min(cellRect.left, cellRect_2.left))}px`,
+                    height: `${Math.floor(Math.max(cellRect.bottom, cellRect_2.bottom) - Math.min(cellRect.top, cellRect_2.top))}px`,
+                    top: `${Math.floor(Math.min(cellRect.y, cellRect_2.y) - parentRect.y)}px`,
+                    left: `${Math.floor(Math.min(cellRect.x, cellRect_2.x) - parentRect.x + form__inputs.scrollLeft)}px`
+                })
+            }
 
             resizeObserver.observe(nTable);
             wrap.append(form__inputs);
@@ -521,7 +536,8 @@ const FormContent = {
             let form__img = new Image();
             let info__wrap = createElement('div').addClass('flex-vertical');
             let isThumb = imgInfo.isThumb || false;
-            let hidden = imgInfo.hidden || false
+            let hidden = imgInfo.hidden || false;
+            let align = imgInfo.align || 'left';
 
             let isThumb__p = createElement('p');
             let isThumb__input = createElement('input').attrs({ type: 'checkbox', label: '대표 이미지 설정' }).addClass('s_chk').props({ onchange() { form__inputs__wrap.toggleClass('main', isThumb = this.checked); } });
@@ -541,7 +557,7 @@ const FormContent = {
                 height__input.oninput = () => {
                     width__input.value = parseInt(height__input.value * ratio);
                 }
-            }
+            };
 
             size__p.append(document.createTextNode('W'), width__input, document.createTextNode('H'), height__input);
             isThumb__p.append(isThumb__input);
@@ -549,8 +565,6 @@ const FormContent = {
 
             info__wrap.append(size__p, isThumb__p, hidden__p);
 
-            if (isThumb) isThumb__input.checked = true && isThumb__input.onchange();
-            if (hidden) hidden__input.checked = true;
 
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
             let file_url = '';
@@ -562,6 +576,9 @@ const FormContent = {
                 modal('addImg', adjust_src);
             }
             if (imgInfo.src) adjust_src(imgInfo.src);
+            if (isThumb) isThumb__input.checked = true;
+            if (hidden) hidden__input.checked = true;
+            if (imgInfo.align) form__img.dataset.align = align;
             form__inputs__wrap.append(form__img, info__wrap);
             form__inputs.append(btn, form__inputs__wrap);
             wrap.append(form__inputs);
@@ -1021,10 +1038,11 @@ const ToolBase = {
         wrap.addClass('group').attrs({ title: '셀 체우기 색상' });
         wrap.props({
             onclick: () => modal('colorPicker', val => {
-                if (!table?.lastSelection) return;
-                table.lastSelection.dataset.color = val;
-                table.lastSelection.style.backgroundColor = val;
-                span.style.backgroundColor = val;
+                getCells(table).forEach(cell => {
+                    cell.dataset.color = val;
+                    cell.style.backgroundColor = val;
+                    span.style.backgroundColor = val;
+                });
             }, table?.lastSelection.dataset.color)
         }).append(
             createElement('button').attrs({
@@ -1070,8 +1088,11 @@ const ToolBase = {
                 class: 'icon icon-fit-to-page-outline'
             }).props({
                 onclick: () => {
-                    if (!table?.lastSelection) return;
-                    table.lastSelection.dataset.fitToCell = table.lastSelection.dataset.fitToCell != 'true';
+                    let fit;
+                    getCells(table).forEach(cell => {
+                        if(fit) cell.dataset.fitToCell = fit;
+                        else fit = cell.dataset.fitToCell = cell.dataset.fitToCell != 'true'
+                    });
                 }
             })
         );
@@ -1147,12 +1168,83 @@ const ToolBase = {
         );
         return wrap;
     },
+
+    cellAlign(wrap, table) {
+        wrap.addClass('group').attrs({ title: '텍스트 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon icon-format-align-left'
+            }).props({
+                onclick: () => getCells(table).forEach(cell => {
+                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:left"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'left'});
+                })
+            }),
+            createElement('button').attrs({
+                class: 'icon icon icon-format-align-center'
+            }).props({
+                onclick: () => getCells(table).forEach(cell => {
+                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:center"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'center'});
+                })
+            }),
+            createElement('button').attrs({
+                class: 'icon icon icon-format-align-right'
+            }).props({
+                onclick: () => getCells(table).forEach(cell => {
+                    if(cell.innerHTML == '') cell.innerHTML = '<div style="text-align:right"> </div>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'text-align': 'right'});
+                })
+            })
+        );
+
+        return wrap;
+
+    },
+}
+
+function cellCss(parent, node, css){
+    if(node.nodeType == 3) {
+        let span = createElement('div').css(css);
+        span.innerHTML = node.textContent;
+        parent.replaceChild(span, node);
+    }else{
+        node.css(css);
+        for (let child of Array.from(node.children)) {
+            if(child.nodeType != 3) cellCss(node, child, css);
+        }
+    }
+}
+
+function getCells(table) {
+    let cells = [];
+    let { first, last } = table.selection;
+    if (!first || !last) return;
+    let sRow = Number(first.dataset.row),
+        sCol = Number(first.dataset.col),
+        eRow = Number(last.dataset.row),
+        eCol = Number(last.dataset.col);
+    let temp;
+    if(eRow < sRow) {
+        temp = eRow, eRow = sRow, sRow = temp;
+    }
+    if(eCol < sCol) {
+        temp = eCol, eCol = sCol, sCol = temp;
+    }
+    for (let cell of Array.from(table._tbody.children)) {
+        let nRow = cell.dataset.row;
+        let nCol = cell.dataset.col;
+        if (sRow > nRow || nRow > eRow || sCol > nCol || nCol > eCol) continue;
+        cells.push(cell);
+    }
+    return cells;
 }
 
 function logoutCallback() {
     Notify.alert(TEXTS.warn.login_neccesary);
     history.back();
 }
+
 async function submit() {
     try {
 
