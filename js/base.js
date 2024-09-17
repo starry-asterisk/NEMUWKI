@@ -594,7 +594,7 @@ const ContentBase = {
     },
     list: {
         async initialize(id, wrap, model) {
-            let { keyword, field, operator, searchData = {} } = model
+            let { keyword, field, operator, searchData = {} } = model;
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
             let cardMode = model.style == 'galery';
             let itemFlexClass = cardMode ? 'flex-vertical' : 'flex-horizontal';

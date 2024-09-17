@@ -113,6 +113,7 @@ fb.post = {
         return await updateDoc(doc(db, "postList", id), data);
     },
     selectOne: async id => await getDoc(doc(db, "postList", id)),
+    all: await getDocs(query(collection(db, "postList"))),
     list: (search = {}, hidden = false, operator = 'contains') => {
         let param_base = [
             collection(db, "postList")
@@ -419,9 +420,9 @@ fb.search = {
             orderBy(order_by, order_direction)
         ], params, documentSnapshots, isEnd = false, already_contains_used = false;
         for (let field in search) {
-            if (search[field] == '' || search[field] == undefined) continue;
+            if (search[field] === '' || search[field] == undefined) continue;
             let method, keyword;
-            if (typeof search[field] == 'string') {
+            if (typeof search[field] == 'string' || typeof search[field] == 'boolean') {
                 method = operator;
                 keyword = search[field];
             } else {

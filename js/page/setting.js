@@ -71,7 +71,8 @@ class articleSetting extends articleBase {
     }
 }
 async function makeKeyword(id, data) {
-    if (data.hidden) return await firebase.search.unset(id);
+    if (data.deleted) return await firebase.search.unset(id);
+    if (data.board_name == 'template') return await firebase.search.unset(id);
     let {
         title,
         board_name,
@@ -80,7 +81,8 @@ async function makeKeyword(id, data) {
         timestamp,
         updated_timestamp,
         author,
-        contents
+        contents,
+        hidden
     } = data
     let fullText = data.title.replace(/\s+/g, '');
     let title_arr = [];
@@ -102,6 +104,7 @@ async function makeKeyword(id, data) {
         category,
         timestamp,
         author,
+        hidden
     }
 
     let thumbnail, regex_result;

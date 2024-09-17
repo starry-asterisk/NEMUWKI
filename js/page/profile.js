@@ -224,7 +224,7 @@ function loadBoardLists(str, uid, search, permission) {
     for (let info of parseBoardSetting(str)) {
         let id = randomId();
 
-        let searchData = { ...search };
+        let searchData = { ...search, hidden: { op: 'equal', key: false } };
         if (info.category) searchData.category = { key: info.category, op: 'equal' };
         if (info.board) searchData.board_name_arr = { key: info.board, op: 'contains' };
         appendList.push(
@@ -241,18 +241,18 @@ function loadBoardLists(str, uid, search, permission) {
 
     if (permission >= FINAL.PERMISSION.RW && appendList.length > 0) {
         let buttons = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
-        let button = createElement('button').props({ innerHTML: '목록 수정' }).css({flex: 1});
+        let button = createElement('button').props({ innerHTML: '목록 수정' }).css({ flex: 1 });
         let button2 = createElement('button').props({ innerHTML: TEXTS.form.cancel });
 
         button2.onclick = function () {
-            if(Notify.confirm('목록 설정을 취소하시겠습니까?')) location.reload();
+            if (Notify.confirm('목록 설정을 취소하시겠습니까?')) location.reload();
         }
-        
+
         let buttons2 = createElement('div').addClass('profile_header__buttons', 'flex-horizontal');
         let button3 = createElement('button').props({ innerHTML: '+ 메뉴 추가' });
 
         button3.onclick = function () {
-            if(document.querySelectorAll('.form.board_setting').length > 4) return Notify.alert('문서 목록은 5개 까지 생성 가능합니다!'); 
+            if (document.querySelectorAll('.form.board_setting').length > 4) return Notify.alert('문서 목록은 5개 까지 생성 가능합니다!');
             buttons2.before(app_article.createForm('board_setting', undefined, { type: 1, title: '', category: '', board: '' }, true, true))
         }
 
@@ -261,8 +261,8 @@ function loadBoardLists(str, uid, search, permission) {
             e => e.stopPropagation();
             button.onclick = save;
             this.innerHTML = TEXTS.form.apply;
-            button2.css({flex: 1});
-            button3.css({flex: 1});
+            button2.css({ flex: 1 });
+            button3.css({ flex: 1 });
             for (let el of appendList) el.remove();
             buttons2.append(button3);
             buttons.append(button2);
@@ -275,14 +275,16 @@ function loadBoardLists(str, uid, search, permission) {
         buttons.append(button);
         appendList.unshift(buttons);
 
-        async function save(){
-            if(!Notify.confirm('변경사항을 저장 할까요?')) return;
+        async function save() {
+            if (!Notify.confirm('변경사항을 저장 할까요?')) return;
             let settings = document.querySelectorAll('.form.board_setting');
-            if(settings.length > 5) return Notify.alert('목록은 5개 까지 생성 가능합니다.');
-            await firebase.auth.updateUser(uid, { board_setting: Array.from(settings).map((wrap, index) => {
-                let { type, title, category, board } = wrap.getData();
-                return `${index};${type};${title};${category};${board}`;
-            }).join(',') });
+            if (settings.length > 5) return Notify.alert('목록은 5개 까지 생성 가능합니다.');
+            await firebase.auth.updateUser(uid, {
+                board_setting: Array.from(settings).map((wrap, index) => {
+                    let { type, title, category, board } = wrap.getData();
+                    return `${index};${type};${title};${category};${board}`;
+                }).join(',')
+            });
             location.reload();
         }
     }

@@ -89,13 +89,13 @@ class articleIndex extends articleBase {
                         ), post_id
                     }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date(1000 * data.timestamp.seconds).toLocaleString() }),
-                    createElement('div').css({'text-align':'left'}).css({ 'line-height': '2rem' })
+                    createElement('div').css({ 'text-align': 'left' }).css({ 'line-height': '2rem' })
                 ];
 
                 appendList[3].append(
-                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.category}`}).props({innerHTML: `카테고리:${data.category}`}).css({ display: 'inline-block', 'line-height': 1.2}),
-                    createElement('a').attrs({class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}`}).props({innerHTML: `분류:${data.board_name_arr?.join(' > ') || data.board_name}`}).css({ display: 'inline-block', 'line-height': 1.2}), 
-                    createElement('a').attrs({class: 'tag', href: `/profile?uid=${data.author}`}).props({innerHTML: `사용자 페이지`}).css({ display: 'inline-block', 'line-height': 1.2})
+                    createElement('a').attrs({ class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.category}` }).props({ innerHTML: `카테고리:${data.category}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
+                    createElement('a').attrs({ class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: `분류:${data.board_name_arr?.join(' > ') || data.board_name}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
+                    createElement('a').attrs({ class: 'tag', href: `/profile?uid=${data.author}` }).props({ innerHTML: `사용자 페이지` }).css({ display: 'inline-block', 'line-height': 1.2 })
                 );
 
                 let summuryList = [];
@@ -151,7 +151,7 @@ class articleIndex extends articleBase {
 
 
                 if (html_annotation.length > 0) {
-                    let annotation = createElement('div').addClass('content','annotation','flex-vertical');
+                    let annotation = createElement('div').addClass('content', 'annotation', 'flex-vertical');
                     annotation.innerHTML = html_annotation;
                     html_annotation = '';
                     appendList.push(annotation);
@@ -185,9 +185,9 @@ class articleIndex extends articleBase {
                     isFullWidth: true
                 }),
                 this.createContent('title', 'title_all', { text: TEXTS.all_document }),
-                this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator }),
+                this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
                 this.createContent('title', 'title_character', { text: TEXTS.character_document }),
-                this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal' }),
+                this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
                 footer
             );
 
