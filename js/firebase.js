@@ -113,7 +113,6 @@ fb.post = {
         return await updateDoc(doc(db, "postList", id), data);
     },
     selectOne: async id => await getDoc(doc(db, "postList", id)),
-    all: await getDocs(query(collection(db, "postList"))),
     list: (search = {}, hidden = false, operator = 'contains') => {
         let param_base = [
             collection(db, "postList")
