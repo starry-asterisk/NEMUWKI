@@ -346,7 +346,10 @@ function move(full_url, forward, load = true) {
         if (app.blockMode) return true;
         if (forward) history.replaceState({}, '', `${path + search + hash}`);
         else history.pushState({}, '', `${path + search + hash}`);
-        if (load) app.load(path, search);
+        if (load) {
+            if (typeof app.load == 'function') app.load(path, search);
+            else location.href = full_url;
+        }
     }
     return isInlink;
 }
