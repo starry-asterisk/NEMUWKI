@@ -1,9 +1,3 @@
-class asideForm extends asideBase {
-    constructor() {
-        super();
-    }
-}
-
 class articleForm extends articleBase {
     constructor() {
         super();
@@ -16,6 +10,3 @@ class articleForm extends articleBase {
 
     destroy() {}
 }
-
-const FormContent = {...ContentBase}
-export { asideForm as aside, articleForm as article };
