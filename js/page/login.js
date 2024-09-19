@@ -1,3 +1,11 @@
+/**
+ * Project: nemuwiki.com
+ * Version: 2.3.1
+ * Author: NEMUWIKI.com
+ * Date: 2024-09-19
+ * Description: NEMUWIKI Wiki project, SPA style, MDI includes
+ */
+
 class asideLogin extends asideBase {
     constructor(param) {
         super();
