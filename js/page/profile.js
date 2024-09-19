@@ -422,6 +422,27 @@ const FormContent = {
                     e.preventDefault();
                     document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
                 },
+                ondrop(e) {
+                    const NewText = document.createTextNode(e.dataTransfer.getData('text/plain'));
+                    if (NewText.textContent.startsWith('$$nemuwiki$$')) return;
+                    e.preventDefault();
+                    let range;
+                    if ('caretRangeFromPoint' in document) {
+                        range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                    } else if ('caretPositionFromPoint' in document) {
+                        range = document.caretPositionFromPoint(e.clientX, e.clientY);
+                    } else return;
+                    range.insertNode(NewText);
+
+                    range.setStart(NewText, 0);
+                    range.setEnd(NewText, NewText.length);
+
+                    const selection = window.getSelection();
+                    selection.removeAllRanges(); // 기존 선택 제거
+                    selection.addRange(range);   // 새로운 선택 추가
+
+                    this.oninput();
+                },
                 onblur() {
                     let s = window.getSelection();
                     lastSelection = {
@@ -432,6 +453,8 @@ const FormContent = {
                     };
                 },
                 oninput() {
+                    this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
+                    this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
                     this.toggleClass('empty', this.textContent.trim().length < 1);
                 }
             });

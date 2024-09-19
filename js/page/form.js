@@ -290,26 +290,6 @@ class articleForm extends articleBase {
         return wrap;
     }
 
-    createSubForm(type, id = randomId(), data, resultTarget) {
-        let wrap = createElement('div').attrs({ class: `flex-horizontal form ${type}`, id, tabIndex: (this.tabIndex++), 'data-type': type });
-
-        let form__del = createElement('button').addClass('form__del');
-
-        wrap.addClass('focusable', 'backdrop').onfocus = wrap.onfocusin = wrap.onclick = () => this.focusedElement = wrap;
-
-        form__del.onclick = () => {
-            wrap.remove();
-            delete this.components[id];
-            if (this.focusedElement == wrap) this.focusedElement = null;
-        };
-
-        wrap.append(form__del);
-
-        this.components[id] = { wrap };
-        if (this.formBase[type]) { this.formBase[type].initialize.call(this, id, wrap, data, resultTarget); }
-        return wrap;
-    }
-
     destroy() { }
 }
 
@@ -394,7 +374,7 @@ const FormContent = {
     textbox: {
         text: '텍스트박스',
         icon: 'icon-format-textbox',
-        initialize(id, wrap, html, cell) {
+        initialize(id, wrap, html) {
             let input_text = createElement('div').attrs({
                 contenteditable: true,
                 placeholder: `텍스트박스.
@@ -440,8 +420,6 @@ const FormContent = {
                     this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
                     this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
                     this.toggleClass('empty', this.textContent.trim().length < 1);
-                    cell && (cell.innerHTML = this.innerHTML);
-                    scrollToCaret();
                 }
             });
             input_text.toggleClass('empty', input_text.textContent.trim().length < 1);
