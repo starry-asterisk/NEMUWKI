@@ -61,6 +61,7 @@ class asideIndex extends asideBase {
         return wrap;
     }
 }
+
 class articleIndex extends articleBase {
     constructor(params) {
         super();

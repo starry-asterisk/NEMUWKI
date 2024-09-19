@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 setlocal
 
 :: Node.js 설치 여부 확인

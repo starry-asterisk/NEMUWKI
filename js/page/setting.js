@@ -43,6 +43,7 @@ class asideSetting extends asideBase {
         return wrap;
     }
 }
+
 class articleSetting extends articleBase {
     constructor(params) {
         super();
@@ -70,6 +71,7 @@ class articleSetting extends articleBase {
         (typeof tabBase.init == 'function') && article.append(tabBase.init(createElement('div').addClass('setting__wrap'), app.user));
     }
 }
+
 async function makeKeyword(id, data) {
     if (data.deleted) return await firebase.search.unset(id);
     if (data.board_name == 'template') return await firebase.search.unset(id);

@@ -150,6 +150,7 @@ class asideForm extends asideBase {
         this.data.Categories.proceed();
     }
 }
+
 class articleForm extends articleBase {
     constructor(params) {
         super();
@@ -626,111 +627,6 @@ const FormContent = {
             wrap.getData = () => '';
         }
     },
-}
-
-function preview() {
-    document.body.addClass('preview-mode');
-    let contents = [app_article.createContent('zoom')];
-
-    let summuryList = [];
-
-    let index = 0;
-    let depth = 1;
-    let prefix = ''
-    let t_infos = [];
-
-    this.onclick = () => {
-        this.onclick = preview;
-
-        for (let el of contents) el.remove();
-        article.style.removeProperty('zoom');
-        document.body.removeClass('preview-mode');
-    }
-    for (let el of article.children) {
-        if (!el.getData) continue;
-        let data = (el.dataset.type == 'main_header') ? { text: el.getData() } : el.getData();
-        let content_wrap = app_article.createContent(el.dataset.type, undefined, data);
-        let default_;
-        switch (el.dataset.type) {
-            case 'title':
-                default_ = { content: content_wrap, title: content_wrap.innerHTML };
-                if (depth < data.depth) {
-                    prefix += `${index}.`;
-                    t_infos.push({ depth: ++depth, prefix, index_str: prefix + '1.', index: index = 1, ...default_ });
-                } else if (depth == data.depth) {
-                    t_infos.push({ depth, prefix, index: ++index, index_str: prefix + `${index}.`, ...default_ });
-                } else {
-                    let info = t_infos.findLast(info => info.depth == data.depth);
-                    t_infos.push({ depth: depth = data.depth, prefix: prefix = info.prefix, index: index = info.index + 1, index_str: prefix + `${index}.`, ...default_ });
-                }
-                break;
-            case 'summury':
-                summuryList.push(content_wrap);
-                break;
-            case 'textbox':
-                for (let span of Array.from(content_wrap.querySelectorAll('[style*="font-size"]'))) if (span.style.fontSize.endsWith('rem')) span.css({ 'font-size': `${parseFloat(span.style.fontSize) * 10}px` });
-        }
-        contents.push(content_wrap);
-    }
-
-    if (summuryList.length > 0) t_infos.forEach(info => {
-        info.content.prepend(createElement('a')
-            .props({
-                innerHTML: `${info.index_str} `, id: info.index_str.split('.').join('_'),
-                onclick(e) { e.preventDefault(); history.pushState({}, '', '#summury'); summuryList[0].scrollIntoViewIfNeeded(); }
-            })
-            .attrs({ href: '#summury' }));
-    });
-
-    for (let sumurry of summuryList) {
-        sumurry.append.apply(sumurry, t_infos.map(
-            info =>
-                createElement('a').attrs({ href: `#_${info.index_str.split('.').join('_')}` })
-                    .props({ innerHTML: `${info.index_str} <span>${info.title}</span>`, onclick(e) { e.preventDefault(); history.pushState({}, '', `#_${info.index_str.split('.').join('_')}`); info.content.scrollIntoViewIfNeeded(); } })
-                    .css({ 'margin-left': `${info.depth * 1.5}rem` })
-        ))
-    }
-
-    if (html_annotation.length > 0) {
-        let annotation = createElement('div').attrs({ class: 'content annotation' });
-        annotation.innerHTML = html_annotation;
-        html_annotation = '';
-        contents.push(annotation);
-    }
-
-    article.append.apply(article, contents);
-}
-
-function execBuildVal(command, val, altFn) {
-    return function () {
-        document.execCommand("styleWithCSS", 0, true);
-        document.execCommand(command, false, val || "");
-        altFn && altFn();
-    };
-}
-
-function execBuildPrompt(command, prompt_text, conv_fn = v => v) {
-    return function () {
-        var val = Notify.prompt(prompt_text) || "";
-        document.execCommand("styleWithCSS", 0, true);
-        document.execCommand(command, false, conv_fn(val));
-    };
-}
-
-function execModal(command, modal_type, conv_fn = v => v, option) {
-    return modal(modal_type, v => {
-        if ('anchorNode' in lastSelection) {
-            let selection = window.getSelection();
-            let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
-            let range = document.createRange();
-            range.setStart(anchorNode, anchorOffset);
-            range.setEnd(focusNode, focusOffset);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-        document.execCommand("styleWithCSS", 0, true);
-        document.execCommand(command, false, conv_fn(v));
-    }, option);
 }
 
 const ToolBase = {
@@ -1222,6 +1118,111 @@ const ToolBase = {
         return wrap;
 
     },
+}
+
+function preview() {
+    document.body.addClass('preview-mode');
+    let contents = [app_article.createContent('zoom')];
+
+    let summuryList = [];
+
+    let index = 0;
+    let depth = 1;
+    let prefix = ''
+    let t_infos = [];
+
+    this.onclick = () => {
+        this.onclick = preview;
+
+        for (let el of contents) el.remove();
+        article.style.removeProperty('zoom');
+        document.body.removeClass('preview-mode');
+    }
+    for (let el of article.children) {
+        if (!el.getData) continue;
+        let data = (el.dataset.type == 'main_header') ? { text: el.getData() } : el.getData();
+        let content_wrap = app_article.createContent(el.dataset.type, undefined, data);
+        let default_;
+        switch (el.dataset.type) {
+            case 'title':
+                default_ = { content: content_wrap, title: content_wrap.innerHTML };
+                if (depth < data.depth) {
+                    prefix += `${index}.`;
+                    t_infos.push({ depth: ++depth, prefix, index_str: prefix + '1.', index: index = 1, ...default_ });
+                } else if (depth == data.depth) {
+                    t_infos.push({ depth, prefix, index: ++index, index_str: prefix + `${index}.`, ...default_ });
+                } else {
+                    let info = t_infos.findLast(info => info.depth == data.depth);
+                    t_infos.push({ depth: depth = data.depth, prefix: prefix = info.prefix, index: index = info.index + 1, index_str: prefix + `${index}.`, ...default_ });
+                }
+                break;
+            case 'summury':
+                summuryList.push(content_wrap);
+                break;
+            case 'textbox':
+                for (let span of Array.from(content_wrap.querySelectorAll('[style*="font-size"]'))) if (span.style.fontSize.endsWith('rem')) span.css({ 'font-size': `${parseFloat(span.style.fontSize) * 10}px` });
+        }
+        contents.push(content_wrap);
+    }
+
+    if (summuryList.length > 0) t_infos.forEach(info => {
+        info.content.prepend(createElement('a')
+            .props({
+                innerHTML: `${info.index_str} `, id: info.index_str.split('.').join('_'),
+                onclick(e) { e.preventDefault(); history.pushState({}, '', '#summury'); summuryList[0].scrollIntoViewIfNeeded(); }
+            })
+            .attrs({ href: '#summury' }));
+    });
+
+    for (let sumurry of summuryList) {
+        sumurry.append.apply(sumurry, t_infos.map(
+            info =>
+                createElement('a').attrs({ href: `#_${info.index_str.split('.').join('_')}` })
+                    .props({ innerHTML: `${info.index_str} <span>${info.title}</span>`, onclick(e) { e.preventDefault(); history.pushState({}, '', `#_${info.index_str.split('.').join('_')}`); info.content.scrollIntoViewIfNeeded(); } })
+                    .css({ 'margin-left': `${info.depth * 1.5}rem` })
+        ))
+    }
+
+    if (html_annotation.length > 0) {
+        let annotation = createElement('div').attrs({ class: 'content annotation' });
+        annotation.innerHTML = html_annotation;
+        html_annotation = '';
+        contents.push(annotation);
+    }
+
+    article.append.apply(article, contents);
+}
+
+function execBuildVal(command, val, altFn) {
+    return function () {
+        document.execCommand("styleWithCSS", 0, true);
+        document.execCommand(command, false, val || "");
+        altFn && altFn();
+    };
+}
+
+function execBuildPrompt(command, prompt_text, conv_fn = v => v) {
+    return function () {
+        var val = Notify.prompt(prompt_text) || "";
+        document.execCommand("styleWithCSS", 0, true);
+        document.execCommand(command, false, conv_fn(val));
+    };
+}
+
+function execModal(command, modal_type, conv_fn = v => v, option) {
+    return modal(modal_type, v => {
+        if ('anchorNode' in lastSelection) {
+            let selection = window.getSelection();
+            let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
+            let range = document.createRange();
+            range.setStart(anchorNode, anchorOffset);
+            range.setEnd(focusNode, focusOffset);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        document.execCommand("styleWithCSS", 0, true);
+        document.execCommand(command, false, conv_fn(v));
+    }, option);
 }
 
 function cellCss(parent, node, css, tagName = 'div') {

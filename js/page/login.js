@@ -1,4 +1,4 @@
-class asideIndex extends asideBase {
+class asideLogin extends asideBase {
     constructor(param) {
         super();
         aside.addClass('fold');
@@ -60,7 +60,8 @@ class asideIndex extends asideBase {
         return wrap;
     }
 }
-class articleIndex extends articleBase {
+
+class articleLogin extends articleBase {
     constructor(params) {
         super();
         this.contentBase = IndexContent;
@@ -174,4 +175,4 @@ const IndexContent = {
     },
 }
 
-export { asideIndex as aside, articleIndex as article, loginCallback };
+export { asideLogin as aside, articleLogin as article, loginCallback };

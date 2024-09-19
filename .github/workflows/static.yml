@@ -34,8 +34,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Delete Secret Files
+        # 배포에 포함되지 않아야 할 파일 제거
         run: |
-          rm -rf _OLD_  # 배포에 포함되지 않아야 할 파일 제거
+          rm -rf _OLD_ BUILDER js/page/form js/page/index js/page/login js/page/profile js/page/setting
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
