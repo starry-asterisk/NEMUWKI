@@ -534,8 +534,6 @@ const FINAL = {
     }
 }
 
-let firebase = {};
-
 let Options = {
     board: [],
     categories: [],
@@ -579,9 +577,6 @@ let html_annotation = '';
 
 window.onload = async function () {
     if (location.href.startsWith(location.origin + OLD_ROOT_PATH)) history.replaceState({}, '', location.href.replace(OLD_ROOT_PATH, ''));
-
-    const module = await import(`./firebase.js?version=${version}`);
-    firebase = module.default;
 
     app = new Router();
 

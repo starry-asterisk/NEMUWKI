@@ -2,7 +2,7 @@
 <html lang="ko">
 
 <head>
-    $${description}$$
+    $${intro_html}$$
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
@@ -31,15 +31,15 @@
             if (Notify) Notify.alert(errorLog.stack || errorLog.message);
         }
     </script>
-    <script src="/js/base.js?_v=$${version}$$"></script>
-    <script src="/js/util.js?_v=$${version}$$"></script>
-    <title>네무위키</title>
+    <script src="/js/firebase.js?_v=$${version}$$" type="module"></script>
+    <script src="/js/wiki.js?_v=$${version}$$" type="text/javascript"></script>
+    <title>$${projectNameKR}$$</title>
 </head>
 
 <body class="none-auth">
     <header>
         <nav>
-            <a class="text logo" tabindex="0" href="./">네무위키</a>
+            <a class="text logo" tabindex="0" href="./">$${projectNameKR}$$</a>
             <a tabindex="1" href="./?post=random" class="icon icon-shuffle-variant"></a>
             <a tabindex="2"
                 href="javascript:focusSearch();"
