@@ -33,7 +33,7 @@ fb.history = {
     insertOne: async ({ crud, target, text = '' }) => {
         try {
             return await addDoc(collection(db, "history"), {
-                uid: auth.currentUser?.uid,
+                uid: auth.currentUser?.uid || '{Not-Authored}',
                 timestamp: Timestamp.fromDate(new Date()),
                 crud: crud || 'INSERT',
                 target: target || '${document}-${sample_document_uid}',
@@ -47,7 +47,7 @@ fb.history = {
     insertError: async ({ type, message, stack }) => {
         try {
             return await addDoc(collection(db, "history"), {
-                uid: auth.currentUser?.uid,
+                uid: auth.currentUser?.uid || '{Not-Authored}',
                 timestamp: Timestamp.fromDate(new Date()),
                 crud: 'ERROR',
                 target: type,

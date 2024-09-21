@@ -2,7 +2,7 @@
 * Project: nemuwiki.com
 * Version: 2.3.1 | product
 * Author: @NEMUWIKI
-* Date: 2024-09-20
+* Date: 2024-09-21
 * Description: personal wiki project for NEMU
 */
 

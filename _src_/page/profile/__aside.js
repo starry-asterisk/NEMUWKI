@@ -36,8 +36,8 @@ class asideProfile extends asideBase {
             this.createSearch('search', param),
             this.createBlockList('Visited', TEXTS.recent_document, VisitedModel),
             this.createBlockList('Board', TEXTS.document_cate, BoardModel),
-            this.createBlock('btn_upload', `<button class="s_button" onclick=" move('form')">${TEXTS.upload}</button><button class="s_button" onclick=" move('profile')">${TEXTS.mypage}</button>`),
-            this.createBlock('btn_login', `<button class="s_button" onclick=" move('login')">${TEXTS.form.login}</button>`)
+            this.createBlock('btn_upload', `<button class="s_button" onclick="move('form')">${TEXTS.upload}</button><button class="s_button" onclick=" move('profile')">${TEXTS.mypage}</button>`),
+            this.createBlock('btn_login', `<button class="s_button" onclick="move('login')">${TEXTS.form.login}</button>`)
         );
 
         this.components.Board.ul.addClass('type2');

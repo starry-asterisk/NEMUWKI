@@ -5,8 +5,7 @@ class articleSetting extends articleBase {
         loadStyle('setting');
 
         if (app.user === false) {
-            Notify.alert(TEXTS.warn.login_neccesary);
-            move('login', true);
+            move(`401?message=${encodeURI(TEXTS.warn.login_neccesary)}&url=${location.href}`, true);
             return;
         } else if (app.user) {
             this.showTab(params.get('menu') || 'default');

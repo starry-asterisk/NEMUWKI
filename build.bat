@@ -1,0 +1,2 @@
+CD BUILDER
+./build.bat

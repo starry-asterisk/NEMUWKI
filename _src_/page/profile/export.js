@@ -1,8 +1,4 @@
-function loginCallback() {
-    app_article.load();
-}
-
-function logoutCallback() {
+function loginCheckCallback() {
     app_article.load();
 }
 
@@ -137,4 +133,4 @@ function execModal(command, modal_type, conv_fn = v => v, option) {
     }, option);
 }
 
-export { asideProfile as aside, articleProfile as article, loginCallback, logoutCallback };
+export { asideProfile as aside, articleProfile as article, loginCheckCallback as loginCallback, loginCheckCallback as logoutCallback };

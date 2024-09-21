@@ -1,4 +1,4 @@
-class asideForm extends asideBase {
+class asideError extends asideBase {
     constructor() {
         super();
     }

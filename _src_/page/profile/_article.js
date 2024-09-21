@@ -8,17 +8,16 @@ class articleProfile extends articleBase {
 
         this.load = async () => {
             if (!uid) {
-                if (app.user === null) return;
+                if (app.user === null) return move(`400?message=${encodeURI('잘못된 요청입니다.')}&url=${location.href}`, true);
                 else uid = app.user.uid;
             }
-            if (uid == undefined) return move('404', true);
             this.load = () => { };
             loading(0.3);
 
             let user_data = await firebase.auth.getUser(uid);
 
             let data = user_data.data();
-            if (data == undefined) return move('404', true);
+            if (data == undefined) return move(`404?message=${encodeURI('존재하지 않는 페이지입니다.')}&url=${location.href}`, true);
 
             if (data.banner_url);
 

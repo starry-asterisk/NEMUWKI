@@ -11,12 +11,9 @@ class articleIndex extends articleBase {
                 let doc = await firebase.post.selectOne(post_id);
                 let data = doc.data();
 
-                if (data == undefined) return move('404', true);
-                if (data.hidden && data.author != app.user?.uid) {
-                    Notify.alert('타인의 숨긴 문서는 조회가 불가합니다.');
-                    history.back();
-                    return;
-                }
+                if (data == undefined) return move(`404?message=${encodeURI('존재하지 않는 문서입니다.')}&url=${location.href}`, true);
+                if (data.deleted) return move(`404?message=${encodeURI('삭제된 문서입니다.')}&url=${location.href}`, true);
+                if (data.hidden && data.author != app.user?.uid) return move(`403?message=${encodeURI('타인의 숨긴 문서는 조회가 불가합니다.')}&url=${location.href}`, true);
 
                 history.replaceState({}, '', location.href.replace('post=random', `post=${post_id}`));
                 app.saveVisited(post_id, data.title, data.board_name);
@@ -35,7 +32,7 @@ class articleIndex extends articleBase {
                 ];
 
                 appendList[3].append(
-                    createElement('a').attrs({ class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.category}` }).props({ innerHTML: `카테고리:${data.category}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
+                    createElement('a').attrs({ class: 'tag', href: `/?field=category&operator=equal&keyword=${data.category}` }).props({ innerHTML: `카테고리:${data.category}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
                     createElement('a').attrs({ class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: `분류:${data.board_name_arr?.join(' > ') || data.board_name}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
                     createElement('a').attrs({ class: 'tag', href: `/profile?uid=${data.author}` }).props({ innerHTML: `사용자 페이지` }).css({ display: 'inline-block', 'line-height': 1.2 })
                 );

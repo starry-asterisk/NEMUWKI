@@ -1,2 +1,2 @@
 const FormContent = {...ContentBase}
-export { asideForm as aside, articleForm as article };
+export { asideError as aside, articleError as article };

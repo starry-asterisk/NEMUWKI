@@ -201,16 +201,17 @@ function remove(button, post_id, isTemplate) {
     firebase.post.deleteTemporary(post_id, undefined, isTemplate)
         .then(async () => {
             await firebase.search.unset(post_id);
-            move('/');
+            move(ROOT_PATH, true);
         })
         .catch(firebaseErrorHandler);
 }
 
 function logout() {
+    app && (app.blockMode = false);
     firebase.auth.logout()
         .then(() => {
-            move('/');
             Notify.alert(TEXTS.alert.logout);
+            location.href = ROOT_PATH;
         })
         .catch(firebaseErrorHandler);
 }
@@ -322,6 +323,7 @@ function decodeVisited(str) {
 }
 
 function move(full_url, forward, load = true) {
+    console.log(full_url, forward, load);
     if (document.activeElement) document.activeElement.blur();
     let { isInlink, path, search, hash } = parseUrl(full_url)
     if (isInlink) {

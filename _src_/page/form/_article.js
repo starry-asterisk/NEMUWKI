@@ -6,8 +6,8 @@ class articleForm extends articleBase {
         let _this = this;
 
         if (app.user === false) {
-            Notify.alert(TEXTS.warn.login_neccesary);
-            move('login', true);
+            app.blockMode = false;
+            move(`401?message=${encodeURI(TEXTS.warn.login_neccesary)}&url=${location.href}`, true);
             return;
         }
 
@@ -39,7 +39,9 @@ class articleForm extends articleBase {
 
                 this.BeforeData = { id: doc.id, ...data };
 
-                if (!data) return move('404');
+                if (!data) return app.blockMode = false, move(`404?message=${encodeURI('존재하지 않는 문서입니다.')}&url=${location.href}`, true);;
+                if (data.deleted) return app.blockMode = false, move(`404?message=${encodeURI('삭제된 문서입니다.')}&url=${location.href}`, true);
+                if (data.hidden && data.author != app.user?.uid) return app.blockMode = false, move(`403?message=${encodeURI('타인의 숨긴 문서는 수정이 불가합니다.')}&url=${location.href}`, true);
 
                 if(hidden_chk) hidden_chk.checked = data.hidden;
                 if(data.board_name == 'template') template_chk.checked = true;

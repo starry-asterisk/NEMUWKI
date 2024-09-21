@@ -143,8 +143,7 @@ function getCells(table) {
 }
 
 function logoutCallback() {
-    Notify.alert(TEXTS.warn.login_neccesary);
-    history.back();
+    move(`401?message=${encodeURI(TEXTS.warn.login_neccesary)}&url=${location.href}`, true);
 }
 
 async function submit() {
@@ -201,9 +200,8 @@ async function submit() {
             firebase.post.insertOne(formData)
                 .then(async ref => {
                     if (ref == undefined) {
-                        Notify.alert('권한이 없거나 자동 로그아웃 처리되었습니다. 다시 로그인 해주세요.');
                         app.blockMode = false;
-                        move('/');
+                        move(`401?message=${encodeURI('권한이 없거나 자동 로그아웃 처리되었습니다.')}&url=${location.href}`,true);
                         return;
                     }
                     await makeKeyword(ref.id, formData);

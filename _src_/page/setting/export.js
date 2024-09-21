@@ -70,8 +70,7 @@ async function makeKeyword(id, data) {
     await firebase.search.set(id, keyword_data);
 }
 function logoutCallback() {
-    Notify.alert(TEXTS.warn.login_neccesary);
-    history.back();
+    move(`401?message=${encodeURI(TEXTS.warn.login_neccesary)}&url=${location.href}`, true);
 }
 
 function loginCallback() {

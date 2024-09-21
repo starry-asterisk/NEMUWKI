@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Redirecting to https://www.nemuwiki.com/</title>
+<meta id="refresh_meta" http-equiv="refresh" content="">
+<link id="canonical_link" rel="canonical" href="/">
+
+<script>
+    // 현재 페이지의 URL 파라미터를 유지한 상태로 메타 태그에 적용하는 함수
+    const params = window.location.search; // URL의 파라미터 부분
+    const baseUrl = canonical_link.getAttribute('href'); // 현재 URL의 도메인 및 경로
+    const redirectUrl = baseUrl + params; // 파라미터를 포함한 전체 URL
+
+    // 5초 후 리다이렉트되도록 메타 태그 설정
+    refresh_meta.content = `0;url=${redirectUrl}`;
+</script>
