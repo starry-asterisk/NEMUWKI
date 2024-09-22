@@ -22,7 +22,7 @@ a.list__item__title {
 }
 
 .link::before {
-    content: "\F0339";
+    content: '';
     display: inline-block;
     font-family: "Material Design Icons";
     font-size: inherit;
@@ -164,7 +164,7 @@ a.list__item__title {
 }
 
 .content.title::before {
-    content: '\F0140';
+    content: '';
     text-align: center;
     vertical-align: middle;
     line-height: 2rem;

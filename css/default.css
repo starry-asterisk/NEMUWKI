@@ -395,11 +395,11 @@ footer {
 }
 
 .scroller__top::before {
-    content: '\F0795';
+    content: '';
 }
 
 .scroller__bottom::before {
-    content: '\F0792';
+    content: '';
 }
 
 /* Custom Styled Table */
@@ -529,7 +529,7 @@ n-select:before {
 }
 
 n-select:after {
-    content: '\F0141';
+    content: '';
     font-family: "Material Design Icons";
     font-size: inherit;
     text-align: center;
@@ -543,14 +543,6 @@ n-select:after {
 
 n-select:focus:before {
     pointer-events: none;
-}
-
-n-select:focus:after {
-    content: '\F0143';
-}
-
-n-select.to_down:focus:after {
-    content: '\F0140';
 }
 
 n-select:focus:not(:has(:focus))>*,
@@ -599,8 +591,7 @@ n-option[data-owner="true"] {
 }
 
 n-option[data-owner="true"]::before {
-    content: '\F1566';
-    font-family: "Material Design Icons";
+    content: '';
     margin-right: 0.5rem;
 }
 
@@ -612,11 +603,6 @@ n-option button.del {
     bottom: 0;
     border: 0;
     background: none;
-}
-
-n-option button.del::after {
-    content: '\F1398';
-    font-family: "Material Design Icons";
 }
 
 n-option.placeholder {
@@ -686,11 +672,6 @@ n-option.placeholder {
     background-color: var(--blue-gray-300);
 }
 
-.s_chk:checked::after {
-    content: '\F0E1E';
-    font-family: "Material Design Icons";
-}
-
 /* input (검색창 스타일) */
 .input_run {
     height: 3rem;
@@ -698,8 +679,9 @@ n-option.placeholder {
 }
 
 .input_run:before {
-    content: '\F0142';
+    content: '';
     font-size: 1.4em;
+    vertical-align: middle;
 }
 
 .input_run:hover {
@@ -721,7 +703,7 @@ n-option.placeholder {
 }
 
 #search::before {
-    content: "\F0349";
+    content: '';
     align-content: center;
     width: 3rem;
     height: 3rem;
@@ -743,7 +725,6 @@ n-option.placeholder {
 }
 
 .menu_fold::before {
-    content: "\F035C";
     font-size: 1.4em;
 }
 
@@ -1202,7 +1183,8 @@ body:not(.none-auth) #btn_login {
     display: none !important;
 }
 
-article:has(n-error) + hr, article:has(n-error) ~ aside {
+article:has(n-error)+hr,
+article:has(n-error)~aside {
     display: none;
 }
 
@@ -1212,33 +1194,39 @@ article:has(n-error) {
 
 @keyframes glitch {
     0% {
-      transform: translate(0);
-      text-shadow: 2px 2px red, -2px -2px cyan;
+        transform: translate(0);
+        text-shadow: 2px 2px red, -2px -2px cyan;
     }
+
     17% {
-      transform: translate(-2px, 2px);
-      text-shadow: 2px -2px red, -2px 2px cyan;
+        transform: translate(-2px, 2px);
+        text-shadow: 2px -2px red, -2px 2px cyan;
     }
+
     34% {
-      transform: translate(2px, -2px);
-      text-shadow: -2px 2px red, 2px -2px cyan;
+        transform: translate(2px, -2px);
+        text-shadow: -2px 2px red, 2px -2px cyan;
     }
+
     51% {
-      transform: translate(-1px, -1px);
-      text-shadow: 1px 1px red, -1px -1px cyan;
+        transform: translate(-1px, -1px);
+        text-shadow: 1px 1px red, -1px -1px cyan;
     }
+
     68% {
-      transform: translate(1px, 1px);
-      text-shadow: -1px -1px red, 1px 1px cyan;
+        transform: translate(1px, 1px);
+        text-shadow: -1px -1px red, 1px 1px cyan;
     }
+
     85% {
-      transform: translate(0);
-      text-shadow: 2px 2px red, -2px -2px cyan;
+        transform: translate(0);
+        text-shadow: 2px 2px red, -2px -2px cyan;
     }
+
     100% {
         text-shadow: 0 0 red, 0 0 cyan;
     }
-  }
+}
 
 n-error-code {
     margin: auto auto 0 auto;

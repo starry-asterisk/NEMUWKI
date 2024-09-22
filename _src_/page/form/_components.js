@@ -148,7 +148,7 @@ const FormContent = {
                 last: null
             };
             let cellTool = createElement('div').addClass('form__table__tool');
-            cellTool.append(createElement('button').addClass('table__tool__button', 'icon', 'icon-plus').props({
+            cellTool.append(createElement('button').addClass('table__tool__button', 'icon', 'icon-w-plus').props({
                 onclick(e) {
                     e.preventDefault();
                     e.stopPropagation();

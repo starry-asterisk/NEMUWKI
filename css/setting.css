@@ -66,10 +66,6 @@
     opacity: 0.55;
 }
 
-.icon-open::before {
-    content: '\F03CC';
-    font-family: 'Material Design Icons';
-}
 .icon-edit::before {
     content: '수정';
 }

@@ -22,7 +22,7 @@
 }
 
 .block__title::before {
-    content: '\F0140';
+    content: '';
     font-size: 1.5em;
     text-align: center;
     align-content: center;

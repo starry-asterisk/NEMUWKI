@@ -222,26 +222,6 @@
     aspect-ratio: 1;
 }
 
-.form__del::before {
-    content: "\F0156";
-    font: normal normal normal 24px/1 "Material Design Icons";
-}
-
-.form__drag::before {
-    content: "\F01DD";
-    font: normal normal normal 24px/1 "Material Design Icons";
-}
-
-.form__move__up::before {
-    content: "\F0143";
-    font: normal normal normal 24px/1 "Material Design Icons";
-}
-
-.form__move__down::before {
-    content: "\F0140";
-    font: normal normal normal 24px/1 "Material Design Icons";
-}
-
 .form__move__up,
 .focusable:last-of-type .form__move__down {
     pointer-events: none;
