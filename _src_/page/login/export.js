@@ -49,7 +49,7 @@ const IndexContent = {
                             app.state = 1;
                             firebase.auth.login(input_id.value, input_pw.value)
                                 .then(() => {
-                                    Notify.alert(TEXTS.alert.login);
+                                    Notify.toast(TEXTS.alert.login);
                                     if (model.callbackUrl) move(model.callbackUrl);
                                     else move('./');
                                 })

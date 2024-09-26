@@ -210,7 +210,7 @@ function logout() {
     app && (app.blockMode = false);
     firebase.auth.logout()
         .then(() => {
-            Notify.alert(TEXTS.alert.logout);
+            //Notify.toast(TEXTS.alert.logout);
             location.href = ROOT_PATH;
         })
         .catch(firebaseErrorHandler);
@@ -561,7 +561,26 @@ const Notify = {
     alert: param => { return alert(param); },
     confirm: param => { return confirm(param); },
     prompt: param => { return prompt(param); },
-    error: param => { console.error(param); }
+    error: param => { console.error(param); },
+    toast: (param, time = 2300) => {
+        let toast = createElement('n-toast').props({innerHTML: param});
+        let timer = setInterval(()=>{
+            if(time < 100) {
+                clearInterval(timer);
+                toast.removeClass('open');
+                setTimeout(()=>{
+                    toast.remove();
+                },150);
+            } else {
+                toast.dataset.time = Math.ceil(time / 1000);
+            }
+            time -= 100;
+        },100);
+        document.body.append(toast);
+        setTimeout(()=>{
+            toast.addClass('open');
+        },10);
+    }
 }
 const dev = console;
 const REGEX = {
