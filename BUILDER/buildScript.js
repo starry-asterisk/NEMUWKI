@@ -32,7 +32,9 @@ global.intro_html = function () {
     <meta name="twitter:card" content="summary">
     <meta property="twitter:title" content="${global.projectNameKR}">
     <link rel="canonical" href="https://${global.projectName}">
-    <link rel="icon" href="/resource/favicon.png">`;
+    <link rel="icon" href="/resource/favicon.png">
+    <link rel="apple-touch-icon" href="/resource/favicon.png" />
+    <link rel="manifest" href="manifest.json" />`;
 };
 
 // 병합할 파일이 있는 기본 디렉토리 경로

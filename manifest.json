@@ -1,0 +1,25 @@
+{
+  "short_name": "네무위키",
+  "name": "::네무위키::오리지넣 캐릭터 위키",
+  "icons": [
+    {
+      "src": "resource/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "resource/favicon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "resource/favicon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#333333",
+  "background_color": "#ffffff"
+}
