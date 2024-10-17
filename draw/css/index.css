@@ -1,0 +1,27 @@
+@font-face{font-family:"Material Design Icons";src:url("../materialdesignicons-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}
+
+:root {
+    font-family: Arial, sans-serif;
+    --clr-background: #333333;
+    --clr-background-dark: #222222;
+    --clr-border: #636363;
+
+    --br-small: 5px;
+
+    --fs-icon: 24px;
+
+    --gap-small: 7px;
+}
+
+html, body {
+    overflow: visible;
+    background-color: var(--clr-background-dark);
+}
+
+nemu-top-menu {
+    z-index: 1;
+}
+
+* {
+    user-select: none;
+}
