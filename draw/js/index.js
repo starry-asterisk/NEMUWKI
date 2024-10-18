@@ -2,14 +2,36 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-17
+* Date: 2024-10-18
 * Description: personal canvas project for NEMU
 */
 
-import { BaseElement } from './Base.js';
-import { tools, brushes, canvas, layers } from './Windows.js';
+import { BaseElement } from './Base.js?_=1';
+import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, usersWindow, canvasWindow } from './Windows.js?_=1';
 
-window.nemu = { windows: [] };
+window.nemu = {
+    _windows: {},
+    toggleWindow(name, bool) {
+        let rect1 = this.layerWrap.getBoundingClientRect();
+        let win = this._windows[name];
+        if (win == undefined || win.el == undefined) return Utils.error(`Error :: 해당 윈도우를 열수 없습니다. (${name})`)
+        if (bool === undefined) bool = !win.input?.checked;
+        win.el.toggleClass('hide', bool);
+        win.input.checked = !bool;
+        this.fixCanvasScroll(rect1, this.layerWrap.getBoundingClientRect());
+    },
+    isOpened(name) {
+        let win = this._windows[name];
+        return !win.el.classList.contains('hide');
+    },
+    fixCanvasScroll(rect1, rect2){
+        let diffX = rect2.x - rect1.x;
+        let diffY = rect2.y - rect1.y;
+        let container = this.layerWrap.parentNode;
+        container.scrollLeft += diffX;
+        container.scrollTop += diffY;
+    }
+};
 
 const $TAG_PREFIX = 'nemu';
 
@@ -24,7 +46,7 @@ const snapZone = [
         width: 42,
         minWidth: 42,
         maxWidth: 162,
-        default: [tools],
+        default: [toolsWindow],
         max: 1
     },
     {
@@ -32,20 +54,20 @@ const snapZone = [
         width: 250,
         minWidth: 100,
         maxWidth: 400,
-        default: [brushes],
-        max: 3
+        default: [brushSettingWindow, brushesWindow, erasersWindow],
+        max: 7
     },
     {
         disabled: true,
-        default: [canvas]
+        default: [canvasWindow]
     },
     {
         right: 242,
         width: 242,
         minWidth: 200,
         maxWidth: 400,
-        default: [layers],
-        max: 3,
+        default: [layersWindow, usersWindow],
+        max: 7,
         direction: Direction.right
     }
 ];
@@ -63,13 +85,18 @@ class RootContainerElement extends BaseElement {
             zone.instance = createZone(zone).appendTo(frag);
         }
         for (let layer of nemu.layerWrap.layers) nemu.registLayer(layer);
+        nemu.toggleWindow('layers', true);
+        nemu.toggleWindow('brusheSetting', true);
+        nemu.toggleWindow('brushes', true);
+        nemu.toggleWindow('erasers', true);
+        nemu.toggleWindow('users', true);
         nemu.pens[0].onclick();
         nemu.startup_rtc();
         return frag;
     }
 
     connectedCallback() {
-        layerWrap.scrollIntoView({ block:'center', inline:'center' });
+        nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
     }
 
     stylesheet() {
@@ -98,23 +125,37 @@ class RootContainerElement extends BaseElement {
             left: unset !important;
             top: unset !important;
             width: auto !important;
+            z-index: 0 !important;
         }
         .flexZone:not(:has(${$TAG_PREFIX}-window:not(.hide))):not(${$TAG_PREFIX}-window.moving ~ *) {
             width: 0 !important;
         }
         ${$TAG_PREFIX}-window.moving ~ * {
-            overflow: hidden !important;
+            overflow: hidden;
         }
         ${$TAG_PREFIX}-window.hide {
             display: none !important;
         }    
-        .flexZone:has(${$TAG_PREFIX}-layer-wrap) {
+        .flexZone.main {
             overflow: auto;
             cursor: grab;
         }
-        .flexZone:has(${$TAG_PREFIX}-layer-wrap):active {
+        .flexZone.main:active {
             cursor: grabbing;
         }     
+        ${$TAG_PREFIX}-window.moving ~ .flexZone:not(.main)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 5px;
+            border-radius: var(--br-small);
+            background: skyblue;
+            z-index: 1;
+            opacity: 0.3;
+        } 
         .resizer {
             position: absolute;
             top:0;
@@ -158,73 +199,71 @@ class TopMenuElement extends BaseElement {
     render() {
         let frag = Utils.createFragment();
         let fileUl = createUl('파일');
-        // createLi(fileUl, '새로운 캔버스', 'button', function () {
-        //     return true;
-        // });
-        // createLi(fileUl, '캔버스 불러오기', 'button', function () {
-        //     return true;
-        // });
-        // createLi(fileUl, '캔버스 저장', 'button', function () {
-        //     return true;
-        // });
-        createLi(fileUl, '이미지로 저장하기', 'button', function () {
-            nemu.layerWrap.export();
+        createLi(fileUl, '새로운 캔버스', 'button', function () {
             return true;
         });
-        // let layerUl = createUl('레이어');
-        // createLi(layerUl, '캔버스 사이즈 변경', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '캔버스 원위치', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '색상 보정', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '레이어 클리어', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '가우시안 블러', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '레이어를 아래로 통합', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '레이어 추가', 'button', function () {
-        //     return true;
-        // });
-        // createLi(layerUl, '레이어 삭제', 'button', function () {
-        //     return true;
-        // });
+        createLi(fileUl, '캔버스 불러오기', 'button', function () {
+            return true;
+        });
+        createLi(fileUl, '캔버스 저장', 'button', function () {
+            return true;
+        });
+        createLi(fileUl, '이미지로 저장하기', 'button', function () {
+            return true;
+        });
+        let layerUl = createUl('레이어');
+        createLi(layerUl, '캔버스 사이즈 변경', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '캔버스 원위치', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '색상 보정', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '레이어 클리어', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '가우시안 블러', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '레이어를 아래로 통합', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '레이어 추가', 'button', function () {
+            return true;
+        });
+        createLi(layerUl, '레이어 삭제', 'button', function () {
+            return true;
+        });
         let windowUl = createUl('윈도우');
-        createLi(windowUl, '도구', 'checkbox', function () {
-            nemu.windows.tools?.toggleClass('hide', !this.checked);
-            return true;
-        }, true);
-        createLi(windowUl, '브러쉬', 'checkbox', function () {
-            nemu.windows.brushes?.toggleClass('hide', !this.checked);
-            return true;
-        }, true);
-        // createLi(windowUl, '지우개', 'checkbox', function () {
-        //     nemu.windows.erasers?.toggleClass('hide', !this.checked);
-        //     return true;
-        // }, true);
-        createLi(windowUl, '레이어', 'checkbox', function () {
-            nemu.windows.layers?.toggleClass('hide', !this.checked);
-            return true;
-        }, true);
-        // createLi(windowUl, '사용자', 'checkbox', function () {
-        //     nemu.windows.users?.toggleClass('hide', !this.checked);
-        //     return true;
-        // }, false);
+        let winSettings = [
+            {title: '도구', name: 'tools'},
+            {title: '드로잉 설정', name: 'brusheSetting'},
+            {title: '브러쉬', name: 'brushes'},
+            {title: '지우개', name: 'erasers'},
+            {title: '레이어', name: 'layers'},
+            {title: '연결된 사용자 목록', name: 'users'},
+        ];
+        for(let setting of winSettings) {
+            if(!nemu._windows[setting.name]) nemu._windows[setting.name] = {};
+            nemu._windows[setting.name].input = createLi(windowUl, setting.title, 'checkbox', function () {
+                nemu.toggleWindow(setting.name, !this.checked)
+                return true;
+            }, true);
+        }
         let section = Utils.createElement('section').appendTo(frag);
         let timer;
         nemu.displayDynamicIsland = (item, time) => {
-            section.append(item);
             if (time) {
+                section.append(item);
                 section.addClass('toast');
                 if (timer) clearTimeout(timer);
                 timer = setTimeout(() => section.removeClass('toast'), time);
+            } else {
+                if(section.childNodes[0]?.nodeType == 3) section.childNodes[0].remove();
+                else section.childNodes[0]?.addClass('toast');
+                section.prepend(item);
             }
         }
         return frag;
@@ -247,7 +286,7 @@ class TopMenuElement extends BaseElement {
                 if (type == 'checkbox') input.checked = defaultValue;
                 else input.value = defaultValue;
             }
-            return li;
+            return input;
         }
     }
 
@@ -303,18 +342,8 @@ class TopMenuElement extends BaseElement {
             padding: 2px 10px;
             cursor: pointer;
         }
-        li:hover {
-            background: #FAFAFA33;
-        }
-        li:active {
-            opacity: 0.7;
-            background: #FAFAFA88;
-        }
         li > input {
             margin: 0 0 0 auto;
-        }
-        li > input[type="button"] {
-            opacity: 0;
         }
         section {
             color: #FAFAFA;
@@ -496,15 +525,10 @@ nemu.startup_rtc = () => {
 
         if (host_peer !== id) {
             var conn = peer.connect(host_peer);
-            conn.on('open', () => {
-                // Receive messages
-                handleConnection(conn);
-                // Send messages
-                conn.send({ type: 'initRequest' });
-            });
+            handleConnection(conn, true);
         } else setEndDrawHandler();
 
-        history.replaceState('', {}, `${location.origin + location.pathname}?host_peer=${id}`);
+        if(id === host_peer) history.replaceState('', {}, `${location.origin + location.pathname}`);
     });
 
     peer.on('connection', handleConnection);
@@ -553,8 +577,8 @@ function errorHandle(err) {
     }
 }
 
-function handleConnection(conn) {
-    let layer = nemu.registForeignLayer(conn.peer);
+function handleConnection(conn, isInit) {
+    let layer;
     connections.push(conn);
     conn.on('data', function (data) {
         if (typeof rtcFn[data?.type] == 'function') rtcFn[data.type](conn, data, layer);
@@ -567,10 +591,13 @@ function handleConnection(conn) {
     };
     conn.on('close', () => handleDisConnection(conn, layer));
     conn.on('open', () => {
+        layer = nemu.registForeignLayer(conn.peer);
         Utils.info(`${conn.peer} 님이 연결되었습니다.`);
         const { canvas, width, height } = layerElement;
         conn.send({ type: 'refreshCanvas', dataUrl: toDataUrl(canvas, 0, 0, width, height), minX: 0, minY: 0, w: width, h: height });
         if (nemu.username != my_peer) conn.send({ type: 'setUserName', username: nemu.username });
+        nemu.registForeignUser(conn);
+        isInit && conn.send({ type: 'initRequest' });
     });
 }
 
@@ -578,6 +605,7 @@ function handleDisConnection(conn, layer) {
     nemu.removeLayer(layer);
     connections = connections.filter(old_conn => old_conn.peer != conn.peer);
     Utils.warn(`${conn.peer} 님과의 연결이 종료되었습니다.`);
+    nemu.removeForeignUser(conn);
 }
 
 var rtcFn = {
@@ -607,6 +635,7 @@ var rtcFn = {
         Utils.info(`이름 변경 ${conn.username || conn.peer} => ${data.username}`);
         conn.username = data.username;
         layer.setName(`${data.username}님의 레이어`);
+        nemu.setForeignUserName(conn);
     }
 }
 
@@ -649,6 +678,7 @@ class WindowElement extends BaseElement {
         let btn_drag = Utils.createIconBtn('\u{F01DC}').addClass('drag').appendTo(frag);
 
         btn_drag.onpointerdown = (s_e) => {
+            let canvas_rect = nemu.layerWrap.getBoundingClientRect();
             let s_rect = win.getBoundingClientRect();
             let n_rect = { top: s_rect.top, left: s_rect.left };
             let n_e = s_e;
@@ -657,12 +687,16 @@ class WindowElement extends BaseElement {
             s_e.preventDefault();
 
             win.css({ 'z-index': ++windowZindex }).addClass('moving');
+            nemu.fixCanvasScroll(canvas_rect, nemu.layerWrap.getBoundingClientRect());
 
             window.onpointermove = (s_m) => {
                 // 기본 동작 방지
                 s_m.preventDefault();
                 n_e = s_m;
-                if (win.parentNode != root.shadowRoot) requestAnimationFrame(() => root.shadowRoot.prepend(win));
+                if (win.parentNode != root.shadowRoot) requestAnimationFrame(() => {
+                    root.shadowRoot.prepend(win);
+                    nemu.fixCanvasScroll(canvas_rect, nemu.layerWrap.getBoundingClientRect());
+                });
                 n_rect.top = parseInt(s_rect.top - s_e.clientY + s_m.clientY);
                 n_rect.left = parseInt(s_rect.left - s_e.clientX + s_m.clientX);
                 win.css({
@@ -678,6 +712,7 @@ class WindowElement extends BaseElement {
                     zone.instance.append(win);
                 }
                 win.removeClass('moving');
+                nemu.fixCanvasScroll(canvas_rect, nemu.layerWrap.getBoundingClientRect());
             });
         };
 
@@ -757,6 +792,50 @@ class WindowElement extends BaseElement {
             background-color: skyblue;
             font-weight: bold;
         }
+
+        .user-list {
+            list-style: none;
+            padding: 0;
+        }
+        .user-item {
+            border-top: 1px solid var(--clr-border);
+            padding: 10px;
+            color: #fff;
+        }
+        .user-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .user-item:last-child {
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .user-item.focus {
+            background-color: skyblue;
+            font-weight: bold;
+        }
+        .user-name-input {
+            display: block;
+            margin: 10px auto;
+            border-bottom: 1px solid var(--clr-border);
+            text-align: center;
+        }
+        .user-name-input:focus {
+            border-bottom-color: skyblue;
+        }
+        .user-name-button {
+            display: block;
+            margin: 10px auto;
+            padding: 5px;
+            width: 150px;
+            background: none;
+            border: 1px solid var(--clr-border);
+            color: #FAFAFA;
+        }
+        .user-name-button:hover {
+            border-color: skyblue;
+        }
+        .user-name-button:active {
+            opacity: 0.5;
+        }
         input, select, button.text {
             background: none;
             color: #fff;
@@ -773,6 +852,7 @@ class WindowElement extends BaseElement {
             grid-template-columns: 60px 1fr 40px;
             gap: 5px;
             align-items: center;
+            padding-inline: 5px;
         }
         input[type="range"] {
             -webkit-appearance: none; /* 기본 스타일 제거 */

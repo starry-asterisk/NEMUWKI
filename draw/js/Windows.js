@@ -2,31 +2,44 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-17
+* Date: 2024-10-18
 * Description: personal canvas project for NEMU
 */
 
 let $TAG_PREFIX = 'nemu';
 
 function createNewWindow(winId, buildFn, styleObj = {}) {
-    let win = nemu.windows[winId] = Utils.createElement(`${$TAG_PREFIX}-window`).css(styleObj);
+    let win = Utils.createElement(`${$TAG_PREFIX}-window`).css(styleObj);
     let root = win.shadowRoot;
+
+    if (!nemu._windows[winId]) nemu._windows[winId] = {};
+    nemu._windows[winId].el = win;
 
     buildFn.call(win, root);
 
     return win;
 }
 
-function tools() {
+function toolsWindow() {
     function toggleMode(newMode) {
         let oldMode = nemu.layerWrap.dataset.mode;
 
         nemu.layerWrap.dataset.mode = oldMode == newMode ? null : newMode;
     }
     return createNewWindow('tools', (root) => {
-        // Utils.createIconBtn('\u{F0041}').appendTo(root).props({
-        //     onclick() { toggleMode('move'); }
-        // });
+        Utils.createIconBtn('\u{F0328}').appendTo(root).props({
+            onclick() {
+                nemu.toggleWindow('layers', nemu.isOpened('layers'));
+            }
+        });
+        Utils.createIconBtn('\u{F00E3}').appendTo(root).props({
+            onclick() {
+                let toggle = nemu.isOpened('brusheSetting');
+                nemu.toggleWindow('brusheSetting', toggle);
+                nemu.toggleWindow('brushes', toggle);
+                nemu.toggleWindow('erasers', toggle);
+            }
+        });
         Utils.createIconBtn('\u{F0E46}').appendTo(root).props({
             onclick() { toggleMode('drag'); }
         });
@@ -58,8 +71,8 @@ function tools() {
                 layerWrap.brushColor = parseColor(this.value);
             }
         }).appendTo(root);
-        
-        nemu.onHistoryChange = ({undoable, redoable}) => {
+
+        nemu.onHistoryChange = ({ undoable, redoable }) => {
             undo_btn.disabled = !undoable;
             redo_btn.disabled = !redoable;
         };
@@ -69,58 +82,112 @@ function tools() {
     });
 }
 
+function brushSettingWindow() {
+    return createNewWindow('brusheSetting', (root) => {
+        let selected_pen, useMinOpacity, useMinSize;
+        let opacity_input = Utils.createSlider('불투명도', '%').props({
+            onchange(v) {
+                selected_pen.opacity = v / 100;
+                if (!useMinOpacity) {
+                    selected_pen.minOpacity = selected_pen.opacity;
+                    min_opacity_input.value = v;
+                }
+                parseInt(min_opacity_input.value) > parseInt(v) && (min_opacity_input.value = v);
+            }
+        }).appendTo(root);
+        let min_opacity_input = Utils.createSlider('최소', '%').props({
+            onchange(v) {
+                console.log(v, min_opacity_input.value, opacity_input.value);
+                selected_pen.minOpacity = v / 100;
+                parseInt(v) > parseInt(opacity_input.value) && (min_opacity_input.value = opacity_input.value);
+            }
+        }).appendTo(root);
+        let size_input = Utils.createSlider('크기', 'px', 1, 300).props({
+            onchange(v) {
+                selected_pen.size = Math.round(v / 2);
+                if (!useMinSize) {
+                    selected_pen.minSize = selected_pen.size;
+                    min_size_input.value = v;
+                }
+                parseInt(min_size_input.value) > parseInt(v) && (min_size_input.value = v);
+            }
+        }).appendTo(root);
+        let min_size_input = Utils.createSlider('최소', 'px', 1, 300).props({
+            onchange(v) {
+                selected_pen.minSize = Math.round(v / 2);
+                parseInt(v) > parseInt(size_input.value) && (min_size_input.value = size_input.value);
+            }
+        }).appendTo(root);
 
-function brushes() {
+        nemu.displayBrush = (pen, use_min_opacity, use_min_size) => {
+            useMinOpacity = use_min_opacity, useMinSize = use_min_size;
+            selected_pen = pen;
+
+            opacity_input.value = parseInt(pen.opacity * 100);
+            min_opacity_input.value = parseInt(pen.minOpacity * 100);
+            size_input.value = parseInt(pen.size * 2);
+            min_size_input.value = parseInt(pen.minSize * 2);
+
+            min_opacity_input.css({ display: useMinOpacity ? 'grid' : 'none' });
+            min_size_input.css({ display: useMinSize ? 'grid' : 'none' });
+        }
+    }, {
+        flex: 5,
+        width: '200px',
+        'min-height': 'fit-content',
+    });
+
+}
+
+function createBrushIem(item) {
+    return Utils.createElement('li').addClass('brush-item').props({
+        innerHTML: `${item.text}`,
+        onclick() {
+            layerWrap.pen = item.pen;
+            nemu.displayBrush(item.pen, item.useOpacityMin, item.useSizeMin);
+            for (let li of nemu.pens) li.removeClass('focus');
+            this.addClass('focus');
+        },
+        item
+    })
+}
+
+function brushesWindow() {
+    nemu.pens = [];
     const items = [
         {
             text: '기본 펜 (필압 적용 X)',
-            pen: new BaseBrush(5, 5, 1, 1)
+            pen: new BaseBrush(5, 5, 1, 1),
+            useOpacityMin: false,
+            useSizeMin: false,
         },
         {
             text: '기본 펜 (선 두께)',
-            pen: new BaseBrush(10, 2, 1, 1)
+            pen: new BaseBrush(10, 2, 1, 1),
+            useOpacityMin: false,
+            useSizeMin: true,
         },
         {
             text: '기본 펜 (투명도)',
-            pen: new BaseBrush(15, 15, 1, 0)
+            pen: new BaseBrush(15, 15, 1, 0),
+            useOpacityMin: true,
+            useSizeMin: false,
         },
         {
             text: '기본 펜 (필압 O)',
-            pen: new BaseBrush(20, 20, 0.7, 0.35)
-        },
-        {
-            text: '지우개',
-            pen: new EraseBrush(25, 8, 1, 0.5)
-        },
-        {
-            text: '하드 지우개',
-            pen: new HardEraseBrush(25, 8, 1, 0.5)
+            pen: new BaseBrush(20, 10, 0.7, 0.35),
+            useOpacityMin: true,
+            useSizeMin: true,
         },
         {
             text: '에어 브러시',
-            pen: new AirBrush(30, 30, 1, 0.5)
+            pen: new AirBrush(30, 9, 1, 0.5),
+            useOpacityMin: true,
+            useSizeMin: true,
         },
     ];
-    let ul, opacity_input, size_input;
-    nemu.pens = [];
-    function createBrushIem(item) {
-        return Utils.createElement('li').addClass('brush-item').props({
-            innerHTML: `${item.text} ${parseInt(item.pen.size * 2)}`,
-            onclick() {
-                layerWrap.pen = item.pen;
-                size_input.value = parseInt(item.pen.size * 2);
-                opacity_input.value = parseInt(item.pen.opacity * 100);
-                ul.querySelector('.focus')?.removeClass('focus');
-                this.addClass('focus');
-            },
-            item
-        })
-    }
     return createNewWindow('brushes', (root) => {
-        opacity_input = Utils.createSlider('불투명도', '%').props({ onchange(v) { layerWrap.pen.opacity = v / 100; } }).appendTo(root);
-        size_input = Utils.createSlider('크기', 'px', 1, 300).props({ onchange(v) { layerWrap.pen.size = Math.round(v / 2); } }).appendTo(root);
-
-        ul = Utils.createElement('ul').addClass('brush-list').appendTo(root);
+        let ul = Utils.createElement('ul').addClass('brush-list').appendTo(root);
         for (let item of items) {
             let li = createBrushIem(item).appendTo(ul);
             nemu.pens.push(li);
@@ -131,7 +198,34 @@ function brushes() {
     });
 }
 
-function layers() {
+function erasersWindow() {
+    const items = [
+        {
+            text: '지우개',
+            pen: new EraseBrush(25, 8, 1, 0.5),
+            useOpacityMin: true,
+            useSizeMin: true,
+        },
+        {
+            text: '하드 지우개',
+            pen: new HardEraseBrush(25, 8, 1, 1),
+            useOpacityMin: false,
+            useSizeMin: false,
+        }
+    ];
+    return createNewWindow('erasers', (root) => {
+        let ul = Utils.createElement('ul').addClass('brush-list').appendTo(root);
+        for (let item of items) {
+            let li = createBrushIem(item).appendTo(ul);
+            nemu.pens.push(li);
+        }
+    }, {
+        flex: 20,
+        width: '200px'
+    });
+}
+
+function layersWindow() {
     let cnt = 0;
     let ul, mode_select, opacity_input;
     nemu.focusLayer = function (layer) {
@@ -205,18 +299,41 @@ function layers() {
     });
 }
 
-function canvas() {
+function usersWindow() {
+    let ul;
+    nemu.registForeignUser = conn => {
+        Utils.createElement('li').addClass('user-item').attrs({ 'data-peer': conn.peer }).props({ innerHTML: conn.username || conn.peer }).appendTo(ul);
+    };
+    nemu.removeForeignUser = conn => {
+        ul.querySelector(`[data-peer="${conn.peer}"]`).remove();
+    };
+    nemu.setForeignUserName = conn => {
+        ul.querySelector(`[data-peer="${conn.peer}"]`).props({ innerHTML: conn.username || conn.peer });
+    };
+    return createNewWindow('users', (root) => {
+        nemu.username_input = Utils.createElement('input').addClass('user-name-input').attrs({type: 'text', maxlength: 20}).appendTo(root);
+        Utils.createElement('button').addClass('user-name-button').props({innerHTML: '적용', onclick(){
+            var new_name = nemu.username_input.value || '이름은 비울 수 없습니다.';
+            nemu.setUserName(new_name);
+            nemu.username_input.value = new_name;
+        }}).appendTo(root);
+        ul = Utils.createElement('ul').addClass('user-list').appendTo(root);
+    }, {
+        flex: 20,
+        width: '200px'
+    });
+}
+
+function canvasWindow() {
     const wrap = new LayerWrapElement();
-
-    const _layerWrapDescriptor = { get() { return wrap; } };
     const _layerElementDescriptor = { get() { return wrap.focusedLayer; } };
-    const _layersDescriptor = { get() { return wrap.layers; } };
 
-    Object.defineProperty(nemu, 'layerWrap', _layerWrapDescriptor);
-    Object.defineProperty(window, 'layerWrap', _layerWrapDescriptor);
     Object.defineProperty(nemu, 'layerElement', _layerElementDescriptor);
     Object.defineProperty(window, 'layerElement', _layerElementDescriptor);
-    Object.defineProperty(nemu, 'layers', _layersDescriptor);
+
+    nemu.layers = wrap.layers;
+    nemu.layerWrap = wrap;
+    window.layerWrap = wrap;
 
     return wrap;
 }
@@ -377,7 +494,7 @@ class AirBrush extends BaseBrush {
     }
 
     processPressure(oldP, newP) {
-        return Math.min(1, oldP + newP * 0.03);
+        return Math.min(1, 1 - (1 - oldP) * (1 - newP));
     }
 }
 
@@ -1297,4 +1414,4 @@ function parseColor(colorStr) {
     throw new Error("Invalid color format");
 }
 
-export { tools, brushes, canvas, layers };
+export { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, usersWindow, canvasWindow };
