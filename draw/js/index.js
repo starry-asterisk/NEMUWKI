@@ -7,7 +7,7 @@
 */
 
 import { BaseElement } from './Base.js';
-import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow } from './Windows.js';
+import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow } from './Windows.js?_v=3';
 
 window.nemu = {
     _pointer: {},

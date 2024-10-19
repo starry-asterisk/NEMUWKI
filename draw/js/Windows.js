@@ -1091,8 +1091,8 @@ class LayerWrapElement extends BaseElement {
 
     // 렌더링 후 초기화
     postRender() {
-        this.width = 500; // 초기 너비
-        this.height = 500; // 초기 높이
+        this.width = 1500; // 초기 너비
+        this.height = 1500; // 초기 높이
 
 
         this.smoothingFactor = 0.8; // 손 떨림 보정 비율
