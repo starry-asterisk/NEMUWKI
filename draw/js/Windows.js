@@ -2,7 +2,7 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-18
+* Date: 2024-10-19
 * Description: personal canvas project for NEMU
 */
 
@@ -44,16 +44,45 @@ function toolsWindow() {
             onclick() { toggleMode('drag'); }
         });
         Utils.createIconBtn('\u{F099B}').appendTo(root).props({
-            onclick() { nemu.layerWrap.rotate(false); nemu.layerWrap.applyTrans(); }
+            onclick() { 
+                nemu.layerWrap.rotate(false); 
+                nemu.layerWrap.applyTrans(); 
+                nemu.displayScale(nemu.layerWrap.scale);
+            }
         });
         Utils.createIconBtn('\u{F0453}').appendTo(root).props({
-            onclick() { nemu.layerWrap.rotate(true); nemu.layerWrap.applyTrans(); }
+            onclick() { 
+                nemu.layerWrap.rotate(true); 
+                nemu.layerWrap.applyTrans(); 
+                nemu.displayRotate(nemu.layerWrap._rotation);
+
+            }
+        });
+
+        Utils.createIconBtn('\u{F18F4}').appendTo(root).props({
+            onclick() {
+                nemu.layerWrap.scale = 1;
+                nemu.layerWrap.rotation = 0;
+                nemu.layerWrap._rotation = 0;
+                nemu.layerWrap.applyTrans();
+                nemu.displayScale(1);
+                nemu.displayRotate(0);
+                nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
+            }
         });
         Utils.createIconBtn('\u{F034B}').appendTo(root).props({
-            onclick() { nemu.layerWrap.zoom(true); nemu.layerWrap.applyTrans(); }
+            onclick() { 
+                nemu.layerWrap.zoom(true); 
+                nemu.layerWrap.applyTrans();
+                nemu.displayScale(nemu.layerWrap.scale);
+             }
         });
         Utils.createIconBtn('\u{F034A}').appendTo(root).props({
-            onclick() { nemu.layerWrap.zoom(false); nemu.layerWrap.applyTrans(); }
+            onclick() { 
+                nemu.layerWrap.zoom(false); 
+                nemu.layerWrap.applyTrans();
+                nemu.displayScale(nemu.layerWrap.scale);
+             }
         });
         let undo_btn = Utils.createIconBtn('\u{F054D}').appendTo(root).props({
             disabled: true,
@@ -293,31 +322,6 @@ function layersWindow() {
         blendModes.filter(mode => mode.use !== false).forEach(mode => Utils.createElement('option').props({ innerHTML: mode.name }).attrs({ value: mode.type }).appendTo(mode_select));
         opacity_input = Utils.createSlider('불투명도', '%').props({ oninput(v) { nemu.layerElement.applyOpacity(v / 100); } }).appendTo(root);
         ul = Utils.createElement('ul').addClass('layer-list').appendTo(root);
-    }, {
-        flex: 20,
-        width: '200px'
-    });
-}
-
-function usersWindow() {
-    let ul;
-    nemu.registForeignUser = conn => {
-        Utils.createElement('li').addClass('user-item').attrs({ 'data-peer': conn.peer }).props({ innerHTML: conn.username || conn.peer }).appendTo(ul);
-    };
-    nemu.removeForeignUser = conn => {
-        ul.querySelector(`[data-peer="${conn.peer}"]`).remove();
-    };
-    nemu.setForeignUserName = conn => {
-        ul.querySelector(`[data-peer="${conn.peer}"]`).props({ innerHTML: conn.username || conn.peer });
-    };
-    return createNewWindow('users', (root) => {
-        nemu.username_input = Utils.createElement('input').addClass('user-name-input').attrs({type: 'text', maxlength: 20}).appendTo(root);
-        Utils.createElement('button').addClass('user-name-button').props({innerHTML: '적용', onclick(){
-            var new_name = nemu.username_input.value || '이름은 비울 수 없습니다.';
-            nemu.setUserName(new_name);
-            nemu.username_input.value = new_name;
-        }}).appendTo(root);
-        ul = Utils.createElement('ul').addClass('user-list').appendTo(root);
     }, {
         flex: 20,
         width: '200px'
@@ -784,8 +788,12 @@ class LayerElement extends BaseElement {
 
         const { minX, minY, width, height } = this.pen.draw(off_ctx, x, y, pressure, prev_x, prev_y, prev_pressure);
 
-        ctx.clearRect(minX, minY, width, height);
-        ctx.drawImage(off_canvas, minX, minY, width, height, minX, minY, width, height);
+        // ctx.clearRect(minX, minY, width, height);
+        // ctx.drawImage(off_canvas, minX, minY, width, height, minX, minY, width, height);
+        
+        ctx.clearRect(0, 0, this.width, this.height);
+        ctx.drawImage(off_canvas, 0, 0, this.width, this.height);
+
 
         this.prev = [x, y, pressure];
     }
@@ -1063,6 +1071,24 @@ class LayerWrapElement extends BaseElement {
         `;
     }
 
+    handleGesture(e) {
+        let active = e.pointerType == 'touch' || e.shiftKey;
+        e.preventDefault();
+        e.stopPropagation();
+        activeHandle:
+        if (active) {
+            if (this.focusedLayer.activePainting) {
+                this.pointerupHandler(e);
+                this.parentNode.onpointerdown(e);
+                break activeHandle;
+            }
+            if (e.type == 'pointerdown') this.parentNode.onpointerdown(e);
+            if (typeof window.onpointermove == 'function') window.onpointermove(e, true);
+        }
+
+        return !active;
+    }
+
     // 렌더링 후 초기화
     postRender() {
         this.width = 500; // 초기 너비
@@ -1101,6 +1127,7 @@ class LayerWrapElement extends BaseElement {
     pointermoveHandler(e) {
         let coords = this.transCoords(this.focusedLayer.getBoundingClientRect(), e);
         nemu.displayCoords(coords);
+        if (!this.handleGesture(e)) return;
         this.pointer && this.pointer.css({ top: `${e.clientY}px`, left: `${e.clientX}px` });
         this.focusedLayer.pointermoveHandler(e, coords);
     }
@@ -1120,6 +1147,7 @@ class LayerWrapElement extends BaseElement {
     }
 
     pointerupHandler(e) {
+        if (e.type == 'pointerup' && window.onpointerup) window.onpointerup(e);
         if (this.focusedLayer.endDraw(e) === false) return;
         this.dispatchEvent(new Event('enddraw', { bubbles: true, cancelable: false }));
     }
@@ -1309,6 +1337,7 @@ class LayerWrapElement extends BaseElement {
         this.resizeCanvas(this.width, this.height);
 
         this.innerwrap.onpointerdown = e => {
+            if (!this.handleGesture(e)) return;
             let coords = this.transCoords(this.focusedLayer.getBoundingClientRect(), e);
             this.focusedLayer.startDraw(e, coords);
         };
@@ -1316,13 +1345,20 @@ class LayerWrapElement extends BaseElement {
         return frag;
     }
 
-    export(fileName = 'export.png') {
+    export(fileName = `nemu_export_${(new Date()).getTime()}.png`) {
+        if (!confirm('이미지를 저장하시겠습니까?')) return;
+
         let output_canvas = Utils.createElement('canvas').props({
             width: this.width,
             height: this.height
         });
 
         let output_ctx = output_canvas.getContext('2d');
+
+        if (!confirm('투명 배경으로 저장하시겠습니까?')) {
+            output_ctx.fillStyle = '#FFFFFF';
+            output_ctx.fillRect(0, 0, output_canvas.width, output_canvas.height);
+        }
 
         for (let layer of this.layers) {
             if (!layer.visibility) continue;
@@ -1414,4 +1450,4 @@ function parseColor(colorStr) {
     throw new Error("Invalid color format");
 }
 
-export { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, usersWindow, canvasWindow };
+export { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow };

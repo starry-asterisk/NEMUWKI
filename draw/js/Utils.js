@@ -2,7 +2,7 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-18
+* Date: 2024-10-19
 * Description: personal canvas project for NEMU
 */
 
@@ -49,7 +49,7 @@ HTMLElement.prototype.scrollIntoViewIfNeeded = function () {
 };
 
 HTMLElement.prototype.css = function (styleObj) {
-    if (typeof styleObj == 'object') for (let prop in styleObj) this.style[prop] = styleObj[prop];
+    if (typeof styleObj == 'object') for (let prop in styleObj) this.style.setProperty(prop, styleObj[prop]);
     return this;
 };
 

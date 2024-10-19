@@ -16,6 +16,8 @@
 html, body {
     overflow: visible;
     background-color: var(--clr-background-dark);
+    touch-action: pan-x pan-y;
+    overscroll-behavior: none;
 }
 
 nemu-top-menu {

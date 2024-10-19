@@ -2,14 +2,74 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-18
+* Date: 2024-10-19
 * Description: personal canvas project for NEMU
 */
 
-import { BaseElement } from './Base.js?_=1';
-import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, usersWindow, canvasWindow } from './Windows.js?_=1';
+import { BaseElement } from './Base.js';
+import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow } from './Windows.js';
 
 window.nemu = {
+    _pointer: {},
+    _initialAngle: null,
+    _initialDistance: null,
+    setPointer(e, el) {
+        el.setPointerCapture(e.pointerId);
+        this.trackPointer(e);
+    },
+    trackPointer(e) {
+        this._pointer[e.pointerId] = e;
+    },
+    releasePointer(e) {
+        this._initialAngle = null;
+        this._initialDistance = null;
+        delete this._pointer[e.pointerId];
+    },
+    gesture(isPointerDown) {
+        // 활성화된 포인터가 두 개가 아니라면 핀치 제스처를 수행하지 않음
+        const pointers = Object.values(this._pointer);
+        if (pointers.length < 2) {
+            return;
+        }
+            
+        const layerWrap = nemu.layerWrap;
+
+        const [pointer1, pointer2] = pointers;
+
+        // 두 포인터 사이의 거리 계산
+        const distance = Math.pow(pointer2.clientX - pointer1.clientX, 2) + Math.pow(pointer2.clientY - pointer1.clientY, 2);
+
+        // 두 포인터 사이의 각도 계산 (atan2 사용)
+        const angle = Math.atan2(
+            pointer2.clientY - pointer1.clientY,
+            pointer2.clientX - pointer1.clientX
+        );  // 라디안을 각도로 변환
+
+        if (isPointerDown) {
+            // 첫 번째 포인터 다운일 때 초기 거리와 각도를 저장
+            if (this._initialDistance === null) {
+                this._initialDistance = distance;
+                this._originalScale = layerWrap.scale;
+            }
+            if (this._initialAngle === null) {
+                this._initialAngle = angle;
+                this._originalRotation = layerWrap._rotation;
+            }
+        } else {
+            // 확대 비율 계산 (현재 거리 / 초기 거리)
+            let scale = distance / this._initialDistance;
+
+            // 회전 각도 계산 (현재 각도 - 초기 각도)
+            let rotation = Math.round((angle - this._initialAngle) * 180 / Math.PI);
+
+            layerWrap._rotation = this._originalRotation - rotation;
+            layerWrap.rotation = layerWrap._rotation / 180 * Math.PI;
+            layerWrap.scale = (this._originalScale * Math.sqrt(scale)).toFixed(2);
+            layerWrap.applyTrans();
+            nemu.displayScale(layerWrap.scale);
+            nemu.displayRotate(layerWrap._rotation);
+        }
+    },
     _windows: {},
     toggleWindow(name, bool) {
         let rect1 = this.layerWrap.getBoundingClientRect();
@@ -24,7 +84,7 @@ window.nemu = {
         let win = this._windows[name];
         return !win.el.classList.contains('hide');
     },
-    fixCanvasScroll(rect1, rect2){
+    fixCanvasScroll(rect1, rect2) {
         let diffX = rect2.x - rect1.x;
         let diffY = rect2.y - rect1.y;
         let container = this.layerWrap.parentNode;
@@ -66,7 +126,7 @@ const snapZone = [
         width: 242,
         minWidth: 200,
         maxWidth: 400,
-        default: [layersWindow, usersWindow],
+        default: [layersWindow],
         max: 7,
         direction: Direction.right
     }
@@ -89,7 +149,6 @@ class RootContainerElement extends BaseElement {
         nemu.toggleWindow('brusheSetting', true);
         nemu.toggleWindow('brushes', true);
         nemu.toggleWindow('erasers', true);
-        nemu.toggleWindow('users', true);
         nemu.pens[0].onclick();
         nemu.startup_rtc();
         return frag;
@@ -139,6 +198,7 @@ class RootContainerElement extends BaseElement {
         .flexZone.main {
             overflow: auto;
             cursor: grab;
+            align-items: stretch;
         }
         .flexZone.main:active {
             cursor: grabbing;
@@ -181,6 +241,7 @@ class RootContainerElement extends BaseElement {
         }
         ${$TAG_PREFIX}-layer-wrap {
             cursor: crosshair;
+            margin: 100%;
         }
         ${$TAG_PREFIX}-layer-wrap[data-mode="drag"]{
             pointer-events: none;
@@ -202,51 +263,64 @@ class TopMenuElement extends BaseElement {
         createLi(fileUl, '새로운 캔버스', 'button', function () {
             return true;
         });
-        createLi(fileUl, '캔버스 불러오기', 'button', function () {
-            return true;
-        });
-        createLi(fileUl, '캔버스 저장', 'button', function () {
-            return true;
-        });
+        // createLi(fileUl, '캔버스 불러오기', 'button', function () {
+        //     return true;
+        // });
+        // createLi(fileUl, '캔버스 저장', 'button', function () {
+        //     return true;
+        // });
         createLi(fileUl, '이미지로 저장하기', 'button', function () {
+            layerWrap.export();
             return true;
         });
+        // createLi(fileUl, '설정', 'button', function () {
+        //     return true;
+        // });
         let layerUl = createUl('레이어');
         createLi(layerUl, '캔버스 사이즈 변경', 'button', function () {
+            let w = parseInt(prompt('가로 길이를 입력하세요')) || 500;
+            let h = parseInt(prompt('세로 길이를 입력하세요')) || 500;
+            nemu.layerWrap.resizeCanvas(w, h);
             return true;
         });
         createLi(layerUl, '캔버스 원위치', 'button', function () {
+            nemu.layerWrap.scale = 1;
+            nemu.layerWrap.rotation = 0;
+            nemu.layerWrap._rotation = 0;
+            nemu.layerWrap.applyTrans();
+            nemu.displayScale(1);
+            nemu.displayRotate(0);
+            nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
             return true;
         });
-        createLi(layerUl, '색상 보정', 'button', function () {
-            return true;
-        });
-        createLi(layerUl, '레이어 클리어', 'button', function () {
-            return true;
-        });
-        createLi(layerUl, '가우시안 블러', 'button', function () {
-            return true;
-        });
-        createLi(layerUl, '레이어를 아래로 통합', 'button', function () {
-            return true;
-        });
-        createLi(layerUl, '레이어 추가', 'button', function () {
-            return true;
-        });
-        createLi(layerUl, '레이어 삭제', 'button', function () {
-            return true;
-        });
+        // createLi(layerUl, '색상 보정', 'button', function () {
+        //     return true;
+        // });
+        // createLi(layerUl, '레이어 클리어', 'button', function () {
+        //     return true;
+        // });
+        // createLi(layerUl, '가우시안 블러', 'button', function () {
+        //     return true;
+        // });
+        // createLi(layerUl, '레이어를 아래로 통합', 'button', function () {
+        //     return true;
+        // });
+        // createLi(layerUl, '레이어 추가', 'button', function () {
+        //     return true;
+        // });
+        // createLi(layerUl, '레이어 삭제', 'button', function () {
+        //     return true;
+        // });
         let windowUl = createUl('윈도우');
         let winSettings = [
-            {title: '도구', name: 'tools'},
-            {title: '드로잉 설정', name: 'brusheSetting'},
-            {title: '브러쉬', name: 'brushes'},
-            {title: '지우개', name: 'erasers'},
-            {title: '레이어', name: 'layers'},
-            {title: '연결된 사용자 목록', name: 'users'},
+            { title: '도구', name: 'tools' },
+            { title: '드로잉 설정', name: 'brusheSetting' },
+            { title: '브러쉬', name: 'brushes' },
+            { title: '지우개', name: 'erasers' },
+            { title: '레이어', name: 'layers' }
         ];
-        for(let setting of winSettings) {
-            if(!nemu._windows[setting.name]) nemu._windows[setting.name] = {};
+        for (let setting of winSettings) {
+            if (!nemu._windows[setting.name]) nemu._windows[setting.name] = {};
             nemu._windows[setting.name].input = createLi(windowUl, setting.title, 'checkbox', function () {
                 nemu.toggleWindow(setting.name, !this.checked)
                 return true;
@@ -261,11 +335,63 @@ class TopMenuElement extends BaseElement {
                 if (timer) clearTimeout(timer);
                 timer = setTimeout(() => section.removeClass('toast'), time);
             } else {
-                if(section.childNodes[0]?.nodeType == 3) section.childNodes[0].remove();
+                if (section.childNodes[0]?.nodeType == 3) section.childNodes[0].remove();
                 else section.childNodes[0]?.addClass('toast');
                 section.prepend(item);
             }
         }
+        let aside = Utils.createElement('aside').appendTo(frag);
+        let aside_btn = Utils.createIconBtn('\u{F0415}').appendTo(aside);
+        let aside_ul = Utils.createElement('ul').appendTo(aside_btn).css({ right: '0' });
+        let aside_input = Utils.createElement('input').addClass('aside-input').attrs({ type: 'text', maxlength: 20, placeholder: '사용자명' }).appendTo(aside_ul);
+
+        Utils.createElement('button').addClass('aside-button').props({
+            innerHTML: '적용', onclick() {
+                var new_name = aside_input.value || '이름은 비울 수 없습니다.';
+                nemu.setUserName(new_name);
+                aside_input.value = new_name;
+            }
+        }).appendTo(aside_ul);
+
+        function name2color(name) {
+            let r = (Math.min(name.charCodeAt(0), 255) || 125);
+            let g = (Math.min(name.charCodeAt(1), 255) || 125);
+            let b = (Math.min(name.charCodeAt(2), 255) || 125);
+            let ret = '#';
+            ret += r.toString(16).padStart(2, '0');
+            ret += g.toString(16).padStart(2, '0');
+            ret += b.toString(16).padStart(2, '0');
+            return { back: ret, fore: (r + g + b) / 775 < 0.6 ? '#FAFAFA' : 'var(--clr-background)' };
+        }
+
+        nemu.registForeignUser = conn => {
+            let new_name = conn.username || conn.peer;
+            let color = name2color(new_name);
+            Utils.createElement('li')
+                .attrs({ 'data-peer': conn.peer })
+                .props({ innerHTML: new_name, title: new_name })
+                .appendTo(aside_ul);
+            Utils.createElement('span')
+                .attrs({ 'data-peer': conn.peer, title: new_name })
+                .props({ innerHTML: new_name.charAt(0) })
+                .css({ 'background-color': color.back, 'color': color.fore }).appendTo(aside);
+        };
+        nemu.removeForeignUser = conn => {
+            aside_ul.querySelector(`li[data-peer="${conn.peer}"]`).remove();
+            aside.querySelector(`span[data-peer="${conn.peer}"]`).remove();
+        };
+        nemu.setForeignUserName = conn => {
+            let new_name = conn.username || conn.peer;
+            let color = name2color(new_name);
+            aside_ul.querySelector(`li[data-peer="${conn.peer}"]`)
+                .attrs({ title: new_name })
+                .props({ innerHTML: new_name });
+            aside.querySelector(`span[data-peer="${conn.peer}"]`)
+                .attrs({ title: new_name })
+                .props({ innerHTML: new_name.charAt(0) })
+                .css({ 'background-color': color.back, 'color': color.fore });
+        };
+
         return frag;
         function createUl(title, disabled = false) {
             let btn = Utils.createElement('button').props({ innerHTML: `${title}`, disabled }).appendTo(frag);
@@ -353,7 +479,7 @@ class TopMenuElement extends BaseElement {
             line-height: 24px;
             counter-reset: alarm;
             position: relative;
-            margin: 5px auto ;
+            margin: 5px 0px 5px auto;
             border-radius: 12px;
             min-width: 200px;
             height: 24px;
@@ -441,6 +567,90 @@ class TopMenuElement extends BaseElement {
         }
         section.toast > * {
             margin-top: -24px;
+        }
+        aside {
+            display: flex;
+            margin: 5px auto 5px 5px;
+            gap: 5px;
+        }
+        aside > *, aside > button.icon {
+            display: block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            border-radius: 50%;
+        }
+        aside > button.icon {
+            order: 1;
+        }
+        aside > span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            background-color: grey;
+            color: #FAFAFA;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+        aside > span:hover {
+            outline: 2px solid skyblue;
+        }
+        aside > *:nth-child(n + 5) {
+            display: none;
+        }
+        aside ul {
+            min-width: 202px;
+        }
+        li[data-peer] {
+            position: relative;
+            max-width: 200px;
+            min-width: 200px;
+            text-overflow: ellipsis;
+            text-align: left;
+            overflow: hidden;
+            white-space: nowrap;
+            display: block;
+            padding: 10px 10px 15px;
+            font-size: 14px;
+        }
+        li[data-peer]::after {
+            content: attr(data-peer);
+            position: absolute;
+            left: 10px;
+            top: 25px;
+            font-size: 0.7em;
+            opacity: 0.5;
+        }
+        .aside-input {
+            display: block;
+            margin: 10px auto;
+            width: 140px;
+            border: 1px solid transparent;
+            border-bottom-color: var(--clr-border);
+            background: transparent;
+            outline: none;
+            text-align: center;
+            line-height: 36px;
+            color: #FAFAFA;
+        }
+        .aside-input:focus {
+            border-bottom-color: skyblue;
+        }
+        .aside-button {
+            display: block;
+            margin: 10px auto;
+            padding: 2px;
+            width: 140px;
+            background: none;
+            border: 1px solid var(--clr-border);
+            color: #FAFAFA;
+        }
+        .aside-button:hover {
+            border-color: skyblue;
+        }
+        .aside-button:active {
+            opacity: 0.5;
         }
         `;
     }
@@ -678,6 +888,7 @@ class WindowElement extends BaseElement {
         let btn_drag = Utils.createIconBtn('\u{F01DC}').addClass('drag').appendTo(frag);
 
         btn_drag.onpointerdown = (s_e) => {
+            s_e.preventDefault();
             let canvas_rect = nemu.layerWrap.getBoundingClientRect();
             let s_rect = win.getBoundingClientRect();
             let n_rect = { top: s_rect.top, left: s_rect.left };
@@ -792,50 +1003,6 @@ class WindowElement extends BaseElement {
             background-color: skyblue;
             font-weight: bold;
         }
-
-        .user-list {
-            list-style: none;
-            padding: 0;
-        }
-        .user-item {
-            border-top: 1px solid var(--clr-border);
-            padding: 10px;
-            color: #fff;
-        }
-        .user-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .user-item:last-child {
-            border-bottom: 1px solid var(--clr-border);
-        }
-        .user-item.focus {
-            background-color: skyblue;
-            font-weight: bold;
-        }
-        .user-name-input {
-            display: block;
-            margin: 10px auto;
-            border-bottom: 1px solid var(--clr-border);
-            text-align: center;
-        }
-        .user-name-input:focus {
-            border-bottom-color: skyblue;
-        }
-        .user-name-button {
-            display: block;
-            margin: 10px auto;
-            padding: 5px;
-            width: 150px;
-            background: none;
-            border: 1px solid var(--clr-border);
-            color: #FAFAFA;
-        }
-        .user-name-button:hover {
-            border-color: skyblue;
-        }
-        .user-name-button:active {
-            opacity: 0.5;
-        }
         input, select, button.text {
             background: none;
             color: #fff;
@@ -876,8 +1043,9 @@ customElements.define(`${$TAG_PREFIX}-window`, WindowElement);
 
 function clearDragEvent(cb = () => { }) {
     // pointerup 또는 pointercancel로 드래그 종료 처리
-    window.onpointerup = window.onpointercancel = () => {
-        cb();
+    window.onpointerup = window.onpointercancel = window.onlostpointercapture = e => {
+        cb(e);
+        nemu.releasePointer(e);
         window.onpointerdown = window.onpointermove = window.onpointerup = window.onpointercancel = undefined;
     };
 }
@@ -909,21 +1077,23 @@ function createZone(zone) {
             };
 
             // pointerup 및 pointercancel로 드래그 종료 처리
-            clearDragEvent(() => { });
+            clearDragEvent();
         };
     }
     else {
         zone_div.addClass('main').css({ flex: 1 });
-        zone_div.onmousedown = e_d => {
-            if (e_d.target != zone_div) return;
+        zone_div.onpointerdown = (e_d) => {
+            nemu.setPointer(e_d, zone_div);
+            if (!e_d.isPrimary) return nemu.gesture(true); 
             let { scrollTop, scrollLeft } = zone_div;
-            window.onmousemove = e_m => {
+            window.onpointermove = e_m => {
+                nemu.trackPointer(e_m);
+                if (e_d.pointerType !== e_m.pointerType || !e_m.isPrimary) return nemu.gesture();
                 zone_div.scrollTop = scrollTop + (e_d.clientY - e_m.clientY);
                 zone_div.scrollLeft = scrollLeft + (e_d.clientX - e_m.clientX);
             }
-            window.onmouseleave = window.onmouseup = () => {
-                window.onmouseleave = window.onmouseup = window.onmousemove = null;
-            }
+
+            clearDragEvent();
         }
     }
 
