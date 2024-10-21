@@ -2,14 +2,17 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-19
+* Date: 2024-10-21
 * Description: personal canvas project for NEMU
 */
 
-import { BaseElement } from './Base.js';
-import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow } from './Windows.js?_v=3';
+import { BaseElement } from './Base.js?_=2';
+import { modalInit, modalExport } from './Dialog.js?_=2';
+import { toolsWindow, brushSettingWindow, brushesWindow, erasersWindow, layersWindow, canvasWindow } from './Windows.js?_=2';
 
 window.nemu = {
+    modalInit,
+    modalExport,
     _pointer: {},
     _initialAngle: null,
     _initialDistance: null,
@@ -20,10 +23,11 @@ window.nemu = {
     trackPointer(e) {
         this._pointer[e.pointerId] = e;
     },
-    releasePointer(e) {
+    releasePointer(e, el) {
         this._initialAngle = null;
         this._initialDistance = null;
         delete this._pointer[e.pointerId];
+        if (el) el.releasePointerCapture(e.pointerId);
     },
     gesture(isPointerDown) {
         // 활성화된 포인터가 두 개가 아니라면 핀치 제스처를 수행하지 않음
@@ -31,7 +35,7 @@ window.nemu = {
         if (pointers.length < 2) {
             return;
         }
-            
+
         const layerWrap = nemu.layerWrap;
 
         const [pointer1, pointer2] = pointers;
@@ -64,7 +68,7 @@ window.nemu = {
 
             layerWrap._rotation = this._originalRotation - rotation;
             layerWrap.rotation = layerWrap._rotation / 180 * Math.PI;
-            layerWrap.scale = (this._originalScale * Math.sqrt(scale)).toFixed(2);
+            layerWrap.scale = parseFloat((this._originalScale * Math.sqrt(scale)).toFixed(2));
             layerWrap.applyTrans();
             nemu.displayScale(layerWrap.scale);
             nemu.displayRotate(layerWrap._rotation);
@@ -90,6 +94,20 @@ window.nemu = {
         let container = this.layerWrap.parentNode;
         container.scrollLeft += diffX;
         container.scrollTop += diffY;
+    },
+    resetScroll() {
+        if (!this.layerWrap) return;
+        let rect = this.layerWrap.parentNode.getBoundingClientRect();
+        this.layerWrap.scale = parseFloat(Math.min(rect.width / this.layerWrap.width, rect.height / this.layerWrap.height).toFixed(2));
+        this.layerWrap.rotation = 0;
+        this.layerWrap._rotation = 0;
+        this.layerWrap.applyTrans();
+        this.displayScale(this.layerWrap.scale);
+        this.displayRotate(0);
+
+        let node = this.layerWrap.parentNode;
+        node.scrollTop = (node.scrollHeight - node.offsetHeight) / 2;
+        node.scrollLeft = (node.scrollWidth - node.offsetWidth) / 2;
     }
 };
 
@@ -155,7 +173,9 @@ class RootContainerElement extends BaseElement {
     }
 
     connectedCallback() {
-        nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
+        let node = nemu.layerWrap.parentNode;
+        node.scrollTop = (node.scrollHeight - node.offsetHeight) / 2;
+        node.scrollLeft = (node.scrollWidth - node.offsetWidth) / 2;
     }
 
     stylesheet() {
@@ -178,6 +198,9 @@ class RootContainerElement extends BaseElement {
             --width: auto;
             position: relative;
             width: var(--width);
+        }
+        :host > ${$TAG_PREFIX}-window {
+            max-height: 50vh;
         }
         .flexZone > ${$TAG_PREFIX}-window {
             position: relative;
@@ -241,7 +264,6 @@ class RootContainerElement extends BaseElement {
         }
         ${$TAG_PREFIX}-layer-wrap {
             cursor: crosshair;
-            margin: 100%;
         }
         ${$TAG_PREFIX}-layer-wrap[data-mode="drag"]{
             pointer-events: none;
@@ -261,6 +283,29 @@ class TopMenuElement extends BaseElement {
         let frag = Utils.createFragment();
         let fileUl = createUl('파일');
         createLi(fileUl, '새로운 캔버스', 'button', function () {
+            window.open(location.origin + location.pathname,'_blank');
+            return true;
+        });
+        createLi(fileUl, '이미지 불러오기', 'button', function () {
+            (async () => {
+                try {
+                    const [fileHandle] = await window.showOpenFilePicker();
+                    const file = await fileHandle.getFile();
+                    let img = new Image();
+                    img.onload = () => {
+                        let layer = nemu.layerElement;
+                        nemu.layerWrap.resizeCanvas(img.width, img.height);
+                        layer.ctx.drawImage(img, 0, 0, img.width, img.height);
+                        layer.off_ctx.drawImage(img, 0, 0, img.width, img.height);
+                        layer.layerData.resize(layer.off_ctx.getImageData(0, 0, img.width, img.height).data, img.width, img.height);
+                        nemu.resetScroll();
+                        nemu.displaySize(layer.width, layer.height);
+                    }
+                    img.src = URL.createObjectURL(file);
+                } catch(e) {
+
+                }
+            })();
             return true;
         });
         // createLi(fileUl, '캔버스 불러오기', 'button', function () {
@@ -270,7 +315,7 @@ class TopMenuElement extends BaseElement {
         //     return true;
         // });
         createLi(fileUl, '이미지로 저장하기', 'button', function () {
-            layerWrap.export();
+            nemu.modalExport();
             return true;
         });
         // createLi(fileUl, '설정', 'button', function () {
@@ -278,19 +323,11 @@ class TopMenuElement extends BaseElement {
         // });
         let layerUl = createUl('레이어');
         createLi(layerUl, '캔버스 사이즈 변경', 'button', function () {
-            let w = parseInt(prompt('가로 길이를 입력하세요')) || 500;
-            let h = parseInt(prompt('세로 길이를 입력하세요')) || 500;
-            nemu.layerWrap.resizeCanvas(w, h);
+            nemu.modalInit();
             return true;
         });
         createLi(layerUl, '캔버스 원위치', 'button', function () {
-            nemu.layerWrap.scale = 1;
-            nemu.layerWrap.rotation = 0;
-            nemu.layerWrap._rotation = 0;
-            nemu.layerWrap.applyTrans();
-            nemu.displayScale(1);
-            nemu.displayRotate(0);
-            nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
+            nemu.resetScroll();
             return true;
         });
         // createLi(layerUl, '색상 보정', 'button', function () {
@@ -350,13 +387,15 @@ class TopMenuElement extends BaseElement {
                 var new_name = aside_input.value || '이름은 비울 수 없습니다.';
                 nemu.setUserName(new_name);
                 aside_input.value = new_name;
+                this.blur();
+                document.activeElement.blur();
             }
         }).appendTo(aside_ul);
 
         function name2color(name) {
-            let r = (Math.min(name.charCodeAt(0), 255) || 125);
-            let g = (Math.min(name.charCodeAt(1), 255) || 125);
-            let b = (Math.min(name.charCodeAt(2), 255) || 125);
+            let r = (name.charCodeAt(0) % 255) || 125;
+            let g = (name.charCodeAt(1) % 255) || 125;
+            let b = (name.charCodeAt(2) % 255) || 125;
             let ret = '#';
             ret += r.toString(16).padStart(2, '0');
             ret += g.toString(16).padStart(2, '0');
@@ -404,6 +443,7 @@ class TopMenuElement extends BaseElement {
                     if (type == 'checkbox') input.checked = !input.checked;
                     if (callback.bind(input)(e)) {
                         ul.parentNode.blur();
+                        document.activeElement.blur();
                     }
                 }
             }).appendTo(ul);
@@ -468,8 +508,14 @@ class TopMenuElement extends BaseElement {
             padding: 2px 10px;
             cursor: pointer;
         }
+        li:hover {
+            background: skyblue;
+        }
         li > input {
             margin: 0 0 0 auto;
+        }
+        li > input[type="button"] {
+            opacity: 0;
         }
         section {
             color: #FAFAFA;
@@ -736,13 +782,19 @@ nemu.startup_rtc = () => {
         if (host_peer !== id) {
             var conn = peer.connect(host_peer);
             handleConnection(conn, true);
-        } else setEndDrawHandler();
-
-        if(id === host_peer) history.replaceState('', {}, `${location.origin + location.pathname}`);
+        } else {
+            setEndDrawHandler();
+            modalInit();
+        }
+        if (id === host_peer) history.replaceState('', {}, `${location.origin + location.pathname}`);
     });
 
     peer.on('connection', handleConnection);
     peer.on('error', errorHandle);
+    peer.on('disconnected', () => {
+        console.log('Peer disconnected, attempting to reconnect...');
+        peer.reconnect();  // 자동으로 재연결 시도
+    });
 }
 
 function errorHandle(err) {
@@ -803,8 +855,8 @@ function handleConnection(conn, isInit) {
     conn.on('open', () => {
         layer = nemu.registForeignLayer(conn.peer);
         Utils.info(`${conn.peer} 님이 연결되었습니다.`);
-        const { canvas, width, height } = layerElement;
-        conn.send({ type: 'refreshCanvas', dataUrl: toDataUrl(canvas, 0, 0, width, height), minX: 0, minY: 0, w: width, h: height });
+        const { layers, width, height } = layerWrap;
+        conn.send({ type: 'canvasRefresh', dataUrl: toDataUrl(layers, 0, 0, width, height), minX: 0, minY: 0, w: width, h: height });
         if (nemu.username != my_peer) conn.send({ type: 'setUserName', username: nemu.username });
         nemu.registForeignUser(conn);
         isInit && conn.send({ type: 'initRequest' });
@@ -820,7 +872,7 @@ function handleDisConnection(conn, layer) {
 
 var rtcFn = {
     initRequest(conn) {
-        conn.send({ type: 'initResponse', list: connections.map(conn => conn.peer) })
+        conn.send({ type: 'initResponse', list: connections.map(conn => conn.peer), width: nemu.layerWrap.width, height: nemu.layerWrap.height })
     },
     initResponse(conn, data) {
         Utils.info('공용 캔버스에 입장하셨습니다.');
@@ -829,9 +881,12 @@ var rtcFn = {
             var conn = peer.connect(peer_id);
             handleConnection(conn);
         }
+        nemu.layerWrap.resizeCanvas(data.width, data.height);
+        nemu.displaySize(data.width, data.height);
+        nemu.resetScroll();
         setEndDrawHandler();
     },
-    refreshCanvas(conn, data, layer) {
+    canvasRefresh(conn, data, layer) {
         const img = new Image();
         img.onload = function () {
             // 이미지가 로드된 후 캔버스에 그리기
@@ -851,11 +906,11 @@ var rtcFn = {
 
 function setEndDrawHandler() {
     layerWrap.addEventListener('enddraw', () => {
-        const { canvas, layerData } = layerElement;
+        const { layerData } = layerElement;
         const { minX, minY, maxX, maxY } = layerData;
         let w = maxX - minX + 1;
         let h = maxY - minY + 1;
-        let data = { type: 'refreshCanvas', dataUrl: toDataUrl(canvas, minX, minY, w, h), minX, minY, w, h };
+        let data = { type: 'canvasRefresh', dataUrl: toDataUrl(layerWrap.layers, minX, minY, w, h), minX, minY, w, h };
 
         for (let conn of connections) conn.send(data);
     });
@@ -867,12 +922,18 @@ nemu.setUserName = text => {
     for (let conn of connections) conn.send(data);
 }
 
-function toDataUrl(srcCanvas, minX, minY, w, h) {
+function toDataUrl(srcLayers, minX, minY, w, h) {
     let msgCanvas = Utils.createElement('canvas');
-    let msgCtx = msgCanvas.getContext('2d');
+    let msgCtx = msgCanvas.getContext('2d', { willReadFrequently: true });
     msgCanvas.width = w;
     msgCanvas.height = h;
-    msgCtx.drawImage(srcCanvas, minX, minY, w, h, 0, 0, w, h);
+    for (let layer of srcLayers) {
+        if (layer.foreign) continue;
+        if (!layer.visibility) continue;
+        msgCtx.globalCompositeOperation = layer.blendMode;
+        msgCtx.globalAlpha = layer.opacity;
+        msgCtx.drawImage(layer.canvas, minX, minY, w, h, 0, 0, w, h);
+    }
     return msgCanvas.toDataURL('image/jpg');
 }
 
@@ -888,14 +949,16 @@ class WindowElement extends BaseElement {
         let btn_drag = Utils.createIconBtn('\u{F01DC}').addClass('drag').appendTo(frag);
 
         btn_drag.onpointerdown = (s_e) => {
-            s_e.preventDefault();
+            btn_drag.focus();
             let canvas_rect = nemu.layerWrap.getBoundingClientRect();
             let s_rect = win.getBoundingClientRect();
+            let s_w_ratio = (s_e.clientX - s_rect.left) / s_rect.width;
             let n_rect = { top: s_rect.top, left: s_rect.left };
             let n_e = s_e;
 
             // 기본 터치 및 팬 동작 방지 (예: 스크롤)
             s_e.preventDefault();
+            s_e.stopPropagation();
 
             win.css({ 'z-index': ++windowZindex }).addClass('moving');
             nemu.fixCanvasScroll(canvas_rect, nemu.layerWrap.getBoundingClientRect());
@@ -903,13 +966,14 @@ class WindowElement extends BaseElement {
             window.onpointermove = (s_m) => {
                 // 기본 동작 방지
                 s_m.preventDefault();
+                s_m.stopPropagation();
                 n_e = s_m;
                 if (win.parentNode != root.shadowRoot) requestAnimationFrame(() => {
                     root.shadowRoot.prepend(win);
                     nemu.fixCanvasScroll(canvas_rect, nemu.layerWrap.getBoundingClientRect());
                 });
                 n_rect.top = parseInt(s_rect.top - s_e.clientY + s_m.clientY);
-                n_rect.left = parseInt(s_rect.left - s_e.clientX + s_m.clientX);
+                n_rect.left = parseInt(s_m.clientX - s_w_ratio * (win.clientWidth));
                 win.css({
                     top: `${n_rect.top - 35}px`,
                     left: `${n_rect.left}px`,
@@ -917,7 +981,7 @@ class WindowElement extends BaseElement {
             };
 
             // pointerup 및 pointercancel로 드래그 종료 처리
-            clearDragEvent(() => {
+            clearDragEvent(e => {
                 for (let zone of snapZone) if (!zone.disabled && compareDistance(n_e, zone.instance.getBoundingClientRect())) {
                     if (zone.max <= zone.instance.children.length - 1) continue;
                     zone.instance.append(win);
@@ -933,6 +997,8 @@ class WindowElement extends BaseElement {
     stylesheet() {
         return `
         :host {
+            display: flex;
+            flex-direction: column;
             position: absolute;
             top: 0;
             left: 0;
@@ -947,6 +1013,10 @@ class WindowElement extends BaseElement {
             font-size: 13px;
         }
 
+        ::-webkit-scrollbar-track {
+            border-left: 1px solid var(--clr-border);
+        }
+
         button.drag {
             position: sticky;
             top: 0;
@@ -955,8 +1025,12 @@ class WindowElement extends BaseElement {
         }
 
         .layer-list {
+            display: flex;
+            flex-direction: column-reverse;
             list-style: none;
             padding: 0;
+            overflow-y: auto;
+            border-block: 1px solid var(--clr-border);
         }
         .layer-item {
             border-top: 1px solid var(--clr-border);
@@ -977,7 +1051,7 @@ class WindowElement extends BaseElement {
         .layer-item:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        .layer-item:last-child {
+        .layer-item:first-child {
             border-bottom: 1px solid var(--clr-border);
         }
         .layer-item.focus {
@@ -987,6 +1061,7 @@ class WindowElement extends BaseElement {
         .brush-list {
             list-style: none;
             padding: 0;
+            border-block: 1px solid var(--clr-border);
         }
         .brush-item {
             border-top: 1px solid var(--clr-border);
@@ -995,9 +1070,6 @@ class WindowElement extends BaseElement {
         }
         .brush-item:hover {
             background-color: rgba(255, 255, 255, 0.2);
-        }
-        .brush-item:last-child {
-            border-bottom: 1px solid var(--clr-border);
         }
         .brush-item.focus {
             background-color: skyblue;
@@ -1043,9 +1115,8 @@ customElements.define(`${$TAG_PREFIX}-window`, WindowElement);
 
 function clearDragEvent(cb = () => { }) {
     // pointerup 또는 pointercancel로 드래그 종료 처리
-    window.onpointerup = window.onpointercancel = window.onlostpointercapture = e => {
+    window.onlostpointercapture = window.onpointerup = window.onpointercancel = e => {
         cb(e);
-        nemu.releasePointer(e);
         window.onpointerdown = window.onpointermove = window.onpointerup = window.onpointercancel = undefined;
     };
 }
@@ -1063,6 +1134,7 @@ function createZone(zone) {
         let isRight = zone.direction == Direction.right;
         let btn_resize = Utils.createElement('button').addClass('resizer').toggleClass('right', isRight).appendTo(zone_div);
         btn_resize.onpointerdown = (s_e) => {
+            btn_resize.focus();
             let s_width = Number(zone_div.dataset.width);
             let n_width = s_width;
 
@@ -1081,10 +1153,12 @@ function createZone(zone) {
         };
     }
     else {
+        zone_div.tabIndex = 0;
         zone_div.addClass('main').css({ flex: 1 });
         zone_div.onpointerdown = (e_d) => {
+            zone_div.focus();
             nemu.setPointer(e_d, zone_div);
-            if (!e_d.isPrimary) return nemu.gesture(true); 
+            if (!e_d.isPrimary) return nemu.gesture(true);
             let { scrollTop, scrollLeft } = zone_div;
             window.onpointermove = e_m => {
                 nemu.trackPointer(e_m);
@@ -1093,8 +1167,11 @@ function createZone(zone) {
                 zone_div.scrollLeft = scrollLeft + (e_d.clientX - e_m.clientX);
             }
 
-            clearDragEvent();
+            clearDragEvent(e => {
+                nemu.releasePointer(e);
+            });
         }
+        window.addEventListener('pointerup', e => nemu.releasePointer(e));
     }
 
     for (let winBuilder of (zone.default || [])) {
@@ -1108,3 +1185,13 @@ window.onload = () => {
     Utils.createElement('nemu-root').attrs({ id: 'root' }).appendTo(document.body);
     Utils.createElement('nemu-bottom-menu').appendTo(document.body);
 }
+
+// 텍스트 선택 방지
+document.addEventListener('selectstart', function (event) {
+    event.preventDefault(); // 텍스트 선택 막기
+});
+
+// // 터치 이벤트에서 발생하는 기본 동작 막기
+// document.addEventListener('touchstart', function (event) {
+//     event.preventDefault(); // 기본 터치 동작 방지
+// }, { passive: false });

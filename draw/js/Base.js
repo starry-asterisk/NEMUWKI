@@ -2,11 +2,11 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-19
+* Date: 2024-10-21
 * Description: personal canvas project for NEMU
 */
 
-import * as Utils from './Utils.js?_=2';
+import * as Utils from './Utils.js?_=3';
 window.Utils = Utils;
 
 class BaseElement extends HTMLElement {
@@ -107,27 +107,36 @@ class BaseElement extends HTMLElement {
             border: 0;
             background-color: transparent;
             color: white;
+            cursor: pointer;
+        }
+
+        button.icon:active {
+            background-color: skyblue;
         }
             
         ::-webkit-scrollbar {
-            width: var(--gap-small);
-            height: var(--gap-small);
+            width: 15px;
         }
 
         ::-webkit-scrollbar-track {
             background: transparent;
         }
 
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
         ::-webkit-scrollbar-thumb {
-            background: #00000044;
+            background: #FFFFFF44;
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #00000077;
+            background: #FFFFFF77;
         }
 
         ::-webkit-scrollbar-thumb:active {
-            background: #00000088;
+            background: #FFFFFF88;
         }
             
         input[type="color"] {
@@ -136,7 +145,12 @@ class BaseElement extends HTMLElement {
             padding: 0;
             width: 40px;
             height: 40px;
-        }`;
+        }
+        
+        * {
+            outline: none;
+        }    
+        `;
     }
 
     // DOM 구조를 생성하고 shadowRoot에 추가

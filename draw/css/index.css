@@ -1,4 +1,10 @@
-@font-face{font-family:"Material Design Icons";src:url("../materialdesignicons-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}
+@font-face {
+    font-family: "Material Design Icons";
+    src: url("../materialdesignicons-webfont.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
 
 :root {
     font-family: Arial, sans-serif;
@@ -13,7 +19,8 @@
     --gap-small: 7px;
 }
 
-html, body {
+html,
+body {
     overflow: visible;
     background-color: var(--clr-background-dark);
     touch-action: pan-x pan-y;
@@ -24,6 +31,113 @@ nemu-top-menu {
     z-index: 1;
 }
 
+dialog {
+    position: relative;
+    border-radius: 15px;
+    border: 1px solid var(--clr-border);
+    background-color: var(--clr-background);
+    width: 350px;
+    max-width: 80vw;
+    padding: 15px;
+    overflow: visible;
+    color: #FAFAFA;
+}
+
+dialog h3 {
+    margin: 0;
+    color: inherit;
+    font-weight: bold;
+    align-content: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+dialog label {
+    vertical-align: middle;
+    align-content: center;
+    font-size: 1.1em;;
+}
+
+dialog > * + * {
+    margin-top: 10px;
+}
+
+dialog input {
+    border: 1px solid var(--clr-border);
+    background-color: var(--clr-background);
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #FAFAFA;
+    height: 45px;
+    box-sizing: border-box;
+}
+
+dialog input:focus {
+    border-color: #FAFAFA;
+}
+
+dialog button {
+    border: 1px solid var(--clr-border);
+    background-color: var(--clr-background);
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #FAFAFA;
+    height: 45px;
+    box-sizing: border-box;
+    font-size: 1.1em;
+}
+
+dialog .block {
+    display: block;
+    margin-inline: auto;
+}
+dialog .left {
+    margin-left: 0;
+}
+dialog .right {
+    display: block;
+    margin-right: 0;
+}
+dialog .justify {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+dialog .justify > button {
+    flex: 1;
+}
+dialog .close {
+    position: absolute;
+    top: 0;
+    right: 2px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    padding: 0;
+    border-radius: inherit;
+    border: none;
+    margin: 0;
+    background: none;
+    font-family:"Material Design Icons";
+    font-size: var(--fs-icon);
+}
+dialog .close::after {
+    content: '\F0156';
+}
+dialog .button {
+    border-color: #FAFAFA;
+    color: #FAFAFA;
+}
+dialog .button:last-child {
+    background-color: #FAFAFA;
+    color: var(--clr-background);
+}
+
+
 * {
     user-select: none;
+    -webkit-user-select: none;
+    outline: none;
 }

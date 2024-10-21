@@ -2,7 +2,7 @@
 * Project: draw.io
 * Version: 0.0.1 | development
 * Author: @NEMUWIKI
-* Date: 2024-10-19
+* Date: 2024-10-21
 * Description: personal canvas project for NEMU
 */
 
@@ -44,16 +44,16 @@ function toolsWindow() {
             onclick() { toggleMode('drag'); }
         });
         Utils.createIconBtn('\u{F099B}').appendTo(root).props({
-            onclick() { 
-                nemu.layerWrap.rotate(false); 
-                nemu.layerWrap.applyTrans(); 
+            onclick() {
+                nemu.layerWrap.rotate(false);
+                nemu.layerWrap.applyTrans();
                 nemu.displayScale(nemu.layerWrap.scale);
             }
         });
         Utils.createIconBtn('\u{F0453}').appendTo(root).props({
-            onclick() { 
-                nemu.layerWrap.rotate(true); 
-                nemu.layerWrap.applyTrans(); 
+            onclick() {
+                nemu.layerWrap.rotate(true);
+                nemu.layerWrap.applyTrans();
                 nemu.displayRotate(nemu.layerWrap._rotation);
 
             }
@@ -61,28 +61,22 @@ function toolsWindow() {
 
         Utils.createIconBtn('\u{F18F4}').appendTo(root).props({
             onclick() {
-                nemu.layerWrap.scale = 1;
-                nemu.layerWrap.rotation = 0;
-                nemu.layerWrap._rotation = 0;
-                nemu.layerWrap.applyTrans();
-                nemu.displayScale(1);
-                nemu.displayRotate(0);
-                nemu.layerWrap.scrollIntoView({ block:'center', inline:'center' });
+                nemu.resetScroll();
             }
         });
         Utils.createIconBtn('\u{F034B}').appendTo(root).props({
-            onclick() { 
-                nemu.layerWrap.zoom(true); 
+            onclick() {
+                nemu.layerWrap.zoom(true);
                 nemu.layerWrap.applyTrans();
                 nemu.displayScale(nemu.layerWrap.scale);
-             }
+            }
         });
         Utils.createIconBtn('\u{F034A}').appendTo(root).props({
-            onclick() { 
-                nemu.layerWrap.zoom(false); 
+            onclick() {
+                nemu.layerWrap.zoom(false);
                 nemu.layerWrap.applyTrans();
                 nemu.displayScale(nemu.layerWrap.scale);
-             }
+            }
         });
         let undo_btn = Utils.createIconBtn('\u{F054D}').appendTo(root).props({
             disabled: true,
@@ -93,7 +87,9 @@ function toolsWindow() {
             onclick() { nemu.layerWrap.redo() }
         });
         Utils.createIconBtn('\u{F0207}').appendTo(root).props({
-            onclick() { layerWrap.export(); }
+            onclick() {
+                nemu.modalExport();
+            }
         });
         Utils.createElement('input').attrs({ type: 'color' }).props({
             onchange() {
@@ -126,12 +122,11 @@ function brushSettingWindow() {
         }).appendTo(root);
         let min_opacity_input = Utils.createSlider('최소', '%').props({
             onchange(v) {
-                console.log(v, min_opacity_input.value, opacity_input.value);
                 selected_pen.minOpacity = v / 100;
                 parseInt(v) > parseInt(opacity_input.value) && (min_opacity_input.value = opacity_input.value);
             }
         }).appendTo(root);
-        let size_input = Utils.createSlider('크기', 'px', 1, 300).props({
+        let size_input = Utils.createSlider('크기', 'px', 1, 100).props({
             onchange(v) {
                 selected_pen.size = Math.round(v / 2);
                 if (!useMinSize) {
@@ -141,7 +136,7 @@ function brushSettingWindow() {
                 parseInt(min_size_input.value) > parseInt(v) && (min_size_input.value = v);
             }
         }).appendTo(root);
-        let min_size_input = Utils.createSlider('최소', 'px', 1, 300).props({
+        let min_size_input = Utils.createSlider('최소', 'px', 1, 100).props({
             onchange(v) {
                 selected_pen.minSize = Math.round(v / 2);
                 parseInt(v) > parseInt(size_input.value) && (min_size_input.value = size_input.value);
@@ -293,13 +288,14 @@ function layersWindow() {
         let new_layer = nemu.layerWrap.addLayer(index + 1, clientId);
         new_layer.name = `다른 사용자 ${clientId}`;
         new_layer.editable = false;
+        new_layer.foreign = true;
         nemu.registLayer(new_layer, index, false, '\u{F0011}');
         return new_layer;
     }
     nemu.drawForeign = function (layer, img, data) {
         if (layer) {
-            layer.ctx.clearRect(data.minX, data.minY, data.w, data.h);
-            layer.ctx.drawImage(img, 0, 0, data.w, data.h, data.minX, data.minY, data.w, data.h);
+            layer.ctx.clearRect(data.minX ?? 0, data.minY ?? 0, data.w ?? layer.width, data.h ?? layer.height);
+            layer.ctx.drawImage(img, 0, 0, data.w ?? layer.width, data.h ?? layer.height, data.minX ?? 0, data.minY ?? 0, data.w ?? layer.width, data.h ?? layer.height);
         }
     }
     nemu.removeLayer = function (old_layer, isHistory) {
@@ -308,23 +304,39 @@ function layersWindow() {
         old_layer.li.remove();
         old_layer.li = null;
         nemu.layerWrap.removeLayer(old_layer, isHistory);
-        nemu.focusLayer(nemu.layers[index] || nemu.layers[nemu.layers.length - 1]);
+        nemu.focusLayer(nemu.layers[index - 1] || nemu.layers[0]);
     }
     nemu.addLayer = function () {
         let index = nemu.layerWrap.getFocusedIndex();
         let new_layer = nemu.layerWrap.addLayer(index + 1);
         nemu.registLayer(new_layer, index);
+        return new_layer;
+    }
+    nemu.moveLayer = function (step, layer = this.layerElement) {
+        let layerWrap = this.layerWrap;
+        if (!layerWrap) return console.error('layerWrap not defined!!');
+        let index = Math.max(layerWrap.getIndex(layer) + step, 0);
+        layerWrap.moveLayer(layer, index);
+        layer.li.remove();
+        let dest_li = ul.children[index];
+        if (dest_li) dest_li.before(layer.li);
+        else ul.append(layer.li);
     }
     return createNewWindow('layers', (root) => {
-        Utils.createIconBtn('\u{F0E4D}').appendTo(root).props({ onclick() { nemu.addLayer(); } }).appendTo(root);
-        Utils.createIconBtn('\u{F0E4E}').appendTo(root).props({ onclick() { nemu.removeLayer(nemu.layerElement); } }).appendTo(root);
+        let button_div = Utils.createElement('div').appendTo(root);
+        Utils.createIconBtn('\u{F0E4D}').appendTo(root).props({ onclick() { nemu.addLayer(); } }).appendTo(button_div);
+        Utils.createIconBtn('\u{F0E4E}').appendTo(root).props({ onclick() { nemu.removeLayer(nemu.layerElement); } }).appendTo(button_div);
+        Utils.createIconBtn('\u{F013F}').appendTo(root).props({ onclick() { nemu.moveLayer(9999); } }).appendTo(button_div);
+        Utils.createIconBtn('\u{F0143}').appendTo(root).props({ onclick() { nemu.moveLayer(1); } }).appendTo(button_div);
+        Utils.createIconBtn('\u{F0140}').appendTo(root).props({ onclick() { nemu.moveLayer(-1); } }).appendTo(button_div);
+        Utils.createIconBtn('\u{F013C}').appendTo(root).props({ onclick() { nemu.moveLayer(-9999); } }).appendTo(button_div);
         mode_select = Utils.createElement('select').css({ display: 'block' }).props({ onchange() { nemu.layerElement.applyBlend(this.value); }, value: blendModes[0].type }).appendTo(root);
         blendModes.filter(mode => mode.use !== false).forEach(mode => Utils.createElement('option').props({ innerHTML: mode.name }).attrs({ value: mode.type }).appendTo(mode_select));
         opacity_input = Utils.createSlider('불투명도', '%').props({ oninput(v) { nemu.layerElement.applyOpacity(v / 100); } }).appendTo(root);
         ul = Utils.createElement('ul').addClass('layer-list').appendTo(root);
     }, {
         flex: 20,
-        width: '200px'
+        width: '250px'
     });
 }
 
@@ -349,7 +361,7 @@ class BaseBrush {
     constructor(size, minSize = 1, opacity = 1, minOpacity = 1) {
         this.size = size; // 브러쉬 크기
         this.minSize = minSize; // 최소 크기
-        this.maxSize = 300; // 최대 크기
+        this.maxSize = 100; // 최대 크기
         this.opacity = opacity; // 투명도
         this.minOpacity = minOpacity; // 최소 투명도
     }
@@ -672,9 +684,9 @@ class LayerElement extends BaseElement {
     // 초기 캔버스와 컨텍스트 설정
     initContext() {
         this.canvas = Utils.createElement('canvas').props({ width: this.width, height: this.height });
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
         this.off_canvas = new OffscreenCanvas(this.width, this.height);
-        this.off_ctx = this.off_canvas.getContext('2d');
+        this.off_ctx = this.off_canvas.getContext('2d', { willReadFrequently: true });
         this.layerData = new LayerData(this.width, this.height, this.wrap);
 
         return [this.canvas, this.ctx, this.off_canvas, this.off_ctx, this.layerData];
@@ -741,22 +753,10 @@ class LayerElement extends BaseElement {
     pointermoveHandler(e, transCoords) {
         this.event = e;
         this.coords.push(this.getCoord(transCoords, e))
-        this.dataChanged = true;
-    }
-
-    requestDraw() {
-        requestAnimationFrame(() => {
-            if (!this.activePainting) return;
-            if (!this.dataChanged) return this.requestDraw();
-            if (this.animationFrameRequested) return this.requestDraw();
-            this.animationFrameRequested = true;
-            this.dataChanged = false;
-            this.preventDefault(this.event);
-            for (let coord of this.coords) this.draw(...coord);
-            this.coords = [];
-            this.animationFrameRequested = false;
-            this.requestDraw();
-        })
+        if (!this.activePainting) return;
+        this.preventDefault(e);
+        for (let coord of this.coords) this.draw(...coord);
+        this.coords = [];
     }
 
     // 그리기 시작
@@ -768,7 +768,7 @@ class LayerElement extends BaseElement {
         this.coords = [[x, y, pressure]];
         this.prev = [x, y, pressure];
         this.pen.startDraw();
-        this.requestDraw();
+        //this.requestDraw();
 
     }
 
@@ -790,7 +790,7 @@ class LayerElement extends BaseElement {
 
         // ctx.clearRect(minX, minY, width, height);
         // ctx.drawImage(off_canvas, minX, minY, width, height, minX, minY, width, height);
-        
+
         ctx.clearRect(0, 0, this.width, this.height);
         ctx.drawImage(off_canvas, 0, 0, this.width, this.height);
 
@@ -810,22 +810,26 @@ class LayerElement extends BaseElement {
     }
 
     // 캔버스 크기 조정
-    resizeCanvas(newWidth, newHeight, centerX = this.canvas.width / 2, centerY = this.canvas.height / 2) {
+    resizeCanvas(newWidth, newHeight, centerX, centerY) {
         // 트리밍할 시작 좌표 계산
         const startX = Math.floor(centerX - newWidth / 2);
         const startY = Math.floor(centerY - newHeight / 2);
 
         // 새로운 너비와 높이를 기준으로 트리밍할 이미지의 경계
-        const trimmedImageData = this.off_ctx.getImageData(startX, startY, newWidth, newHeight);
+        const imageData = this.off_ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 
         // 캔버스를 새 크기로 설정
         this.off_canvas.width = newWidth;
         this.off_canvas.height = newHeight;
+        this.off_ctx.putImageData(imageData, -startX, -startY, 0, 0, this.canvas.width, this.canvas.height);
 
-        // 트리밍된 이미지를 오프스크린 캔버스에 다시 그립니다.
-        this.off_ctx.putImageData(trimmedImageData, 0, 0);
+        // 트리밍된 이미지를 캔버스에 다시 그립니다.
         this.canvas.width = newWidth;
         this.canvas.height = newHeight;
+        this.ctx.drawImage(this.off_canvas, 0, 0);
+
+        this.layerData.resize(this.off_ctx.getImageData(0, 0, newWidth, newHeight).data, newWidth, newHeight);
+        return imageData.data;
     };
 
     applyOpacity(opacity) {
@@ -847,41 +851,6 @@ class LayerElement extends BaseElement {
         this.applyBlend();
 
         return canvas;
-    }
-
-    restoreHistory(history, isForward) {
-        if(isForward) {
-            //redo
-            switch(history.type){
-                case 'draw':
-                    history.el._restore_image(history);
-                    break;
-                case 'add':
-                    history.el._restore_add(history);
-                    break;
-                case 'remove':
-                    history.el._restore_remove(history);
-                    break;
-            }
-        } else {
-            //undo
-            let next = history.next, before = history;
-            switch(next.type){
-                case 'draw':
-                    while(before.before) {
-                        if(before.el === next.el) break;
-                        before = before.before;
-                    }
-                    next.el._restore_image(before);
-                    break;
-                case 'add':
-                    next.el._restore_remove(next);
-                    break;
-                case 'remove':
-                    next.el._restore_add(next);
-                    break;
-            }
-        }
     }
 
     _restore_image(history) {
@@ -1028,13 +997,22 @@ class LayerData {
         this.data.fill(0);
     }
 
-    resize(newWidth, newHeight, startX, startY) {
-
+    resize(newData, newWidth, newHeight) {
+        this.width = newWidth;
+        this.height = newHeight;
+        this.data = newData;
+        this.clear();
     }
 }
 
-function createBrushPointer(pen) {
-    return Utils.createElement(`${$TAG_PREFIX}-pointer`).css({ width: `${pen.size * 2}px`, height: `${pen.size * 2}px`, transform: `translate(-${pen.size}px, -${pen.size}px)`, border: '1px solid grey', 'border-radius': '50%', position: 'fixed', 'pointer-events': 'none' });
+function createBrushPointer(pen, wrap) {
+    return Utils.createElement(`${$TAG_PREFIX}-pointer`)
+        .css({ width: `${pen.size * 2}px`, height: `${pen.size * 2}px`, transform: `translate(-${pen.size}px, -${pen.size}px) scale(${wrap.scale.toFixed(2)})`, border: '1px solid grey', 'border-radius': '50%', position: 'fixed', 'pointer-events': 'none' })
+        .props({
+            scale() {
+                this.css({ transform: `translate(-${pen.size}px, -${pen.size}px) scale(${wrap.scale.toFixed(2)})` })
+            }
+        });
 }
 
 class LayerWrapElement extends BaseElement {
@@ -1044,17 +1022,26 @@ class LayerWrapElement extends BaseElement {
         return `
         :host {
             position: relative;
-            margin: 100%;
-            width: fit-content;
-            height: fit-content;
+            margin: auto;
+            pointer-events: none;
         }
         main {
             position: absolute;
             top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
             isolation: isolate;
+            pointer-events: none;
         }
         ${$TAG_PREFIX}-layer-back {
-            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
             background-color: #e5e5f7;
             background-image:  repeating-linear-gradient(45deg, #ccc  25%, transparent 25%, transparent 75%, #ccc  75%, #ccc ), repeating-linear-gradient(45deg, #ccc  25%, #e5e5f7 25%, #e5e5f7 75%, #ccc  75%, #ccc );
             background-position: 0 0, 10px 10px;
@@ -1064,6 +1051,10 @@ class LayerWrapElement extends BaseElement {
             position: absolute;
             top: 0;
             left: 0;
+            pointer-events: auto;
+        }
+        :host([data-mode="drag"]) ${$TAG_PREFIX}-layer {
+            pointer-events: none;
         }
         .not-visible {
             display: none !important;
@@ -1121,7 +1112,16 @@ class LayerWrapElement extends BaseElement {
         this.sin = Math.sin(this.rotation);
         for (let layer of this.layers) layer.applyTrans();
         this.back.css({ transform: `rotate(${-this._rotation}deg) scale(${this.scale})` });
-    };
+        if (this.pointer) this.pointer.scale();
+        //this.refreshScroll();
+    }
+
+    refreshScroll() {
+        let margin = Math.sqrt(this.width * this.width + this.height * this.height);
+        let new_scrollWidth = Math.max(margin + this.width, window.innerWidth * 3);
+        let new_scrollHeight = Math.max(margin + this.height, window.innerHeight * 3);
+        this.css({'min-width': `${new_scrollWidth}px`, 'width': `${new_scrollWidth}px`, 'min-height': `${new_scrollHeight}px`, 'height': `${new_scrollHeight}px`});
+    }
 
     // 포인터 이동 핸들러
     pointermoveHandler(e) {
@@ -1135,7 +1135,7 @@ class LayerWrapElement extends BaseElement {
     // 포인터 등장 핸들러
     pointeroverHandler(e) {
         if (this.pointer) this.pointer.remove();
-        this.pointer = createBrushPointer(this.pen);
+        this.pointer = createBrushPointer(this.pen, this);
         this.pointer.css({ top: `${e.clientY}px`, left: `${e.clientX}px` });
         this.innerwrap.appendChild(this.pointer);
     }
@@ -1176,7 +1176,7 @@ class LayerWrapElement extends BaseElement {
         if (e.deltaY == 0) return;
 
         if (e.shiftKey) this.rotate(e.deltaY > 0);
-        else this.zoom(e.deltaY > 0);
+        else this.zoom(e.deltaY < 0);
 
         this.applyTrans();
     }
@@ -1185,6 +1185,7 @@ class LayerWrapElement extends BaseElement {
     zoom(bool) {
         this.scale += bool ? this.zoomSpeed : -this.zoomSpeed;
         if (this.scale < 0.1) this.scale = 0.1; // 최소 축소 비율 설정
+        if (this.scale > 3) this.scale = 3; // 최대 축소 비율 설정
         nemu.displayScale(this.scale);
     }
 
@@ -1197,13 +1198,32 @@ class LayerWrapElement extends BaseElement {
     }
 
     // 캔버스 크기 조정
-    resizeCanvas(newWidth, newHeight, centerX, centerY) {
-        for (let layer of this.layers) layer.resizeCanvas(newWidth, newHeight, centerX, centerY);
+    resizeCanvas(newWidth, newHeight, centerX = this.width / 2, centerY = this.height / 2, silent = false) {
+        let els = [];
+        let imageDatas = [], imageData;
+        for (let layer of this.layers) {
+            imageData = layer.resizeCanvas(newWidth, newHeight, centerX, centerY);
+            imageDatas.push(imageData);
+            els.push(layer);
+        }
+
+        if (!silent) this.addHistory({
+            type: 'resize',
+            els, imageDatas,
+            o_width: this.width,
+            o_height: this.height,
+            n_width: newWidth,
+            n_height: newHeight,
+            n_x: centerX,
+            n_y: centerY
+        });
+
         this.width = newWidth;
         this.height = newHeight;
         this.back.css({ width: `${newWidth}px`, height: `${newHeight}px` });
         this.innerwrap.css({ width: `${newWidth}px`, height: `${newHeight}px` });
-    };
+        this.refreshScroll();
+    }
 
     addHistory(data) {
         let before = this.history[this.historyIndex];
@@ -1242,11 +1262,57 @@ class LayerWrapElement extends BaseElement {
         this.historyIndex += step; // 인덱스 업데이트
 
         // 상태 복원
-        let data = this.history[this.historyIndex];
-        if (data && data.el) {
-            data.el.restoreHistory(data, step > 0);
+        let history = this.history[this.historyIndex];
+        let isForward = step > 0;
+        if (history && (history.el || history.els)) {
+            if (isForward) {
+                //redo
+                switch (history.type) {
+                    case 'draw':
+                        history.el._restore_image(history);
+                        break;
+                    case 'add':
+                        history.el._restore_add(history);
+                        break;
+                    case 'remove':
+                        history.el._restore_remove(history);
+                        break;
+                    case 'resize':
+                        this.resizeCanvas(history.n_width, history.n_height, history.n_x, history.n_y, true);
+                        nemu?.resetScroll();
+                        break;
+                }
+            } else {
+                //undo
+                let next = history.next, before = history;
+                switch (next.type) {
+                    case 'draw':
+                        while (before.before) {
+                            if (before.el === next.el) break;
+                            before = before.before;
+                        }
+                        next.el._restore_image(before);
+                        break;
+                    case 'add':
+                        next.el._restore_remove(next);
+                        break;
+                    case 'remove':
+                        next.el._restore_add(next);
+                        break;
+                    case 'resize':
+                        this.resizeCanvas(next.o_width, next.o_height, undefined, undefined, true);
+                        for (let index in next.els) {
+                            let layer = next.els[index];
+                            let imageData = next.imageDatas[index];
+                            layer._restore_image({ imageData, width: next.o_width, height: next.o_height });
+                        }
+                        nemu?.resetScroll();
+                        break;
+                }
+            }
         }
 
+        this.dispatchEvent(new Event('enddraw', { bubbles: true, cancelable: false }));
         if ('onHistoryChange' in nemu) nemu.onHistoryChange({ undoable: this.historyIndex > 0, redoable: this.historyIndex < this.history.length - 1 });
     }
 
@@ -1306,15 +1372,30 @@ class LayerWrapElement extends BaseElement {
     }
 
     removeLayer(old_layer, isHistory = false) {
-        let index = this.layers.indexOf(old_layer);
+        let index = this.getIndex(old_layer);
         old_layer.remove();
-        this.layers = this.layers.filter(layer => layer !== old_layer);
+        this.layers.splice(index, 1);
         if (isHistory) return;
         this.addHistory({ type: 'remove', el: old_layer, index });
     }
 
+    moveLayer(target_layer, index) {
+        if (isNaN(index) || index < 0) return;
+        let old_index = this.getIndex(target_layer);
+        this.layers.splice(old_index, 1);
+        target_layer.remove();
+        this.layers.splice(index, 0, target_layer);
+        let dest_layer = this.innerwrap.children[index];
+        if (dest_layer) dest_layer.before(target_layer);
+        else this.innerwrap.append(target_layer);
+    }
+
     getFocusedIndex() {
         return this.layers.indexOf(this.focusedLayer);
+    }
+
+    getIndex(layer) {
+        return this.layers.indexOf(layer);
     }
 
     // 렌더 메서드
@@ -1322,6 +1403,7 @@ class LayerWrapElement extends BaseElement {
         let frag = Utils.createFragment();
         this.back = Utils.createElement('nemu-layer-back').appendTo(frag);
         this.innerwrap = Utils.createElement('main').appendTo(frag);
+        this.innerwrap.tabIndex = 0;
 
         for (let index in this.layers) {
             this.innerwrap.appendChild(this.layers[index]);
@@ -1334,10 +1416,11 @@ class LayerWrapElement extends BaseElement {
         }
 
         this.applyTrans();
-        this.resizeCanvas(this.width, this.height);
+        this.resizeCanvas(this.width, this.height, undefined, undefined, true);
 
         this.innerwrap.onpointerdown = e => {
             if (!this.handleGesture(e)) return;
+            this.innerwrap.focus();
             let coords = this.transCoords(this.focusedLayer.getBoundingClientRect(), e);
             this.focusedLayer.startDraw(e, coords);
         };
@@ -1345,17 +1428,15 @@ class LayerWrapElement extends BaseElement {
         return frag;
     }
 
-    export(fileName = `nemu_export_${(new Date()).getTime()}.png`) {
-        if (!confirm('이미지를 저장하시겠습니까?')) return;
-
+    export(fileName = `nemu_export_${(new Date()).getTime()}`, ext = 'png', useWhiteBg = false, quality = 0.92) {
         let output_canvas = Utils.createElement('canvas').props({
             width: this.width,
             height: this.height
         });
 
-        let output_ctx = output_canvas.getContext('2d');
+        let output_ctx = output_canvas.getContext('2d', { willReadFrequently: true });
 
-        if (!confirm('투명 배경으로 저장하시겠습니까?')) {
+        if (useWhiteBg) {
             output_ctx.fillStyle = '#FFFFFF';
             output_ctx.fillRect(0, 0, output_canvas.width, output_canvas.height);
         }
@@ -1370,9 +1451,9 @@ class LayerWrapElement extends BaseElement {
         output_canvas.toBlob(function (blob) {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = fileName;
+            link.download = `${fileName}.${ext}`;
             link.click();
-        }, 'image/png');
+        }, `image/${ext}`, quality);
 
     }
 }
