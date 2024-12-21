@@ -179,6 +179,15 @@ const ToolBase = {
         );
         return wrap;
     },
+    insertAnno(wrap, option) {
+        wrap.attrs({ title: '주석 삽입' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-code-brackets'
+            }).props({ onclick: () => execModal('insertText', 'addAnno', (symbol, text) => `[*${symbol || '주석'} ${text || '텍스트를 입력하세요.'}]`) })
+        );
+        return wrap;
+    },
     insertImage(wrap, option) {//이미지 처리 모달 / conv_fn: val => val.startsWith('http') ? val : 'http://' + val
         wrap.attrs({ title: '링크 기반 이미지 삽입' });
         wrap.append(

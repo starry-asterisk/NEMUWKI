@@ -1,8 +1,8 @@
 /**
 * Project: nemuwiki.com
-* Version: 2.3.2 | product
+* Version: 2.3.3 | product
 * Author: @NEMUWIKI
-* Date: 2024-09-27
+* Date: 2024-12-21
 * Description: personal wiki project for NEMU
 */
 

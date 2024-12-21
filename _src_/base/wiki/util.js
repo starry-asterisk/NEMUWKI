@@ -584,14 +584,15 @@ const Notify = {
 }
 const dev = console;
 const REGEX = {
-    annotation: /\[\*(\S+)\s([^\[\]]+)\]/i,
-    link: /\[link\:([^\s\[\]]+)\]/i,
-    image: /\[image\:([^\s\[\]]+)\]/i,
-    video: /\[video\:([^\s\[\]]+)\]/i,
-    music: /\[music\:([^\s\[\]]+)\]/i,
-    colspan: /\[colspan\:([^\s\[\]]+)\]/i,
-    rowspan: /\[rowspan\:([^\s\[\]]+)\]/i,
-    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/i,
+    annotation: /\[\*(\S+)\s([^\[\]]+)\]/gi,
+    link: /\[link\:([^\s\[\]]+)\]/gi,
+    image: /\[image\:([^\s\[\]]+)\]/gi,
+    image_for_exec: /\[image\:([^\s\[\]]+)\]/i,
+    video: /\[video\:([^\s\[\]]+)\]/gi,
+    music: /\[music\:([^\s\[\]]+)\]/gi,
+    colspan: /\[colspan\:([^\s\[\]]+)\]/gi,
+    rowspan: /\[rowspan\:([^\s\[\]]+)\]/gi,
+    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/gi,
 };
 
 let html_annotation = '';

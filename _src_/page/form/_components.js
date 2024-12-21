@@ -131,7 +131,7 @@ const FormContent = {
             wrap.append(input_text);
             wrap.getData = () => input_text.innerHTML;
         },
-        buttons: ['foreColor', 'backColor', 'bold', 'italic', 'strikeThrough', 'underline', 'fontSize', 'justifyLeft', 'justifyCenter', 'justifyRight', 'formatBlock', 'createLink', 'insertImage', 'unlink', 'removeFormat', 'selectAll', 'undo', 'redo']
+        buttons: ['foreColor', 'backColor', 'bold', 'italic', 'strikeThrough', 'underline', 'fontSize', 'justifyLeft', 'justifyCenter', 'justifyRight', 'formatBlock', 'createLink', 'insertAnno', 'insertImage', 'unlink', 'removeFormat', 'selectAll', 'undo', 'redo']
     },
     table: {
         text: '도표',

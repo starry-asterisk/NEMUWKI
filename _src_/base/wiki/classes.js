@@ -753,6 +753,30 @@ const MODAL_TEMPLATE = {
             if (reflow) hex_input.value = hsvToHex(Hue, Saturation, Brightness);
         }
     },
+    addAnno: (container, callback) => {
+
+        let frag = document.createDocumentFragment();
+        let h3 = createElement('h3').props({ innerHTML: '주석 추가' });
+
+        let text_input_container = createElement('div').attrs({ class: 'b_input', placeholder: '주석 번호' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
+        let text_input = createElement('input').attrs({ type: 'text', placeholder: ' ' });
+        let text_input_container2 = createElement('div').attrs({ class: 'b_input', placeholder: '주석 내용' }).css({ 'min-width': '18rem', 'margin-bottom': 'var(--spacing-small)' });
+        let text_input2 = createElement('input').attrs({ type: 'text', placeholder: ' ' });
+
+        let button_confirm = createElement('button').props({
+            onclick(e) {
+                e.preventDefault();
+                container.close();
+                callback(text_input.value, text_input2.value);
+            }
+        }).attrs({ class: 'button primary' }).props({ innerHTML: TEXTS.form.apply });
+
+        frag.append(h3, text_input_container, text_input_container2, button_confirm);
+        text_input_container.append(text_input);
+        text_input_container2.append(text_input2);
+
+        return frag;
+    },
     emailPrompt: container => {
         let frag = document.createDocumentFragment();
         let h3 = createElement('h3').props({ innerHTML: '비밀번호 초기화' });

@@ -45,8 +45,8 @@ async function makeKeyword(id, data) {
             case 'table':
                 if (thumbnail) break;
                 if (content.value.cells) for (let cell of content.value.cells) {
-                    REGEX.image.lastIndex = 0;
-                    regex_result = REGEX.image.exec(cell.value);
+                    REGEX.image_for_exec.lastIndex = 0;
+                    regex_result = REGEX.image_for_exec.exec(cell.value);
                     if (regex_result) {
                         thumbnail = regex_result[1];
                         break;
@@ -55,8 +55,8 @@ async function makeKeyword(id, data) {
                 break;
             case 'textbox':
                 if (thumbnail) break;
-                REGEX.image.lastIndex = 0;
-                regex_result = REGEX.image.exec(content.value);
+                REGEX.image_for_exec.lastIndex = 0;
+                regex_result = REGEX.image_for_exec.exec(content.value);
                 if (regex_result) {
                     thumbnail = regex_result[1];
                     break;

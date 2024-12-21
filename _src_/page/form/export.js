@@ -88,7 +88,7 @@ function execBuildPrompt(command, prompt_text, conv_fn = v => v) {
 }
 
 function execModal(command, modal_type, conv_fn = v => v, option) {
-    return modal(modal_type, v => {
+    return modal(modal_type, (v, v2, v3) => {
         if ('anchorNode' in lastSelection) {
             let selection = window.getSelection();
             let { anchorNode, anchorOffset, focusNode, focusOffset } = lastSelection;
@@ -99,7 +99,7 @@ function execModal(command, modal_type, conv_fn = v => v, option) {
             selection.addRange(range);
         }
         document.execCommand("styleWithCSS", 0, true);
-        document.execCommand(command, false, conv_fn(v));
+        document.execCommand(command, false, conv_fn(v, v2, v3));
     }, option);
 }
 
@@ -271,8 +271,8 @@ async function makeKeyword(id, data) {
             case 'table':
                 if (thumbnail) break;
                 if (content.value.cells) for (let cell of content.value.cells) {
-                    REGEX.image.lastIndex = 0;
-                    regex_result = REGEX.image.exec(cell.value);
+                    REGEX.image_for_exec.lastIndex = 0;
+                    regex_result = REGEX.image_for_exec.exec(cell.value);
                     if (regex_result) {
                         thumbnail = regex_result[1];
                         break;
@@ -281,8 +281,8 @@ async function makeKeyword(id, data) {
                 break;
             case 'textbox':
                 if (thumbnail) break;
-                REGEX.image.lastIndex = 0;
-                regex_result = REGEX.image.exec(content.value);
+                REGEX.image_for_exec.lastIndex = 0;
+                regex_result = REGEX.image_for_exec.exec(content.value);
                 if (regex_result) {
                     thumbnail = regex_result[1];
                     break;
