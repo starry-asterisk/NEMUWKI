@@ -32,8 +32,8 @@ global.intro_html = function () {
     <meta name="twitter:card" content="summary">
     <meta property="twitter:title" content="${global.projectNameKR}">
     <link rel="canonical" href="https://${global.projectName}">
-    <link rel="icon" href="/resource/favicon.png">
-    <link rel="apple-touch-icon" href="/resource/favicon.png" />
+    <link rel="icon" href="/resource/favicon.ico">
+    <link rel="apple-touch-icon" href="/resource/favicon.ico" />
     <link rel="manifest" href="manifest.json" />`;
 };
 

@@ -66,6 +66,8 @@
 
     --color-valid: #008000;
     --color-invalid: #800000;
+
+    cursor: url('../resource/cuursor.png') 2 2, auto;
 }
 
 /* Default CSS */
