@@ -226,17 +226,9 @@ function checkLogin() {
             let data = user.data();
             if (data.banner_url) profile__background.css({ display: 'block' }) && (profile__background.src = data.banner_url);
             if (data.photo_url) profile__avatar.css({ display: 'block' }) && (profile__avatar.src = data.photo_url);
-            if (data.theme_color) {
-                document.body.style.setProperty('--light-blue-300', data.theme_color);
-                document.body.style.setProperty('--light-blue-400', data.theme_color);
-                document.body.style.setProperty('--light-blue-500', data.theme_color);
-                document.body.style.setProperty('--light-blue-600', data.theme_color);
-                document.body.style.setProperty('--light-blue-700', data.theme_color);
-                document.body.style.setProperty('--light-blue-800', data.theme_color);
-                document.body.style.setProperty('--light-blue-a400', data.theme_color+'97');
-                document.body.style.setProperty('--light-blue-visited', data.theme_color+'aa');
-            }
+            if (data.theme_color) applyThemes(data.theme_color);
             if (data.theme_sub_color) document.body.style.setProperty('--color-bg-light', data.theme_sub_color);
+            if (data.auto_open_menu) openAllFold();
             profile__email.innerHTML = data.email;
         }).catch(firebaseErrorHandler);
         app.loginCallback(user);
@@ -249,10 +241,46 @@ function checkLogin() {
         profile__email.innerHTML = '';
         pop_profile.css({ display: 'none' });
         app.user = false;
-
+        removeThemes();
         app.logoutCallback();
         document.body.addClass('none-auth');
     });
+}
+
+function applyThemes(theme_color){
+    if(theme_color){
+        document.documentElement.style.setProperty('--light-blue-300', theme_color);
+        document.documentElement.style.setProperty('--light-blue-400', theme_color);
+        document.documentElement.style.setProperty('--light-blue-500', theme_color);
+        document.documentElement.style.setProperty('--light-blue-600', theme_color);
+        document.documentElement.style.setProperty('--light-blue-700', theme_color);
+        document.documentElement.style.setProperty('--light-blue-800', theme_color);
+        document.documentElement.style.setProperty('--light-blue-a400', theme_color+'97');
+        document.documentElement.style.setProperty('--light-blue-visited', theme_color+'aa');
+        localStorage.setItem('theme_color', theme_color);
+    } else {
+        removeThemes();
+    }
+}
+
+function removeThemes(){
+    document.body.style.removeProperty('--light-blue-300');
+    document.body.style.removeProperty('--light-blue-400');
+    document.body.style.removeProperty('--light-blue-500');
+    document.body.style.removeProperty('--light-blue-600');
+    document.body.style.removeProperty('--light-blue-700');
+    document.body.style.removeProperty('--light-blue-800');
+    document.body.style.removeProperty('--light-blue-a400');
+    document.body.style.removeProperty('--light-blue-visited');
+    localStorage.removeItem('theme_color');
+}
+
+function openAllFold(){
+    app.auto_open_menu = true;
+    let all_b_block = document.querySelectorAll('.b_block');
+    for(let b_block of all_b_block) b_block.addClass('open');
+    let all_list = document.querySelectorAll('.content.title.icon.fold-end.fold');
+    for(let list of all_list) list.click();
 }
 
 function listenCategories() {
@@ -482,6 +510,7 @@ const TEXTS = {
     upload: '글쓰기',
     mypage: '마이페이지',
     welcome_title: '네무위키:대문',
+    search_result_tile: '검색결과',
     edit: '수정',
     share: '공유',
     delete: '삭제',
@@ -596,6 +625,9 @@ const REGEX = {
 };
 
 let html_annotation = '';
+
+let theme_color = localStorage.getItem('theme_color');
+if(theme_color) applyThemes(theme_color);
 
 window.onload = async function () {
     if (location.href.startsWith(location.origin + OLD_ROOT_PATH)) history.replaceState({}, '', location.href.replace(OLD_ROOT_PATH, ''));

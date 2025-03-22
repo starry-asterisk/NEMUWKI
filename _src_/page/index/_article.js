@@ -101,57 +101,90 @@ class articleIndex extends articleBase {
                 article.append.apply(article, appendList);
             })();
         } else {
-            document.title = `${TEXTS.sitename} :: ${TEXTS.site_index}`;
 
             let keyword = params.get('keyword') || '';
             let field = params.get('field') || 'title_arr';
             let operator = params.get('operator') || 'contains';
 
-            article.append(
-                this.createContent('zoom'),
-                this.createContent('main_header', undefined, { text: TEXTS.welcome_title, permission: FINAL.PERMISSION.R }),
-                this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
-                this.createContent('notice'),
-                this.createContent('textbox', undefined, '<br><div style="text-align: center;"><span style="color: #039BE5; font-size: 38px;">환영합니다!</span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 39px; color: #039BE5;">네무위키</span><span style="font-size: 38px;">입니다</span></div><div style="text-align: center;">※ 정확하지 않은 내용이 있을 수있으며</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div><br>'),
-                this.createContent('table', undefined, {
-                    cellColors: ["", ""],
-                    cells: ["%{display:block;text-align:center}처음이라면\n[link:https://www.nemuwiki.com/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%", "%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/profile;사용자_문서]%"],
-                    header: [0, 0],
-                    innerLineColor: 'var(--clr-primary-base)',
-                    outerLineColor: 'transparent',
-                    outerLineWidth: '1',
-                    rowcount: 1,
-                    isFullWidth: true
-                }),
-                this.createContent('title', 'title_all', { text: TEXTS.all_document }),
-                this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
-                this.createContent('title', 'title_character', { text: TEXTS.character_document }),
-                this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
-                footer
-            );
+            if(keyword){
+                document.title = `${keyword} :: ${TEXTS.search_result_tile} - ${TEXTS.sitename}`;
 
-            this.components.title_all.wrap.addClass('fold');
-            this.components.list_all.wrap.addClass('hide');
-
-            this.timeout_timer = setTimeout(() => {
-                this.interval_timer = setInterval(() => {
-                    this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
-                }, 1000);
-            }, 1000 - new Date().getMilliseconds());
-
-            this.data.Board = new Model(
-                Options.get('board'),
-                null,
-                function (datas) {
-                    for (let a of article.querySelectorAll('[data-board]')) {
-                        let board = datas.find(data => data.value == a.getAttribute('data-board'));
-                        if (board) a.innerHTML = board.path;
+                article.append(
+                    this.createContent('zoom'),
+                    this.createContent('main_header', undefined, { text: TEXTS.search_result_tile, permission: FINAL.PERMISSION.R }),
+                    this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
+                    this.createContent('title', 'title_all', { text: TEXTS.all_document }),
+                    this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
+                    footer
+                );
+    
+                this.timeout_timer = setTimeout(() => {
+                    this.interval_timer = setInterval(() => {
+                        this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
+                    }, 1000);
+                }, 1000 - new Date().getMilliseconds());
+    
+                this.data.Board = new Model(
+                    Options.get('board'),
+                    null,
+                    function (datas) {
+                        for (let a of article.querySelectorAll('[data-board]')) {
+                            let board = datas.find(data => data.value == a.getAttribute('data-board'));
+                            if (board) a.innerHTML = board.path;
+                        }
                     }
-                }
-            );
-            this.data.Board.bind(this.components['list_all']);
-            this.data.Board.bind(this.components['list_character']);
-            this.data.Board.proceed();
+                );
+                this.data.Board.bind(this.components['list_all']);
+                this.data.Board.proceed();
+            } else {
+                document.title = `${TEXTS.sitename} :: ${TEXTS.site_index}`;
+
+                article.append(
+                    this.createContent('zoom'),
+                    this.createContent('main_header', undefined, { text: TEXTS.welcome_title, permission: FINAL.PERMISSION.R }),
+                    this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
+                    this.createContent('notice'),
+                    this.createContent('textbox', undefined, '<br><div style="text-align: center;"><span style="color: #039BE5; font-size: 38px;">환영합니다!</span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 39px; color: #039BE5;">네무위키</span><span style="font-size: 38px;">입니다</span></div><div style="text-align: center;">※ 정확하지 않은 내용이 있을 수있으며</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div><br>'),
+                    this.createContent('table', undefined, {
+                        cellColors: ["", ""],
+                        cells: ["%{display:block;text-align:center}처음이라면\n[link:https://www.nemuwiki.com/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%", "%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/profile;사용자_문서]%"],
+                        header: [0, 0],
+                        innerLineColor: 'var(--clr-primary-base)',
+                        outerLineColor: 'transparent',
+                        outerLineWidth: '1',
+                        rowcount: 1,
+                        isFullWidth: true
+                    }),
+                    this.createContent('title', 'title_all', { text: TEXTS.all_document }),
+                    this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
+                    this.createContent('title', 'title_character', { text: TEXTS.character_document }),
+                    this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
+                    footer
+                );
+    
+                this.components.title_all.wrap.addClass('fold');
+                this.components.list_all.wrap.addClass('hide');
+    
+                this.timeout_timer = setTimeout(() => {
+                    this.interval_timer = setInterval(() => {
+                        this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
+                    }, 1000);
+                }, 1000 - new Date().getMilliseconds());
+    
+                this.data.Board = new Model(
+                    Options.get('board'),
+                    null,
+                    function (datas) {
+                        for (let a of article.querySelectorAll('[data-board]')) {
+                            let board = datas.find(data => data.value == a.getAttribute('data-board'));
+                            if (board) a.innerHTML = board.path;
+                        }
+                    }
+                );
+                this.data.Board.bind(this.components['list_all']);
+                this.data.Board.bind(this.components['list_character']);
+                this.data.Board.proceed();
+            }
         }
     }
 

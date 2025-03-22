@@ -124,6 +124,8 @@ class asideBase {
         let button = createElement('button').attrs({ class: `block__title icon` }).props({ onclick: () => toggle_block(id), innerHTML: title });
         let ul = createElement('ul').attrs({ class: `block__list` });
 
+        if (app.auto_open_menu) wrap.addClass('open');
+
         wrap.append(button, ul);
 
         this.components[id] = { button, wrap, ul };

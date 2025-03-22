@@ -6,7 +6,7 @@ global.buildMode = 'product'; // 또는 'development'
 // 프로젝트 정보
 global.projectName = 'nemuwiki.com';
 global.projectNameKR = '네무위키';
-global.version = '2.3.4';
+global.version = '2.3.5';
 global.authorName = '@NEMUWIKI';
 global.timestamp = new Date().toISOString().split('T')[0];
 global.description = 'personal wiki project for NEMU';

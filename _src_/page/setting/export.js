@@ -252,6 +252,13 @@ const SettingTabs = {
                 }
             }));
 
+            
+            let auto_open_input_wrap = createElement('div');
+            let auto_open_input_block = createElement('div').css({width:'155px', height: '50px', display: 'inline-block', 'text-align':'left', 'line-height': '50px'});
+            let auto_open_input = createElement('input').attrs({ type:'checkbox', label: '접이식 메뉴 열어두기', class: 's_chk' }).css({'vertical-align':'middle'});
+            auto_open_input_block.append(auto_open_input);
+            auto_open_input_wrap.append(auto_open_input_block);
+
             let sec2_buttons2 = createElement('div');
 
             sec2_buttons2.append(
@@ -271,7 +278,7 @@ const SettingTabs = {
                         if (sec2_img.src) data.photo_url = sec2_img.src;
                         data.theme_color = theme_input.value == '#039AE5'?'':theme_input.value;
                         data.theme_sub_color = theme_sub_input.value == '#FAFAFA'?'':theme_sub_input.value;
-                        console.log(data);
+                        data.auto_open_menu = !!auto_open_input.value;
                         firebase.auth.updateUser(user.uid, data).then(()=>{
                             location.reload();
                         });
@@ -284,6 +291,7 @@ const SettingTabs = {
                 sec2_buttons,
                 theme_wrap,
                 //theme_sub_wrap,
+                auto_open_input_wrap,
                 sec2_buttons2
             );
 
@@ -294,6 +302,7 @@ const SettingTabs = {
                 if (data.photo_url) sec2_img.src = data.photo_url;
                 if (data.theme_color) theme_input.value = data.theme_color;
                 if (data.theme_sub_color) theme_sub_input.value = data.theme_sub_color;
+                if (auto_open_input) auto_open_input.checked = !!data.auto_open_menu
                 profile__email.innerHTML = data.email;
             }).catch(firebaseErrorHandler);
 
