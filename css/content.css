@@ -148,6 +148,23 @@ a.list__item__title {
     object-position: top center;
     cursor: pointer;
 }
+.list__item__preview > img {
+    display: none;
+    max-height: 200px;
+    max-width: 200px;
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--blue-gray-300);
+    background-color: var(--blue-gray-50);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2), 0px 4px 20px rgba(0, 0, 0, 0.1);
+    transition: 200ms opacity;
+    opacity: 0;
+    z-index: 999;
+}
+.list__item__preview:hover > img {
+    display: block;
+    position: fixed;
+    opacity: 1;
+}
 
 /* 컴포넌트 스타일 */
 

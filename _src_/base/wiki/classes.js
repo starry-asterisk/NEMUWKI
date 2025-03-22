@@ -612,19 +612,30 @@ const ContentBase = {
                     let board_anchor = createElement('a').attrs({ class: 'list__item__board_name', 'data-board': data.board_name, href: `?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: data.board_name });
                     let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `index?post=${doc.id}` }).props({ innerHTML: data.title });
 
+                    let img, img_alt = createElement('div').addClass('list__item__alt').props({ onclick });
+                    if (data.thumbnail && data.thumbnail != 'undefined') {
+                        img = createElement('img').attrs({ class: 'list__item__img' }).props({ onerror() { this.replaceWith(img_alt); } });
+                        img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
+                    }
 
                     if (cardMode) {
-                        let onclick = function () { move(post_anchor.href); }
-                        let img_alt = createElement('div').addClass('list__item__alt').props({ onclick })
-                        if (data.thumbnail && data.thumbnail != 'undefined') {
-                            let img = createElement('img').attrs({ class: 'list__item__img' }).props({ onerror() { this.replaceWith(img_alt); }, onclick });
-                            img.src = data.thumbnail.startsWith('http') ? imgurThumb(data.thumbnail, 'm') : firebase.storage.getStaticUrl(data.thumbnail);
-                            row.append(img);
-                        } else {
-                            row.append(img_alt);
+                        img && img.props({ onclick() { move(post_anchor.href); } })
+                        row.append(img || img_alt, board_anchor, post_anchor);
+                    } else {
+                        if (img) {
+                            let preview = createElement('span').addClass('list__item__preview', 'icon', 'icon-image').props({
+                                onmouseover(e) {
+                                    img.css({
+                                        top: (e.clientY - 10) + 'px',
+                                        left: (e.clientX - 10) + 'px',
+                                    })
+                                }
+                            });
+                            preview.append(img);
+                            post_anchor.append(preview);
                         }
+                        row.append(board_anchor, post_anchor);
                     }
-                    row.append(board_anchor, post_anchor);
                     wrap.append(row);
 
                 }
