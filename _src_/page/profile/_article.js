@@ -9,6 +9,7 @@ class articleProfile extends articleBase {
         this.load = async () => {
             if (!uid) {
                 if (app.user === null) return move(`400?message=${encodeURI('잘못된 요청입니다.')}&url=${location.href}`, true);
+                else if (app.user === false) return move(`403?message=${encodeURI('로그인하지 않은 사용자입니다. 본인 프로필로 이동을 원하시는 경우 로그인을 먼저 진행해 주세요.')}&url=${location.href}`, true);
                 else uid = app.user.uid;
             }
             this.load = () => { };
