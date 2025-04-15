@@ -49,6 +49,12 @@ class Router {
             case '/setting':
                 className = 'setting';
                 break;
+            case '/dialog':
+                className = 'dialog';
+                break;
+            case '/write':
+                className = 'dialog-write';
+                break;
 
         }
         this.now = path;

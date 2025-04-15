@@ -50,7 +50,9 @@ const templateDestPaths = [
     '../login.html',
     '../signup.html',
     '../profile.html',
-    '../setting.html'
+    '../setting.html',
+    '../dialog/index.html',
+    '../dialog/write.html'
 ];
 
 // 디렉토리 변경 감지 및 병합 작업 실행

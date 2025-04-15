@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta property="og:title" content="네무위키">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="description" content="personal wiki project for NEMU">
+    <meta property="og:description" content="personal wiki project for NEMU">
+    <meta property="og:url" content="https://nemuwiki.com">
+    <meta property="og:site_name" content="네무위키">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta property="twitter:title" content="네무위키">
+    <link rel="canonical" href="https://nemuwiki.com">
+    <link rel="icon" href="/resource/favicon.ico">
+    <link rel="apple-touch-icon" href="/resource/favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <link rel="stylesheet" href="/css/default.css?_v=2.4.0" type="text/css">
+    <script>
+        let version = 'v2.4.0';
+        let errorLogs = [];
+
+        window.onerror = function (message, source, lineno, colno, error) {
+            handleError(undefined, error);
+            return true;
+        };
+
+        window.onunhandledrejection = function (event) {
+            handleError('async=unhandledrejection', event.reason);
+        };
+
+        function handleError(type = 'sync=error', error) {
+            const errorLog = {
+                type: type,
+                message: error.message,
+                stack: error.stack
+            };
+            errorLogs.push(errorLog);
+            if (firebase) firebase?.history?.insertError(errorLog);
+            if (Notify) Notify.alert(errorLog.stack || errorLog.message);
+        }
+    </script>
+    <script src="/js/firebase.js?_v=2.4.0" type="module"></script>
+    <script src="/js/wiki.js?_v=2.4.0" type="text/javascript"></script>
+    <title>네무위키</title>
+</head>
+
+<body class="none-auth">
+    <header>
+        <nav>
+            <a class="text logo" tabindex="0" href="./" title="메인으로">네무위키</a>
+            <a tabindex="1" href="./?post=random" class="icon icon-shuffle-variant" title="랜덤문서"></a>
+            <a tabindex="2"
+                href="javascript:focusSearch();"
+                class="icon icon-magnify" title="검색"></a>
+            <a class="text" tabindex="3">
+                <span id="nav__my_btn" title="내 프로필필"></span>
+                <div class="profile" id="pop_profile" tabindex="4">
+                    <div class="profile__background">
+                        <img id="profile__background" onerror="this.css({display: 'none'});" />
+                    </div>
+                    <div class="profile__avatar">
+                        <img id="profile__avatar" onerror="this.css({display: 'none'});" />
+                    </div>
+                    <span class="profile__username" id="profile__username" style="display: none;">[추가예정]</span>
+                    <span class="profile__email" id="profile__email"></span>
+                    <div class="profile__buttons">
+                        <button onmousedown="move('form')">글쓰기</button>
+                        <button onmousedown="move('profile')">마이페이지</button>
+                        <button onmousedown="logout()">로그아웃</button>
+                        <button onmousedown="move('setting')" class="icon icon-cog" style="padding-inline: 0.6rem" title="설정"></button>
+                    </div>
+                    <button class="profile__close icon icon-close" title="닫기"></button>
+                </div>
+            </a>
+        </nav>
+    </header>
+    <section id="section">
+        <main>
+            <article id="article" class="flex-vertical">
+            </article>
+            <hr />
+            <aside id="aside" class="preventable">
+            </aside>
+        </main>
+    </section>
+    <div class="scroller flex-vertical">
+        <button class="scroller__top" onclick="section.scrollTop = 0;"></button>
+        <button class="scroller__bottom" onclick="section.scrollTop = section.scrollHeight;"></button>
+    </div>
+</body>
+<script>
+</script>
+
+</html>
