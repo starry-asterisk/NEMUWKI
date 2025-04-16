@@ -20,7 +20,7 @@ class articleIndex extends articleBase {
                     this.createContent('main_header', undefined, {
                         text: data.title, permission: (
                             app.user && (['assume.nameless@gmail.com','6507055@gmail.com'].indexOf(app.user.email) > -1) ? FINAL.PERMISSION.RWD : FINAL.PERMISSION.R
-                        ), dialog_id
+                        ), dialog_id, doc_index: data.doc_index
                     }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date(1000 * data.timestamp.seconds).toLocaleString() }),
                     createElement('div').css({ 'text-align': 'left' }).css({ 'line-height': '2rem' })

@@ -16,6 +16,7 @@ const IndexContent = {
 
 
                 for (let data of list) {
+                    if (data.deleted) continue;
                     count++;
                     if (count > page_offset) break;
                     let row = createElement('span').addClass('list__item', itemFlexClass);
@@ -76,20 +77,27 @@ const IndexContent = {
 
             model.permission >= FINAL.PERMISSION.R && buttons.append(createElement('button').props({ innerHTML: TEXTS.share, onclick: () => goShare('twitter') }));
             model.permission >= FINAL.PERMISSION.RW && buttons.append(createElement('button').props({ innerHTML: TEXTS.edit, onclick: () => move(`write?dialog=${model.dialog_id}`) }));
-            model.permission >= FINAL.PERMISSION.RWD && buttons.append(createElement('button').props({ innerHTML: TEXTS.delete, onclick: function () { remove(this, model.dialog_id); } }));
+            model.permission >= FINAL.PERMISSION.RWD && buttons.append(createElement('button').props({ innerHTML: TEXTS.delete, onclick: function () { remove(this, model.dialog_id, model.doc_index); } }));
 
             wrap.addClass('fold-end', 'flex-horizontal').append(title, buttons);
         }
     },
 }
 
-function remove(button, dialog_id, isTemplate) {
+function remove(button, dialog_id, doc_index, isTemplate) {
     if (!Notify.confirm('정말로 삭제 하시겠습니까?') || !Notify.confirm('안내 : 삭제 이후 5일 이상이 경과하면 삭제가 불가할 수 있습니다')) return;
     button.setAttribute('disabled', true);
     firebase.dialog.deleteTemporary(dialog_id, undefined, isTemplate)
         .then(async () => {
-            await firebase.dialogIndex.unset(dialog_id);
-            move(ROOT_PATH+'dialog', true);
+            let { next } = firebase.dialogIndex.list();
+            let docs = await next();
+            if (docs.length > 0) {
+                console.log('docs', docs);
+                var chunk_data = await docs[0].data();
+                chunk_data.list[doc_index] = { deleted: true };
+                await firebase.dialogIndex.set(docs[0].id, chunk_data);
+            }
+            move(ROOT_PATH + 'dialog', true);
         })
         .catch(firebaseErrorHandler);
 }

@@ -352,7 +352,6 @@ function decodeVisited(str) {
 }
 
 function move(full_url, forward, load = true) {
-    console.log(full_url, forward, load);
     if (document.activeElement) document.activeElement.blur();
     let { isInlink, path, search, hash } = parseUrl(full_url)
     if (isInlink) {

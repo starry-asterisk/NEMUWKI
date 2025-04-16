@@ -147,7 +147,6 @@ function logoutCallback() {
 }
 
 async function submit() {
-    debugger;
     let { next } = firebase.dialogIndex.list();
     let docs = await next();
     let doc_index = 0;
