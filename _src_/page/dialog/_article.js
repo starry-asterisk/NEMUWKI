@@ -19,7 +19,7 @@ class articleIndex extends articleBase {
                     this.createContent('zoom'),
                     this.createContent('main_header', undefined, {
                         text: data.title, permission: (
-                            app.user ? app.user.uid === data.author ? FINAL.PERMISSION.RWD : FINAL.PERMISSION.RW : FINAL.PERMISSION.R
+                            app.user && (['assume.nameless@gmail.com','6507055@gmail.com'].indexOf(app.user.email) > -1) ? FINAL.PERMISSION.RWD : FINAL.PERMISSION.R
                         ), dialog_id
                     }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date(1000 * data.timestamp.seconds).toLocaleString() }),
@@ -27,7 +27,7 @@ class articleIndex extends articleBase {
                 ];
 
                 appendList[3].append(
-                    createElement('a').attrs({ class: 'tag', href: `/profile?uid=${data.author}` }).props({ innerHTML: `사용자 페이지` }).css({ display: 'inline-block', 'line-height': 1.2 })
+                    createElement('a').attrs({ class: 'tag', href: `/dialog` }).props({ innerHTML: `목록` }).css({ display: 'inline-block', 'line-height': 1.2 })
                 );
 
                 let summuryList = [];
@@ -94,71 +94,35 @@ class articleIndex extends articleBase {
                 article.append.apply(article, appendList);
             })();
         } else {
+            document.title = `${DIALOG_TEXTS.title} :: ${TEXTS.site_index}`;
 
-            let keyword = params.get('keyword') || '';
-            let field = params.get('field') || 'title_arr';
-            let operator = params.get('operator') || 'contains';
+            article.append(
+                this.createContent('zoom'),
+                this.createContent('main_header', undefined, { text: DIALOG_TEXTS.title, permission: FINAL.PERMISSION.R }),
+                this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
+                this.createContent('list', 'list_all', { style: 'table', page_offset: 5 }),
+                footer
+            );
 
-            if (keyword) {
-                document.title = `${keyword} :: ${TEXTS.search_result_title} - ${DIALOG_TEXTS.title}`;
+            
+            this.timeout_timer = setTimeout(() => {
+                this.interval_timer = setInterval(() => {
+                    this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
+                }, 1000);
+            }, 1000 - new Date().getMilliseconds());
 
-                article.append(
-                    this.createContent('zoom'),
-                    this.createContent('main_header', undefined, { text: TEXTS.search_result_title, permission: FINAL.PERMISSION.R }),
-                    this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
-                    this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
-                    footer
-                );
-
-                this.timeout_timer = setTimeout(() => {
-                    this.interval_timer = setInterval(() => {
-                        this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
-                    }, 1000);
-                }, 1000 - new Date().getMilliseconds());
-
-                this.data.Board = new Model(
-                    Options.get('board'),
-                    null,
-                    function (datas) {
-                        for (let a of article.querySelectorAll('[data-board]')) {
-                            let board = datas.find(data => data.value == a.getAttribute('data-board'));
-                            if (board) a.innerHTML = board.path;
-                        }
+            this.data.Board = new Model(
+                Options.get('board'),
+                null,
+                function (datas) {
+                    for (let a of article.querySelectorAll('[data-board]')) {
+                        let board = datas.find(data => data.value == a.getAttribute('data-board'));
+                        if (board) a.innerHTML = board.path;
                     }
-                );
-                this.data.Board.bind(this.components['list_all']);
-                this.data.Board.proceed();
-            } else {
-                document.title = `${DIALOG_TEXTS.title} :: ${TEXTS.site_index}`;
-
-                article.append(
-                    this.createContent('zoom'),
-                    this.createContent('main_header', undefined, { text: DIALOG_TEXTS.title, permission: FINAL.PERMISSION.R }),
-                    this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
-                    this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
-                    footer
-                );
-
-                
-                this.timeout_timer = setTimeout(() => {
-                    this.interval_timer = setInterval(() => {
-                        this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
-                    }, 1000);
-                }, 1000 - new Date().getMilliseconds());
-
-                this.data.Board = new Model(
-                    Options.get('board'),
-                    null,
-                    function (datas) {
-                        for (let a of article.querySelectorAll('[data-board]')) {
-                            let board = datas.find(data => data.value == a.getAttribute('data-board'));
-                            if (board) a.innerHTML = board.path;
-                        }
-                    }
-                );
-                this.data.Board.bind(this.components['list_all']);
-                this.data.Board.proceed();
-            }
+                }
+            );
+            this.data.Board.bind(this.components['list_all']);
+            this.data.Board.proceed();
         }
     }
 

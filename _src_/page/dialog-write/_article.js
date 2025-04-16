@@ -42,11 +42,6 @@ class articleDialogWrite extends articleBase {
 
                 document.title = `${TEXTS.sitename} :: 문서 편집 - ${data.title}`;
 
-                if (app_aside) {
-                    app_aside.components.board.set(data.board_name);
-                    app_aside.components.cate.set(data.category);
-                }
-
                 this.components.main_header.wrap.setData(data.title);
 
                 for (let content of data.contents) {

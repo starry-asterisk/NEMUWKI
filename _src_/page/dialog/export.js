@@ -6,16 +6,20 @@ const IndexContent = {
             let docs, { next } = await firebase.dialogIndex.list();
             let cardMode = model.style == 'galery';
             let itemFlexClass = cardMode ? 'flex-vertical' : 'flex-horizontal';
+            docs = await next();
+            if (docs.length == 0) return;
+            let doc_data = docs[0].data();
+            var list = doc_data.list;
             let load = async () => {
+                let count = -1;
                 list__footer.disabled = true;
 
-                docs = await next();
 
-                for (let doc of docs) {
-                    let data = doc.data();
-
+                for (let data of list) {
+                    count++;
+                    if (count > page_offset) break;
                     let row = createElement('span').addClass('list__item', itemFlexClass);
-                    let post_anchor = createElement('a').attrs({ class: 'list__item__title', href: `/dialog/?post=${doc.id}` }).props({ innerHTML: data.title });
+                    let dialog_anchor = createElement('a').attrs({ class: 'list__item__title', href: `/dialog/?dialog=${data.id}` }).props({ innerHTML: data.title });
 
                     let img, img_alt = createElement('div').addClass('list__item__alt').props({ onclick });
                     if (data.thumbnail && data.thumbnail != 'undefined') {
@@ -24,8 +28,8 @@ const IndexContent = {
                     }
 
                     if (cardMode) {
-                        img && img.props({ onclick() { move(post_anchor.href); } })
-                        row.append(img || img_alt, post_anchor);
+                        img && img.props({ onclick() { move(dialog_anchor.href); } })
+                        row.append(img || img_alt, dialog_anchor);
                     } else {
                         if (img) {
                             let preview = createElement('span').addClass('list__item__preview', 'icon', 'icon-image').props({
@@ -37,15 +41,15 @@ const IndexContent = {
                                 }
                             });
                             preview.append(img);
-                            post_anchor.append(preview);
+                            dialog_anchor.append(preview);
                         }
-                        row.append(post_anchor);
+                        row.append(dialog_anchor);
                     }
                     wrap.append(row);
 
                 }
 
-                if (docs.length < (model.page_offset || 25)) list__footer.remove();
+                if (count < (model.page_offset || 25)) list__footer.remove();
 
                 list__footer.disabled = false;
                 if (this.data.Board) this.data.Board.proceed();
@@ -65,6 +69,29 @@ const IndexContent = {
             await load();
         }
     },
+    main_header: {
+        initialize(id, wrap, model) {
+            let title = createElement('span').addClass('main_header__title', 'flex-horizontal').props({ innerHTML: model.text });
+            let buttons = createElement('div').attrs({ class: `main_header__buttons buttons` });
+
+            model.permission >= FINAL.PERMISSION.R && buttons.append(createElement('button').props({ innerHTML: TEXTS.share, onclick: () => goShare('twitter') }));
+            model.permission >= FINAL.PERMISSION.RW && buttons.append(createElement('button').props({ innerHTML: TEXTS.edit, onclick: () => move(`write?dialog=${model.dialog_id}`) }));
+            model.permission >= FINAL.PERMISSION.RWD && buttons.append(createElement('button').props({ innerHTML: TEXTS.delete, onclick: function () { remove(this, model.dialog_id); } }));
+
+            wrap.addClass('fold-end', 'flex-horizontal').append(title, buttons);
+        }
+    },
+}
+
+function remove(button, dialog_id, isTemplate) {
+    if (!Notify.confirm('정말로 삭제 하시겠습니까?') || !Notify.confirm('안내 : 삭제 이후 5일 이상이 경과하면 삭제가 불가할 수 있습니다')) return;
+    button.setAttribute('disabled', true);
+    firebase.dialog.deleteTemporary(dialog_id, undefined, isTemplate)
+        .then(async () => {
+            await firebase.dialogIndex.unset(dialog_id);
+            move(ROOT_PATH+'dialog', true);
+        })
+        .catch(firebaseErrorHandler);
 }
 
 const DIALOG_TEXTS = {

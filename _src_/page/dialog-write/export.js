@@ -147,6 +147,15 @@ function logoutCallback() {
 }
 
 async function submit() {
+    debugger;
+    let { next } = firebase.dialogIndex.list();
+    let docs = await next();
+    let doc_index = 0;
+    for (let doc of docs) {
+        let data = doc.data();
+        doc_index += data.list.length;
+    }
+
     try {
 
         if (!Notify.confirm('작성한 내용을 업로드 하시겠습니까?')) return;
@@ -178,25 +187,26 @@ async function submit() {
             formData.timestamp = new Date(1000 * app_article.BeforeData.timestamp.seconds);
             firebase.dialog.updateOne(app_article.BeforeData.id, formData)
                 .then(async () => {
-                    await makeKeyword(app_article.BeforeData.id, formData);
+                    await makeKeyword(docs[0], app_article.BeforeData.doc_index, app_article.BeforeData.id, formData);
                     app.blockMode = false;
-                    move(`/?dialog=${app_article.BeforeData.id}`);
+                    move(`/dialog/?dialog=${app_article.BeforeData.id}`);
                 })
                 .catch(firebaseErrorHandler)
                 .finally(() => toggleSubmitMode(false));
         } else {
-            formData.updated_timestamp = new Date();
+            formData.updated_timestamp = new Date(); doc_index
             formData.timestamp = formData.updated_timestamp;
+            formData.doc_index = doc_index;
             firebase.dialog.insertOne(formData)
                 .then(async ref => {
                     if (ref == undefined) {
                         app.blockMode = false;
-                        move(`401?message=${encodeURI('권한이 없거나 자동 로그아웃 처리되었습니다.')}&url=${location.href}`,true);
+                        move(`401?message=${encodeURI('권한이 없거나 자동 로그아웃 처리되었습니다.')}&url=${location.href}`, true);
                         return;
                     }
-                    await makeKeyword(ref.id, formData);
+                    await makeKeyword(docs[0], doc_index, ref.id, formData);
                     app.blockMode = false;
-                    move(`/?dialog=${ref.id}`);
+                    move(`/dialog/?dialog=${ref.id}`);
                 })
                 .catch(e => {
                     Notify.alert('ERROR::저장에 실패했습니다::');
@@ -214,13 +224,24 @@ function toggleSubmitMode(bool = true) {
     return true;
 }
 
-async function makeKeyword(id, data) {
-    if (data.deleted) return await firebase.dialogIndex.unset(id);
+async function makeKeyword(chunk_doc, doc_index, id, data) {
+    var chunk_data;
+    if (chunk_doc) {
+        var chunk_data = await chunk_doc.data();
+    } else {
+        chunk_data = { list: [] };
+        chunk_doc = { id: Math.floor(Math.random() * Math.pow(10, 8)).toString(36) };
+    }
+    var chunk_data = chunk_doc ? await chunk_doc.data() : { list: [] };
+    chunk_doc = chunk_doc || { id: Math.floor(Math.random() * Math.pow(10, 8)).toString(36) };
+    if (data.deleted) {
+        chunk_data.list[doc_index] = { deleted: true };
+        return await firebase.dialogIndex.set(chunk_doc.id, chunk_data);
+    };
     let {
         title,
         timestamp,
         updated_timestamp,
-        author,
         contents
     } = data
     let fullText = data.title.replace(/\s+/g, '');
@@ -236,10 +257,10 @@ async function makeKeyword(id, data) {
     title_arr = [...new Set(title_arr)];
 
     let keyword_data = {
+        id,
         title,
         title_arr,
-        timestamp,
-        author
+        timestamp
     }
 
     let thumbnail, regex_result;
@@ -274,7 +295,12 @@ async function makeKeyword(id, data) {
     if (thumbnail) keyword_data.thumbnail = thumbnail;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
 
-    await firebase.dialogIndex.set(id, keyword_data);
+    chunk_data.list[doc_index] = keyword_data;
+    await firebase.dialogIndex.set(chunk_doc.id, chunk_data);
+}
+
+const DialogContent = {
+    ...ContentBase,
 }
 
 export { asideDialogWrite as aside, articleDialogWrite as article, logoutCallback };

@@ -224,6 +224,7 @@ function checkLogin() {
         app.user = user;
         firebase.auth.getUser().then(user => {
             let data = user.data();
+            app.userData = data;
             if (data.banner_url) profile__background.css({ display: 'block' }) && (profile__background.src = data.banner_url);
             if (data.photo_url) profile__avatar.css({ display: 'block' }) && (profile__avatar.src = data.photo_url);
             if (data.theme_color) applyThemes(data.theme_color);

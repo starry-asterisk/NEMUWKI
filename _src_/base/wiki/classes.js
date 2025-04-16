@@ -670,6 +670,22 @@ const ContentBase = {
             await load();
         }
     },
+    dialog: {
+        initialize(id, wrap, {align = 'left', image = {}, name = '', html = ''}) {
+            wrap.dataset.align = align;
+            if(image.src){
+                let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
+                img.width = image.width;
+                img.src = image.src.startsWith('http') ? image.src : firebase.storage.getStaticUrl(image.src);
+                wrap.append(img);
+            } else {
+                wrap.addClass('dialog__no_image')
+            }
+            let name__span = createElement('span').addClass('dialog__name').props({ innerHTML: name });
+            let html__div = createElement('div').addClass('dialog__text').props({ innerHTML: markdown(html) });
+            wrap.append(name__span, html__div);
+        }
+    }
 }
 
 const MODAL_TEMPLATE = {

@@ -201,6 +201,9 @@ const FormContent = {
             let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1 });
             let size__p = createElement('p').addClass('input_l');
 
+            let name__input = createElement('input').attrs({ type: 'text', maxlength: 24 }).addClass('input2');
+            let name__p = createElement('p').addClass('input_l');
+
             form__img.onload = function () {
                 let ratio = form__img.naturalWidth / form__img.naturalHeight;
                 width__input.value = data.image.width || form__img.naturalWidth;
@@ -213,9 +216,10 @@ const FormContent = {
                 }
             };
 
+            name__p.append(document.createTextNode('이름'), name__input);
             size__p.append(document.createTextNode('W'), width__input, document.createTextNode('H'), height__input);
-            
-            info__wrap.append(size__p);
+
+            info__wrap.append(name__p, size__p);
 
 
             let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
@@ -227,8 +231,9 @@ const FormContent = {
             btn.onclick = () => {
                 modal('addImg', adjust_src);
             }
-            if (data.image.src) adjust_src(imgInfo.src);
+            if (data.image.src) adjust_src(data.image.src);
             if (data.align) form__dialog.dataset.align = align;
+            if (data.name) name__input.value = data.name;
             form__inputs.append(btn, form__img, info__wrap);
             form__dialog.append(form__inputs);
 
@@ -289,6 +294,7 @@ const FormContent = {
                         width: width__input.value || 100,
                         src: file_url,
                     },
+                    name: name__input.value,
                     html: input_text.innerHTML
                 };
             };

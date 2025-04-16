@@ -350,11 +350,17 @@
 .form__dialog__image>img {
     flex: 1;
     max-height: 30rem;
-    width: 25%;
     aspect-ratio: 1;
     object-fit: contain;
     margin: var(--spacing-small);
     order: 1;
+}
+
+.form__image__wrap>img {
+    width: 25%;
+}
+.form__dialog__image>img {
+    max-width: 180px;
 }
 
 .form__image__wrap>img+ ::after {
@@ -391,19 +397,29 @@
 
 .form__dialog {
     flex: 1;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: 194px 3fr;
+}
+
+.form__dialog[data-align="right"] {
+    grid-template-columns: 3fr 194px;
+}
+
+.form__dialog[data-align="right"] .form__dialog__image {
+    order: 1;
 }
 
 .form__dialog__textbox {
-    flex: 3;
+    align-content: center;
 }
 
 .form__dialog__image {
-    display: grid;
+    display: flex;
+    flex-direction: column;
 }
 
-.form__dialog__image p {
+.form__dialog__image>div {
     order: 2;
 }
 

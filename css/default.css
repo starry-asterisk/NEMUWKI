@@ -835,9 +835,71 @@ n-option.placeholder {
 
 /* 텍스트 박스 편집시 배경 스타일 따라옴 현상 보정용 스타일 */
 .content.textbox,
-.form.textbox [contenteditable] {
+.content.dialog,
+.content.dialog .dialog__text,
+.form.textbox [contenteditable],
+.form.dialog [contenteditable] {
     --font-size-medium: inherit;
     --blue-gray-50: transparent;
+}
+
+.content.dialog {
+    display: grid;
+    grid-template-columns: 194px 3fr;
+}
+
+.content.dialog__no_image .dialog__text {
+    grid-area: 1 / 1 / 3 / 3;
+    margin: var(--spacing-small) !important;
+}
+
+.content.dialog__no_image .dialog__name {
+    display: none;
+}
+
+.content.dialog[data-align="left"] {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+}
+
+.content.dialog[data-align="left"]>img {
+    grid-area: 1 / 1 / 2 / 2;
+    margin: var(--spacing-small);
+}
+
+.content.dialog[data-align="left"]>.dialog__name {
+    grid-area: 2 / 1 / 3 / 2;
+    text-align: center;
+}
+
+.content.dialog[data-align="left"]>.dialog__text {
+    grid-area: 1 / 2 / 3 / 3;
+    align-content: center;
+    margin: var(--spacing-small) var(--spacing-small) var(--spacing-small) var(--spacing-medium);
+}
+
+.content.dialog[data-align="right"] {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr auto;
+    margin-left: 0;
+}
+
+.content.dialog[data-align="right"]>img {
+    grid-area: 1 / 2 / 2 / 3;
+    margin: var(--spacing-small);
+}
+
+.content.dialog[data-align="right"]>.dialog__name {
+    grid-area: 2 / 2 / 3 / 3;
+    text-align: center;
+}
+
+.content.dialog[data-align="right"]>.dialog__text {
+    grid-area: 1 / 1 / 3 / 2;
+    align-content: center;
+    margin: var(--spacing-small) var(--spacing-medium) var(--spacing-small) var(--spacing-small);
 }
 
 /* 인용 박스 기능 */
@@ -867,6 +929,10 @@ p.input_l input {
     padding-inline: var(--spacing-small);
     background-color: var(--color-bg-light);
 }
+
+p.input_l .input2 {
+    width: 10.8rem;
+} 
 
 /* 프로필 창 */
 .profile {
@@ -1370,6 +1436,7 @@ n-error {
 
     .content n-table,
     .form .form__textbox,
+    .form .form__dialog__textbox,
     .form .form__inputs {
         zoom: 0.8;
     }

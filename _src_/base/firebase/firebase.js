@@ -513,7 +513,7 @@ fb.dialogIndex = {
         let page_offset = 1;
         let param_base = [
             collection(db, "dialog_index_chunks"),
-            orderBy('timestamp', 'desc')
+            // orderBy('timestamp', 'desc')
         ], params, documentSnapshots, isEnd = false;
 
         return {

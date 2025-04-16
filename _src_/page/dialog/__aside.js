@@ -10,8 +10,8 @@ class asideIndex extends asideBase {
 
         aside.append(
             this.createBlock('B000', `<h1><a class="logo s_button" href="./">${DIALOG_TEXTS.title}</a></h1>`),
-            this.createSearch('search', param),
-            this.createBlock('btn_upload', `<button class="s_button" onclick="move('write')">${TEXTS.upload}</button><button class="s_button" onclick=" move('/profile')">${TEXTS.mypage}</button>`),
+            // this.createSearch('search', param),
+            this.createBlock('btn_upload', `${(app.user && ['assume.nameless@gmail.com','6507055@gmail.com'].indexOf(app.user.email))?'':('<button class="s_button" onclick="move(\'write\')">'+TEXTS.upload+'</button>')}<button class="s_button" onclick=" move('/profile')">${TEXTS.mypage}</button>`),
             this.createBlock('btn_login', `<button class="s_button" onclick="move('/login')">${TEXTS.form.login}</button>`)
         );
     }
