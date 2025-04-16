@@ -244,185 +244,6 @@ const ToolBase = {
         );
         return wrap;
     },
-    rowSize(wrap, focusedElement) {
-        wrap.addClass('group').attrs({ title: '행 크기 조절' });
-        let table = focusedElement.querySelector('n-table');
-        let size_input = createElement('input').props({
-            value: table.rowcount, oninput: () => parseInt(size_input.value) && (table.rowcount = parseInt(size_input.value))
-        }).attrs({ type: 'number', min: 1, step: 1 });
-
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-table-row-plus-after'
-            }).props({ onclick: () => table && table.rowcount++ && (size_input.value = table.rowcount) }),
-            size_input,
-            createElement('button').attrs({
-                class: 'icon icon-table-row-remove'
-            }).props({ onclick: () => table && table.rowcount-- && (size_input.value = table.rowcount) })
-        );
-        return wrap;
-    },
-    colSize(wrap, focusedElement) {
-        wrap.addClass('group').attrs({ title: '열 크기 조절' });
-        let table = focusedElement.querySelector('n-table');
-        let size_input = createElement('input').props({
-            value: table.colcount, oninput: () => parseInt(size_input.value) && (table.colcount = parseInt(size_input.value))
-        }).attrs({ type: 'number', min: 1, step: 1 });
-
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-table-column-plus-after'
-            }).props({ onclick: () => table && table.colcount++ && (size_input.value = table.colcount) }),
-            size_input,
-            createElement('button').attrs({
-                class: 'icon icon-table-column-remove'
-            }).props({ onclick: () => table && table.colcount-- && (size_input.value = table.colcount) })
-        );
-        return wrap;
-    },
-    innerLineColor(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        let span = createElement('span').addClass('color_swap').css({ 'background-color': table.innerLineColor });
-        wrap.addClass('group').attrs({ title: '표 내부 테두리 색상' });
-        wrap.props({ onclick: () => modal('colorPicker', val => table && (table.innerLineColor = span.style.backgroundColor = val), table?.innerLineColor) }).append(
-            createElement('button').attrs({
-                class: 'icon icon-border-inside'
-            }),
-            span
-        );
-        return wrap;
-    },
-    outerLineColor(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        let span = createElement('span').addClass('color_swap').css({ 'background-color': table.outerLineColor });
-        wrap.addClass('group').attrs({ title: '표 외부 테두리 색상' });
-        wrap.props({ onclick: () => modal('colorPicker', val => table && (table.outerLineColor = span.style.backgroundColor = val), table?.outerLineColor) }).append(
-            createElement('button').attrs({
-                class: 'icon icon-border-outside'
-            }),
-            span
-        );
-        return wrap;
-    },
-    outerLineWidth(wrap, focusedElement) {
-        wrap.addClass('group').attrs({ title: '표 외부 테두리 굵기' });
-        let table = focusedElement.querySelector('n-table');
-        let size_input = createElement('input').props({
-            value: table.outerLineWidth, oninput: () => parseInt(size_input.value) && (table.outerLineWidth = parseInt(size_input.value))
-        }).attrs({ type: 'number', min: 1, step: 1 });
-
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-plus'
-            }).props({ onclick: () => table && table.outerLineWidth++ && (size_input.value = table.outerLineWidth) }),
-            size_input,
-            createElement('button').attrs({
-                class: 'icon icon-minus'
-            }).props({ onclick: () => table && table.outerLineWidth-- && (size_input.value = table.outerLineWidth) })
-        );
-        return wrap;
-    },
-    cellBackgroundColor(wrap, focusedElement) {
-        let table = focusedElement.matches('n-table') ? focusedElement : focusedElement.querySelector('n-table');
-        let span = createElement('span').addClass('color_swap').css({
-            'background-color': (
-                table.lastSelection?.dataset.color || '#ffffff'
-            )
-        });
-        table.onSelChange = cell => (span.style.backgroundColor = cell.dataset.color || '#ffffff');
-        wrap.addClass('group').attrs({ title: '셀 체우기 색상' });
-        wrap.props({
-            onclick: () => modal('colorPicker', val => {
-                getCells(table).forEach(cell => {
-                    cell.dataset.color = val;
-                    cell.style.backgroundColor = val;
-                    span.style.backgroundColor = val;
-                });
-            }, table?.lastSelection.dataset.color)
-        }).append(
-            createElement('button').attrs({
-                class: 'icon icon-format-color-fill'
-            }),
-            span
-        );
-        return wrap;
-    },
-    insertCellLink(wrap, option) {//이미지 처리 모달 / conv_fn: val => val.startsWith('http') ? val : 'http://' + val
-        wrap.attrs({ title: '링크 생성' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-link-variant'
-            }).props({
-                onclick: execBuildPrompt('insertHTML', '생성할 링크를 입력해 주세요', val => {
-                    val = val.startsWith('http') ? val : 'http://' + val;
-                    return `[link:${val}]`;
-                })
-            })
-        );
-        return wrap;
-    },
-    insertCellImage(wrap, focusedElement) {//이미지 처리 모달 / conv_fn: val => val.startsWith('http') ? val : 'http://' + val
-        let table = focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '링크 기반 이미지 삽입' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-image-plus'
-            }).props({
-                onclick: () => modal('addImg', val => {
-                    table.lastSelection && table.lastSelection.append(document.createTextNode(`[image:${val}]`));
-                })
-            })
-        );
-        return wrap;
-    },
-    fitToCell(wrap, focusedElement) {
-        let table = focusedElement.matches('n-table') ? focusedElement : focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '셀 여백 사용 설정' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-fit-to-page-outline'
-            }).props({
-                onclick: () => {
-                    let fit;
-                    getCells(table).forEach(cell => {
-                        if (fit) cell.dataset.fitToCell = fit;
-                        else fit = cell.dataset.fitToCell = cell.dataset.fitToCell != 'true'
-                    });
-                }
-            })
-        );
-        return wrap;
-    },
-    tableToLeft(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '좌측 정렬' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-format-align-left'
-            }).props({ onclick: () => table.dataset.align = 'left' })
-        );
-        return wrap;
-    },
-    tableToCenter(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '가운데 정렬' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-format-align-center'
-            }).props({ onclick: () => table.dataset.align = 'center' })
-        );
-        return wrap;
-    },
-    tableToRight(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '우측 정렬' });
-        wrap.append(
-            createElement('button').attrs({
-                class: 'icon icon-format-align-right'
-            }).props({ onclick: () => table.dataset.align = 'right' })
-        );
-        return wrap;
-    },
     imageToLeft(wrap, focusedElement) {
         let image = focusedElement.querySelector('img');
         wrap.attrs({ title: '좌측 정렬' });
@@ -453,47 +274,24 @@ const ToolBase = {
         );
         return wrap;
     },
-    tableFitHoriontal(wrap, focusedElement) {
-        let table = focusedElement.querySelector('n-table');
-        wrap.attrs({ title: '전체 넓이 초과시 가로 맞춤' });
+    dialogToLeft(wrap, focusedElement) {
+        let form__dialog = focusedElement.querySelector('.form__dialog');
+        wrap.attrs({ title: '좌측 정렬' });
         wrap.append(
             createElement('button').attrs({
-                class: 'icon icon-arrow-expand-horizontal'
-            }).props({ onclick: () => table.dataset.fit = table.dataset.fit == 'true' ? 'false' : 'true' })
+                class: 'icon icon-format-align-left'
+            }).props({ onclick: () => form__dialog.dataset.align = 'left' })
         );
         return wrap;
     },
-
-    cellAlign(wrap, table) {
-        wrap.addClass('group').attrs({ title: '텍스트 정렬' });
+    dialogToRight(wrap, focusedElement) {
+        let form__dialog = focusedElement.querySelector('.form__dialog');
+        wrap.attrs({ title: '우측 정렬' });
         wrap.append(
             createElement('button').attrs({
-                class: 'icon icon icon-format-align-left'
-            }).props({
-                onclick: () => getCells(table).forEach(cell => {
-                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:left"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'left' });
-                })
-            }),
-            createElement('button').attrs({
-                class: 'icon icon icon-format-align-center'
-            }).props({
-                onclick: () => getCells(table).forEach(cell => {
-                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:center"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'center' });
-                })
-            }),
-            createElement('button').attrs({
-                class: 'icon icon icon-format-align-right'
-            }).props({
-                onclick: () => getCells(table).forEach(cell => {
-                    if (cell.innerHTML == '') cell.innerHTML = '<div style="text-align:right"> </div>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'text-align': 'right' });
-                })
-            })
+                class: 'icon icon-format-align-right'
+            }).props({ onclick: () => form__dialog.dataset.align = 'right' })
         );
-
         return wrap;
-
     },
 }

@@ -34,7 +34,7 @@ global.intro_html = function () {
     <link rel="canonical" href="https://${global.projectName}">
     <link rel="icon" href="/resource/favicon.ico">
     <link rel="apple-touch-icon" href="/resource/favicon.ico" />
-    <link rel="manifest" href="manifest.json" />`;
+    <link rel="manifest" href="/manifest.json" />`;
 };
 
 // 병합할 파일이 있는 기본 디렉토리 경로
@@ -51,7 +51,7 @@ const templateDestPaths = [
     '../signup.html',
     '../profile.html',
     '../setting.html',
-    '../dialog/index.html',
+    '../dialog.html',
     '../dialog/write.html'
 ];
 

@@ -16,7 +16,10 @@ class Router {
     async load(path = location.pathname, search = location.search) {
         now = { path, search };
         let params = new URLSearchParams(search);
-        let page = await this.getClass(`/${path.split('/').pop()}`);
+        let pathArr = path.split('/');
+        let pathMain = pathArr.pop();
+        let pathSub = pathArr.pop();
+        let page = await this.getClass(`/${pathMain || pathSub || ''}`);
         document.body.removeClass('preview-mode');
         this.blockMode = false;
         __CallStack__ = {

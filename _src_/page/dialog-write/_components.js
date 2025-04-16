@@ -184,11 +184,115 @@ const FormContent = {
     dialog: {
         text: '대화',
         icon: 'icon-forum',
-        initialize(id, wrap) {
-            let form__inputs = createElement('div').addClass('form__inputs');
-            form__inputs.innerHTML = '대화';
-            wrap.append(form__inputs);
-            wrap.getData = () => '';
-        }
+        initialize(id, wrap, data = {
+            align: 'left',
+            image: {
+                width: 100,
+            },
+            html: ''
+        }) {
+            let form__dialog = createElement('div').addClass('form__dialog');
+            let form__inputs = createElement('div').addClass('form__dialog__image');
+            let form__img = new Image();
+            let info__wrap = createElement('div').addClass('flex-vertical');
+            let align = data.align || 'left';
+
+            let width__input = createElement('input').attrs({ type: 'number', min: 10, step: 1 });
+            let height__input = createElement('input').attrs({ type: 'number', min: 10, step: 1 });
+            let size__p = createElement('p').addClass('input_l');
+
+            form__img.onload = function () {
+                let ratio = form__img.naturalWidth / form__img.naturalHeight;
+                width__input.value = data.image.width || form__img.naturalWidth;
+                height__input.value = parseInt(width__input.value / ratio);
+                width__input.oninput = () => {
+                    height__input.value = parseInt(width__input.value / ratio);
+                }
+                height__input.oninput = () => {
+                    width__input.value = parseInt(height__input.value * ratio);
+                }
+            };
+
+            size__p.append(document.createTextNode('W'), width__input, document.createTextNode('H'), height__input);
+            
+            info__wrap.append(size__p);
+
+
+            let btn = createElement('button').addClass('f_button').props({ innerHTML: '이미지 선택' });
+            let file_url = '';
+            let adjust_src = src => {
+                file_url = src;
+                form__img.src = src.startsWith('http') ? imgurThumb(src, 'm') : firebase.storage.getStaticUrl(src);;
+            };
+            btn.onclick = () => {
+                modal('addImg', adjust_src);
+            }
+            if (data.image.src) adjust_src(imgInfo.src);
+            if (data.align) form__dialog.dataset.align = align;
+            form__inputs.append(btn, form__img, info__wrap);
+            form__dialog.append(form__inputs);
+
+            let input_text = createElement('div').attrs({
+                contenteditable: true,
+                placeholder: `텍스트박스.
+                여기에 텍스트를 입력하세요.`,
+                class: 'form__dialog__textbox'
+            }).props({
+                innerHTML: (data.html || ''),
+                onpaste(e) {
+                    e.preventDefault();
+                    document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'));
+                },
+                ondrop(e) {
+                    const NewText = document.createTextNode(e.dataTransfer.getData('text/plain'));
+                    if (NewText.textContent.startsWith('$$nemuwiki$$')) return;
+                    e.preventDefault();
+                    let range;
+                    if ('caretRangeFromPoint' in document) {
+                        range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                    } else if ('caretPositionFromPoint' in document) {
+                        range = document.caretPositionFromPoint(e.clientX, e.clientY);
+                    } else return;
+                    range.insertNode(NewText);
+
+                    range.setStart(NewText, 0);
+                    range.setEnd(NewText, NewText.length);
+
+                    const selection = window.getSelection();
+                    selection.removeAllRanges(); // 기존 선택 제거
+                    selection.addRange(range);   // 새로운 선택 추가
+
+                    this.oninput();
+                },
+                onblur() {
+                    let s = window.getSelection();
+                    lastSelection = {
+                        anchorNode: s.anchorNode,
+                        anchorOffset: s.anchorOffset,
+                        focusNode: s.focusNode,
+                        focusOffset: s.focusOffset,
+                    };
+                },
+                oninput() {
+                    this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
+                    this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
+                    this.toggleClass('empty', this.textContent.trim().length < 1);
+                }
+            });
+            input_text.toggleClass('empty', input_text.textContent.trim().length < 1);
+            form__dialog.append(input_text);
+            wrap.append(form__dialog);
+            wrap.getData = () => {
+                return {
+                    align: form__dialog.dataset.align || 'left',
+                    image: {
+                        width: width__input.value || 100,
+                        src: file_url,
+                    },
+                    html: input_text.innerHTML
+                };
+            };
+        },
+        buttons: ['dialogToLeft', 'dialogToRight', 'foreColor', 'backColor', 'bold', 'italic', 'strikeThrough', 'underline', 'fontSize', 'justifyLeft', 'justifyCenter', 'justifyRight', 'formatBlock', 'createLink', 'insertAnno', 'insertImage', 'unlink', 'removeFormat', 'selectAll', 'undo', 'redo']
     },
 }

@@ -510,7 +510,7 @@ const TEXTS = {
     upload: '글쓰기',
     mypage: '마이페이지',
     welcome_title: '네무위키:대문',
-    search_result_tile: '검색결과',
+    search_result_title: '검색결과',
     edit: '수정',
     share: '공유',
     delete: '삭제',

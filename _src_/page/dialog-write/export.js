@@ -151,15 +151,9 @@ async function submit() {
 
         if (!Notify.confirm('작성한 내용을 업로드 하시겠습니까?')) return;
 
-        let { board, cate } = app_aside.components;
-
         let formData = {
-            board_name: board.dataset.value || '전체',
-            board_name_arr: board.dataset.value ? board.dataset.selectedtext.split(' > ') : ['전체'],
-            category: cate.dataset.value || '전체',
             title: '[이 값이 보이면 개발자한테 알려주세요]',
-            contents: [],
-            hidden: hidden_chk.checked
+            contents: []
         }
 
         for (let el of article.children) {
@@ -182,22 +176,18 @@ async function submit() {
         if (app_article.BeforeData) {
             formData.updated_timestamp = new Date();
             formData.timestamp = new Date(1000 * app_article.BeforeData.timestamp.seconds);
-            formData.author = app_article.BeforeData.author;
-            formData.use = app_article.BeforeData.use;
-            firebase.post.updateOne(app_article.BeforeData.id, formData)
+            firebase.dialog.updateOne(app_article.BeforeData.id, formData)
                 .then(async () => {
                     await makeKeyword(app_article.BeforeData.id, formData);
                     app.blockMode = false;
-                    move(`/?post=${app_article.BeforeData.id}`);
+                    move(`/?dialog=${app_article.BeforeData.id}`);
                 })
                 .catch(firebaseErrorHandler)
                 .finally(() => toggleSubmitMode(false));
         } else {
             formData.updated_timestamp = new Date();
             formData.timestamp = formData.updated_timestamp;
-            formData.author = app.user.uid;
-            formData.use = true;
-            firebase.post.insertOne(formData)
+            firebase.dialog.insertOne(formData)
                 .then(async ref => {
                     if (ref == undefined) {
                         app.blockMode = false;
@@ -206,7 +196,7 @@ async function submit() {
                     }
                     await makeKeyword(ref.id, formData);
                     app.blockMode = false;
-                    move(`/?post=${ref.id}`);
+                    move(`/?dialog=${ref.id}`);
                 })
                 .catch(e => {
                     Notify.alert('ERROR::저장에 실패했습니다::');
@@ -225,18 +215,13 @@ function toggleSubmitMode(bool = true) {
 }
 
 async function makeKeyword(id, data) {
-    if (data.deleted) return await firebase.search.unset(id);
-    if (data.board_name == 'template') return await firebase.search.unset(id);
+    if (data.deleted) return await firebase.dialogIndex.unset(id);
     let {
         title,
-        board_name,
-        board_name_arr,
-        category,
         timestamp,
         updated_timestamp,
         author,
-        contents,
-        hidden
+        contents
     } = data
     let fullText = data.title.replace(/\s+/g, '');
     let title_arr = [];
@@ -253,12 +238,8 @@ async function makeKeyword(id, data) {
     let keyword_data = {
         title,
         title_arr,
-        board_name,
-        board_name_arr,
-        category,
         timestamp,
-        author,
-        hidden
+        author
     }
 
     let thumbnail, regex_result;
@@ -293,29 +274,7 @@ async function makeKeyword(id, data) {
     if (thumbnail) keyword_data.thumbnail = thumbnail;
     if (updated_timestamp) keyword_data.updated_timestamp = updated_timestamp;
 
-    await firebase.search.set(id, keyword_data);
+    await firebase.dialogIndex.set(id, keyword_data);
 }
-const setTemplate = (function () {
-    let oldValue;
-    return () => {
-        template_chk.disabled = true;
-        let { board, template } = app_aside.components;
-        if (template_chk.checked) {
-            oldValue = board.dataset.value;
-            board.set('template');
-            board.addClass('disabled');
-            template.addClass('disabled');
-            hidden_chk.checked = true;
-            hidden_chk.setAttribute('disabled', true);
-        } else {
-            board.set(oldValue || '');
-            board.removeClass('disabled');
-            template.removeClass('disabled');
-            hidden_chk.checked = false;
-            hidden_chk.removeAttribute('disabled');
-        }
-        setTimeout(() => { template_chk.disabled = false }, 100);
-    };
-})();
 
-export { asideForm as aside, articleForm as article, logoutCallback };
+export { asideDialogWrite as aside, articleDialogWrite as article, logoutCallback };

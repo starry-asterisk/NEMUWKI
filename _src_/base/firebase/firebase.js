@@ -388,7 +388,7 @@ fb.auth = {
             }
         }
     },
-    getUser: async (uid = auth.currentUser?.uid) => console.error(uid)||await getDoc(doc(db, "users", uid)),
+    getUser: async (uid = auth.currentUser?.uid) => await getDoc(doc(db, "users", uid)),
     getAuth: () => auth.currentUser,
     updateUser: async (id, data) => await updateDoc(doc(db, "users", id), data),
     sendPasswordResetEmail: async email => await sendPasswordResetEmail(auth, email),
@@ -442,6 +442,79 @@ fb.search = {
                     break;
             }
         }
+
+        return {
+            next: async (docs = documentSnapshots?.docs) => {
+                if (isEnd) return [];
+                params = param_base.slice();
+                if (docs && docs?.length != 0) params.push(startAfter(docs[docs.length - 1]));
+                params.push(limit(page_offset));
+                documentSnapshots = await getDocs(query.apply(undefined, params));
+                if (documentSnapshots.docs.length < page_offset) isEnd = true;
+                return documentSnapshots.docs;
+            }
+        }
+    }
+}
+
+
+fb.dialog = {
+    insertOne: async data => {
+        try {
+            if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
+            let ref = await addDoc(collection(db, "dialog"), {
+                title: "",
+                contents: [],
+                timestamp: Timestamp.fromDate(new Date()),
+                ...data
+            });
+            fb.history.insertOne({ crud: 'INSERT', target: `dialog-${ref.id}`, text: data.title || '' });
+            return ref;
+        } catch (e) {
+            dev.error("Error adding document: ", e);
+        }
+    },
+    deleteOne: async (id, title) => {
+        fb.history.insertOne({ crud: 'DELETE', target: `dialog-${id}`, text: title || `(삭제됨-${id})` });
+        return await deleteDoc(doc(db, "dialog", id));
+    },
+    deleteTemporary: async (id, title, isTemplate) => {
+        fb.history.insertOne({ crud: 'TEMPDEL', target: `dialog-${id}`, text: title || `(임시삭제됨-${id})` });
+        let data = { deleted: true, deleted_timestamp: Timestamp.fromDate(new Date()) };
+        if(isTemplate) data.board_name = 'deleted-template';
+        return await updateDoc(doc(db, "dialog", id), data);
+    },
+    recover: async (id, title, isTemplate) => {
+        fb.history.insertOne({ crud: 'RECOVER', target: `dialog-${id}`, text: title || `(복구됨-${id})` });
+        let data = { deleted: deleteField(), deleted_timestamp: deleteField() };
+        if(isTemplate) data.board_name = 'template';
+        return await updateDoc(doc(db, "dialog", id), data);
+    },
+    updateOne: async (id, data) => {
+        if (data && data.timestamp) data.timestamp = Timestamp.fromDate(data.timestamp);
+        if (data && data.updated_timestamp) data.updated_timestamp = Timestamp.fromDate(data.updated_timestamp);
+        fb.history.insertOne({ crud: 'UPDATE', target: `dialog-${id}`, text: data.title || '' });
+        return await updateDoc(doc(db, "dialog", id), data);
+    },
+    selectOne: async id => await getDoc(doc(db, "dialog", id))
+};
+
+fb.dialogIndex = {
+    set: async (id, data) => {
+        await setDoc(doc(db, "dialog_index_chunks", id), data);
+    },
+    unset: async (id) => {
+        const docRef = doc(db, "dialog_index_chunks", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) await deleteDoc(doc(db, "dialog_index_chunks", id));
+    },
+    list: () => {
+        let page_offset = 1;
+        let param_base = [
+            collection(db, "dialog_index_chunks"),
+            orderBy('timestamp', 'desc')
+        ], params, documentSnapshots, isEnd = false;
 
         return {
             next: async (docs = documentSnapshots?.docs) => {

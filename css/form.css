@@ -277,7 +277,7 @@
 
 }
 
-.form__textbox {
+.form__textbox, .form__dialog__textbox {
     min-height: calc(var(--font-size-medium) * 6 + var(--spacing-medium));
     flex: 1;
     padding: var(--spacing-small);
@@ -290,7 +290,9 @@
 }
 
 .form__textbox:empty::before,
-.form__textbox.empty::before {
+.form__textbox.empty::before,
+.form__dialog__textbox:empty::before,
+.form__dialog__textbox.empty::before {
     position: absolute;
     content: attr(placeholder);
     top: var(--spacing-small);
@@ -339,11 +341,13 @@
     display: grid;
 }
 
-.form__image>.f_button {
+.form__image>.f_button,
+.form__dialog__image>.f_button {
     margin: var(--spacing-small);
 }
 
-.form__image__wrap>img {
+.form__image__wrap>img,
+.form__dialog__image>img {
     flex: 1;
     max-height: 30rem;
     width: 25%;
@@ -376,12 +380,31 @@
     margin-right: auto;
 }
 
-.form__image__wrap p {
+.form__image__wrap p,
+.form__dialog__image p {
     display: flex;
     text-align: left;
     align-items: center;
     margin: 0 0 var(--spacing-small) 0;
     gap: var(--spacing-small);
+}
+
+.form__dialog {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.form__dialog__textbox {
+    flex: 3;
+}
+
+.form__dialog__image {
+    display: grid;
+}
+
+.form__dialog__image p {
+    order: 2;
 }
 
 .seperator .form__inputs {

@@ -2,38 +2,31 @@ class articleIndex extends articleBase {
     constructor(params) {
         super();
         this.contentBase = IndexContent;
-        let post_id = params.get('post');
-        if (post_id) {
-            document.title = `${TEXTS.sitename} :: 로딩중`;
+        let dialog_id = params.get('dialog');
+        if (dialog_id) {
+            document.title = `${DIALOG_TEXTS.title} :: 로딩중`;
             (async () => {
-                if (post_id == 'random') post_id = await firebase.search.random();
-
-                let doc = await firebase.post.selectOne(post_id);
+                let doc = await firebase.dialog.selectOne(dialog_id);
                 let data = doc.data();
 
                 if (data == undefined) return move(`404?message=${encodeURI('존재하지 않는 문서입니다.')}&url=${location.href}`, true);
                 if (data.deleted) return move(`404?message=${encodeURI('삭제된 문서입니다.')}&url=${location.href}`, true);
                 if (data.hidden && data.author != app.user?.uid) return move(`403?message=${encodeURI('타인의 숨긴 문서는 조회가 불가합니다.')}&url=${location.href}`, true);
 
-                history.replaceState({}, '', location.href.replace('post=random', `post=${post_id}`));
-                app.saveVisited(post_id, data.title, data.board_name);
-
-                document.title = `${TEXTS.sitename} :: ${data.title}`;
+                document.title = `${DIALOG_TEXTS.title} :: ${data.title}`;
 
                 let appendList = [
                     this.createContent('zoom'),
                     this.createContent('main_header', undefined, {
                         text: data.title, permission: (
                             app.user ? app.user.uid === data.author ? FINAL.PERMISSION.RWD : FINAL.PERMISSION.RW : FINAL.PERMISSION.R
-                        ), post_id
+                        ), dialog_id
                     }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date(1000 * data.timestamp.seconds).toLocaleString() }),
                     createElement('div').css({ 'text-align': 'left' }).css({ 'line-height': '2rem' })
                 ];
 
                 appendList[3].append(
-                    createElement('a').attrs({ class: 'tag', href: `/?field=category&operator=equal&keyword=${data.category}` }).props({ innerHTML: `카테고리:${data.category}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
-                    createElement('a').attrs({ class: 'tag', href: `/?field=board_name_arr&operator=array-contains&keyword=${data.board_name}` }).props({ innerHTML: `분류:${data.board_name_arr?.join(' > ') || data.board_name}` }).css({ display: 'inline-block', 'line-height': 1.2 }),
                     createElement('a').attrs({ class: 'tag', href: `/profile?uid=${data.author}` }).props({ innerHTML: `사용자 페이지` }).css({ display: 'inline-block', 'line-height': 1.2 })
                 );
 
@@ -106,24 +99,23 @@ class articleIndex extends articleBase {
             let field = params.get('field') || 'title_arr';
             let operator = params.get('operator') || 'contains';
 
-            if(keyword){
-                document.title = `${keyword} :: ${TEXTS.search_result_tile} - ${TEXTS.sitename}`;
+            if (keyword) {
+                document.title = `${keyword} :: ${TEXTS.search_result_title} - ${DIALOG_TEXTS.title}`;
 
                 article.append(
                     this.createContent('zoom'),
-                    this.createContent('main_header', undefined, { text: TEXTS.search_result_tile, permission: FINAL.PERMISSION.R }),
+                    this.createContent('main_header', undefined, { text: TEXTS.search_result_title, permission: FINAL.PERMISSION.R }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
-                    this.createContent('title', 'title_all', { text: TEXTS.all_document }),
                     this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
                     footer
                 );
-    
+
                 this.timeout_timer = setTimeout(() => {
                     this.interval_timer = setInterval(() => {
                         this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
                     }, 1000);
                 }, 1000 - new Date().getMilliseconds());
-    
+
                 this.data.Board = new Model(
                     Options.get('board'),
                     null,
@@ -137,40 +129,23 @@ class articleIndex extends articleBase {
                 this.data.Board.bind(this.components['list_all']);
                 this.data.Board.proceed();
             } else {
-                document.title = `${TEXTS.sitename} :: ${TEXTS.site_index}`;
+                document.title = `${DIALOG_TEXTS.title} :: ${TEXTS.site_index}`;
 
                 article.append(
                     this.createContent('zoom'),
-                    this.createContent('main_header', undefined, { text: TEXTS.welcome_title, permission: FINAL.PERMISSION.R }),
+                    this.createContent('main_header', undefined, { text: DIALOG_TEXTS.title, permission: FINAL.PERMISSION.R }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
-                    this.createContent('notice'),
-                    this.createContent('textbox', undefined, '<br><div style="text-align: center;"><span style="color: #039BE5; font-size: 38px;">환영합니다!</span></div><div style="text-align: center;"><span style="font-weight: bold; font-size: 39px; color: #039BE5;">네무위키</span><span style="font-size: 38px;">입니다</span></div><div style="text-align: center;">※ 정확하지 않은 내용이 있을 수있으며</div><div style="text-align: center;">현실의 인물, 단체, 사건과는 관련이 없습니다</div><br>'),
-                    this.createContent('table', undefined, {
-                        cellColors: ["", ""],
-                        cells: ["%{display:block;text-align:center}처음이라면\n[link:https://www.nemuwiki.com/?post=QFFrhNhkjXqDGnKXdiC8;사용_가이드]%", "%{display:block;text-align:center}익숙하다면\n[link:https://www.nemuwiki.com/profile;사용자_문서]%"],
-                        header: [0, 0],
-                        innerLineColor: 'var(--clr-primary-base)',
-                        outerLineColor: 'transparent',
-                        outerLineWidth: '1',
-                        rowcount: 1,
-                        isFullWidth: true
-                    }),
-                    this.createContent('title', 'title_all', { text: TEXTS.all_document }),
                     this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
-                    this.createContent('title', 'title_character', { text: TEXTS.character_document }),
-                    this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
                     footer
                 );
-    
-                this.components.title_all.wrap.addClass('fold');
-                this.components.list_all.wrap.addClass('hide');
-    
+
+                
                 this.timeout_timer = setTimeout(() => {
                     this.interval_timer = setInterval(() => {
                         this.components.c_timestamp.wrap.innerHTML = new Date().toLocaleString();
                     }, 1000);
                 }, 1000 - new Date().getMilliseconds());
-    
+
                 this.data.Board = new Model(
                     Options.get('board'),
                     null,
@@ -182,7 +157,6 @@ class articleIndex extends articleBase {
                     }
                 );
                 this.data.Board.bind(this.components['list_all']);
-                this.data.Board.bind(this.components['list_character']);
                 this.data.Board.proceed();
             }
         }

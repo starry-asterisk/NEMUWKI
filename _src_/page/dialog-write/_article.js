@@ -1,4 +1,4 @@
-class articleForm extends articleBase {
+class articleDialogWrite extends articleBase {
     constructor(params) {
         super();
         this.contentBase = ContentBase;
@@ -28,23 +28,17 @@ class articleForm extends articleBase {
         ToolBarModel.bind(this.components['toolbar']);
         ToolBarModel.proceed();
 
-        let post_id = params.get('post');
-        if (post_id) {
+        let dialog_id = params.get('dialog');
+        if (dialog_id) {
             document.title = `${TEXTS.sitename} :: 문서 편집 - 로딩중`;
             (async () => {
-                if (post_id == 'random') post_id = await firebase.search.random();
-
-                let doc = await firebase.post.selectOne(post_id);
+                let doc = await firebase.dialog.selectOne(dialog_id);
                 let data = doc.data();
 
                 this.BeforeData = { id: doc.id, ...data };
 
                 if (!data) return app.blockMode = false, move(`404?message=${encodeURI('존재하지 않는 문서입니다.')}&url=${location.href}`, true);;
                 if (data.deleted) return app.blockMode = false, move(`404?message=${encodeURI('삭제된 문서입니다.')}&url=${location.href}`, true);
-                if (data.hidden && data.author != app.user?.uid) return app.blockMode = false, move(`403?message=${encodeURI('타인의 숨긴 문서는 수정이 불가합니다.')}&url=${location.href}`, true);
-
-                if(hidden_chk) hidden_chk.checked = data.hidden;
-                if(data.board_name == 'template') template_chk.checked = true;
 
                 document.title = `${TEXTS.sitename} :: 문서 편집 - ${data.title}`;
 

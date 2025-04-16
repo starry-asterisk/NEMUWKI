@@ -107,11 +107,11 @@ class articleIndex extends articleBase {
             let operator = params.get('operator') || 'contains';
 
             if(keyword){
-                document.title = `${keyword} :: ${TEXTS.search_result_tile} - ${TEXTS.sitename}`;
+                document.title = `${keyword} :: ${TEXTS.search_result_title} - ${TEXTS.sitename}`;
 
                 article.append(
                     this.createContent('zoom'),
-                    this.createContent('main_header', undefined, { text: TEXTS.search_result_tile, permission: FINAL.PERMISSION.R }),
+                    this.createContent('main_header', undefined, { text: TEXTS.search_result_title, permission: FINAL.PERMISSION.R }),
                     this.createContent('sub_header', 'c_timestamp', { text: new Date().toLocaleString() }),
                     this.createContent('title', 'title_all', { text: TEXTS.all_document }),
                     this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
