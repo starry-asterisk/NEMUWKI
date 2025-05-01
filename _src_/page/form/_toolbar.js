@@ -496,4 +496,24 @@ const ToolBase = {
         return wrap;
 
     },
+    dialogToLeft(wrap, focusedElement) {
+        let form__dialog = focusedElement.querySelector('.form__dialog');
+        wrap.attrs({ title: '좌측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-left'
+            }).props({ onclick: () => form__dialog.dataset.align = 'left' })
+        );
+        return wrap;
+    },
+    dialogToRight(wrap, focusedElement) {
+        let form__dialog = focusedElement.querySelector('.form__dialog');
+        wrap.attrs({ title: '우측 정렬' });
+        wrap.append(
+            createElement('button').attrs({
+                class: 'icon icon-format-align-right'
+            }).props({ onclick: () => form__dialog.dataset.align = 'right' })
+        );
+        return wrap;
+    },
 }
