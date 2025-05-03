@@ -157,6 +157,8 @@ class articleIndex extends articleBase {
                     }),
                     this.createContent('title', 'title_all', { text: TEXTS.all_document }),
                     this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
+                    this.createContent('title', 'title_dialog', { text: TEXTS.dialog_document }),
+                    this.createContent('list', 'list_dialog', { style: 'table', page_offset: 5, keyword: '대화', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
                     this.createContent('title', 'title_character', { text: TEXTS.character_document }),
                     this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
                     footer
@@ -164,6 +166,9 @@ class articleIndex extends articleBase {
     
                 this.components.title_all.wrap.addClass('fold');
                 this.components.list_all.wrap.addClass('hide');
+
+                this.components.title_dialog.wrap.addClass('fold');
+                this.components.list_dialog.wrap.addClass('hide');
     
                 this.timeout_timer = setTimeout(() => {
                     this.interval_timer = setInterval(() => {
@@ -182,6 +187,7 @@ class articleIndex extends articleBase {
                     }
                 );
                 this.data.Board.bind(this.components['list_all']);
+                this.data.Board.bind(this.components['list_dialog']);
                 this.data.Board.bind(this.components['list_character']);
                 this.data.Board.proceed();
             }

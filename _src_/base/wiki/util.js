@@ -515,6 +515,7 @@ const TEXTS = {
     share: '공유',
     delete: '삭제',
     all_document: '전체 문서',
+    dialog_document: '대화 문서',
     character_document: '인물 문서',
     title: '제목',
     load_more: 'load more',
