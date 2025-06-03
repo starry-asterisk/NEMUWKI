@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta property="og:title" content="네므&별이 2222일 기념 페이지">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="description" content="네므&별이 2222일 기념 페이지">
+    <meta property="og:description" content="네므&별이 2222일 기념 페이지">
+    <meta property="og:url" content="https://nemuwiki.com/special/2222">
+    <meta property="og:site_name" content="기념일 페이지">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta property="twitter:title" content="기념일 페이지">
+    <link rel="canonical" href="https://nemuwiki.com/special/2222">
+    <link rel="icon" href="/resource/favicon.ico">
+    <link rel="apple-touch-icon" href="/resource/favicon.ico" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <title>네므&별이 2222일 기념 페이지</title>
+</head>
+<style>
+    @font-face {
+        font-family: '양진체';
+        src: url('https://fastly.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    * {
+        font-family: '양진체';
+        position: relative;
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        word-break: keep-all;
+    }
+
+    body {
+        background-image: url(./beach.jpeg);
+        background-position: center top;
+        background-size: cover;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        text-align: center;
+        justify-items: center;
+        background-color: #ddd;
+    }
+
+    main {
+        max-width: 1500px;
+        width: 100%;
+        gap: 2rem;
+        background-color: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(1rem);
+    }
+
+    a {
+        color: #333 !important;
+        text-decoration: none;
+    }
+
+    .h1 {
+        font-size: 2.5rem;
+    }
+
+    .h2 {
+        font-size: 2.2rem;
+    }
+
+    .h3 {
+        font-size: 1.8rem;
+    }
+
+    .h4 {
+        font-size: 1.5rem;
+    }
+
+    .h5 {
+        font-size: 1.2rem;
+    }
+
+    .h6 {
+        font-size: 1rem;
+    }
+
+    .flex-v {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flex-h {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .f1 {
+        flex: 1;
+    }
+
+    .f2 {
+        flex: 2;
+    }
+
+    .f3 {
+        flex: 3;
+    }
+
+    .left {
+        text-align: left;
+    }
+
+    .pd2 {
+        padding: 2rem;
+    }
+
+    .pd1 {
+        padding: 1rem;
+    }
+
+    .mg1 {
+        margin: 1rem;
+    }
+
+    .br1 {
+        border-radius: 1rem;
+    }
+
+    .fit-image {
+        min-width: 20rem;
+        min-height: 12rem;
+        overflow: hidden;
+        box-shadow: 0px 3px 10px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    .fit-image>img {
+        position: absolute;
+        object-fit: cover;
+        object-position: center;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .fit-image.f1 {
+        min-width: 12rem;
+    }
+
+    .border-right {
+        border-right: 1px solid black;
+    }
+
+    .character-card {
+        min-width: fit-content;
+        width: 25rem;
+        margin: 1rem;
+    }
+
+    .character-card:first-child {
+        margin-right: auto;
+    }
+
+    .character-card:last-child {
+        margin-left: auto;
+    }
+
+    .character-card:first-child .color-tiles {
+        justify-content: flex-start;
+    }
+
+    .character-card:last-child .color-tiles {
+        justify-content: flex-end;
+    }
+
+    .character-card> :first-child {
+        flex-wrap: nowrap;
+        background-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0px 5px 10px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-img {
+        width: 11rem;
+        height: 11rem;
+    }
+
+    .min10 {
+        min-width: 10rem;
+    }
+
+    .color-tiles {
+        width: 100%;
+        padding: 1.5rem 0rem;
+    }
+
+    .color-tiles>span {
+        display: block;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.3rem;
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    .color-tiles>span+span {
+        margin-left: 1rem;
+    }
+
+    .label {
+        margin-right: 2rem;
+    }
+
+    .timeline {
+        max-width: 25rem;
+        margin: 0px auto;
+        text-align: left;
+    }
+
+    .timeline>p {
+        padding-left: 2rem;
+        align-items: center;
+        margin: 2rem 0rem;
+    }
+
+    .timeline>p>span {
+        display: block;
+        font-size: 0.7em;
+        opacity: 0.8;
+    }
+
+    .timeline>p::before {
+        content: '';
+        position: absolute;
+        left: 0px;
+        height: 20px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background-color: #2c5c8d;
+        margin-right: 1rem;
+    }
+
+    .timeline>p+p::after {
+        content: '';
+        position: absolute;
+        height: 4.5rem;
+        width: 4px;
+        left: 8px;
+        bottom: 100%;
+        background: #2c5c8d;
+        z-index: -1;
+    }
+
+    .badge {
+        margin: auto;
+        padding: 0rem 3rem;
+        line-height: 4rem;
+        border-radius: 2rem;
+        background-image: linear-gradient(45deg, #2c5c8d, #2a5192, #b5c9eb);
+        box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+    }
+</style>
+<script>
+    var startDate = new Date('2019-05-05');
+    var toDate = new Date();
+    var dday = Math.ceil((toDate - startDate) / 1000 / 60 / 60 / 24);
+
+    window.onload = function () {
+        replace('span.text_dday', dday);
+    };
+
+    function replace(selector, text) {
+        Array.prototype.forEach.call(document.querySelectorAll(selector), function (element) {
+            element.innerHTML = text;
+        });
+    }
+</script>
+
+<body>
+    <main class="flex-v pd1">
+        <div>
+            <p class="h5">
+                <span class="text_dday">${text_dday}</span>일 기념 페이지
+            </p>
+            <p class="h1">냥이 <span style="color: #2a5192;">♥</span> 토끼</p>
+            <p class="h4">2025.06.03</p>
+        </div>
+        <p class="h3 badge">D+<span class="text_dday">${text_dday}</span></p>
+        <p class="h4">Start 2019.05.05</p>
+        <div class="flex-h">
+            <div class="flex-v left character-card">
+                <div class="flex-h">
+                    <div class="flex-v profile-img">
+                        <img src="Bu607tz.jpeg" alt="">
+                    </div>
+                    <div class="flex-v pd2 border-right">
+                        <p class="h6">@use_an_alias</p>
+                        <p class="h2">토끼</p>
+                        <p class="h6">네므, 름, 키타가와 네유우</p>
+                    </div>
+                    <div class="flex-v pd2">
+                        <p class="h4"><span class="label">성별</span>여성</p>
+                        <p class="h4"><span class="label">신장</span>159cm</p>
+                        <p class="h4"><span class="label">연령</span>23세</p>
+                    </div>
+                </div>
+                <div class="flex-h color-tiles">
+                    <span title="대표색" style="background-color: #2c5c8d;"></span>
+                    <span title="피부" style="background-color: #fff4ee;"></span>
+                    <span title="의상1" style="background-color: #ffffff;"></span>
+                    <span title="의상2" style="background-color: #32a8ff;"></span>
+                    <span title="눈" style="background-color: #8f4e4c;"></span>
+                    <span title="머리" style="background-color: #4d7090;"></span>
+                </div>
+            </div>
+            <div class="min10"></div>
+            <div class="flex-v left character-card">
+                <div class="flex-h">
+                    <div class="flex-v pd2 border-right">
+                        <p class="h4"><span class="label">성별</span>남성</p>
+                        <p class="h4"><span class="label">신장</span>167cm</p>
+                        <p class="h4"><span class="label">연령</span>26세</p>
+                    </div>
+                    <div class="flex-v pd2">
+                        <p class="h6">@STARRY_ASTERISK</p>
+                        <p class="h2">냥이</p>
+                        <p class="h6">별이, 그테</p>
+                    </div>
+                    <div class="flex-v profile-img">
+                        <img src="Dyz1jjC.jpeg" alt="">
+                    </div>
+                </div>
+                <div class="flex-h color-tiles">
+                    <span title="대표색" style="background-color: #2a5192;"></span>
+                    <span title="피부" style="background-color: #fff4ee;"></span>
+                    <span title="의상1" style="background-color: #ffffff;"></span>
+                    <span title="의상2" style="background-color: #b5c9eb;"></span>
+                    <span title="의상3" style="background-color: #1c9eff;"></span>
+                    <span title="눈1" style="background-color: #023676;"></span>
+                    <span title="눈2" style="background-color: #1d9fff;"></span>
+                    <span title="머리" style="background-color: #2a5192;"></span>
+                </div>
+            </div>
+        </div>
+        <div class="flex-h">
+            <div class="h4 timeline pd2">
+                <p><span>2025.05.05</span>연애 6주년</p>
+                <p><span>2025.02.14</span>혼인신고</p>
+                <p><span>2024.05.05</span>연애 5주년</p>
+                <p><span>2023.02.06</span>동거 시작</p>
+                <p><span>2022.10.01</span>자취 시작</p>
+                <p><span>2020.05.05</span>연애 1주년</p>
+                <p><span>2019.05.05</span>연애 시작</p>
+                <p><span>2019.01.27</span>첫 조우</p>
+            </div>
+            <div class="flex-v f3">
+                <div class="f3 mg1 br1 fit-image">
+                    <img src="nemu/1.png" style="object-position: center 60%;" />
+                </div>
+                <div class="f2 mg1 br1 fit-image">
+                    <img src="nemu/3.png" />
+                </div>
+            </div>
+            <div class="flex-v f1">
+                <div class="f1 mg1 br1 fit-image">
+                    <img src="nemu/2.png" style="object-position: center 65%;" />
+                </div>
+                <div class="f1 mg1 br1 fit-image">
+                    <img src="nemu/4.png" />
+                </div>
+                <div class="f1 mg1 br1 fit-image">
+                    <img src="nemu/5.png" />
+                </div>
+            </div>
+        </div>
+        <footer class="h5">
+            <p>Special Thanks to <a href="https://x.com/neul00y" target="_blank">@neul00y</a>, <a
+                    href="https://x.com/yang_4224" target="_blank">@yang_4224</a></p>
+        </footer>
+    </main>
+</body>
+
+</html>
