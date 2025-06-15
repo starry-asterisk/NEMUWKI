@@ -194,11 +194,25 @@ class articleBase {
             this._focusedElement = null;
             this.update('toolbar', []);
         }
-        lastSelection = {};
+        clearLastSelection();
     }
 }
 
 let lastSelection = {};
+
+function refreshLastSelection() {
+    let s = window.getSelection();
+    lastSelection = {
+        anchorNode: s.anchorNode,
+        anchorOffset: s.anchorOffset,
+        focusNode: s.focusNode,
+        focusOffset: s.focusOffset,
+    };
+}
+
+function clearLastSelection() {
+    lastSelection = {};
+}
 
 class Model {
     datas = [];
@@ -670,9 +684,9 @@ const ContentBase = {
         }
     },
     dialog: {
-        initialize(id, wrap, {align = 'left', image = {}, name = '', html = ''}) {
+        initialize(id, wrap, { align = 'left', image = {}, name = '', html = '' }) {
             wrap.dataset.align = align;
-            if(image.src){
+            if (image.src) {
                 let img = createElement('img').props({ onerror() { this.replaceWith(createElement('div').addClass('img_alt')); } });
                 img.width = image.width;
                 img.src = image.src.startsWith('http') ? image.src : firebase.storage.getStaticUrl(image.src);

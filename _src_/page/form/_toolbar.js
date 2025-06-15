@@ -108,8 +108,8 @@ const ToolBase = {
         let size_input = createElement('input').props({
             value: 17, onchange(e) {
                 if (el.matches('n-table')) getCells(el).forEach(cell => {
-                    if (cell.innerHTML == '') cell.innerHTML = '<span style="font-size:'+size_input.value+'px;"> </span>';
-                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, {'font-size':`${size_input.value}px`}, 'span');
+                    if (cell.innerHTML == '') cell.innerHTML = '<span style="font-size:' + size_input.value + 'px;"> </span>';
+                    else for (let node of Array.from(cell.childNodes)) cellCss(cell, node, { 'font-size': `${size_input.value}px` }, 'span');
                 });
                 else {
                     if (e != undefined && 'anchorNode' in lastSelection) {
@@ -211,9 +211,11 @@ const ToolBase = {
         wrap.append(
             createElement('button').attrs({
                 class: 'icon icon-format-clear'
-            }).props({ onclick: execBuildVal('removeFormat', undefined, () => {
-                if (el.matches('n-table')) getCells(el).forEach(cell => cell.innerHTML = cell.innerText);
-            }) })
+            }).props({
+                onclick: execBuildVal('removeFormat', undefined, () => {
+                    if (el.matches('n-table')) getCells(el).forEach(cell => cell.innerHTML = cell.innerText);
+                })
+            })
         );
         return wrap;
     },

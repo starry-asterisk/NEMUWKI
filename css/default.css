@@ -545,6 +545,7 @@ n-select:after {
     right: 0;
     bottom: 0;
     aspect-ratio: 1;
+    pointer-events: none;
 }
 
 n-select:focus:before {

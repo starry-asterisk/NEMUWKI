@@ -92,15 +92,9 @@ const FormContent = {
 
                     this.oninput();
                 },
-                onblur() {
-                    let s = window.getSelection();
-                    lastSelection = {
-                        anchorNode: s.anchorNode,
-                        anchorOffset: s.anchorOffset,
-                        focusNode: s.focusNode,
-                        focusOffset: s.focusOffset,
-                    };
-                },
+                // onblur: refreshLastSelection,
+                onkeyup: refreshLastSelection,
+                onmouseup: refreshLastSelection,
                 oninput() {
                     this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
                     this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));
@@ -269,15 +263,9 @@ const FormContent = {
 
                     this.oninput();
                 },
-                onblur() {
-                    let s = window.getSelection();
-                    lastSelection = {
-                        anchorNode: s.anchorNode,
-                        anchorOffset: s.anchorOffset,
-                        focusNode: s.focusNode,
-                        focusOffset: s.focusOffset,
-                    };
-                },
+                // onblur: refreshLastSelection,
+                onkeyup: refreshLastSelection,
+                onmouseup: refreshLastSelection,
                 oninput() {
                     this.querySelectorAll('[style^="font-size: var(--"]').forEach(el => el.style.removeProperty('font-size'));
                     this.querySelectorAll('[style^="background-color: var(--"]').forEach(el => el.style.removeProperty('background-color'));

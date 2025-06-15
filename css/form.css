@@ -453,7 +453,7 @@
 
 .form.main_header:last-child .form__inputs::after {
     content: '여기로 컴포넌트를 드랍하여 추가해 보세요';
-    margin-block: 5rem;
+    padding-block: 5rem;
     font-size: var(--font-size-medium);
     text-align: center;
 }
