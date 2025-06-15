@@ -206,6 +206,7 @@
     height: 3rem;
     cursor: grab;
     border-radius: var(--border-radius-small);
+    aspect-ratio: auto !important;
 }
 
 .form__drag:active {
@@ -333,7 +334,7 @@
 }
 
 .table__tool__button::before {
-    vertical-align: middle;
+    display: block;
 }
 
 .form__image {

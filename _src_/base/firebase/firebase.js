@@ -409,6 +409,7 @@ fb.search = {
         let count = Math.min((await getCountFromServer(collection(db, "keyword"))).data().count, 100);
         let result = await getDocs(query(
             collection(db, "keyword"),
+            where('hidden', '==', false),
             limit(count)
         ));
         return result.docs[Math.round(Math.random() * (result.docs.length - 1))].id;

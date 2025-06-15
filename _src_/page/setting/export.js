@@ -216,7 +216,7 @@ const SettingTabs = {
                 },theme_color)
             }
             let theme_wrap = createElement('div');
-            let theme_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '테마색상' }).css({ 'margin': '1rem auto 0', display: 'inline-block'}).props({onclick: handler});
+            let theme_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '테마색상' }).css({ 'margin': '1rem auto 0', display: 'inline-flex'}).props({onclick: handler});
             let theme_input = createElement('input').attrs({ placeholder: '', maxlength: 7, readonly: true });
             theme_input_wrap.append(theme_input);
             theme_wrap.append(theme_input_wrap, createElement('button').addClass('s_button').props({
@@ -239,7 +239,7 @@ const SettingTabs = {
                 },theme_sub_color)
             }
             let theme_sub_wrap = createElement('div');
-            let theme_sub_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '보조 테마색상' }).css({ 'margin': '1rem auto', display: 'inline-block'}).props({onclick: handler2});
+            let theme_sub_input_wrap = createElement('div').attrs({ class: 'b_input', placeholder: '보조 테마색상' }).css({ 'margin': '1rem auto', display: 'inline-flex'}).props({onclick: handler2});
             let theme_sub_input = createElement('input').attrs({ placeholder: '', maxlength: 7, readonly: true });
             theme_sub_input_wrap.append(theme_sub_input);
             theme_sub_wrap.append(theme_sub_input_wrap, createElement('button').addClass('s_button').props({

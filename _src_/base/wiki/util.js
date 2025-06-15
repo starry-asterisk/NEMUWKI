@@ -518,7 +518,7 @@ const TEXTS = {
     dialog_document: '대화 문서',
     character_document: '인물 문서',
     title: '제목',
-    load_more: 'load more',
+    load_more: '더 보기',
     site_index: '대문',
     site_form: '문서 편찬',
     site_profile: '사용자 문서',
