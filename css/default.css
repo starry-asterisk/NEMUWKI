@@ -335,6 +335,35 @@ footer {
     overflow: hidden;
 }
 
+.list__item__preview_text {
+    width: 100%;
+    padding: var(--spacing-small);
+    padding-left: calc(var(--spacing-medium) + 9rem);
+    margin-top: calc(0px - var(--spacing-medium));
+    margin-bottom: 0px;
+    opacity: 0.5;
+    font-size: 0.8em;
+    z-index: -1;
+    transition: 200ms all;
+}
+
+.list__item__preview_text::before {
+    content: '(내용) - ';
+}
+
+.list__item__preview_text::after {
+    content: '...';
+}
+
+.list__item:has(.list__item__preview_text) {
+    flex-wrap: wrap;
+}
+
+.list__item__title:hover + .list__item__preview_text {
+    margin-top: calc(0px - var(--spacing-small));
+    padding-bottom: 0px;
+}
+
 .content.galery {
     display: grid;
     grid-template-columns: repeat(auto-fit, min(30%, 14rem));

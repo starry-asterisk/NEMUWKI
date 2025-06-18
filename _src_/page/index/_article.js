@@ -158,7 +158,7 @@ class articleIndex extends articleBase {
                     this.createContent('title', 'title_all', { text: TEXTS.all_document }),
                     this.createContent('list', 'list_all', { style: 'table', page_offset: 5, keyword, field, operator, searchData: { hidden: { op: 'equal', key: false } } }),
                     this.createContent('title', 'title_dialog', { text: TEXTS.dialog_document }),
-                    this.createContent('list', 'list_dialog', { style: 'table', page_offset: 5, keyword: '대화', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
+                    this.createContent('list', 'list_dialog', { style: 'table', page_offset: 5, keyword: '대화', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } }, preview: true }),
                     this.createContent('title', 'title_character', { text: TEXTS.character_document }),
                     this.createContent('list', 'list_character', { style: 'galery', keyword: '인물', field: 'category', operator: 'equal', searchData: { hidden: { op: 'equal', key: false } } }),
                     footer

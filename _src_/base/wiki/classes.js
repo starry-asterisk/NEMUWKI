@@ -618,7 +618,7 @@ const ContentBase = {
     },
     list: {
         async initialize(id, wrap, model) {
-            let { keyword, field, operator, searchData = {} } = model;
+            let { keyword, field, operator, searchData = {}, preview } = model;
             let docs, { next } = await firebase.search.list({ [field]: keyword, ...searchData }, operator, model.page_offset || 25);
             let cardMode = model.style == 'galery';
             let itemFlexClass = cardMode ? 'flex-vertical' : 'flex-horizontal';
@@ -657,6 +657,12 @@ const ContentBase = {
                             post_anchor.append(preview);
                         }
                         row.append(board_anchor, post_anchor);
+                        if (data.preview_text && preview) {
+                            let preview = createElement('span').addClass('list__item__preview_text').props({
+                                innerHTML: data.preview_text
+                            });
+                            row.append(preview);
+                        }
                     }
                     wrap.append(row);
 

@@ -162,6 +162,8 @@ async function submit() {
             hidden: hidden_chk.checked
         }
 
+        let preview_text = Array.from(article.querySelectorAll('[contenteditable], input[type="text"]')).map(el => el.value || el.textContent).join(' ').trim().substring(0, 140);
+
         for (let el of article.children) {
             if (!el.getData) continue;
             switch (el.dataset.type) {
@@ -186,7 +188,7 @@ async function submit() {
             formData.use = app_article.BeforeData.use;
             firebase.post.updateOne(app_article.BeforeData.id, formData)
                 .then(async () => {
-                    await makeKeyword(app_article.BeforeData.id, formData);
+                    await makeKeyword(app_article.BeforeData.id, formData, preview_text);
                     app.blockMode = false;
                     move(`/?post=${app_article.BeforeData.id}`);
                 })
@@ -204,7 +206,7 @@ async function submit() {
                         move(`401?message=${encodeURI('권한이 없거나 자동 로그아웃 처리되었습니다.')}&url=${location.href}`,true);
                         return;
                     }
-                    await makeKeyword(ref.id, formData);
+                    await makeKeyword(ref.id, formData, preview_text);
                     app.blockMode = false;
                     move(`/?post=${ref.id}`);
                 })
@@ -224,7 +226,7 @@ function toggleSubmitMode(bool = true) {
     return true;
 }
 
-async function makeKeyword(id, data) {
+async function makeKeyword(id, data, preview_text) {
     if (data.deleted) return await firebase.search.unset(id);
     if (data.board_name == 'template') return await firebase.search.unset(id);
     let {
@@ -256,6 +258,7 @@ async function makeKeyword(id, data) {
         board_name,
         board_name_arr,
         category,
+        preview_text,
         timestamp,
         author,
         hidden
