@@ -337,6 +337,7 @@ footer {
 
 .list__item__preview_text {
     width: 100%;
+    max-height: 3.5em;
     padding: var(--spacing-small);
     padding-left: calc(var(--spacing-medium) + 9rem);
     margin-top: calc(0px - var(--spacing-medium));
@@ -345,6 +346,8 @@ footer {
     font-size: 0.8em;
     z-index: -1;
     transition: 200ms all;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .list__item__preview_text::before {
