@@ -345,10 +345,10 @@ function validate(input, input_2, type = 'text') {
 }
 
 function encodeVisited(str) {
-    return str.replace(/:/g, '&colon;');
+    return (str||'').replace(/:/g, '&colon;');
 }
 function decodeVisited(str) {
-    return str.replace(/&colon;/g, ':');
+    return (str||'').replace(/&colon;/g, ':');
 }
 
 function move(full_url, forward, load = true) {
