@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons@3.0.1/iconfont/material-icons.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 채팅방 목록 -->
+        <aside class="chat-sidebar">
+            <div class="sidebar-header">
+                <h2>채팅</h2>
+                <div class="header-icons">
+                    <button class="icon-btn" id="createRoomBtn" title="새 채팅방">
+                        <span class="material-icons">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="검색...">
+                <span class="material-icons">search</span>
+            </div>
+
+            <div class="chat-list" id="chatList">
+                <!-- 채팅방 아이템이 여기에 추가됨 -->
+                <div style="text-align: center; padding: 20px; color: #999;">
+                    로드 중...
+                </div>
+            </div>
+        </aside>
+
+        <!-- 채팅 영역 -->
+        <section class="chat-main">
+            <!-- 채팅방이 선택되지 않았을 때 -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-content">
+                    <span class="material-icons">chat_bubble_outline</span>
+                    <p>채팅을 시작해보세요</p>
+                </div>
+            </div>
+
+            <!-- 채팅방 -->
+            <div class="chat-room hidden" id="chatRoom">
+                <!-- 채팅방 헤더 -->
+                <header class="chat-header">
+                    <div class="header-left">
+                        <button class="back-btn" id="backBtn">
+                            <span class="material-icons">arrow_back</span>
+                        </button>
+                        <div class="room-info">
+                            <h3 id="roomTitle">채팅방</h3>
+                            <span class="room-status" id="roomStatus">온라인</span>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <button class="icon-btn" id="settingsBtn" title="설정">
+                            <span class="material-icons">settings</span>
+                        </button>
+                        <button class="icon-btn" id="shareBtn" title="공유">
+                            <span class="material-icons">share</span>
+                        </button>
+                        <button class="icon-btn" id="infoBtn" title="정보">
+                            <span class="material-icons">info</span>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- 메시지 목록 -->
+                <div class="messages" id="messages">
+                    <!-- 메시지가 여기에 추가됨 -->
+                </div>
+
+                <!-- 메시지 입력 -->
+                <footer class="chat-input-area">
+                    <div class="input-wrapper">
+                        <button class="icon-btn" id="selectParticipantBtn" title="발신자 선택">
+                            <span class="material-icons">person</span>
+                        </button>
+                        <div class="participant-selector" id="participantSelector" style="position: relative; display: none;">
+                            <div class="participant-dropdown" id="participantDropdown" style="position: absolute; bottom: 100%; left: 0; background: white; border: 1px solid #e5e5e5; border-radius: 8px; box-shadow: 0 -2px 8px rgba(0,0,0,0.1); min-width: 150px; z-index: 100;"></div>
+                        </div>
+                        <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." data-participant="me">
+                        <button class="send-btn" id="sendBtn">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+    </div>
+
+    <!-- 채팅방 생성 모달 -->
+    <div class="modal hidden" id="createRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 채팅방</h3>
+                <button class="close-btn" id="closeModalBtn">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="roomTitleInput">채팅방 이름</label>
+                    <input type="text" id="roomTitleInput" placeholder="채팅방 이름을 입력하세요" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="roomDescription">설명</label>
+                    <textarea id="roomDescription" placeholder="채팅방 설명 (선택사항)" maxlength="200" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="participantEmails">참여자 이메일</label>
+                    <input type="text" id="participantEmails" placeholder="이메일을 쉼표로 구분하여 입력 (예: user@example.com, another@example.com)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelBtn">취소</button>
+                <button class="btn-create" id="confirmCreateBtn">생성</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 채팅방 관리 모달 -->
+    <div class="modal hidden" id="manageRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>채팅방 관리</h3>
+                <button class="close-btn" id="closeManageModalBtn">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editRoomTitle">채팅방 이름</label>
+                    <input type="text" id="editRoomTitle" placeholder="채팅방 이름" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="editRoomDescription">설명</label>
+                    <textarea id="editRoomDescription" placeholder="채팅방 설명" maxlength="200" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>참여자</label>
+                    <div id="participantsList" style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-danger" id="deleteRoomBtn">채팅방 삭제</button>
+                <div style="flex: 1;"></div>
+                <button class="btn-cancel" id="cancelManageBtn">취소</button>
+                <button class="btn-create" id="saveRoomBtn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 채팅방 정보 모달 -->
+    <div class="modal hidden" id="roomInfoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>채팅방 정보</h3>
+                <button class="close-btn" id="closeInfoModalBtn">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="info-item">
+                    <label>채팅방 이름</label>
+                    <p id="infoRoomTitle">-</p>
+                </div>
+                <div class="info-item">
+                    <label>설명</label>
+                    <p id="infoRoomDescription">-</p>
+                </div>
+                <div class="info-item">
+                    <label>생성일</label>
+                    <p id="infoCreatedDate">-</p>
+                </div>
+                <div class="info-item">
+                    <label>참여자</label>
+                    <p id="infoParticipants">-</p>
+                </div>
+                <div class="info-item">
+                    <label>메시지 수</label>
+                    <p id="infoMessageCount">-</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="closeInfoBtn">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 채팅방 공유 모달 -->
+    <div class="modal hidden" id="shareRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>채팅방 공유</h3>
+                <button class="close-btn" id="closeShareModalBtn">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>링크 공유</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="shareLink" readonly placeholder="링크 공유" style="flex: 1; background: #f0f0f0;">
+                        <button class="btn-create" id="copyLinkBtn" style="width: auto; padding: 10px 16px;">복사</button>
+                    </div>
+                </div>
+                <hr style="border: none; border-top: 1px solid #f0f0f0; margin: 16px 0;">
+                <div class="form-group">
+                    <label>이메일로 추가</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="shareEmail" placeholder="이메일을 입력하세요" style="flex: 1;">
+                        <button class="btn-create" id="addParticipantBtn" style="width: auto; padding: 10px 16px;">추가</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>참여자 목록</label>
+                    <div id="shareParticipantsList" style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="closeShareBtn">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 채팅방 목록 메뉴 -->
+    <div class="context-menu hidden" id="roomContextMenu">
+        <button class="menu-item" id="editRoomMenuItem">
+            <span class="material-icons">edit</span>
+            <span>관리</span>
+        </button>
+        <button class="menu-item" id="leaveRoomMenuItem">
+            <span class="material-icons">logout</span>
+            <span>나가기</span>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeFirestore, collection, setDoc, addDoc, getDocs, getDoc, doc, Timestamp, query, orderBy, getCountFromServer, startAfter, limit, deleteDoc, updateDoc, where, onSnapshot, deleteField, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyBm2NkGGMEo_TN0u7VRgNhZmTvflJlfOzY",
+            authDomain: "nemuwiki-f3a72.firebaseapp.com",
+            projectId: "nemuwiki-f3a72",
+            storageBucket: "nemuwiki-f3a72.appspot.com",
+            messagingSenderId: "125964020971",
+            appId: "1:125964020971:web:63803427ae9165e43e22ae",
+            measurementId: "G-PCFNLEDQ00"
+        };
+
+        const fb_app = initializeApp(firebaseConfig);
+        const db = initializeFirestore(fb_app, { experimentalForceLongPolling: true });
+        const auth = getAuth();
+
+        // Firebase 모듈을 전역 객체로 공유
+        window.firebase = {
+            db,
+            auth,
+            collection,
+            addDoc,
+            getDocs,
+            getDoc,
+            doc,
+            Timestamp,
+            query,
+            orderBy,
+            limit,
+            where,
+            deleteDoc,
+            updateDoc,
+            arrayRemove,
+            arrayUnion,
+            listen: onSnapshot,
+            deleteField,
+            startAfter,
+            getCountFromServer,
+            setDoc,
+            onAuthStateChanged
+        };
+
+        // 인증 상태 확인
+        onAuthStateChanged(auth, (user) => {
+            window.currentUser = user;
+            if (user) {
+                console.log("사용자 로그인됨:", user.email);
+                // 채팅 모듈이 로드된 후 채팅방 목록 초기화
+                window.dispatchEvent(new Event('userLoggedIn'));
+            } else {
+                console.log("사용자 로그아웃됨");
+                window.dispatchEvent(new Event('userLoggedOut'));
+            }
+        });
+    </script>
+
+    <!-- Chat Firebase 모듈 -->
+    <script src="chat-firebase.js"></script>
+    <!-- Chat App 메인 스크립트 -->
+    <script src="index.js"></script>
+</body>
+</html>
