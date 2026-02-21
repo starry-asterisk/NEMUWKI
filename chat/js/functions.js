@@ -207,7 +207,7 @@ function renderSingleMessage(msg) {
     }
 
     if (!msg.isUserMessage && isNarrator()) {
-        messageDiv.querySelector('.message-avatar').addEventListener('contextmenu', e => {
+        messageDiv.querySelector('.message-avatar')?.addEventListener('contextmenu', e => {
             e.stopPropagation();
             e.preventDefault();
             openImageSelector((url) => {
@@ -217,11 +217,11 @@ function renderSingleMessage(msg) {
             });
         });
         let touchStartTime2 = 0;
-        messageDiv.addEventListener('touchstart', () => {
+        messageDiv.querySelector('.message-avatar')?.addEventListener('touchstart', () => {
             e.stopPropagation();
             touchStartTime2 = Date.now();
         });
-        messageDiv.addEventListener('touchend', (e) => {
+        messageDiv.querySelector('.message-avatar')?.addEventListener('touchend', (e) => {
             e.stopPropagation();
             if (Date.now() - touchStartTime2 > 500) {
                 const touch = e.changedTouches[0];
