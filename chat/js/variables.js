@@ -2,8 +2,10 @@ let chatRooms = [];
 let currentRoom = null;
 let messagesUnsubscribe = null;
 let roomsUnsubscribe = null;
-let selectedParticipant = 'me';
+let selectedSpeaker = null;
 let commandHistory = [];
+
+const uuid = '_' + Math.random().toString(36).substr(2, 9);
 
 const chatList = document.getElementById('chatList');
 const chatRoom = document.getElementById('chatRoom');
@@ -24,7 +26,8 @@ const cancelBtn = document.getElementById('cancelBtn');
 const confirmCreateBtn = document.getElementById('confirmCreateBtn');
 const roomTitleInput = document.getElementById('roomTitleInput');
 const roomDescriptionInput = document.getElementById('roomDescription');
-const participantEmailsInput = document.getElementById('participantEmails');
+const narratorEmailsInput = document.getElementById('narratorEmails');
+const speakerNamesInput = document.getElementById('speakerNames');
 const roomProfileImageInput = document.getElementById('roomProfileImage');
 const roomBackgroundImageInput = document.getElementById('roomBackgroundImage');
 const roomBackgroundPatternInput = document.getElementById('roomBackgroundPattern');
@@ -33,7 +36,8 @@ const manageRoomModal = document.getElementById('manageRoomModal');
 const closeManageModalBtn = document.getElementById('closeManageModalBtn');
 const editRoomTitle = document.getElementById('editRoomTitle');
 const editRoomDescription = document.getElementById('editRoomDescription');
-const participantsList = document.getElementById('participantsList');
+const narratorList = document.getElementById('narratorList');
+const speakerList = document.getElementById('speakerList');
 const deleteRoomBtn = document.getElementById('deleteRoomBtn');
 const cancelManageBtn = document.getElementById('cancelManageBtn');
 const saveRoomBtn = document.getElementById('saveRoomBtn');
@@ -46,7 +50,8 @@ const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 const infoRoomTitle = document.getElementById('infoRoomTitle');
 const infoRoomDescription = document.getElementById('infoRoomDescription');
 const infoCreatedDate = document.getElementById('infoCreatedDate');
-const infoParticipants = document.getElementById('infoParticipants');
+const infoNarrators = document.getElementById('infoNarrators');
+const infoSpeakers = document.getElementById('infoSpeakers');
 const infoMessageCount = document.getElementById('infoMessageCount');
 const closeInfoBtn = document.getElementById('closeInfoBtn');
 
@@ -55,8 +60,10 @@ const closeShareModalBtn = document.getElementById('closeShareModalBtn');
 const shareLink = document.getElementById('shareLink');
 const copyLinkBtn = document.getElementById('copyLinkBtn');
 const shareEmail = document.getElementById('shareEmail');
-const addParticipantBtn = document.getElementById('addParticipantBtn');
-const shareParticipantsList = document.getElementById('shareParticipantsList');
+const speakerName = document.getElementById('speakerName');
+const addNarratorBtn = document.getElementById('addNarratorBtn');
+const addSpeakerBtn = document.getElementById('addSpeakerBtn');
+const shareNarratorList = document.getElementById('shareNarratorList');
 const closeShareBtn = document.getElementById('closeShareBtn');
 
 const settingsBtn = document.getElementById('settingsBtn');
@@ -67,9 +74,9 @@ const roomContextMenu = document.getElementById('roomContextMenu');
 const editRoomMenuItem = document.getElementById('editRoomMenuItem');
 const leaveRoomMenuItem = document.getElementById('leaveRoomMenuItem');
 
-const selectParticipantBtn = document.getElementById('selectParticipantBtn');
-const participantSelector = document.getElementById('participantSelector');
-const participantDropdown = document.getElementById('participantDropdown');
+const selectSpeakerBtn = document.getElementById('selectSpeakerBtn');
+const speakerSelector = document.getElementById('speakerSelector');
+const speakerDropdown = document.getElementById('speakerDropdown');
 
 const params = new URLSearchParams(window.location.search);
 const paramRoomId = params.get('room') || false;

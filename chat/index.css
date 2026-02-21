@@ -878,18 +878,18 @@ input:read-only {
     font-size: 18px;
 }
 
-#selectParticipantBtn {
+#selectSpeakerBtn {
     width: 40px;
     height: 40px;
     min-width: 40px;
 }
 
-.participant-selector {
+.speaker-selector {
     position: relative;
     display: none;
 }
 
-.participant-dropdown {
+.speaker-dropdown {
     position: absolute;
     bottom: 100%;
     left: 0;
@@ -902,7 +902,7 @@ input:read-only {
     margin-bottom: 8px;
 }
 
-.participant-dropdown button {
+.speaker-dropdown button {
     width: 100%;
     padding: 10px 12px;
     border: none;
@@ -914,23 +914,23 @@ input:read-only {
     color: #333;
 }
 
-.participant-dropdown button:first-child {
+.speaker-dropdown button:first-child {
     border-radius: 8px 8px 0 0;
 }
 
-.participant-dropdown button:last-child {
+.speaker-dropdown button:last-child {
     border-radius: 0 0 8px 8px;
 }
 
-.participant-dropdown button:not(:first-child) {
+.speaker-dropdown button:not(:first-child) {
     border-top: 1px solid #f0f0f0;
 }
 
-.participant-dropdown button:hover {
+.speaker-dropdown button:hover {
     background: #f0f0f0;
 }
 
-.participant-dropdown button:active {
+.speaker-dropdown button:active {
     background: #e5e5e5;
 }
 

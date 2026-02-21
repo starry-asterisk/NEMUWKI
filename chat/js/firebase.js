@@ -13,7 +13,7 @@ const firebaseConfig = {
 };
 
 const fb_app = initializeApp(firebaseConfig);
-const db = initializeFirestore(fb_app, { experimentalForceLongPolling: true });
+const db = initializeFirestore(fb_app, {  });
 const auth = getAuth();
 
 window.firebase = {

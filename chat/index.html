@@ -67,13 +67,13 @@
 
                 <footer class="chat-input-area">
                     <div class="input-wrapper">
-                        <button class="icon-btn" id="selectParticipantBtn" title="발신자 선택">
+                        <button class="icon-btn" id="selectSpeakerBtn" title="발신자 선택">
                             <span class="material-icons">person</span>
                         </button>
-                        <div class="participant-selector" id="participantSelector">
-                            <div class="participant-dropdown" id="participantDropdown"></div>
+                        <div class="speaker-selector" id="speakerSelector">
+                            <div class="speaker-dropdown" id="speakerDropdown"></div>
                         </div>
-                        <textarea id="messageInput" placeholder="메시지를 입력하세요..." data-participant="me"></textarea>
+                        <textarea id="messageInput" placeholder="메시지를 입력하세요..." data-speaker="me"></textarea>
                         <button class="send-btn" id="sendBtn">
                             <span class="material-icons">send</span>
                         </button>
@@ -101,8 +101,12 @@
                     <textarea id="roomDescription" placeholder="채팅방 설명 (선택사항)" maxlength="200" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="participantEmails">참여자 이메일</label>
-                    <input type="text" id="participantEmails" placeholder="이메일을 쉼표로 구분하여 입력 (예: user@example.com, another@example.com)">
+                    <label for="narratorEmails">서술자 이메일</label>
+                    <input type="text" id="narratorEmails" placeholder="이메일을 쉼표로 구분하여 입력 (예: user@example.com, another@example.com)">
+                </div>
+                <div class="form-group">
+                    <label for="speakerNames">화자 이름</label>
+                    <input type="text" id="speakerNames" placeholder="이름을 쉼표로 구분하여 입력 (예: 서술자1, 서술자2)">
                 </div>
                 <div class="form-group">
                     <label for="roomProfileImage">프로필 이미지 URL</label>
@@ -149,8 +153,19 @@
                     <textarea id="editRoomDescription" placeholder="채팅방 설명" maxlength="200" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>참여자</label>
-                    <section id="participantsList"></section>
+                    <label>서술자</label>
+                    <section id="narratorList"></section>
+                </div>
+                <div class="form-group">
+                    <label>화자 추가</label>
+                    <div class="form-group-horizontal">
+                        <input type="text" id="speakerName" placeholder="화자 이름을 입력하세요" style="flex: 1;">
+                        <button class="btn-create" id="addSpeakerBtn">추가</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>화자</label>
+                    <section id="speakerList"></section>
                 </div>
                 <div class="form-group">
                     <label for="editRoomProfileImage">프로필 이미지 URL</label>
@@ -203,8 +218,12 @@
                     <p id="infoCreatedDate">-</p>
                 </div>
                 <div class="info-item">
-                    <label>참여자</label>
-                    <p id="infoParticipants">-</p>
+                    <label>서술자</label>
+                    <p id="infoNarrators">-</p>
+                </div>
+                <div class="info-item">
+                    <label>화자</label>
+                    <p id="infoSpeakers">-</p>
                 </div>
                 <div class="info-item">
                     <label>메시지 수</label>
@@ -238,12 +257,12 @@
                     <label>이메일로 추가</label>
                     <div class="form-group-horizontal">
                         <input type="text" id="shareEmail" placeholder="이메일을 입력하세요" style="flex: 1;">
-                        <button class="btn-create" id="addParticipantBtn">추가</button>
+                        <button class="btn-create" id="addNarratorBtn">추가</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>참여자</label>
-                    <section id="shareParticipantsList"></section>
+                    <label>서술자</label>
+                    <section id="shareNarratorList"></section>
                 </div>
             </div>
             <div class="modal-footer">
@@ -265,6 +284,7 @@
 
     <script src="js/firebase.js" type="module"></script>
     <script src="js/chat-firebase.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/variables.js"></script>
     <script src="js/index.js"></script>

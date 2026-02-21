@@ -116,7 +116,7 @@ roomTitleInput.addEventListener('keypress', (e) => {
     }
 });
 
-participantEmailsInput.addEventListener('keypress', (e) => {
+narratorEmailsInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         createChatRoom();
     }
@@ -142,7 +142,8 @@ roomInfoModal.addEventListener('click', (e) => {
 
 closeShareModalBtn.addEventListener('click', closeShareRoomModal);
 closeShareBtn.addEventListener('click', closeShareRoomModal);
-addParticipantBtn.addEventListener('click', addParticipant);
+addNarratorBtn.addEventListener('click', addNarrator);
+addSpeakerBtn.addEventListener('click', addSpeaker);
 
 copyLinkBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(shareLink.value).then(() => {
@@ -159,7 +160,7 @@ copyLinkBtn.addEventListener('click', () => {
 
 shareEmail.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        addParticipant();
+        addNarrator();
     }
 });
 
@@ -187,14 +188,14 @@ leaveRoomMenuItem.addEventListener('click', () => {
 
 document.addEventListener('click', hideRoomContextMenu);
 
-selectParticipantBtn?.addEventListener('click', (e) => {
+selectSpeakerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    participantSelector.style.display = participantSelector.style.display === 'none' ? 'block' : 'none';
+    speakerSelector.style.display = speakerSelector.style.display === 'block' ? 'none' : 'block';
 });
 
 document.addEventListener('click', (e) => {
-    if (e.target !== selectParticipantBtn && !participantSelector.contains(e.target)) {
-        participantSelector.style.display = 'none';
+    if (e.target !== selectSpeakerBtn && !speakerSelector.contains(e.target)) {
+        speakerSelector.style.display = 'none';
     }
 });
 

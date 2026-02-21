@@ -8,7 +8,7 @@ chatFb.getRooms = async (userId) => {
     try {
         const result = await firebase.listen(
             firebase.collection(firebase.db, "chat"),
-            firebase.where('participants', 'array-contains', userId),
+            firebase.where('narrators', 'array-contains', userId),
             firebase.orderBy('lastMessageTime', 'desc'),
             (snapshot) => {
                 const rooms = [];
@@ -34,7 +34,8 @@ chatFb.createRoom = async (roomData) => {
         const timestamp = firebase.Timestamp.fromDate(new Date());
         const ref = await firebase.addDoc(firebase.collection(firebase.db, "chat"), {
             title: roomData.title || "",
-            participants: roomData.participants || [],
+            narrators: roomData.narrators || [],
+            speakers: roomData.speakers || [],
             lastMessage: "",
             lastMessageTime: timestamp,
             lastMessageBy: "",
@@ -82,7 +83,7 @@ chatFb.sendMessage = async (roomId, messageData) => {
             timestamp: timestamp,
             read: false,
             type: messageData.type || "text",
-            participant: messageData.participant || ""
+            speaker: messageData.speaker || ""
         };
 
         // 채팅방 업데이트: 메시지 배열에 추가 + 마지막 메시지 정보 업데이트
@@ -195,7 +196,7 @@ chatFb.subscribeToRooms = (userId, callback) => {
     try {
         const q = firebase.query(
             firebase.collection(firebase.db, "chat"),
-            firebase.where('participants', 'array-contains', userId),
+            firebase.where('narrators', 'array-contains', userId),
             firebase.orderBy('lastMessageTime', 'desc')
         );
 
