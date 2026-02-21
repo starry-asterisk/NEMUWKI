@@ -269,15 +269,15 @@ async function sendMessage() {
                     speaker: selectedSpeaker,
                     isUserMessage: isMe(selectedSpeaker)
                 });
-            } else alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
+            } else await Notify.alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
         } else {
-            alert('로그인이 필요합니다');
+            await Notify.alert('로그인이 필요합니다');
         }
         messageInput.value = '';
         messageInput.style.opacity = '0.5';
     } catch (error) {
         console.error("메시지 전송 실패:", error);
-        alert('메시지 전송에 실패했습니다');
+        await Notify.alert('메시지 전송에 실패했습니다');
     }
 
     refreshTextareaHeight();
@@ -432,7 +432,7 @@ async function createChatRoom() {
     const backgroundPattern = roomBackgroundPatternInput.value;
 
     if (!namesInput) {
-        alert('화자 이름을 입력해주세요');
+        await Notify.alert('화자 이름을 입력해주세요');
         speakerNamesInput.focus();
         return;
     }
@@ -464,10 +464,10 @@ async function createChatRoom() {
         confirmCreateBtn.disabled = false;
         confirmCreateBtn.textContent = '생성';
 
-        alert('채팅방이 생성되었습니다');
+        await Notify.alert('채팅방이 생성되었습니다');
     } catch (error) {
         console.error('채팅방 생성 실패:', error);
-        alert('채팅방 생성에 실패했습니다: ' + error.message);
+        await Notify.alert('채팅방 생성에 실패했습니다: ' + error.message);
         confirmCreateBtn.disabled = false;
         confirmCreateBtn.textContent = '생성';
     }
@@ -508,7 +508,7 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
                 renderNarratorAndSpeakerList();
             } catch (err) {
                 console.error('1인칭 설정 실패:', err);
-                alert('1인칭 설정에 실패했습니다');
+                await Notify.alert('1인칭 설정에 실패했습니다');
             }
         });
         div.appendChild(setMainBtn);
@@ -521,14 +521,14 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
         deleteBtn.innerHTML = '제거';
         deleteBtn.style.marginLeft = '6px';
         deleteBtn.addEventListener('click', async () => {
-            if (!confirm(`화자 ${speaker}를 제거하시겠습니까?`)) return;
+            if (!(await Notify.confirm(`화자 ${speaker}를 제거하시겠습니까?`))) return;
             try {
                 await window.chatFb.updateRoom(room.id, { speakers: firebase.arrayRemove(speaker) });
                 room.speakers = (room.speakers || []).filter(x => x !== speaker);
                 renderNarratorAndSpeakerList(room);
             } catch (err) {
                 console.error('화자 제거 실패:', err);
-                alert('화자 제거에 실패했습니다');
+                await Notify.alert('화자 제거에 실패했습니다');
             }
         });
         div.appendChild(deleteBtn);
@@ -547,14 +547,14 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
             const removeBtn = document.createElement('button');
             removeBtn.textContent = '제거';
             removeBtn.addEventListener('click', async () => {
-                if (!confirm(`서술자 ${n}를 제거하시겠습니까?`)) return;
+                if (!(await Notify.confirm(`서술자 ${n}를 제거하시겠습니까?`))) return;
                 try {
                     await window.chatFb.updateRoom(room.id, { narrators: firebase.arrayRemove(n) });
                     room.narrators = (room.narrators || []).filter(x => x !== n);
                     renderNarratorAndSpeakerList();
                 } catch (err) {
                     console.error('서술자 제거 실패:', err);
-                    alert('서술자 제거에 실패했습니다');
+                    await Notify.alert('서술자 제거에 실패했습니다');
                 }
             });
             div.appendChild(removeBtn);
@@ -610,13 +610,14 @@ function renderShareNarratorList() {
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = '제거';
                 removeBtn.addEventListener('click', async () => {
+                    if (!(await Notify.confirm(`서술자 ${n}를 제거하시겠습니까?`))) return;
                     try {
                         await window.chatFb.updateRoom(currentRoom.id, { narrators: firebase.arrayRemove(n) });
                         currentRoom.narrators = (currentRoom.narrators || []).filter(x => x !== n);
                         renderShareNarratorList();
                     } catch (err) {
                         console.error('서술자 제거 실패:', err);
-                        alert('서술자 제거에 실패했습니다');
+                        await Notify.alert('서술자 제거에 실패했습니다');
                     }
                 });
                 div.appendChild(removeBtn);
@@ -629,12 +630,12 @@ function renderShareNarratorList() {
 async function addNarrator() {
     const email = shareEmail.value.trim();
     if (!email) {
-        alert('이메일을 입력해주세요');
+        await Notify.alert('이메일을 입력해주세요');
         return;
     }
 
     if ((currentRoom.narrators || []).includes(email)) {
-        alert('이미 참여자입니다');
+        await Notify.alert('이미 참여자입니다');
         shareEmail.value = '';
         return;
     }
@@ -654,7 +655,7 @@ async function addNarrator() {
         addNarratorBtn.textContent = '추가';
     } catch (error) {
         console.error('서술자 추가 실패:', error);
-        alert('서술자 추가에 실패했습니다');
+        await Notify.alert('서술자 추가에 실패했습니다');
         addNarratorBtn.disabled = false;
         addNarratorBtn.textContent = '추가';
     }
@@ -663,11 +664,11 @@ async function addNarrator() {
 async function addSpeaker() {
     const name = speakerName.value.trim();
     if (!name) {
-        alert('화자 이름을 입력해주세요');
+        await Notify.alert('화자 이름을 입력해주세요');
         return;
     }
     if ((currentRoom.speakers || []).includes(name)) {
-        alert('이미 존재하는 화자입니다');
+        await Notify.alert('이미 존재하는 화자입니다');
         speakerName.value = '';
         return;
     }
@@ -684,18 +685,18 @@ async function addSpeaker() {
         addSpeakerBtn.textContent = '추가';
     } catch (error) {
         console.error('화자 추가 실패:', error);
-        alert('화자 추가에 실패했습니다');
+        await Notify.alert('화자 추가에 실패했습니다');
         addSpeakerBtn.disabled = false;
         addSpeakerBtn.textContent = '추가';
     }
 }
 
 async function removeNarrator(email) {
-    if (!confirm(`${email}를 제거하시겠습니까?`)) return;
+    if (!(await Notify.confirm(`${email}를 제거하시겠습니까?`))) return;
 
     try {
         if (email === window.currentUser.email) {
-            if (!confirm('채팅방에서 나가시겠습니까?')) return;
+            if (!(await Notify.confirm('채팅방에서 나가시겠습니까?'))) return;
             await leaveChatRoom();
             return;
         }
@@ -708,7 +709,7 @@ async function removeNarrator(email) {
         renderShareNarratorList();
     } catch (error) {
         console.error('서술자 제거 실패:', error);
-        alert('서술자 제거에 실패했습니다');
+        await Notify.alert('서술자 제거에 실패했습니다');
     }
 }
 
@@ -738,19 +739,21 @@ async function saveChatRoom() {
         saveRoomBtn.disabled = false;
         saveRoomBtn.textContent = '저장';
 
-        alert('채팅방이 수정되었습니다');
+        await Notify.alert('채팅방이 수정되었습니다');
     } catch (error) {
         console.error('채팅방 수정 실패:', error);
-        alert('채팅방 수정에 실패했습니다');
+        await Notify.alert('채팅방 수정에 실패했습니다');
         saveRoomBtn.disabled = false;
         saveRoomBtn.textContent = '저장';
     }
 }
 
 async function deleteChatRoom() {
-    if (!isCreator()) return alert('채팅방 생성자만 삭제할 수 있습니다');
-    if (!confirm('정말 채팅방을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-
+    if (!isCreator()) {
+        await Notify.alert('채팅방 생성자만 삭제할 수 있습니다');
+        return;
+    }
+    if (!(await Notify.confirm('정말 채팅방을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))) return;
     try {
         deleteRoomBtn.disabled = true;
 
@@ -759,10 +762,10 @@ async function deleteChatRoom() {
         closeManageRoomModal();
         goBack();
 
-        alert('채팅방이 삭제되었습니다');
+        await Notify.alert('채팅방이 삭제되었습니다');
     } catch (error) {
         console.error('채팅방 삭제 실패:', error);
-        alert('채팅방 삭제에 실패했습니다');
+        await Notify.alert('채팅방 삭제에 실패했습니다');
         deleteRoomBtn.disabled = false;
     }
 }
@@ -776,10 +779,10 @@ async function leaveChatRoom() {
         });
 
         goBack();
-        alert('채팅방에서 나왔습니다');
+        await Notify.alert('채팅방에서 나왔습니다');
     } catch (error) {
         console.error('채팅방 나가기 실패:', error);
-        alert('채팅방 나가기에 실패했습니다');
+        await Notify.alert('채팅방 나가기에 실패했습니다');
     }
 }
 
@@ -841,14 +844,14 @@ function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messa
     }, 0);
 }
 
-function editMessage(message) {
-    const newText = prompt('메시지를 수정하세요:', message.text);
+async function editMessage(message) {
+    const newText = await Notify.prompt('메시지를 수정하세요:', message.text);
     if (newText === null || newText.trim() === '') return;
     if (newText === message.text) return;
 
     // 권한 확인: 작성자(creator) 또는 서술자만 Firestore 메시지 수정 가능
     if (!(isCreator() || isNarrator())) {
-        alert('메시지 수정을 할 권한이 없습니다');
+        await Notify.alert('메시지 수정을 할 권한이 없습니다');
         return;
     }
 
@@ -858,7 +861,7 @@ function editMessage(message) {
 async function updateMessageInFirestore(messageId, newText) {
     try {
         if (!(isCreator() || isNarrator())) {
-            alert('메시지를 수정할 권한이 없습니다');
+            await Notify.alert('메시지를 수정할 권한이 없습니다');
             return;
         }
         const messages = currentRoom.messages || [];
@@ -873,16 +876,16 @@ async function updateMessageInFirestore(messageId, newText) {
                 messages: messages
             });
 
-            alert('메시지가 수정되었습니다');
+            await Notify.alert('메시지가 수정되었습니다');
         }
     } catch (error) {
         console.error('메시지 수정 실패:', error);
-        alert('메시지 수정에 실패했습니다');
+        await Notify.alert('메시지 수정에 실패했습니다');
     }
 }
 
-function deleteMessage(message, messageDiv) {
-    if (!confirm('정말 메시지를 삭제하시겠습니까?')) return;
+async function deleteMessage(message, messageDiv) {
+    if (!(await Notify.confirm('정말 메시지를 삭제하시겠습니까?'))) return;
 
     if (message.type !== 'text') {
         commandHistory = commandHistory.filter(cmd => cmd.timestamp !== message.timestamp);
@@ -891,7 +894,7 @@ function deleteMessage(message, messageDiv) {
     } else {
         // Only creator or narrators can delete Firestore messages
         if (!(isCreator() || isNarrator())) {
-            alert('메시지를 삭제할 권한이 없습니다');
+            await Notify.alert('메시지를 삭제할 권한이 없습니다');
             return;
         }
         deleteMessageFromFirestore(message.id);
@@ -907,24 +910,25 @@ async function deleteMessageFromFirestore(messageId) {
             messages: filteredMessages
         });
 
-        alert('메시지가 삭제되었습니다');
+        await Notify.alert('메시지가 삭제되었습니다');
     } catch (error) {
         console.error('메시지 삭제 실패:', error);
-        alert('메시지 삭제에 실패했습니다');
+        await Notify.alert('메시지 삭제에 실패했습니다');
     }
 }
 
-function shareRoomLink() {
+async function shareRoomLink() {
     if (!currentRoom) return;
 
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = `${baseUrl}?room=${currentRoom.id}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        alert('채팅방 링크가 복사되었습니다!\n\n' + shareUrl);
-    }).catch(err => {
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        await Notify.alert('채팅방 링크가 복사되었습니다!\n\n' + shareUrl);
+    } catch (err) {
         console.error('클립보드 복사 실패:', err);
-        alert('링크: ' + shareUrl + '\n\n수동으로 복사해주세요');
-    });
+        await Notify.alert('링크: ' + shareUrl + '\n\n수동으로 복사해주세요');
+    }
 }
 function applyRoomBackground() {
     if (!currentRoom) return;
