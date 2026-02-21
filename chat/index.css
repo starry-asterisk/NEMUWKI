@@ -321,6 +321,10 @@ body {
     transform-origin: left center;
 }
 
+.message.command .message-bubble {
+    font-style: italic;
+}
+
 .messages:has(.message.highlight) .message:not(.highlight) {
     filter: blur(5px);
     opacity: 0.6;

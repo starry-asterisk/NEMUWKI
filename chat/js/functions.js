@@ -187,7 +187,7 @@ function renderSingleMessage(msg) {
 
     const time = formatTime(msg.timestamp?.toDate?.() || msg.timestamp);
     const namespace = msg.namespace || msg.senderName || msg.participant || '';
-    const displayName = isCommand ? (msg.participant === 'me' ? '나' : msg.participant) : namespace;
+    const displayName = msg.participant === 'me' ? '나' : namespace;
     let profileImage = '';
     if (displayName === currentRoom.title && currentRoom.profileImage) profileImage = currentRoom.profileImage || '';
 
@@ -195,7 +195,7 @@ function renderSingleMessage(msg) {
             ${isOwn ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}'); background-size: cover; background-position: center;` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
             <div class="message-info">
                 <div class="message-namespace">${escapeHtml(displayName)}</div>
-                <div class="message-bubble" style="${isCommand ? 'opacity: 0.7; font-style: italic;' : ''}">${escapeHtml(msg.text)}</div>
+                <div class="message-bubble">${escapeHtml(msg.text)}</div>
             </div>
             <span class="message-time">${time}</span>
         `;
@@ -254,10 +254,23 @@ async function sendMessage() {
         }
     }
 
-    try {
-        if (selectedParticipant === 'me') {
-            handleCommand(text, 'me');
-        } else {
+        try {
+            if (selectedParticipant === 'me') {
+                // 방 생성자는 '나'로 입력해도 Firestore에 저장되도록 처리
+                if (window.currentUser && currentRoom.createdBy === window.currentUser.uid && !text.startsWith('/')) {
+                    const senderName = window.currentUser.displayName || (window.currentUser.email || '').split('@')[0];
+                    await window.chatFb.sendMessage(currentRoom.id, {
+                        text: text,
+                        senderId: window.currentUser.email,
+                        senderName: senderName,
+                        namespace: senderName,
+                        type: 'server_text',
+                        participant: 'me',
+                    });
+                } else {
+                    handleCommand(text, 'me');
+                }
+            } else {
             await window.chatFb.sendMessage(currentRoom.id, {
                 text: text,
                 senderId: selectedParticipant,
@@ -275,27 +288,105 @@ async function sendMessage() {
     refreshTextareaHeight();
 }
 
-function handleCommand(text, participant) {
-    const command = {
-        text: text,
-        participant: participant,
-        timestamp: new Date(),
-        type: 'command'
-    };
+// Command handlers registry
+const commandHandlers = {
+    me: (args, ctx) => {
+        const name = ctx.currentUser ? (ctx.currentUser.displayName || (ctx.currentUser.email || '').split('@')[0]) : '나';
+        const action = args.join(' ').trim();
+        if (!action) return { message: '사용법: /me <동작>' };
+        return { message: `*${name} ${action}` };
+    },
+    nick: (args, ctx) => {
+        const newNick = args.join(' ').trim();
+        if (!newNick) return { message: '사용법: /nick 새닉네임' };
+        try {
+            const key = `nicks_${ctx.currentRoom.id}`;
+            const raw = localStorage.getItem(key);
+            const map = raw ? JSON.parse(raw) : {};
+            const currentEmail = ctx.currentUser?.email || -1;
+            map[currentEmail] = newNick;
+            localStorage.setItem(key, JSON.stringify(map));
+            // 닉네임에 대한 불러오기/적용 로직 추가 필요
+            return { message: `닉네임이 ${newNick}으로 변경되었습니다` };
+        } catch (e) {
+            console.error('nick 명령어 실패:', e);
+            return { message: '닉네임 변경 중 오류가 발생했습니다' };
+        }
+    },
+    clear: (args, ctx) => {
+        try {
+            localStorage.removeItem(`commands_${ctx.currentRoom.id}`);
+            commandHistory = [];
+            renderMessages(ctx.currentRoom.messages || []);
+            return { message: '명령어 기록이 삭제되었습니다', temp: true };
+        } catch (e) {
+            console.error('clear 명령어 실패:', e);
+            return { message: '삭제 중 오류가 발생했습니다' };
+        }
+    }
+};
+
+function pushCommandToHistory(command) {
     if (!commandHistory) commandHistory = [];
     commandHistory.push(command);
     const maxHistory = 100;
     if (commandHistory.length > maxHistory) {
         commandHistory = commandHistory.slice(-maxHistory);
     }
-
     try {
         localStorage.setItem(`commands_${currentRoom.id}`, JSON.stringify(commandHistory));
     } catch (e) {
         console.warn('localStorage 저장 실패:', e);
     }
     console.log('명령어 기록됨:', command);
+}
 
+function handleCommand(text, participant) {
+    const now = new Date();
+    const isSlash = text.startsWith('/');
+
+    if (isSlash) {
+        const parts = text.slice(1).trim().split(/\s+/);
+        const cmd = parts.shift().toLowerCase();
+        const args = parts;
+        const handler = commandHandlers[cmd];
+        const ctx = { currentRoom, currentUser: window.currentUser };
+        if (handler) {
+            const result = handler(args, ctx) || {};
+            const messageText = result.message ? result.message : `명령어 실행: /${cmd}`;
+            const command = {
+                text: messageText,
+                participant: participant,
+                timestamp: now,
+                type: 'command',
+                cmd: cmd
+            };
+            if (!result.temp) pushCommandToHistory(command);
+            renderSingleMessage(command);
+            messages.scrollTop = messages.scrollHeight;
+            return;
+        } else {
+            const command = {
+                text: `알 수 없는 명령어: /${cmd}`,
+                participant: participant,
+                timestamp: now,
+                type: 'command'
+            };
+            pushCommandToHistory(command);
+            renderSingleMessage(command);
+            messages.scrollTop = messages.scrollHeight;
+            return;
+        }
+    }
+
+    // plain (non-slash) commands are stored as local command entries
+    const command = {
+        text: text,
+        participant: participant,
+        timestamp: now,
+        type: 'text'
+    };
+    pushCommandToHistory(command);
     renderSingleMessage(command);
     messages.scrollTop = messages.scrollHeight;
 }
@@ -687,7 +778,7 @@ async function updateMessageInFirestore(messageId, newText) {
 function deleteMessage(message, isOwn, messageDiv) {
     if (!confirm('정말 메시지를 삭제하시겠습니까?')) return;
 
-    if (isOwn) {
+    if (isOwn && message.type !== 'server_text') {
         commandHistory = commandHistory.filter(cmd => cmd.timestamp !== message.timestamp);
         localStorage.setItem(`commands_${currentRoom.id}`, JSON.stringify(commandHistory));
         messageDiv.remove();

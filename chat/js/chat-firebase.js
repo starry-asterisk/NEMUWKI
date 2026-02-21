@@ -81,7 +81,8 @@ chatFb.sendMessage = async (roomId, messageData) => {
             senderName: messageData.senderName || "",
             timestamp: timestamp,
             read: false,
-            type: messageData.type || "text"
+            type: messageData.type || "text",
+            participant: messageData.participant || ""
         };
 
         // 채팅방 업데이트: 메시지 배열에 추가 + 마지막 메시지 정보 업데이트
