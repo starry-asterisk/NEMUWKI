@@ -263,7 +263,7 @@ const commandHandlers = {
     },
     nick: (args, ctx) => {
         const newNick = args.join(' ').trim();
-        if (!newNick) return { message: '사용법: /nick 새닉네임' };
+        if (!newNick) return { message: '사용법: /nick "이메일|화자이름" "새닉네임"' };
         try {
             const key = `nicks_${ctx.currentRoom.id}`;
             const raw = localStorage.getItem(key);
@@ -718,6 +718,7 @@ async function saveChatRoom() {
 }
 
 async function deleteChatRoom() {
+    if (!isCreator()) return alert('채팅방 생성자만 삭제할 수 있습니다');
     if (!confirm('정말 채팅방을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
 
     try {
