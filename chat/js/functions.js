@@ -13,9 +13,13 @@ function renderChatList(rooms = chatRooms) {
 
         const lastMessageTime = room.lastMessageTime ? formatTime(room.lastMessageTime.toDate?.() || room.lastMessageTime) : '';
         const lastMessage = room.lastMessage || '새로운 채팅';
+        const profileImage = room.profileImage || '';
+
 
         chatItem.innerHTML = `
-            <div class="chat-avatar">${room.title ? room.title[0].toUpperCase() : 'C'}</div>
+            ${profileImage ?
+                `<div class="chat-avatar" style="background-image: url('${profileImage}');"></div>` :
+                `<div class="chat-avatar">${room.title ? room.title[0].toUpperCase() : 'C'}</div>`}
             <div class="chat-info">
                 <div class="chat-header-info">
                     <span class="chat-name">${room.title || '채팅방'}</span>
@@ -92,7 +96,7 @@ function renderParticipantSelector() {
     participantDropdown.innerHTML = '';
     renderParticipantSelectorOption('me');
     (currentRoom.participants || []).forEach(participant => {
-        if (participant === window.currentUser.email) return; 
+        if (participant === window.currentUser.email) return;
 
         renderParticipantSelectorOption(participant);
     });
@@ -112,12 +116,12 @@ function renderParticipantSelectorOption(participant) {
 
 function updateMessageInputState() {
     var items = {
-        messageInput: {el: messageInput, disabled: true},
-        sendBtn: {el: sendBtn, disabled: true},
-        settingsBtn: {el: settingsBtn, disabled: true},
-        addParticipantBtn: {el: addParticipantBtn, disabled: true},
-        shareEmail: {el: shareEmail, disabled: true},
-        selectParticipantBtn: {el: selectParticipantBtn, disabled: true},
+        messageInput: { el: messageInput, disabled: true },
+        sendBtn: { el: sendBtn, disabled: true },
+        settingsBtn: { el: settingsBtn, disabled: true },
+        addParticipantBtn: { el: addParticipantBtn, disabled: true },
+        shareEmail: { el: shareEmail, disabled: true },
+        selectParticipantBtn: { el: selectParticipantBtn, disabled: true },
     };
 
     let placeholder = '';
@@ -130,17 +134,16 @@ function updateMessageInputState() {
             if (currentRoom.createdBy === window.currentUser.uid) {
                 if (selectedParticipant !== 'me') placeholder = `${selectedParticipant}의 메시지를 입력하세요...`;
 
-                items.messageInput.placeholder = placeholder;
                 items.settingsBtn.disabled = false;
                 items.addParticipantBtn.disabled = false;
                 items.shareEmail.disabled = false;
                 items.selectParticipantBtn.disabled = false;
-            } else placeholder = '채팅방 생성자만 메시지 작성 가능';
-        } else placeholder = '로그인이 필요합니다';
+            }
+        }
     } else placeholder = '채팅방을 선택하세요';
 
-    items.messageInput.placeholder = placeholder;
-    for(const item of Object.values(items)) item.el.disabled = item.disabled;
+    messageInput.placeholder = placeholder;
+    for (const item of Object.values(items)) item.el.disabled = item.disabled;
 }
 
 function renderMessages(msgs = []) {
@@ -185,10 +188,8 @@ function renderSingleMessage(msg) {
     const time = formatTime(msg.timestamp?.toDate?.() || msg.timestamp);
     const namespace = msg.namespace || msg.senderName || msg.participant || '';
     const displayName = isCommand ? (msg.participant === 'me' ? '나' : msg.participant) : namespace;
-    let profileImage = currentRoom.profileImage || '';
-    if (displayName === currentRoom.title && currentRoom.profileImage) {
-        profileImage = currentRoom.profileImage;
-    }
+    let profileImage = '';
+    if (displayName === currentRoom.title && currentRoom.profileImage) profileImage = currentRoom.profileImage || '';
 
     messageDiv.innerHTML = `
             ${isOwn ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}'); background-size: cover; background-position: center;` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
@@ -211,7 +212,7 @@ function renderSingleMessage(msg) {
             touchStartTime = Date.now();
         });
         messageDiv.addEventListener('touchend', (e) => {
-            if (Date.now() - touchStartTime > 500) { 
+            if (Date.now() - touchStartTime > 500) {
                 const touch = e.changedTouches[0];
                 const mouseEvent = new MouseEvent('contextmenu', {
                     clientX: touch.clientX,
@@ -261,7 +262,7 @@ async function sendMessage() {
                 text: text,
                 senderId: selectedParticipant,
                 senderName: selectedParticipant.split('@')[0],
-                namespace: selectedParticipant 
+                namespace: selectedParticipant
             });
         }
         messageInput.value = '';
@@ -270,6 +271,8 @@ async function sendMessage() {
         console.error("메시지 전송 실패:", error);
         alert('메시지 전송에 실패했습니다');
     }
+
+    refreshTextareaHeight();
 }
 
 function handleCommand(text, participant) {
@@ -543,7 +546,7 @@ async function saveChatRoom() {
         currentRoom.backgroundPattern = editRoomBackgroundPatternInput.value;
 
         roomTitle.textContent = currentRoom.title;
-        applyRoomBackground(); 
+        applyRoomBackground();
         closeManageRoomModal();
 
         saveRoomBtn.disabled = false;
@@ -745,7 +748,7 @@ function focusRandomParticipantMessage() {
     if (lastFocusDate === today) return;
     const messageElements = document.querySelectorAll('.message:not(.command)');
     const participantMessages = Array.from(messageElements).filter(msg => {
-        return msg.classList.contains('other'); 
+        return msg.classList.contains('other');
     });
 
     if (participantMessages.length === 0) return;

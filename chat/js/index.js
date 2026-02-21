@@ -2,6 +2,7 @@ async function initializePublicChats() {
     if (!window.chatFb || !window.firebase) return;
 
     try {
+        createRoomBtn.disabled = !window.currentUser;
         chatRooms = [];
         if (!currentRoom && paramRoomId) {
             const room = await window.chatFb.getRoom(paramRoomId);
@@ -23,6 +24,7 @@ async function initializeChatApp() {
     }
 
     try {
+        createRoomBtn.disabled = !window.currentUser;
         roomsUnsubscribe = window.chatFb.subscribeToRooms(
             window.currentUser.email,
             async (rooms) => {
@@ -73,6 +75,7 @@ window.addEventListener('userLoggedOut', () => {
 });
 
 sendBtn.addEventListener('click', sendMessage);
+
 messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -80,6 +83,12 @@ messageInput.addEventListener('keypress', (e) => {
     }
 });
 
+messageInput.addEventListener('input', refreshTextareaHeight);
+
+function refreshTextareaHeight() {
+    messageInput.style.height = '';
+    messageInput.style.height = (messageInput.scrollHeight + 2) + 'px';
+}
 backBtn.addEventListener('click', goBack);
 
 searchInput.addEventListener('input', (e) => {

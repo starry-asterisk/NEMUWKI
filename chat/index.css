@@ -65,6 +65,10 @@ body {
     background: #d9d9d9;
 }
 
+.icon-btn:disabled {
+    display: none;
+}
+
 .material-icons {
     font-size: 20px;
     user-select: none;
@@ -136,6 +140,8 @@ body {
     height: 56px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: cover;
+    background-position: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -372,6 +378,7 @@ body {
     font-size: 15px;
     line-height: 1.4;
     pointer-events: all;
+    white-space: pre-line;
 }
 
 .message.own .message-bubble {
@@ -409,7 +416,7 @@ body {
     gap: 8px;
 }
 
-.input-wrapper input {
+.input-wrapper textarea {
     flex: 1;
     padding: 10px 16px;
     border: 1px solid #e5e5e5;
@@ -418,10 +425,12 @@ body {
     font-size: 15px;
     font-family: inherit;
     resize: none;
-    max-height: 100px;
+    max-height: 300px;
+    height: 43px;
+    resize: none;
 }
 
-.input-wrapper input:focus {
+.input-wrapper textarea:focus {
     border-color: #ccc;
 }
 
@@ -490,12 +499,8 @@ body {
         max-width: 80%;
     }
 
-    .header-right .icon-btn:nth-child(n+2) {
-        display: none;
-    }
-
-    .input-wrapper input {
-        max-height: 80px;
+    .input-wrapper textarea {
+        max-height: 200px;
     }
 
     .sidebar-header {
