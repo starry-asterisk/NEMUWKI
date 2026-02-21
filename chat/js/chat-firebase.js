@@ -218,4 +218,60 @@ chatFb.subscribeToRooms = (userId, callback) => {
     }
 };
 
+chatFb.history = {
+    insertOne: async ({ crud, target, text = '' }) => {
+        try {
+            return await firebase.addDoc(firebase.collection(firebase.db, "history"), {
+                uid: currentUser?.uid || '{Not-Authored}',
+                timestamp: firebase.Timestamp.fromDate(new Date()),
+                crud: crud || 'INSERT',
+                target: target || '${document}-${sample_document_uid}',
+                text,
+                agent: navigator.userAgent
+            });
+        } catch (e) {
+            dev.error("Error adding document: ", e);
+        }
+    },
+    insertError: async ({ type, message, stack }) => {
+        try {
+            return await firebase.addDoc(firebase.collection(firebase.db, "history"), {
+                uid: currentUser?.uid || '{Not-Authored}',
+                timestamp: firebase.Timestamp.fromDate(new Date()),
+                crud: 'ERROR',
+                target: type,
+                text: stack || message,
+                agent: navigator.userAgent
+            });
+        } catch (e) {
+            dev.error("Error adding document: ", e);
+        }
+    },
+}
+
+chatFb.resources = {
+    regist: async data => {
+        if (!'link' in data || !'deletehash' in data) throw 'data incorrect, necessary field is not presented';
+        if (!'id' in data) data.id = Math.floor(Math.random() * 100000000).toString(16);
+        const formatted = {
+            owner_id: currentUser?.uid,
+            uploaded_dt: data.datetime * 1000 || new Date().getTime(),
+            deletehash: data.deletehash,
+            link: data.link,
+            size: data.size,
+            mime: data.type,
+            height: data.height,
+            width: data.width
+        }
+        await firebase.setDoc(firebase.doc(firebase.db, "resources", data.id), formatted);
+        chatFb.history.insertOne({ crud: 'INSERT', target: `resources-${data.id}` });
+        return true;
+    },
+    delete: async (id, hash, url) => {
+        chatFb.history.insertOne({ crud: 'DELETE', target: `resource-${id}`, hash, text: url || `(삭제됨-리소스{${id}})`});
+        return await firebase.deleteDoc(firebase.doc(firebase.db, "resources", id))
+    },
+    all: async () => await firebase.getDocs(firebase.query(firebase.collection(firebase.db, "resources"), firebase.where('owner_id', '==', currentUser?.uid))),
+}
+
 window.chatFb = chatFb;

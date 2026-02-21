@@ -213,3 +213,52 @@ document.addEventListener('DOMContentLoaded', () => {
     sendBtn.disabled = true;
     messageInput.placeholder = '채팅방을 선택하세요';
 });
+
+// Image selector event listeners
+closeImageSelectorBtn.addEventListener('click', closeImageSelector);
+cancelImageSelectorBtn.addEventListener('click', closeImageSelector);
+confirmImageSelectorBtn.addEventListener('click', confirmImageSelection);
+imageLinkBtn.addEventListener('click', promptImageLink);
+
+imageFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const url = await uploadByImgur(file);
+        if (url) {
+            selectImage(url);
+        }
+    }
+    e.target.value = '';
+});
+
+imageSelectorModal.addEventListener('click', (e) => {
+    if (e.target === imageSelectorModal) {
+        closeImageSelector();
+    }
+});
+
+// Image selector button handlers for room creation/management
+selectRoomProfileImageBtn.addEventListener('click', () => {
+    openImageSelector((url) => {
+        roomProfileImageInput.value = url;
+    });
+});
+
+selectRoomBackgroundImageBtn.addEventListener('click', () => {
+    openImageSelector((url) => {
+        roomBackgroundImageInput.value = url;
+    });
+});
+
+selectEditRoomProfileImageBtn.addEventListener('click', () => {
+    openImageSelector((url) => {
+        editRoomProfileImageInput.value = url;
+    });
+});
+
+selectEditRoomBackgroundImageBtn.addEventListener('click', () => {
+    openImageSelector((url) => {
+        editRoomBackgroundImageInput.value = url;
+    });
+});
+

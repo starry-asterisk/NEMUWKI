@@ -78,5 +78,23 @@ const selectSpeakerBtn = document.getElementById('selectSpeakerBtn');
 const speakerSelector = document.getElementById('speakerSelector');
 const speakerDropdown = document.getElementById('speakerDropdown');
 
+const imageSelectorModal = document.getElementById('imageSelectorModal');
+const closeImageSelectorBtn = document.getElementById('closeImageSelectorBtn');
+const imageFileInput = document.getElementById('imageFileInput');
+const imageLinkBtn = document.getElementById('imageLinkBtn');
+const imageSelectorList = document.getElementById('imageSelectorList');
+const selectedImagePreview = document.getElementById('selectedImagePreview');
+const imageUploadStatus = document.getElementById('imageUploadStatus');
+const confirmImageSelectorBtn = document.getElementById('confirmImageSelectorBtn');
+const cancelImageSelectorBtn = document.getElementById('cancelImageSelectorBtn');
+
+let selectedImageUrl = null;
+let imageCallbackFn = null;
+
+const selectRoomProfileImageBtn = document.getElementById('selectRoomProfileImageBtn');
+const selectRoomBackgroundImageBtn = document.getElementById('selectRoomBackgroundImageBtn');
+const selectEditRoomProfileImageBtn = document.getElementById('selectEditRoomProfileImageBtn');
+const selectEditRoomBackgroundImageBtn = document.getElementById('selectEditRoomBackgroundImageBtn');
+
 const params = new URLSearchParams(window.location.search);
 const paramRoomId = params.get('room') || false;

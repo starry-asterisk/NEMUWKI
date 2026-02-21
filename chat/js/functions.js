@@ -3,7 +3,7 @@ function renderChatList(rooms = chatRooms) {
     chatList.innerHTML = '';
 
     if (rooms.length === 0) {
-        chatList.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">채팅방이 없습니다</div>';
+        chatList.innerHTML = '<div class="empty-msg">채팅방이 없습니다</div>';
         return;
     }
 
@@ -132,7 +132,7 @@ function renderMessages(msgs = []) {
     messages.innerHTML = '';
 
     if (!currentRoom) {
-        messages.innerHTML = '<div style="text-align: center; color: #999; margin: auto;">채팅방을 선택해주세요</div>';
+        messages.innerHTML = '<div class="empty-msg.type2">채팅방을 선택해주세요</div>';
         return;
     }
     let allMessages = msgs || [];
@@ -152,7 +152,7 @@ function renderMessages(msgs = []) {
     }
 
     if (allMessages.length === 0) {
-        messages.innerHTML = '<div style="text-align: center; color: #999; margin: auto;">채팅을 시작해보세요</div>';
+        messages.innerHTML = '<div class="empty-msg.type2">채팅을 시작해보세요</div>';
         return;
     }
 
@@ -165,15 +165,15 @@ function renderSingleMessage(msg) {
     const isCommand = msg.type === 'command';
     const isRightBool = isRight(msg.speaker);
     const isOwn = isMe(msg.speaker);
-    messageDiv.className = `message ${isRightBool ? 'own' : 'other'} ${isCommand ? 'command' : ''}`;
+    const speakerAvatars = currentRoom.speakerAvatars || {};
+    const profileImage = speakerAvatars[msg.speaker] || '';
+    messageDiv.className = `message ${isRightBool ? 'right' : 'other'} ${isCommand ? 'command' : ''} ${isOwn ? 'own' : ''}`;
 
     const time = formatTime(msg.timestamp?.toDate?.() || msg.timestamp);
     const displayName = msg.speaker;
-    let profileImage = '';
-    if (displayName === currentRoom.title && currentRoom.profileImage) profileImage = currentRoom.profileImage || '';
-
+    
     messageDiv.innerHTML = `
-            ${isRightBool ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}'); background-size: cover; background-position: center;` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
+            ${isRightBool ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}');` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
             <div class="message-info">
                 <div class="message-namespace">${escapeHtml(displayName)}</div>
                 <div class="message-bubble">${escapeHtml(msg.text)}</div>
@@ -190,11 +190,40 @@ function renderSingleMessage(msg) {
             showMessageContextMenu(msg, e, isRightBool, isCreator(), isOwn, messageDiv);
         });
         let touchStartTime = 0;
-        messageDiv.addEventListener('touchstart', () => {
+        messageDiv.addEventListener('touchstart', (e) => {
             touchStartTime = Date.now();
         });
         messageDiv.addEventListener('touchend', (e) => {
             if (Date.now() - touchStartTime > 500) {
+                const touch = e.changedTouches[0];
+                const mouseEvent = new MouseEvent('contextmenu', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    bubbles: true
+                });
+                messageDiv.dispatchEvent(mouseEvent);
+            }
+        });
+    }
+
+    if (!msg.isUserMessage && isNarrator()) {
+        messageDiv.querySelector('.message-avatar').addEventListener('contextmenu', e => {
+            e.stopPropagation();
+            e.preventDefault();
+            openImageSelector((url) => {
+                currentRoom.speakerAvatars = currentRoom.speakerAvatars || {};
+                currentRoom.speakerAvatars[msg.speaker] = url;
+                window.chatFb.updateRoom(currentRoom.id, { speakerAvatars: currentRoom.speakerAvatars });
+            });
+        });
+        let touchStartTime2 = 0;
+        messageDiv.addEventListener('touchstart', () => {
+            e.stopPropagation();
+            touchStartTime2 = Date.now();
+        });
+        messageDiv.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+            if (Date.now() - touchStartTime2 > 500) {
                 const touch = e.changedTouches[0];
                 const mouseEvent = new MouseEvent('contextmenu', {
                     clientX: touch.clientX,
@@ -237,7 +266,8 @@ async function sendMessage() {
                     type: 'text',
                     senderName: currentUser.displayName || (currentUser.email || '').split('@')[0],
                     senderId: currentUser.email,
-                    speaker: selectedSpeaker
+                    speaker: selectedSpeaker,
+                    isUserMessage: isMe(selectedSpeaker)
                 });
             } else alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
         } else {
@@ -770,7 +800,7 @@ function hideRoomContextMenu() {
 function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messageDiv) {
     event.stopPropagation();
     const existingMenu = document.querySelector('.message-context-menu');
-    const editable = message.type === 'command' || (message.speaker.indexOf('@') > -1 ? isOwn : true);
+    const editable = message.type === 'command' || ((message.speaker.indexOf('@') > -1 || message.isUserMessage) ? isOwn : true);
     if (existingMenu) existingMenu.remove();
 
     const menu = document.createElement('div');
@@ -785,7 +815,7 @@ function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messa
             <span class="material-icons">edit</span>
             <span>수정</span>
         </button>
-    ` : '') + ( isCreator || editable ? `
+    ` : '') + (isCreator || editable ? `
         <button class="menu-item" data-action="delete">
             <span class="material-icons">delete</span>
             <span>삭제</span>
@@ -899,13 +929,12 @@ function shareRoomLink() {
 function applyRoomBackground() {
     if (!currentRoom) return;
     messages.style.backgroundImage = '';
-    messages.style.backgroundColor = '#fff';
+    messages.style.backgroundColor = '';
     messages.classList.remove('pattern-dots', 'pattern-lines', 'pattern-grid', 'pattern-diagonal', 'pattern-waves');
     if (currentRoom.backgroundImage) {
         messages.style.backgroundImage = `url('${currentRoom.backgroundImage}')`;
         messages.style.backgroundSize = 'cover';
         messages.style.backgroundPosition = 'center';
-        messages.style.backgroundAttachment = 'fixed';
     }
     if (currentRoom.backgroundPattern) {
         messages.classList.add(`pattern-${currentRoom.backgroundPattern}`);
