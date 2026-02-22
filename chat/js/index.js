@@ -284,3 +284,20 @@ messageInput.addEventListener('blur', () => {
         sendTypingStatus(isTyping = false);
     }
 });
+
+let isPreventBack = false, willExit = false;
+
+function setBackTrigger() {
+    if (isPreventBack) return;
+    isPreventBack = true;
+    window.history.pushState({ page: 'preventBack' }, '', window.location.href);
+}
+
+window.addEventListener('popstate', function(event) {
+    if (isPreventBack) {
+        isPreventBack = false;
+    } else if(willExit === false){
+        willExit === true;
+        history.back();
+    }
+});

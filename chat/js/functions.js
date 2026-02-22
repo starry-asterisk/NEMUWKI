@@ -61,6 +61,7 @@ async function selectRoom(room) {
             renderMessages(msgs);
             focusRandomRecievedMessage();
         });
+        setBackTrigger();
     } catch (error) {
         console.error("메시지 로드 실패:", error);
     }
@@ -544,6 +545,7 @@ function goBack(render = true) {
     if (window.innerWidth <= 480) {
         chatSidebar.classList.remove('hidden');
     }
+    history.back();
 }
 
 function searchRooms(query) {
