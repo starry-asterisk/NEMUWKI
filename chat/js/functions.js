@@ -1000,7 +1000,12 @@ function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messa
     menu.style.left = isRight ? rect.left - 126 + 'px' : rect.right + 8 + 'px';
     menu.style.top = rect.top + 'px';
 
-    menu.innerHTML = (editable ? `
+    menu.innerHTML = `
+        <button class="menu-item" data-action="copy">
+            <span class="material-icons">content_copy</span>
+            <span>복사</span>
+        </button>
+    ` + (editable ? `
         <button class="menu-item" data-action="edit">
             <span class="material-icons">edit</span>
             <span>수정</span>
@@ -1013,6 +1018,11 @@ function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messa
     ` : '');
 
     document.body.appendChild(menu);
+
+    menu.querySelector('[data-action="copy"]')?.addEventListener('click', () => {
+        navigator.clipboard.writeText(message.text);
+        menu.remove();
+    });
 
     menu.querySelector('[data-action="edit"]')?.addEventListener('click', () => {
         editMessage(message);

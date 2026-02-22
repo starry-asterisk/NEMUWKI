@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/resource/favicon.ico">
+    <link rel="apple-touch-icon" href="/resource/favicon.ico" />
     <title>채팅</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons@3.0.1/iconfont/material-icons.css">
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
     <div class="chat-container">
         <aside class="chat-sidebar">
@@ -104,7 +108,8 @@
                 </div>
                 <div class="form-group">
                     <label for="narratorEmails">서술자 이메일</label>
-                    <input type="text" id="narratorEmails" placeholder="이메일을 쉼표로 구분하여 입력 (예: user@example.com, another@example.com)">
+                    <input type="text" id="narratorEmails"
+                        placeholder="이메일을 쉼표로 구분하여 입력 (예: user@example.com, another@example.com)">
                 </div>
                 <div class="form-group">
                     <label for="speakerNames">화자 이름</label>
@@ -112,10 +117,10 @@
                 </div>
                 <div class="form-group">
                     <label for="roomProfileImage">프로필 이미지 URL</label>
-                        <div class="form-group-horizontal">
-                            <input type="text" id="roomProfileImage" placeholder="이미지 URL을 입력하세요 (선택사항)" class="flex-1">
-                            <button class="btn-create btn-auto" id="selectRoomProfileImageBtn">선택</button>
-                        </div>
+                    <div class="form-group-horizontal">
+                        <input type="text" id="roomProfileImage" placeholder="이미지 URL을 입력하세요 (선택사항)" class="flex-1">
+                        <button class="btn-create btn-auto" id="selectRoomProfileImageBtn">선택</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="roomBackgroundImage">배경 이미지 URL</label>
@@ -334,15 +339,16 @@
         </div>
     </div>
 
-    <script src="js/firebase.js?_=0.2" type="module"></script>
-    <script src="js/chat-firebase.js?_=0.2"></script>
-    <script src="js/utils.js?_=0.2"></script>
-    <script src="js/modal.js?_=0.2"></script>
-    <script src="js/imageUtils.js?_=0.2"></script>
-    <script src="js/functions.js?_=0.2"></script>
-    <script src="js/variables.js?_=0.2"></script>
+    <script src="js/firebase.js?_=0.3" type="module"></script>
+    <script src="js/chat-firebase.js?_=0.3"></script>
+    <script src="js/utils.js?_=0.3"></script>
+    <script src="js/modal.js?_=0.3"></script>
+    <script src="js/imageUtils.js?_=0.3"></script>
+    <script src="js/functions.js?_=0.3"></script>
+    <script src="js/variables.js?_=0.3"></script>
     <script src="js/lib/peerjs.min.js"></script>
-    <script src="js/chat-peer.js?_=0.2"></script>
-    <script src="js/index.js?_=0.2"></script>
+    <script src="js/chat-peer.js?_=0.3"></script>
+    <script src="js/index.js?_=0.3"></script>
 </body>
+
 </html>
