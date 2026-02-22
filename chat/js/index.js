@@ -172,20 +172,6 @@ settingsBtn.addEventListener('click', openManageRoomModal);
 shareBtn.addEventListener('click', openShareRoomModal);
 infoBtn.addEventListener('click', openRoomInfoModal);
 
-editRoomMenuItem.addEventListener('click', () => {
-    currentRoom = window._menuTargetRoom;
-    hideRoomContextMenu();
-    openManageRoomModal();
-});
-
-leaveRoomMenuItem.addEventListener('click', () => {
-    currentRoom = window._menuTargetRoom;
-    hideRoomContextMenu();
-    leaveChatRoom();
-});
-
-document.addEventListener('click', hideRoomContextMenu);
-
 selectSpeakerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     speakerSelector.style.display = speakerSelector.style.display === 'block' ? 'none' : 'block';

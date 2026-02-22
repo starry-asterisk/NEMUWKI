@@ -186,7 +186,7 @@ function createMessageDiv(msg) {
         ${isRightBool ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}');` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
         <div class="message-info">
             <div class="message-namespace">${escapeHtml(displayName)}</div>
-            <div class="message-bubble">${escapeHtml(msg.text)}</div>
+            <div class="message-bubble">${markdown(escapeHtml(msg.text))}</div>
         </div>
         <span class="message-time">${time}</span>
     `;
@@ -316,6 +316,20 @@ const commnadDefine = [
         description: () => `변수 입력이 정상적인지 확인합니다.`,
         fn(args, ctx, ret) {
             return JSON.stringify(args);
+        }
+    },
+    {
+        alias: ['image', 'images', '이미지', '사진'],
+        description: () => `변수 입력이 정상적인지 확인합니다.`,
+        fn(args, ctx, ret) {
+            if (args.length > 0) {
+                let msg = '';
+                for(let url of args) msg += `[image:${url}]\n`;
+                messageInput.value = msg;
+            } else openImageSelector(async (url) => {
+                messageInput.value = `[image:${url}]`;
+            });
+            return false;
         }
     },
     {
@@ -973,20 +987,6 @@ async function leaveChatRoom() {
     }
 }
 
-function showRoomContextMenu(room, event) {
-    event.stopPropagation();
-
-    const rect = event.target.getBoundingClientRect();
-    roomContextMenu.style.left = rect.right - 150 + 'px';
-    roomContextMenu.style.top = rect.bottom + 8 + 'px';
-    roomContextMenu.classList.remove('hidden');
-    window._menuTargetRoom = room;
-}
-
-function hideRoomContextMenu() {
-    roomContextMenu.classList.add('hidden');
-}
-
 function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messageDiv) {
     event.stopPropagation();
     const existingMenu = document.querySelector('.message-context-menu');
@@ -998,7 +998,7 @@ function showMessageContextMenu(message, event, isRight, isCreator, isOwn, messa
 
     const rect = event.target.getBoundingClientRect();
     menu.style.left = isRight ? rect.left - 126 + 'px' : rect.right + 8 + 'px';
-    menu.style.top = rect.top + 'px';
+    menu.style.top = Math.max(rect.top, 80) + 'px';
 
     menu.innerHTML = `
         <button class="menu-item" data-action="copy">

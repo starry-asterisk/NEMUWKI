@@ -74,10 +74,6 @@ const settingsBtn = document.getElementById('settingsBtn');
 const shareBtn = document.getElementById('shareBtn');
 const infoBtn = document.getElementById('infoBtn');
 
-const roomContextMenu = document.getElementById('roomContextMenu');
-const editRoomMenuItem = document.getElementById('editRoomMenuItem');
-const leaveRoomMenuItem = document.getElementById('leaveRoomMenuItem');
-
 const selectSpeakerBtn = document.getElementById('selectSpeakerBtn');
 const speakerSelector = document.getElementById('speakerSelector');
 const speakerDropdown = document.getElementById('speakerDropdown');
@@ -99,6 +95,14 @@ const selectRoomProfileImageBtn = document.getElementById('selectRoomProfileImag
 const selectRoomBackgroundImageBtn = document.getElementById('selectRoomBackgroundImageBtn');
 const selectEditRoomProfileImageBtn = document.getElementById('selectEditRoomProfileImageBtn');
 const selectEditRoomBackgroundImageBtn = document.getElementById('selectEditRoomBackgroundImageBtn');
+
+const REGEX = {
+    link: /\[link\:([^\s\[\]]+)\]/gi,
+    image: /\[image\:([^\s\[\]]+)\]/gi,
+    video: /\[video\:([^\s\[\]]+)\]/gi,
+    music: /\[music\:([^\s\[\]]+)\]/gi,
+    css: /%\{([^\s\{\}]+)\}([^\{\}]+)%/gi,
+};
 
 const params = new URLSearchParams(window.location.search);
 const paramRoomId = params.get('room') || false;

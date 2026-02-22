@@ -27,7 +27,8 @@
         .nm-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
         .nm-modal-actions button{padding:8px 12px;border-radius:6px;border:1px solid #ddd;background:#f7f7f7;cursor:pointer}
         .nm-modal-actions button.primary{background:#007aff;color:#fff;border-color:transparent}
-        .nm-modal-input input{width:100%;padding:8px;border:1px solid #e5e5e5;border-radius:6px}
+        .nm-modal-input input, .nm-modal-input textarea{width:100%;padding:8px;border:1px solid #e5e5e5;border-radius:6px;font-size:0.8em;font-family:inherit;}
+        .nm-modal-input input:focus, .nm-modal-input textarea:focus{outline: 2px solid #007aff}
     `;
     document.head.appendChild(style);
 
@@ -36,7 +37,7 @@
             bodyEl.innerHTML = html;
             inputEl.style.display = input ? '' : 'none';
             if (input) {
-                const inp = document.createElement('input');
+                const inp = document.createElement('textarea');
                 inp.id = 'nm_modal_text_input';
                 inp.value = defaultValue;
                 inputEl.innerHTML = '';

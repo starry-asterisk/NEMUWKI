@@ -420,6 +420,19 @@ body {
     white-space: pre-line;
 }
 
+.message-bubble img {
+    max-width: 100%;
+}
+
+.message-bubble img:only-child {
+    display: block;
+}
+
+.message-bubble:has(img:only-child) {
+    padding: 0px;
+    overflow: hidden;
+}
+
 .message.right .message-bubble {
     background: #007aff;
     color: white;
@@ -432,25 +445,31 @@ body {
     padding: 20px;
     color: #999;
 }
+
 .flex-1 {
     flex: 1;
 }
+
 .btn-auto {
     width: auto;
 }
+
 .modal-large {
     max-width: 600px;
 }
+
 .hr-sep {
     border: none;
     border-top: 1px solid #f0f0f0;
     margin: 16px 0;
 }
+
 .muted-small {
     color: #999;
     font-size: 12px;
 }
-.image-preview--empty{
+
+.image-preview--empty {
     min-height: 100px;
     background: #f0f0f0;
     border-radius: 8px;
@@ -459,10 +478,12 @@ body {
     justify-content: center;
     color: #999;
 }
-.flex-spacer{
+
+.flex-spacer {
     flex: 1;
 }
-.img-preview{
+
+.img-preview {
     max-width: 100%;
     max-height: 150px;
     border-radius: 8px;
@@ -1139,7 +1160,8 @@ input[type="text"]:read-only {
 /* 공지사항 섹션 스타일 */
 .sidebar-notice-area {
     padding: 12px 20px;
-    background: #f8faff; /* 옅은 푸른색으로 일반 채팅방과 구분 */
+    background: #f8faff;
+    /* 옅은 푸른색으로 일반 채팅방과 구분 */
     border-bottom: 1px solid #e5eefc;
 }
 
@@ -1160,7 +1182,7 @@ input[type="text"]:read-only {
     background: #f0f5ff;
     border-color: #007aff;
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .notice-icon {

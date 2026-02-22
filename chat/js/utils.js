@@ -32,3 +32,14 @@ async function generatePeerId(roomId, email) {
   // (선택 사항) UUID 형식(8-4-4-4-12)으로 자르기
   return `${hashHex.substring(0, 8)}-${hashHex.substring(8, 12)}-${hashHex.substring(12, 16)}-${hashHex.substring(16, 20)}-${hashHex.substring(20, 32)}`;
 }
+
+function markdown(html, cell) {
+    return html
+        .replace(REGEX.css, (full_str, cssString, text) => `<span style="${cssString}"/>${text}</span>`)
+        .replace(REGEX.image, (full_str, group1) => `<img src="${group1}"/>`)
+        .replace(REGEX.link, (full_str, group1) => {
+            let [link, namespace] = group1.split(';')
+            return `<a class="link" href="${link.startsWith('http') ? link : ('//' + link)}" target="_blank">${namespace || '링크'}</a>`;
+        })
+        .replace(REGEX.video, (full_str, group1) => `<iframe width="560" height="315" src="//www.youtube.com/embed/${getYoutubeId(group1)}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`);
+}
