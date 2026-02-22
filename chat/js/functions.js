@@ -545,7 +545,7 @@ function goBack(render = true) {
     if (window.innerWidth <= 480) {
         chatSidebar.classList.remove('hidden');
     }
-    history.back();
+    // history.back();
 }
 
 function searchRooms(query) {

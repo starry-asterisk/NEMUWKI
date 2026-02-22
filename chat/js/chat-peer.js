@@ -344,7 +344,7 @@ let rtcFn = {
             if (!isNarrator()) return;
             if (conn.open) conn.send({ type: 'edit_message', data: { message, roomId } });
         },
-        messageDeleteOne: (conn, messageId) => {
+        messageDeleteOne: (conn, messageId, roomId) => {
             if (!isNarrator()) return;
             if (conn.open) conn.send({ type: 'delete_message', data: { messageId, roomId } });
         },
