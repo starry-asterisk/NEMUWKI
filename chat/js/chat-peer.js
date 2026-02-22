@@ -233,12 +233,12 @@ let rtcFn = {
                 if (currentRoom && currentRoom.id === room.id) renderSingleMessage(data.message);
             }
         },
-        delete_message: (conn, messageId) => {
+        delete_message: (conn, data) => {
             const room = chatRooms.find(r => r.id === data.roomId);
             if (room) {
-                room.messages = (room.messages || []).filter(msg => msg.id !== messageId);
+                room.messages = (room.messages || []).filter(msg => msg.id !== data.messageId);
                 if (currentRoom && currentRoom.id === room.id) {
-                    const oldMessage = messages.querySelector(`.message[data-id="${messageId}"]`);
+                    const oldMessage = messages.querySelector(`.message[data-id="${data.messageId}"]`);
                     if (oldMessage) oldMessage.remove();
                 }
             }
@@ -342,11 +342,11 @@ let rtcFn = {
         },
         messageUpdateOne: (conn, message, roomId) => {
             if (!isNarrator()) return;
-            if (conn.open) conn.send({ type: 'message_update', data: { message, roomId } });
+            if (conn.open) conn.send({ type: 'edit_message', data: { message, roomId } });
         },
         messageDeleteOne: (conn, messageId) => {
             if (!isNarrator()) return;
-            if (conn.open) conn.send({ type: 'message_delete', data: messageId });
+            if (conn.open) conn.send({ type: 'delete_message', data: { messageId, roomId } });
         },
         file: (fileData) => {
             if (!isNarrator()) return;

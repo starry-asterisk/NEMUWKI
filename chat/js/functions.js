@@ -355,7 +355,7 @@ const commnadDefine = [
         }
     },
     {
-        alias: ['tmi','오늘의티엠아이', '티엠아이'],
+        alias: ['tmi', '오늘의티엠아이', '티엠아이'],
         description: () => `랜덤으로 메시지 하나를 보여줍니다.`,
         fn(args, ctx, ret) {
             focusRandomRecievedMessage(true);
@@ -1063,6 +1063,7 @@ async function updateMessageInFirestore(messageId, newText) {
                 messages: messages
             });
             toAllNarrators(conn => rtcFn.send.messageUpdateOne(conn, messages[messageIndex], currentRoom.id), currentRoom);
+            rtcFn.receive.edit_message(null, { roomId: currentRoom.id, message: messages[messageIndex] });
             await Notify.alert('메시지가 수정되었습니다');
         }
     } catch (error) {
@@ -1096,7 +1097,8 @@ async function deleteMessageFromFirestore(messageId) {
         await window.chatFb.updateRoom(currentRoom.id, {
             messages: filteredMessages
         });
-        toAllNarrators(conn => rtcFn.send.messageDeleteOne(conn, messageId), currentRoom);
+        toAllNarrators(conn => rtcFn.send.messageDeleteOne(conn, messageId, currentRoom.id), currentRoom);
+        rtcFn.receive.delete_message(null, { roomId: currentRoom.id, messageId: messageId });
         await Notify.alert('메시지가 삭제되었습니다');
     } catch (error) {
         console.error('메시지 삭제 실패:', error);
