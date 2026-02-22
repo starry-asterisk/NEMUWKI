@@ -42,7 +42,7 @@ window.firebase = {
 };
 
 onAuthStateChanged(auth, (user) => {
-    window.currentUser = user;
+    currentUser = user;
     if (user) {
         console.log("사용자 로그인됨:", user.email);
         window.dispatchEvent(new Event('userLoggedIn'));

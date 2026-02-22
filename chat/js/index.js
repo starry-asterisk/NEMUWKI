@@ -2,16 +2,19 @@ async function initializePublicChats() {
     if (!window.chatFb || !window.firebase) return;
 
     try {
-        createRoomBtn.disabled = !window.currentUser;
-        chatRooms = [];
-        if (!currentRoom && paramRoomId) {
-            const room = await window.chatFb.getRoom(paramRoomId);
-            selectRoom(room);
-        }
-        if (currentRoom && chatRooms.find(r => r.id === currentRoom.id) === undefined) {
-            chatRooms.push(currentRoom);
-        }
-        renderChatList();
+        RTC.start(async () => {
+            createRoomBtn.disabled = !currentUser;
+            chatRooms = [];
+            if (!currentRoom && paramRoomId) {
+                const room = await window.chatFb.getRoom(paramRoomId);
+                selectRoom(room);
+            }
+            if (currentRoom && chatRooms.find(r => r.id === currentRoom.id) === undefined) {
+                chatRooms.push(currentRoom);
+            }
+            renderChatList();
+
+        });
     } catch (error) {
         console.log("공개 채팅방 로드 실패:", error);
     }
@@ -24,32 +27,28 @@ async function initializeChatApp() {
     }
 
     try {
-        createRoomBtn.disabled = !window.currentUser;
-        roomsUnsubscribe = window.chatFb.subscribeToRooms(
-            window.currentUser.email,
-            async (rooms) => {
-                chatRooms = rooms;
+        RTC.start(async () => {
+            createRoomBtn.disabled = !currentUser;
+            window.chatFb.getRooms(
+                currentUser.email,
+                async (rooms) => {
+                    chatRooms = rooms;
 
-                if (!currentRoom && paramRoomId) {
-                    let room = rooms.find(r => r.id === paramRoomId);
-                    if (!room) room = await window.chatFb.getRoom(paramRoomId);
-                    selectRoom(room);
+                    if (!currentRoom && paramRoomId) {
+                        let room = rooms.find(r => r.id === paramRoomId);
+                        if (!room) room = await window.chatFb.getRoom(paramRoomId);
+                        selectRoom(room);
+                    }
+                    if (currentRoom && chatRooms.find(r => r.id === currentRoom.id) === undefined) {
+                        chatRooms.push(currentRoom);
+                    }
+                    renderChatList();
                 }
-                if (currentRoom && chatRooms.find(r => r.id === currentRoom.id) === undefined) {
-                    chatRooms.push(currentRoom);
-                }
-                renderChatList();
-            }
-        );
+            );
+        });
     } catch (error) {
         console.error("채팅 초기화 실패:", error);
     }
-}
-
-function cleanupSubscriptions() {
-    if (messagesUnsubscribe) messagesUnsubscribe();
-    if (roomsUnsubscribe) roomsUnsubscribe();
-    messagesUnsubscribe = roomsUnsubscribe = null;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -58,15 +57,14 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('userLoggedIn', () => {
-    if (window.currentUser) {
-        console.log("채팅 모듈 초기화:", window.currentUser.email);
+    if (currentUser) {
+        console.log("채팅 모듈 초기화:", currentUser.email);
         initializeChatApp();
     }
 });
 
 window.addEventListener('userLoggedOut', () => {
     console.log("사용자 로그아웃, 채팅 종료");
-    cleanupSubscriptions();
     chatRooms = [];
     currentRoom = null;
     renderChatList();
@@ -262,3 +260,27 @@ selectEditRoomBackgroundImageBtn.addEventListener('click', () => {
     });
 });
 
+
+messageInput.addEventListener('input', () => {
+    if (!isTyping) sendTypingStatus(isTyping = true);
+
+    clearTimeout(typingTimer);
+    
+    typingTimer = setTimeout(() => {
+        if (isTyping) sendTypingStatus(isTyping = false);
+    }, doneTypingInterval);
+});
+
+messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        clearTimeout(typingTimer);
+        sendTypingStatus(isTyping = false);
+    }
+});
+
+messageInput.addEventListener('blur', () => {
+    if (isTyping) {
+        clearTimeout(typingTimer);
+        sendTypingStatus(isTyping = false);
+    }
+});

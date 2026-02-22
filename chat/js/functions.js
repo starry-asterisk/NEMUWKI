@@ -1,53 +1,53 @@
 
+// --- Render Functions ---
 function renderChatList(rooms = chatRooms) {
     chatList.innerHTML = '';
-
     if (rooms.length === 0) {
         chatList.innerHTML = '<div class="empty-msg">채팅방이 없습니다</div>';
         return;
     }
+    rooms.forEach(createChatItem);
+}
 
-    rooms.forEach(room => {
-        if (room.id === currentRoom?.id) {
-            currentRoom = room;
-            updateMessageInputState();
-        }
-        const chatItem = document.createElement('div');
-        chatItem.className = `chat-item ${currentRoom?.id === room.id ? 'active' : ''}`;
+function createChatItem(room) {
+    if (room.id === currentRoom?.id) {
+        updateMessageInputState();
+    }
 
-        const lastMessageTime = room.lastMessageTime ? formatTime(room.lastMessageTime.toDate?.() || room.lastMessageTime) : '';
-        const lastMessage = room.lastMessage || '새로운 채팅';
-        const profileImage = room.profileImage || '';
+    if (room.narrators && room.narrators.length > 0) RTC.joinRoom(room.id, false);
 
+    const existingItem = document.querySelector(`.chat-item[data-room-id="${room.id}"]`);
 
-        chatItem.innerHTML = `
-            ${profileImage ?
-                `<div class="chat-avatar" style="background-image: url('${profileImage}');"></div>` :
-                `<div class="chat-avatar">${room.title ? room.title[0].toUpperCase() : 'C'}</div>`}
-            <div class="chat-info">
-                <div class="chat-header-info">
-                    <span class="chat-name">${room.title || '채팅방'}</span>
-                    <span class="chat-time">${lastMessageTime}</span>
-                </div>
-                <div class="chat-preview">
-                    ${lastMessage}
-                </div>
+    const chatItem = document.createElement('div');
+    chatItem.dataset.roomId = room.id;
+    chatItem.className = `chat-item ${currentRoom?.id === room.id ? 'active' : ''}`;
+    chatItem.style.position = 'relative';
+    chatItem.innerHTML = `
+        ${room.profileImage ?
+            `<div class="chat-avatar" style="background-image: url('${room.profileImage}');"></div>` :
+            `<div class="chat-avatar">${room.title ? room.title[0].toUpperCase() : 'C'}</div>`}
+        <div class="chat-info">
+            <div class="chat-header-info">
+                <span class="chat-name">${room.title || '채팅방'}</span>
+                <span class="chat-time">${room.lastMessageTime ? formatTime(room.lastMessageTime.toDate?.() || room.lastMessageTime) : ''}</span>
             </div>
-        `;
-
-        chatItem.style.position = 'relative';
-        chatItem.addEventListener('click', () => selectRoom(room));
-
+            <div class="chat-preview">
+                ${room.lastMessage || '새로운 채팅'}
+            </div>
+        </div>
+    `;
+    chatItem.addEventListener('click', () => selectRoom(room));
+    if (existingItem) {
+        chatList.replaceChild(chatItem, existingItem);
+    } else {
         chatList.appendChild(chatItem);
-    });
-
+    }
 }
 
 async function selectRoom(room) {
     if (!room) return;
     currentRoom = room;
     selectedSpeaker = currentUser?.email || uuid;
-    if (messagesUnsubscribe) messagesUnsubscribe();
     emptyState.classList.add('hidden');
     chatRoom.classList.remove('hidden');
     roomTitle.textContent = room.title || '채팅방';
@@ -57,7 +57,7 @@ async function selectRoom(room) {
     updateMessageInputState();
     renderChatList();
     try {
-        messagesUnsubscribe = window.chatFb.subscribeToMessages(room.id, (msgs) => {
+        window.chatFb.getMessages(room.id, (msgs) => {
             renderMessages(msgs);
             focusRandomRecievedMessage();
         });
@@ -93,7 +93,7 @@ function renderSpeakerSelectorOption(speaker) {
 }
 
 function updateMessageInputState() {
-    var items = {
+    const items = {
         messageInput: { el: messageInput, disabled: true },
         sendBtn: { el: sendBtn, disabled: true },
         settingsBtn: { el: settingsBtn, disabled: true },
@@ -132,7 +132,7 @@ function renderMessages(msgs = []) {
     messages.innerHTML = '';
 
     if (!currentRoom) {
-        messages.innerHTML = '<div class="empty-msg.type2">채팅방을 선택해주세요</div>';
+        messages.innerHTML = '<div class="empty-msg type2">채팅방을 선택해주세요</div>';
         return;
     }
     let allMessages = msgs || [];
@@ -152,7 +152,7 @@ function renderMessages(msgs = []) {
     }
 
     if (allMessages.length === 0) {
-        messages.innerHTML = '<div class="empty-msg.type2">채팅을 시작해보세요</div>';
+        messages.innerHTML = '<div class="empty-msg type2">채팅을 시작해보세요</div>';
         return;
     }
 
@@ -161,28 +161,41 @@ function renderMessages(msgs = []) {
 }
 
 function renderSingleMessage(msg) {
-    const messageDiv = document.createElement('div');
+    const messageDiv = createMessageDiv(msg);
+    messageDiv.dataset.id = msg.id || Math.random().toString(36).substring(2);
+    const oldMessage = messages.querySelector(`.message[data-id="${messageDiv.dataset.id}"]`);
+    if (oldMessage) {
+        messages.replaceChild(messageDiv, oldMessage);
+    } else {
+        messages.appendChild(messageDiv);
+    }
+}
+
+function createMessageDiv(msg) {
     const isCommand = msg.type === 'command';
     const isRightBool = isRight(msg.speaker);
     const isOwn = isMe(msg.speaker);
     const speakerAvatars = currentRoom.speakerAvatars || {};
     const profileImage = speakerAvatars[msg.speaker] || '';
-    messageDiv.className = `message ${isRightBool ? 'right' : 'other'} ${isCommand ? 'command' : ''} ${isOwn ? 'own' : ''}`;
-
     const time = formatTime(msg.timestamp?.toDate?.() || msg.timestamp);
     const displayName = msg.speaker;
-    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isRightBool ? 'right' : 'other'} ${isCommand ? 'command' : ''} ${isOwn ? 'own' : ''}`;
     messageDiv.innerHTML = `
-            ${isRightBool ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}');` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
-            <div class="message-info">
-                <div class="message-namespace">${escapeHtml(displayName)}</div>
-                <div class="message-bubble">${escapeHtml(msg.text)}</div>
-            </div>
-            <span class="message-time">${time}</span>
-        `;
-
+        ${isRightBool ? '' : `<div class="message-avatar" style="${profileImage ? `background-image: url('${profileImage}');` : ''}">${!profileImage ? (displayName ? displayName[0].toUpperCase() : 'U') : ''}</div>`}
+        <div class="message-info">
+            <div class="message-namespace">${escapeHtml(displayName)}</div>
+            <div class="message-bubble">${escapeHtml(msg.text)}</div>
+        </div>
+        <span class="message-time">${time}</span>
+    `;
     messageDiv.style.position = 'relative';
     messageDiv.style.cursor = 'context-menu';
+    attachMessageContextEvents(messageDiv, msg, isRightBool, isOwn);
+    return messageDiv;
+}
+
+function attachMessageContextEvents(messageDiv, msg, isRightBool, isOwn) {
     const canContext = (msg.type === 'command') || (isCreator() || isNarrator());
     if (canContext) {
         messageDiv.addEventListener('contextmenu', (e) => {
@@ -205,37 +218,41 @@ function renderSingleMessage(msg) {
             }
         });
     }
-
     if (!msg.isUserMessage && isNarrator()) {
-        messageDiv.querySelector('.message-avatar')?.addEventListener('contextmenu', e => {
-            e.stopPropagation();
-            e.preventDefault();
-            openImageSelector((url) => {
-                currentRoom.speakerAvatars = currentRoom.speakerAvatars || {};
-                currentRoom.speakerAvatars[msg.speaker] = url;
-                window.chatFb.updateRoom(currentRoom.id, { speakerAvatars: currentRoom.speakerAvatars });
-            });
-        });
-        let touchStartTime2 = 0;
-        messageDiv.querySelector('.message-avatar')?.addEventListener('touchstart', () => {
-            e.stopPropagation();
-            touchStartTime2 = Date.now();
-        });
-        messageDiv.querySelector('.message-avatar')?.addEventListener('touchend', (e) => {
-            e.stopPropagation();
-            if (Date.now() - touchStartTime2 > 500) {
-                const touch = e.changedTouches[0];
-                const mouseEvent = new MouseEvent('contextmenu', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY,
-                    bubbles: true
+        const avatar = messageDiv.querySelector('.message-avatar');
+        if (avatar) {
+            avatar.addEventListener('contextmenu', e => {
+                e.stopPropagation();
+                e.preventDefault();
+                openImageSelector(async (url) => {
+                    currentRoom.speakerAvatars = currentRoom.speakerAvatars || {};
+                    currentRoom.speakerAvatars[msg.speaker] = url;
+                    await window.chatFb.updateRoom(currentRoom.id, { speakerAvatars: currentRoom.speakerAvatars });
+                    renderMessages(currentRoom.messages);
+                    toAllNarrators((conn) => {
+                        rtcFn.send.infoOne(conn, { type: 'avatar', speaker: msg.speaker, avatar: url, roomId: currentRoom.id });
+                    }, currentRoom);
                 });
-                messageDiv.dispatchEvent(mouseEvent);
-            }
-        });
+            });
+            let touchStartTime2 = 0;
+            avatar.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+                touchStartTime2 = Date.now();
+            });
+            avatar.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+                if (Date.now() - touchStartTime2 > 500) {
+                    const touch = e.changedTouches[0];
+                    const mouseEvent = new MouseEvent('contextmenu', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY,
+                        bubbles: true
+                    });
+                    messageDiv.dispatchEvent(mouseEvent);
+                }
+            });
+        }
     }
-
-    messages.appendChild(messageDiv);
 }
 
 function escapeHtml(text) {
@@ -252,7 +269,6 @@ function escapeHtml(text) {
 async function sendMessage() {
     const text = messageInput.value.trim();
     const isCommand = text.startsWith('/');
-    const currentUser = window.currentUser;
 
     if (!text || !currentRoom) return;
 
@@ -261,7 +277,7 @@ async function sendMessage() {
             handleCommand(text);
         } else if (currentUser) {
             if (isNarrator() || isCreator()) {
-                await window.chatFb.sendMessage(currentRoom.id, {
+                const messageData = await window.chatFb.sendMessage(currentRoom.id, {
                     text: text,
                     type: 'text',
                     senderName: currentUser.displayName || (currentUser.email || '').split('@')[0],
@@ -269,6 +285,13 @@ async function sendMessage() {
                     speaker: selectedSpeaker,
                     isUserMessage: isMe(selectedSpeaker)
                 });
+                currentRoom.messages = currentRoom.messages || [];
+                currentRoom.messages.push(messageData);
+                renderSingleMessage(messageData);
+                messages.scrollTop = messages.scrollHeight;
+                toAllNarrators(conn => {
+                    rtcFn.send.messageOne(conn, messageData, currentRoom.id);
+                }, currentRoom);
             } else await Notify.alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
         } else {
             await Notify.alert('로그인이 필요합니다');
@@ -339,14 +362,14 @@ function pushCommandToHistory(command) {
 function handleCommand(text) {
     const now = new Date();
     const isSlash = text.startsWith('/');
-    const speaker = window.currentUser?.email || uuid;
+    const speaker = currentUser?.email || uuid;
 
     if (isSlash) {
         const parts = text.slice(1).trim().split(/\s+/);
         const cmd = parts.shift().toLowerCase();
         const args = parts;
         const handler = commandHandlers[cmd];
-        const ctx = { currentRoom, currentUser: window.currentUser };
+        const ctx = { currentRoom, currentUser: currentUser };
         if (handler) {
             const result = handler(args, ctx) || {};
             const messageText = result.message ? result.message : `명령어 실행: /${cmd}`;
@@ -387,12 +410,11 @@ function handleCommand(text) {
     messages.scrollTop = messages.scrollHeight;
 }
 
-function goBack() {
+function goBack(render = true) {
     currentRoom = null;
     emptyState.classList.remove('hidden');
     chatRoom.classList.add('hidden');
-    renderChatList();
-    cleanupSubscriptions();
+    if (render) renderChatList();
 
     if (window.innerWidth <= 480) {
         chatSidebar.classList.remove('hidden');
@@ -440,26 +462,36 @@ async function createChatRoom() {
     try {
         const emails = emailsInput.split(',').map(e => e.trim()).filter(e => e);
         const names = namesInput.split(',').map(n => n.trim()).filter(n => n);
-        const currentUserEmail = window.currentUser.email;
+        const currentUserEmail = currentUser.email;
         const narrators = [currentUserEmail, ...emails];
         const uniqueNarrators = [...new Set(narrators)];
         const uniqueSpeakers = [...new Set(names)]
         confirmCreateBtn.disabled = true;
         confirmCreateBtn.textContent = '생성 중...';
 
-        const roomId = await window.chatFb.createRoom({
+        const roomInfo = {
             title: title || namesInput,
             description: description,
-            createdBy: window.currentUser.uid,
+            createdBy: currentUser.uid,
             profileImage: profileImage || '',
             backgroundImage: backgroundImage || '',
             backgroundPattern: backgroundPattern || '',
             narrators: uniqueNarrators,
             speakers: uniqueSpeakers,
             mainSpeaker: ''
-        });
+        };
+        const room = await window.chatFb.createRoom(roomInfo);
 
-        console.log('채팅방 생성됨:', roomId);
+        for (const email of uniqueNarrators) {
+            if (email === currentUserEmail) continue;
+            rtcFn.send.invite_room(email, room.id);
+        }
+
+        chatRooms.push(room);
+        createChatItem(room);
+        selectRoom(room);
+
+        console.log('채팅방 생성됨:', room.id);
         closeCreateRoomModal();
         confirmCreateBtn.disabled = false;
         confirmCreateBtn.textContent = '생성';
@@ -501,16 +533,7 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
         const setMainBtn = document.createElement('button');
         setMainBtn.textContent = '1인칭으로 설정';
         setMainBtn.style.marginLeft = 'auto';
-        setMainBtn.addEventListener('click', async () => {
-            try {
-                await window.chatFb.updateRoom(room.id, { mainSpeaker: value });
-                room.mainSpeaker = value;
-                renderNarratorAndSpeakerList();
-            } catch (err) {
-                console.error('1인칭 설정 실패:', err);
-                await Notify.alert('1인칭 설정에 실패했습니다');
-            }
-        });
+        setMainBtn.addEventListener('click', () => changeMainSpeaker(room, value));
         div.appendChild(setMainBtn);
         if (room.mainSpeaker === speaker) {
             setMainBtn.textContent = '1인칭 설정 취소';
@@ -520,17 +543,7 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = '제거';
         deleteBtn.style.marginLeft = '6px';
-        deleteBtn.addEventListener('click', async () => {
-            if (!(await Notify.confirm(`화자 ${speaker}를 제거하시겠습니까?`))) return;
-            try {
-                await window.chatFb.updateRoom(room.id, { speakers: firebase.arrayRemove(speaker) });
-                room.speakers = (room.speakers || []).filter(x => x !== speaker);
-                renderNarratorAndSpeakerList(room);
-            } catch (err) {
-                console.error('화자 제거 실패:', err);
-                await Notify.alert('화자 제거에 실패했습니다');
-            }
-        });
+        deleteBtn.addEventListener('click', () => deleteSpeaker(room, speaker));
         div.appendChild(deleteBtn);
         speakerList.appendChild(div);
     });
@@ -543,15 +556,15 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
         const span = document.createElement('span');
         span.textContent = n + (n === room.createdBy ? ' (생성자)' : '');
         div.appendChild(span);
-        if (room.createdBy === window.currentUser?.uid) {
+        if (room.createdBy === currentUser?.uid) {
             const removeBtn = document.createElement('button');
             removeBtn.textContent = '제거';
             removeBtn.addEventListener('click', async () => {
                 if (!(await Notify.confirm(`서술자 ${n}를 제거하시겠습니까?`))) return;
                 try {
                     await window.chatFb.updateRoom(room.id, { narrators: firebase.arrayRemove(n) });
-                    room.narrators = (room.narrators || []).filter(x => x !== n);
-                    renderNarratorAndSpeakerList();
+                    toAllNarrators(conn => rtcFn.send.quit_roomOne(conn, n, room.id), room);
+                    deleteNarrator(n, room);
                 } catch (err) {
                     console.error('서술자 제거 실패:', err);
                     await Notify.alert('서술자 제거에 실패했습니다');
@@ -561,6 +574,49 @@ function renderNarratorAndSpeakerList(room = currentRoom) {
         }
         narratorList.appendChild(div);
     });
+}
+
+async function changeMainSpeaker(room, speaker) {
+    try {
+        await window.chatFb.updateRoom(room.id, { mainSpeaker: speaker });
+        room.mainSpeaker = speaker;
+        toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'mainSpeaker', speaker: speaker, roomId: room.id }), room);
+        renderNarratorAndSpeakerList(room);
+        if (currentRoom && currentRoom.id === room.id) renderMessages(room.messages);
+    } catch (err) {
+        console.error('1인칭 설정 실패:', err);
+        await Notify.alert('1인칭 설정에 실패했습니다');
+    }
+}
+
+async function deleteSpeaker(room, speaker) {
+    if (!(await Notify.confirm(`화자 ${speaker}를 제거하시겠습니까?`))) return;
+    try {
+        await window.chatFb.updateRoom(room.id, { speakers: firebase.arrayRemove(speaker) });
+        room.speakers = (room.speakers || []).filter(x => x !== speaker);
+        toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'deleteSpeaker', speaker: speaker, roomId: room.id }), room);
+        renderNarratorAndSpeakerList(room);
+        if (currentRoom && currentRoom.id === room.id) renderSpeakerSelector();
+    } catch (err) {
+        console.error('화자 제거 실패:', err);
+        await Notify.alert('화자 제거에 실패했습니다');
+    }
+}
+
+async function deleteNarrator(email, room) {
+    room.narrators = (room.narrators || []).filter(x => x !== email);
+    if (currentRoom && currentRoom.id === room.id) {
+        renderSpeakerSelector();
+        renderNarratorAndSpeakerList(room);
+        renderShareNarratorList();
+    }
+    for (let _room of chatRooms) if (_room.narrators && _room.narrators.includes(email)) return;
+    generatePeerId(null, email).then(
+        peerId => {
+            const conn = RTC.connections.find(c => c.peer === peerId);
+            if (conn) removeConnection(conn);
+        }
+    );
 }
 
 function openRoomInfoModal() {
@@ -606,14 +662,15 @@ function renderShareNarratorList() {
             const span = document.createElement('span');
             span.textContent = n + (n === currentRoom.createdBy ? ' (생성자)' : '');
             div.appendChild(span);
-            if (currentRoom.createdBy === window.currentUser?.uid) {
+            if (currentRoom.createdBy === currentUser?.uid) {
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = '제거';
                 removeBtn.addEventListener('click', async () => {
                     if (!(await Notify.confirm(`서술자 ${n}를 제거하시겠습니까?`))) return;
                     try {
                         await window.chatFb.updateRoom(currentRoom.id, { narrators: firebase.arrayRemove(n) });
-                        currentRoom.narrators = (currentRoom.narrators || []).filter(x => x !== n);
+                        toAllNarrators(conn => rtcFn.send.quit_roomOne(conn, n, currentRoom.id), currentRoom);
+                        deleteNarrator(n, currentRoom);
                         renderShareNarratorList();
                     } catch (err) {
                         console.error('서술자 제거 실패:', err);
@@ -649,7 +706,13 @@ async function addNarrator() {
         });
 
         shareEmail.value = '';
+        rtcFn.send.invite_room(email, currentRoom.id);
+        currentRoom.narrators = currentRoom.narrators || [];
+        currentRoom.narrators.push(email);
         renderShareNarratorList();
+        renderNarratorAndSpeakerList();
+
+
 
         addNarratorBtn.disabled = false;
         addNarratorBtn.textContent = '추가';
@@ -679,6 +742,7 @@ async function addSpeaker() {
             speakers: firebase.arrayUnion(name)
         });
         speakerName.value = '';
+        toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'addSpeaker', speaker: name, roomId: currentRoom.id }), currentRoom);
         renderSpeakerSelector();
         renderNarratorAndSpeakerList();
         addSpeakerBtn.disabled = false;
@@ -691,34 +755,13 @@ async function addSpeaker() {
     }
 }
 
-async function removeNarrator(email) {
-    if (!(await Notify.confirm(`${email}를 제거하시겠습니까?`))) return;
-
-    try {
-        if (email === window.currentUser.email) {
-            if (!(await Notify.confirm('채팅방에서 나가시겠습니까?'))) return;
-            await leaveChatRoom();
-            return;
-        }
-
-        await window.chatFb.updateRoom(currentRoom.id, {
-            narrators: firebase.arrayRemove(email)
-        });
-
-        currentRoom.narrators = (currentRoom.narrators || []).filter(p => p !== email);
-        renderShareNarratorList();
-    } catch (error) {
-        console.error('서술자 제거 실패:', error);
-        await Notify.alert('서술자 제거에 실패했습니다');
-    }
-}
-
 async function saveChatRoom() {
     try {
+        let changedRoomData;
         saveRoomBtn.disabled = true;
         saveRoomBtn.textContent = '저장 중...';
 
-        await window.chatFb.updateRoom(currentRoom.id, {
+        await window.chatFb.updateRoom(currentRoom.id, changedRoomData = {
             title: editRoomTitle.value,
             description: editRoomDescription.value,
             profileImage: editRoomProfileImageInput.value,
@@ -726,14 +769,10 @@ async function saveChatRoom() {
             backgroundPattern: editRoomBackgroundPatternInput.value
         });
 
-        currentRoom.title = editRoomTitle.value;
-        currentRoom.description = editRoomDescription.value;
-        currentRoom.profileImage = editRoomProfileImageInput.value;
-        currentRoom.backgroundImage = editRoomBackgroundImageInput.value;
-        currentRoom.backgroundPattern = editRoomBackgroundPatternInput.value;
 
         roomTitle.textContent = currentRoom.title;
-        applyRoomBackground();
+        toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'roomUpdate', roomId: currentRoom.id, data: changedRoomData }), currentRoom);
+        refreshRoom(currentRoom.id, changedRoomData);
         closeManageRoomModal();
 
         saveRoomBtn.disabled = false;
@@ -748,6 +787,21 @@ async function saveChatRoom() {
     }
 }
 
+async function refreshRoom(roomId, changedRoomData) {
+    const room = chatRooms.find(r => r.id === roomId);
+    if (!room) return;
+    room.title = changedRoomData.title;
+    room.description = changedRoomData.description;
+    room.profileImage = changedRoomData.profileImage;
+    room.backgroundImage = changedRoomData.backgroundImage;
+    room.backgroundPattern = changedRoomData.backgroundPattern;
+
+    if (currentRoom && currentRoom.id === room.id) {
+        applyRoomBackground();
+    }
+    createChatItem(room);
+}
+
 async function deleteChatRoom() {
     if (!isCreator()) {
         await Notify.alert('채팅방 생성자만 삭제할 수 있습니다');
@@ -758,6 +812,10 @@ async function deleteChatRoom() {
         deleteRoomBtn.disabled = true;
 
         await window.chatFb.deleteRoom(currentRoom.id);
+
+        toAllNarrators(conn => rtcFn.send.delete_roomOne(conn, currentRoom.id), currentRoom);
+
+        rtcFn.receive.delete_room(null, currentRoom.id);
 
         closeManageRoomModal();
         goBack();
@@ -775,10 +833,9 @@ async function leaveChatRoom() {
 
     try {
         await window.chatFb.updateRoom(currentRoom.id, {
-            narrators: firebase.arrayRemove(window.currentUser.email)
+            narrators: firebase.arrayRemove(currentUser.email)
         });
-
-        goBack();
+        rtcFn.receive.delete_room(null, currentRoom.id);
         await Notify.alert('채팅방에서 나왔습니다');
     } catch (error) {
         console.error('채팅방 나가기 실패:', error);
@@ -875,7 +932,7 @@ async function updateMessageInFirestore(messageId, newText) {
             await window.chatFb.updateRoom(currentRoom.id, {
                 messages: messages
             });
-
+            toAllNarrators(conn => rtcFn.send.messageUpdateOne(conn, messages[messageIndex], currentRoom.id), currentRoom);
             await Notify.alert('메시지가 수정되었습니다');
         }
     } catch (error) {
@@ -909,7 +966,7 @@ async function deleteMessageFromFirestore(messageId) {
         await window.chatFb.updateRoom(currentRoom.id, {
             messages: filteredMessages
         });
-
+        toAllNarrators(conn => rtcFn.send.messageDeleteOne(conn, messageId), currentRoom);
         await Notify.alert('메시지가 삭제되었습니다');
     } catch (error) {
         console.error('메시지 삭제 실패:', error);
@@ -968,18 +1025,58 @@ function focusRandomRecievedMessage() {
     localStorage.setItem(lastFocusKey, today);
 }
 
-function isCreator(uid = window.currentUser?.uid, room = currentRoom) {
+function isCreator(uid = currentUser?.uid, room = currentRoom) {
     return room && room?.createdBy === uid;
 }
 
-function isNarrator(email = window.currentUser?.email, room = currentRoom) {
+function isNarrator(email = currentUser?.email, room = currentRoom) {
     return room && (room.narrators || []).includes(email);
 }
 
 function isMe(namespace, room = currentRoom) {
-    return namespace === uuid || namespace === window.currentUser?.email;
+    return namespace === uuid || namespace === currentUser?.email;
 }
 
 function isRight(namespace, room = currentRoom) {
-    return namespace === uuid || namespace === room?.mainSpeaker || namespace === window.currentUser?.email;
+    return namespace === uuid || namespace === room?.mainSpeaker || namespace === currentUser?.email;
+}
+
+function toAllNarrators(fn, room = currentRoom) {
+    currentRoom.narrators.forEach(email => {
+        if (email === currentUser.email) return;
+        (async () => {
+            const targetPeerId = await generatePeerId(null, email);
+            const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
+            if (targetConn) fn(targetConn, email);
+        })();
+    });
+}
+
+function sendTypingStatus(isTyping) {
+    if (currentRoom && isNarrator()) toAllNarrators(conn => rtcFn.send.typing_status(conn, { isTyping: isTyping, roomId: currentRoom.id }), currentRoom);
+}
+
+function showTypingIndicator(speaker) {
+    if (!currentRoom) return;
+    let indicator = document.querySelector(`.typing-user-item[data-speaker="${speaker}"]`);
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = `typing-user-item`;
+        indicator.innerHTML = `${speaker}이 타이핑 중...`;
+        indicator.dataset.speaker = speaker;
+        const scrollBottom = (messages.scrollHeight - messages.offsetHeight) - messages.scrollTop;
+        typingIndicatorContainer.appendChild(indicator);
+        typingIndicatorContainer.style.height = `${typingIndicatorContainer.scrollHeight}px`;
+        messages.scrollTop = messages.scrollHeight - messages.offsetHeight - scrollBottom;
+    }
+}
+
+function hideTypingIndicator(speaker) {
+    const indicator = document.querySelector(`.typing-user-item[data-speaker="${speaker}"]`);
+    if (indicator) {
+        const scrollBottom = (messages.scrollHeight - messages.offsetHeight) - messages.scrollTop;
+        indicator.remove();
+        typingIndicatorContainer.style.height = `fit-content`;
+        messages.scrollTop = messages.scrollHeight - messages.offsetHeight - scrollBottom;
+    }
 }

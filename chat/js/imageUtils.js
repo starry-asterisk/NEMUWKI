@@ -1,27 +1,21 @@
-// Image utilities for chat app (Imgur upload + Firebase resources)
+const IMGUR_CLIENT_ID = 'cfb9241edbf292e';
 
-const IMGUR_CLIENT_ID = 'cfb9241edbf292e'; // Same as wiki
-
-// Open image selector modal with callback
 function openImageSelector(callback) {
     imageCallbackFn = callback;
     selectedImageUrl = null;
     imageSelectorModal.classList.remove('hidden');
     imageUploadStatus.textContent = '';
     imageFileInput.value = '';
-    selectedImagePreview.innerHTML = '<div style="color: #999;">선택된 이미지 없음</div>';
+    selectedImagePreview.innerHTML = '<div class="muted-small">선택된 이미지 없음</div>';
     confirmImageSelectorBtn.disabled = true;
     loadSavedImages();
 }
 
-// Close image selector modal
 function closeImageSelector() {
     imageSelectorModal.classList.add('hidden');
     selectedImageUrl = null;
     imageCallbackFn = null;
 }
-
-// Upload image to Imgur
 async function uploadByImgur(file) {
     try {
         imageUploadStatus.textContent = '업로드 중...';
@@ -41,7 +35,7 @@ async function uploadByImgur(file) {
 
         if (result.status === 200) {
             imageUploadStatus.textContent = '✓ 업로드 완료';
-            // Register in Firebase resources
+            // register in Firebase resources
             if (window.chatFb && window.chatFb.resources) {
                 try {
                     await window.chatFb.resources.regist(result.data);
@@ -62,7 +56,6 @@ async function uploadByImgur(file) {
     }
 }
 
-// Delete image from Imgur
 async function deleteImgurImg(deleteHash) {
     try {
         const response = await fetch(`https://api.imgur.com/3/image/${deleteHash}`, {
@@ -80,19 +73,18 @@ async function deleteImgurImg(deleteHash) {
     }
 }
 
-// Load saved images from Firebase resources
 async function loadSavedImages() {
     if (!window.chatFb || !window.chatFb.resources) {
-        imageSelectorList.innerHTML = '<p style="color: #999; font-size: 12px;">Firebase not initialized</p>';
+        imageSelectorList.innerHTML = '<p class="muted-small">Firebase not initialized</p>';
         return;
     }
 
     try {
-        imageSelectorList.innerHTML = '<p style="text-align: center; color: #999; font-size: 12px;">로드 중...</p>';
+        imageSelectorList.innerHTML = '<p class="muted-small" style="text-align:center">로드 중...</p>';
         const result = await window.chatFb.resources.all();
 
         if (!result.docs || result.docs.length === 0) {
-            imageSelectorList.innerHTML = '<p style="color: #999; font-size: 12px;">저장된 이미지 없음</p>';
+            imageSelectorList.innerHTML = '<p class="muted-small">저장된 이미지 없음</p>';
             return;
         }
 
@@ -111,7 +103,7 @@ async function loadSavedImages() {
         });
     } catch (error) {
         console.error('Error loading images:', error);
-        imageSelectorList.innerHTML = '<p style="color: #999; font-size: 12px;">이미지 로드 실패</p>';
+        imageSelectorList.innerHTML = '<p class="muted-small">이미지 로드 실패</p>';
     }
 }
 
@@ -119,7 +111,7 @@ async function loadSavedImages() {
 function selectImage(url) {
     selectedImageUrl = url;
     confirmImageSelectorBtn.disabled = false;
-    selectedImagePreview.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 150px; border-radius: 8px;" alt="preview" />`;
+    selectedImagePreview.innerHTML = `<img src="${url}" class="img-preview" alt="preview" />`;
 }
 
 // Confirm and callback

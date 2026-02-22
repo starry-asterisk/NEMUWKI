@@ -1,4 +1,3 @@
-// Simple modal replacements for alert / confirm / prompt
 (function(){
     const tpl = document.createElement('div');
     tpl.innerHTML = `
@@ -20,7 +19,6 @@
     const inputEl = document.getElementById('nm_modal_input');
     const actionsEl = document.getElementById('nm_modal_actions');
 
-    // Basic styles
     const style = document.createElement('style');
     style.textContent = `
         .nm-modal-backdrop{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.4);}
