@@ -420,15 +420,24 @@ body {
     white-space: pre-line;
 }
 
-.message-bubble img {
+.message-bubble img,
+.message-bubble .youtube {
     max-width: 100%;
 }
 
-.message-bubble img:only-child {
+.message-bubble .youtube {
+    aspect-ratio: 560 / 315;
+    height: auto !important;
+    border: 0px;
+}
+
+.message-bubble img:only-child,
+.message-bubble .youtube:only-child {
     display: block;
 }
 
-.message-bubble:has(img:only-child) {
+.message-bubble:has(img:only-child),
+.message-bubble:has(.youtube:only-child) {
     padding: 0px;
     overflow: hidden;
 }
