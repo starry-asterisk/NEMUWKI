@@ -320,7 +320,7 @@ const commnadDefine = [
     },
     {
         alias: ['image', 'images', '이미지', '사진'],
-        description: () => `변수 입력이 정상적인지 확인합니다.`,
+        description: () => `이미지를 보내기 위한 명령어`,
         fn(args, ctx, ret) {
             if (args.length > 0) {
                 let msg = '';
