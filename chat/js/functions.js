@@ -307,42 +307,143 @@ async function sendMessage() {
 }
 
 // Command handlers registry
-const commandHandlers = {
-    me: (args, ctx) => {
-        const name = ctx.currentUser ? (ctx.currentUser.displayName || (ctx.currentUser.email || '').split('@')[0]) : '나';
-        const action = args.join(' ').trim();
-        if (!action) return { message: '사용법: /me <동작>' };
-        return { message: `*${name} ${action}` };
-    },
-    nick: (args, ctx) => {
-        const newNick = args.join(' ').trim();
-        if (!newNick) return { message: '사용법: /nick "이메일|화자이름" "새닉네임"' };
-        try {
-            const key = `nicks_${ctx.currentRoom.id}`;
-            const raw = localStorage.getItem(key);
-            const map = raw ? JSON.parse(raw) : {};
-            const currentEmail = ctx.currentUser?.email || -1;
-            map[currentEmail] = newNick;
-            localStorage.setItem(key, JSON.stringify(map));
-            // 닉네임에 대한 불러오기/적용 로직 추가 필요
-            return { message: `닉네임이 ${newNick}으로 변경되었습니다` };
-        } catch (e) {
-            console.error('nick 명령어 실패:', e);
-            return { message: '닉네임 변경 중 오류가 발생했습니다' };
+const commandHandlers = {};
+
+const commnadDefine = [
+    {
+        alias: ['test'],
+        description: () => `변수 입력이 정상적인지 확인합니다.`,
+        fn(args, ctx, ret) {
+            return JSON.stringify(args);
         }
     },
-    clear: (args, ctx) => {
-        try {
-            localStorage.removeItem(`commands_${ctx.currentRoom.id}`);
-            commandHistory = [];
-            renderMessages(ctx.currentRoom.messages || []);
-            return { message: '명령어 기록이 삭제되었습니다', temp: true };
-        } catch (e) {
-            console.error('clear 명령어 실패:', e);
-            return { message: '삭제 중 오류가 발생했습니다' };
+    {
+        alias: ['help', '도움말', '?'],
+        description: () => `명령어들의 설명을 확인합니다.`,
+        fn(args, ctx, ret) {
+            let msg = [], defines = [];
+            if (args.length > 0) {
+                for (let cmd of args) {
+                    if (cmd in commandHandlers) defines.push(commandHandlers[cmd]._define_);
+                    else msg.push(`${cmd}는 존재하지 않는 명령어 입니다.`);
+                }
+            } else {
+                for (let cmd in commandHandlers) defines.push(commandHandlers[cmd]._define_);
+            }
+            defines = [...new Set(defines)];
+            for (let define of defines) {
+                msg.push(`명령어 : ${define.alias.join(', ')}\n설명 : ${define.description()}`);
+            }
+            return msg.join('\n\n');
         }
+    },
+    {
+        alias: ['명령어기록제거', '청소', '정리', 'clear'],
+        description: () => `명령어 사용 기록을 삭제합니다.`,
+        fn(args, ctx, ret) {
+            try {
+                localStorage.removeItem(`commands_${ctx.currentRoom.id}`);
+                commandHistory = [];
+                renderMessages(ctx.currentRoom.messages || []);
+                Notify.alert('명령어 기록이 삭제되었습니다');
+                return false;
+            } catch (e) {
+                console.error('clear 명령어 실패:', e);
+                return '삭제 중 오류가 발생했습니다';
+            }
+        }
+    },
+    {
+        alias: ['tmi','오늘의티엠아이', '티엠아이'],
+        description: () => `랜덤으로 메시지 하나를 보여줍니다.`,
+        fn(args, ctx, ret) {
+            focusRandomRecievedMessage(true);
+            return false;
+        }
+    },
+    {
+        alias: ['화자목록', '화자', 'speakerlist', 'speaker'],
+        description: () => `화자목록을 보여줍니다.`,
+        fn(args, ctx, ret) {
+            const speakers = currentRoom?.speakers || [];
+            return '화자 목록 :\n\n' + (speakers.join('\n') || '현재 설정된 화자가 없습니다.');
+        }
+    },
+    {
+        alias: ['서술자목록', '서술자', 'narratorlist', 'narrator'],
+        description: () => `서술자목록을 보여줍니다.`,
+        fn(args, ctx, ret) {
+            const narrators = currentRoom?.narrators || [];
+            return '서술자 목록 :\n\n' + (narrators.join('\n') || '현재 설정된 서술자가 없습니다.');
+        }
+    },
+    {
+        alias: ['업타임', 'uptime'],
+        description: () => `현재시간을 보여줍니다.`,
+        fn(args, ctx, ret) {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            return `현재 시각은 ${hours}:${minutes}:${seconds}입니다.`;
+        }
+    },
+    {
+        alias: ['공유', '공유링크', 'share', 'sharelink'],
+        description: () => `공유링크를 보여줍니다.`,
+        fn(args, ctx, ret) {
+            const url = getShareLink();
+            return url || '유효한 방이 열려 있지 않습니다.';
+        }
+    },
+    {
+        alias: 'me',
+        description: () => `행동 기록을 생성합니다.`,
+        experimental: true,
+        fn(args, ctx, ret) {
+            const name = ctx.currentUser ? (ctx.currentUser.displayName || (ctx.currentUser.email || '').split('@')[0]) : '나';
+            const action = args.join(' ').trim();
+            if (!action) return '사용법: /me <동작>';
+            return `*${name} ${action}`;
+        }
+    },
+    {
+        alias: 'nick',
+        description: () => `닉네임을 변경합니다.`,
+        experimental: true,
+        fn(args, ctx, ret) {
+            const newNick = args.join(' ').trim();
+            if (!newNick) return '사용법: /nick "이메일|화자이름" "새닉네임"';
+            try {
+                const key = `nicks_${ctx.currentRoom.id}`;
+                const raw = localStorage.getItem(key);
+                const map = raw ? JSON.parse(raw) : {};
+                const currentEmail = ctx.currentUser?.email || -1;
+                map[currentEmail] = newNick;
+                localStorage.setItem(key, JSON.stringify(map));
+                // 닉네임에 대한 불러오기/적용 로직 추가 필요
+                return `닉네임이 ${newNick}으로 변경되었습니다`;
+            } catch (e) {
+                return `닉네임 변경 중 오류가 발생했습니다`;
+            }
+        }
+    },
+];
+
+for (let define of commnadDefine) {
+    if (define.experimental && !['localhost', '127.0.0.1'].includes(location.hostname)) continue;
+    if (typeof define.alias == 'string') define.alias = [define.alias];
+    let handler = (args, ctx) => {
+        let ret = { temp: false, no_message: false, message: null };
+        let result = define.fn(args, ctx, ret);
+        if (result === false) return { no_message: true };
+        if (typeof result === 'string') ret.message = result;
+        return ret;
     }
-};
+    handler._define_ = define;
+    for (let namespace of define.alias) commandHandlers[namespace] = handler;
+}
 
 function pushCommandToHistory(command) {
     if (!commandHistory) commandHistory = [];
@@ -359,30 +460,54 @@ function pushCommandToHistory(command) {
     console.log('명령어 기록됨:', command);
 }
 
+function parseCommandAdvanced(input) {
+    if (!input.startsWith('/')) return null;
+
+    // 정규식 설명: 
+    // [^\s"']+ -> 따옴표나 공백이 아닌 연속된 문자
+    // "[^"]*"  -> 큰따옴표로 둘러싸인 문자열
+    // '[^']*'  -> 작은따옴표로 둘러싸인 문자열
+    const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
+    const matches = [];
+    let match;
+
+    const content = input.slice(1);
+
+    while ((match = regex.exec(content)) !== null) {
+        // match[1]은 큰따옴표 내부, match[2]는 작은따옴표 내부, match[0]은 일반 단어
+        matches.push(match[1] || match[2] || match[0]);
+    }
+
+    return {
+        cmd: matches[0],
+        args: matches.slice(1)
+    };
+}
+
 function handleCommand(text) {
     const now = new Date();
     const isSlash = text.startsWith('/');
     const speaker = currentUser?.email || uuid;
 
     if (isSlash) {
-        const parts = text.slice(1).trim().split(/\s+/);
-        const cmd = parts.shift().toLowerCase();
-        const args = parts;
+        const { args, cmd } = parseCommandAdvanced(text);
         const handler = commandHandlers[cmd];
         const ctx = { currentRoom, currentUser: currentUser };
         if (handler) {
             const result = handler(args, ctx) || {};
-            const messageText = result.message ? result.message : `명령어 실행: /${cmd}`;
-            const command = {
-                text: messageText,
-                speaker: speaker,
-                timestamp: now,
-                type: 'command',
-                cmd: cmd
-            };
-            if (!result.temp) pushCommandToHistory(command);
-            renderSingleMessage(command);
-            messages.scrollTop = messages.scrollHeight;
+            if (!result.no_message) {
+                const messageText = result.message ? result.message : `명령어 실행: /${cmd}`;
+                const command = {
+                    text: messageText,
+                    speaker: speaker,
+                    timestamp: now,
+                    type: 'command',
+                    cmd: cmd
+                };
+                if (!result.temp) pushCommandToHistory(command);
+                renderSingleMessage(command);
+                messages.scrollTop = messages.scrollHeight;
+            }
             return;
         } else {
             const command = {
@@ -638,10 +763,15 @@ function closeRoomInfoModal() {
     roomInfoModal.classList.add('hidden');
 }
 
-function openShareRoomModal() {
-    if (!currentRoom) return;
+function getShareLink() {
+    if (!currentRoom) return false;
     const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${baseUrl}?room=${currentRoom.id}`;
+    return `${baseUrl}?room=${currentRoom.id}`;
+}
+
+function openShareRoomModal() {
+    const shareUrl = getShareLink();
+    if (!shareUrl) return;
     shareLink.value = shareUrl;
 
     shareEmail.value = '';
@@ -711,8 +841,6 @@ async function addNarrator() {
         currentRoom.narrators.push(email);
         renderShareNarratorList();
         renderNarratorAndSpeakerList();
-
-
 
         addNarratorBtn.disabled = false;
         addNarratorBtn.textContent = '추가';
@@ -1002,12 +1130,12 @@ function applyRoomBackground() {
     }
 }
 
-function focusRandomRecievedMessage() {
+function focusRandomRecievedMessage(force = false) {
     if (!currentRoom) return;
     const lastFocusKey = `lastMessageFocus_${currentRoom.id}`;
     const lastFocusDate = localStorage.getItem(lastFocusKey);
     const today = new Date().toDateString();
-    if (lastFocusDate === today) return;
+    if (!force && lastFocusDate === today) return;
     const messageElements = document.querySelectorAll('.message:not(.command)');
     const recievedMessages = Array.from(messageElements).filter(msg => {
         return msg.classList.contains('other');
@@ -1022,7 +1150,7 @@ function focusRandomRecievedMessage() {
         randomMessage.classList.remove('highlight');
         setTimeout(() => messages.lastChild?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
     }, 2000);
-    localStorage.setItem(lastFocusKey, today);
+    if (!force) localStorage.setItem(lastFocusKey, today);
 }
 
 function isCreator(uid = currentUser?.uid, room = currentRoom) {

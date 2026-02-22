@@ -195,6 +195,7 @@ function errorHandle(err) {
             break;
         case 'unavailable-id':
             console.warn(err);
+            if (err.message.indexOf('is taken') > -1) Notify.alert('이미 이 계정으로 접속 중입니다. 열려있는 채팅 페이지를 모두 종료하고 재시도 해주세요.').then(() => { location.href = '/'; });
             break;
         default:
             console.warn(err);
