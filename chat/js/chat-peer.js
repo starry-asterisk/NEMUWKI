@@ -4,6 +4,7 @@ RTC.dictionary = {};
 RTC.retryMap = new Map(); // 재시도 타이머 관리c
 RTC.pendingMap = new Map(); // 현재 노크 중인 나레이터 관리
 
+RTC.cb = null;
 
 // 1. RTC 시작 (앱 로드 시 1회 실행)
 RTC.start = async (cb) => {
@@ -15,17 +16,22 @@ RTC.start = async (cb) => {
         new_peer_id = uuid; // 비로그인 유저는 기존 uuid 사용
     }
 
-    if (peer && peer.id !== new_peer_id) {
-        peer.destroy();
-        peer = null;
+    if (peer) {
+        if (my_peer !== new_peer_id) {
+            peer.destroy();
+            peer = null;
+        } else {
+            RTC.cb = cb;
+            return;
+        }
     }
+
+    RTC.cb = cb;
+    my_peer = new_peer_id;
 
     peer = new Peer(new_peer_id);
 
-    peer.on('open', (id) => {
-        my_peer = id;
-        cb && cb(id);
-    });
+    peer.on('open', (id) => RTC.cb && RTC.cb(id));
 
     peer.on('connection', handleConnection);
     peer.on('error', errorHandle);
@@ -131,7 +137,7 @@ function handleConnection(conn, narratorEmail = null) {
     function callback() {
         addConnection(conn);
         if (narratorEmail) {
-            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser.email });
+            if (currentUser) rtcFn.send.infoOne(conn, { type: 'email', email: currentUser.email });
             RTC.dictionary[conn.peer] = narratorEmail || 'unknown';
         }
     }
@@ -201,6 +207,8 @@ function errorHandle(err) {
             console.warn(err);
             break;
     }
+    RTC.cb = null;
+    my_peer = null;
 }
 
 let rtcFn = {
