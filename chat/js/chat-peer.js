@@ -22,6 +22,7 @@ RTC.start = async (cb) => {
             peer = null;
         } else {
             RTC.cb = cb;
+            if (peer.open) RTC.cb && RTC.cb(peer.id);
             return;
         }
     }
