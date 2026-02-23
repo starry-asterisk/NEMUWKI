@@ -138,7 +138,7 @@ function handleConnection(conn, narratorEmail = null) {
     function callback() {
         addConnection(conn);
         if (narratorEmail) {
-            if (currentUser) rtcFn.send.infoOne(conn, { type: 'email', email: currentUser.email });
+            if (currentUser) rtcFn.send.infoOne(conn, { type: 'email', email: currentUser.email }, true);
             RTC.dictionary[conn.peer] = narratorEmail || 'unknown';
         }
     }
@@ -369,8 +369,8 @@ let rtcFn = {
                 if (conn.open) conn.send({ type: 'info', data: infoData });
             });
         },
-        infoOne: (conn, infoData) => {
-            if (!isNarrator()) return;
+        infoOne: (conn, infoData, force = false) => {
+            if (!isNarrator() && !force) return;
             if (conn.open) conn.send({ type: 'info', data: infoData });
         },
         typing_status: (conn, infoData) => {
