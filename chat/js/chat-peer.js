@@ -3,6 +3,7 @@ RTC.connections = [];
 RTC.dictionary = {};
 RTC.retryMap = new Map(); // 재시도 타이머 관리c
 RTC.pendingMap = new Map(); // 현재 노크 중인 나레이터 관리
+RTC.anonymous = new Set(); // 나레이터가 아닌 커넥션
 
 RTC.cb = null;
 
@@ -89,7 +90,6 @@ RTC.knock = async (narratorEmail, isNarratorBool, sendInfo = false, roomId) => {
 
     // 연결 실패 시 (상대방 오프라인 포함)
     conn.on('error', (err) => {
-        console.log(err);
         RTC.pendingMap.delete(narratorEmail);
         if (err.type === 'peer-unavailable') {
             RTC.scheduleRetry(narratorEmail, isNarratorBool);
@@ -102,8 +102,8 @@ RTC.scheduleRetry = (narratorEmail, isNarratorBool) => {
     if (isNarratorBool) return RTC.retryMap.delete(narratorEmail); // 나레이터는 재시도하지 않음
     if (RTC.retryMap.has(narratorEmail)) return;
 
-    // 연결된 피어가 0개면 10초, 있으면 1분 주기
-    const interval = RTC.connections.length === 0 ? 10000 : 60000;
+    // 연결된 피어가 0개면 10초, 있으면 30초 주기
+    const interval = RTC.connections.length === 0 ? 10000 : 30000;
 
     const timerId = setTimeout(() => {
         RTC.retryMap.delete(narratorEmail);
@@ -138,7 +138,7 @@ function handleConnection(conn, narratorEmail = null) {
     function callback() {
         addConnection(conn);
         if (narratorEmail) {
-            if (currentUser) rtcFn.send.infoOne(conn, { type: 'email', email: currentUser.email }, true);
+            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser?.email , isNarrator: isNarrator() }, true);
             RTC.dictionary[conn.peer] = narratorEmail || 'unknown';
         }
     }
@@ -170,6 +170,7 @@ function removeConnection(conn) {
 }
 
 function errorHandle(err) {
+    const connections = this.connections;
     switch (err.type) {
         case 'browser-incompatible':
             console.warn('호환되지 않는 브라우저입니다');
@@ -187,6 +188,13 @@ function errorHandle(err) {
             console.warn('네트워크 오류', 3600000);
             break;
         case 'peer-unavailable':
+            for(let conn_id in connections) {
+                if (err.message.indexOf(conn_id) > -1) {
+                    let conn = connections[conn_id][0];
+                    conn._events.error.fn.call(conn, err);
+                    break;
+                }
+            }
             return;
         case 'ssl-unavailable':
             console.warn('인증서 오류', 3600000);
@@ -272,6 +280,7 @@ let rtcFn = {
                     }
                     break;
                 case 'email':
+                    if (!data.isNarrator) RTC.anonymous.add(conn.peer);
                     RTC.dictionary[conn.peer] = data.email;
                     break;
                 case 'avatar':

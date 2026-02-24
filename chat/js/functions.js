@@ -230,9 +230,7 @@ function attachMessageContextEvents(messageDiv, msg, isRightBool, isOwn) {
                     currentRoom.speakerAvatars[msg.speaker] = url;
                     await window.chatFb.updateRoom(currentRoom.id, { speakerAvatars: currentRoom.speakerAvatars });
                     renderMessages(currentRoom.messages);
-                    toAllNarrators((conn) => {
-                        rtcFn.send.infoOne(conn, { type: 'avatar', speaker: msg.speaker, avatar: url, roomId: currentRoom.id });
-                    }, currentRoom);
+                    toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'avatar', speaker: msg.speaker, avatar: url, roomId: currentRoom.id }), currentRoom);
                 });
             });
             let touchStartTime2 = 0;
@@ -290,9 +288,7 @@ async function sendMessage() {
                 currentRoom.messages.push(messageData);
                 renderSingleMessage(messageData);
                 messages.scrollTop = messages.scrollHeight;
-                toAllNarrators(conn => {
-                    rtcFn.send.messageOne(conn, messageData, currentRoom.id);
-                }, currentRoom);
+                toAllNarrators(conn => rtcFn.send.messageOne(conn, messageData, currentRoom.id), currentRoom);
             } else await Notify.alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
         } else {
             await Notify.alert('로그인이 필요합니다');
@@ -324,7 +320,7 @@ const commnadDefine = [
         fn(args, ctx, ret) {
             if (args.length > 0) {
                 let msg = '';
-                for(let url of args) msg += `[image:${url}]\n`;
+                for (let url of args) msg += `[image:${url}]\n`;
                 messageInput.value = msg;
             } else openImageSelector(async (url) => {
                 messageInput.value = `[image:${url}]`;
@@ -1184,13 +1180,20 @@ function isRight(namespace, room = currentRoom) {
 }
 
 function toAllNarrators(fn, room = currentRoom) {
-    currentRoom.narrators.forEach(email => {
-        if (email === currentUser.email) return;
+    let sended = {};
+    room?.narrators?.forEach(email => {
         (async () => {
             const targetPeerId = await generatePeerId(null, email);
             const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
-            if (targetConn) fn(targetConn, email);
+            if (targetConn) fn(targetConn, email), sended[targetPeerId] = true;
         })();
+    });
+
+    RTC.anonymous.forEach(targetPeerId => {
+        if (targetPeerId in sended) return;
+        const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
+        if (targetConn) fn(targetConn, email), sended[targetPeerId] = true;
+        else RTC.anonymous.delete(targetPeerId);
     });
 }
 
