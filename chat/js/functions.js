@@ -1195,6 +1195,8 @@ function toAllNarrators(fn, room = currentRoom) {
         if (targetConn) fn(targetConn), sended[targetPeerId] = true;
         else RTC.anonymous.delete(targetPeerId);
     });
+
+    RTC.subConnectionArr.forEach(conn => conn.open && fn(conn));
 }
 
 function sendTypingStatus(isTyping) {

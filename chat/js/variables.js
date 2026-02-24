@@ -9,7 +9,7 @@ let typingTimer;                // 타이핑 중단 감지용 타이머
 let isTyping = false;           // 현재 '입력 중' 상태인지 기록
 const doneTypingInterval = 3000; // 3초 동안 입력 없으면 '숨김' 처리
 
-const uuid = Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9);
+let uuid = Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9);
 
 const chatList = document.getElementById('chatList');
 const chatRoom = document.getElementById('chatRoom');

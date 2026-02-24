@@ -4,6 +4,9 @@ RTC.dictionary = {};
 RTC.retryMap = new Map(); // 재시도 타이머 관리c
 RTC.pendingMap = new Map(); // 현재 노크 중인 나레이터 관리
 RTC.anonymous = new Set(); // 나레이터가 아닌 커넥션
+RTC.subConnection = false; // 이메일로 생성되는 peer_id가 사용중일 때 재시도 로직으로 돌입했는지를 표시
+RTC.subConnectionArr = [];
+RTC.mainPeer = null;
 
 RTC.cb = null;
 
@@ -19,8 +22,9 @@ RTC.start = async (cb) => {
 
     if (peer) {
         if (my_peer !== new_peer_id) {
-            peer.destroy();
+            let delPeer = peer;
             peer = null;
+            delPeer.destroy();
         } else {
             RTC.cb = cb;
             if (peer.open) RTC.cb && RTC.cb(peer.id);
@@ -29,20 +33,40 @@ RTC.start = async (cb) => {
     }
 
     RTC.cb = cb;
-    my_peer = new_peer_id;
 
+    RTC.connect(new_peer_id);
+}
+
+RTC.connect = (new_peer_id, isSubConnection = false) => {
+    my_peer = new_peer_id;
+    RTC.connections = [];
+    RTC.subConnection = !!isSubConnection;
     peer = new Peer(new_peer_id);
 
-    peer.on('open', (id) => RTC.cb && RTC.cb(id));
+    peer.on('open', (id) => {
+        if (RTC.subConnection) RTC.subKnock();
+        RTC.cb && RTC.cb(id);
+    });
 
     peer.on('connection', handleConnection);
     peer.on('error', errorHandle);
-    peer.on('disconnected', () => peer.reconnect());
+    peer.on('disconnected', () => peer && peer.reconnect());
+}
 
+RTC.subKnock = async () => {
+    const conn = peer.connect(RTC.mainPeer, { reliable: true });
+
+    conn.on('open', () => {
+        handleConnection(conn);
+        RTC.subConnectionArr.push(conn);
+        rtcFn.send.infoOne(conn, { type: 'subConnection' }, true);
+    });
+
+    conn.on('error', Notify.alert);
 }
 
 // 2. 방 입장 및 나레이터 노크 로직
-RTC.joinRoom = async (doc_id, isNarratorBool = isNarrator()) => {
+RTC.joinRoom = async (doc_id, isNarratorBool = isNarrator(currentUser?.email, chatRooms.find(r => r.id === doc_id))) => {
     const room = chatRooms.find(r => r.id === doc_id);
     const narrators = room?.narrators || [];
 
@@ -63,7 +87,7 @@ RTC.leaveRoom = () => {
 // 4. 점진적 노크 (핵심 로직)
 RTC.knock = async (narratorEmail, isNarratorBool, sendInfo = false, roomId) => {
     const targetId = await generatePeerId(null, narratorEmail);
-    if (!targetId || targetId === my_peer) return;
+    if (!targetId || targetId === my_peer || targetId === RTC.mainPeer) return;
     let old_conn = RTC.connections.find(c => c.peer === targetId);
 
     // 이미 연결되어 있다면 재시도 중단
@@ -122,8 +146,14 @@ RTC.stopRetry = (narratorEmail) => {
 
 // 6. 연결 관리 함수들
 function handleConnection(conn, narratorEmail = null) {
+    let originalPeer = peer;
     conn.on('data', function (result) {
-        if (typeof rtcFn.receive[result?.type] == 'function') rtcFn.receive[result.type](conn, result.data);
+        if (typeof rtcFn.receive[result?.type] == 'function') {
+            rtcFn.receive[result.type](conn, result.data);
+            if(!RTC.subConnection && RTC.subConnectionArr.indexOf(conn) < 0) for(let conn of RTC.subConnectionArr) {
+                if(conn.open) conn.send(result);
+            }
+        }
     });
 
     if (conn.peerConnection) {
@@ -133,12 +163,12 @@ function handleConnection(conn, narratorEmail = null) {
         };
     }
 
-    conn.on('close', () => removeConnection(conn));
+    conn.on('close', () => removeConnection(conn, originalPeer));
 
     function callback() {
         addConnection(conn);
         if (narratorEmail) {
-            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser?.email , isNarrator: isNarrator() }, true);
+            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser?.email, isNarrator: isNarrator() }, true);
             RTC.dictionary[conn.peer] = narratorEmail || 'unknown';
         }
     }
@@ -158,13 +188,21 @@ function addConnection(conn) {
     RTC.connections.push(conn);
 }
 
-function removeConnection(conn) {
+function removeConnection(conn, originalPeer = peer) {
+    if (peer === null || originalPeer.destroyed) return;
     RTC.connections = RTC.connections.filter(c => c.peer !== conn.peer);
 
     if (!isNarrator()) {
         console.log("나레이터와 연결이 끊겨 재접속 대기 모드로 전환합니다.");
         if (currentRoom) RTC.joinRoom(currentRoom.id, false); // 필요 시 호출
     }
+
+    if (conn.peer == RTC.mainPeer)
+        Notify.confirm("네트워크 오류로 연결이 끊겼습니다. 페이지를 새로고침 하시겠습니까? 아닐 경우 메인 페이지로 돌아갑니다.")
+            .then(bool => {
+                if (bool) location.reload();
+                else location.href = '/';
+            });
 
     try { if (conn.open) conn.close(); } catch (e) { }
 }
@@ -188,7 +226,7 @@ function errorHandle(err) {
             console.warn('네트워크 오류', 3600000);
             break;
         case 'peer-unavailable':
-            for(let conn_id in connections) {
+            for (let conn_id in connections) {
                 if (err.message.indexOf(conn_id) > -1) {
                     let conn = connections[conn_id][0];
                     conn._events.error.fn.call(conn, err);
@@ -210,7 +248,15 @@ function errorHandle(err) {
             break;
         case 'unavailable-id':
             console.warn(err);
-            if (err.message.indexOf('is taken') > -1) Notify.alert('이미 이 계정으로 접속 중입니다. 열려있는 채팅 페이지를 모두 종료하고 재시도 해주세요.').then(() => { location.href = '/'; });
+            if (err.message.indexOf('is taken') > -1) {
+                if (!RTC.subConnection) {
+                    generatePeerId(null, uuid).then(new_uuid => {
+                        RTC.mainPeer = my_peer;
+                        RTC.connect(uuid = new_uuid, true);
+                    });
+                    return;
+                } else Notify.alert('이미 이 계정으로 접속 중입니다. 열려있는 채팅 페이지를 모두 종료하고 재시도 해주세요.').then(() => { location.href = '/'; });
+            }
             break;
         default:
             console.warn(err);
@@ -282,6 +328,9 @@ let rtcFn = {
                 case 'email':
                     if (!data.isNarrator) RTC.anonymous.add(conn.peer);
                     RTC.dictionary[conn.peer] = data.email;
+                    break;
+                case 'subConnection':
+                    RTC.subConnectionArr.push(conn);
                     break;
                 case 'avatar':
                     const room = chatRooms.find(r => r.id === data.roomId);
