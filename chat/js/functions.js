@@ -1200,7 +1200,31 @@ function toAllNarrators(fn, room = currentRoom) {
 }
 
 function sendTypingStatus(isTyping) {
-    if (currentRoom && isNarrator()) toAllNarrators(conn => rtcFn.send.typing_status(conn, { isTyping: isTyping, roomId: currentRoom.id }), currentRoom);
+    if (currentRoom && isNarrator()) toAllNarrators(conn => rtcFn.send.typing_status(conn, { isTyping: isTyping, roomId: currentRoom.id, peer: my_peer }), currentRoom);
+}
+
+function attachSubjectMarker(word) {
+  if (!word || typeof word !== 'string') return word;
+
+  const lastChar = word.charCodeAt(word.length - 1);
+  let hasBatchim = false;
+
+  // 1. 한글 여부 확인 (가-힣 범위: 0xAC00 ~ 0xD7A3)
+  if (lastChar >= 0xAC00 && lastChar <= 0xD7A3) {
+    // 한글 받침 유무 공식: (문자코드 - 0xAC00) % 28
+    // 결과가 0이면 받침 없음, 0보다 크면 받침 있음
+    hasBatchim = (lastChar - 0xAC00) % 28 > 0;
+  } 
+  // 2. 영어 여부 확인 (알파벳 범위)
+  else if ((lastChar >= 65 && lastChar <= 90) || (lastChar >= 97 && lastChar <= 122)) {
+    // 마지막 글자가 모음(a, e, i, o, u)이면 받침이 없는 것으로 간주 (가)
+    // 자음이면 받침이 있는 것으로 간주 (이)
+    const vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'A', 'E', 'I', 'O', 'U', 'Y'];
+    const lastLetter = word[word.length - 1];
+    hasBatchim = !vowels.includes(lastLetter);
+  }
+
+  return hasBatchim ? `${word}이` : `${word}가`;
 }
 
 function showTypingIndicator(speaker) {
@@ -1209,7 +1233,7 @@ function showTypingIndicator(speaker) {
     if (!indicator) {
         indicator = document.createElement('div');
         indicator.className = `typing-user-item`;
-        indicator.innerHTML = `${speaker}이 타이핑 중...`;
+        indicator.innerHTML = `${attachSubjectMarker(speaker)} 메시지를 작성중...`;
         indicator.dataset.speaker = speaker;
         const scrollBottom = (messages.scrollHeight - messages.offsetHeight) - messages.scrollTop;
         typingIndicatorContainer.appendChild(indicator);

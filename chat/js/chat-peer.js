@@ -150,8 +150,8 @@ function handleConnection(conn, narratorEmail = null) {
     conn.on('data', function (result) {
         if (typeof rtcFn.receive[result?.type] == 'function') {
             rtcFn.receive[result.type](conn, result.data);
-            if(!RTC.subConnection && RTC.subConnectionArr.indexOf(conn) < 0) for(let conn of RTC.subConnectionArr) {
-                if(conn.open) conn.send(result);
+            if (!RTC.subConnection && RTC.subConnectionArr.indexOf(conn) < 0) for (let conn of RTC.subConnectionArr) {
+                if (conn.open) conn.send(result);
             }
         }
     });
@@ -168,7 +168,7 @@ function handleConnection(conn, narratorEmail = null) {
     function callback() {
         addConnection(conn);
         if (narratorEmail) {
-            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser?.email, isNarrator: isNarrator() }, true);
+            rtcFn.send.infoOne(conn, { type: 'email', email: currentUser?.email, isNarrator: isNarrator(), peer: my_peer }, true);
             RTC.dictionary[conn.peer] = narratorEmail || 'unknown';
         }
     }
@@ -191,6 +191,7 @@ function addConnection(conn) {
 function removeConnection(conn, originalPeer = peer) {
     if (peer === null || originalPeer.destroyed) return;
     RTC.connections = RTC.connections.filter(c => c.peer !== conn.peer);
+    RTC.subConnectionArr = RTC.subConnectionArr.filter(c => c.peer !== conn.peer);
 
     if (!isNarrator()) {
         console.log("나레이터와 연결이 끊겨 재접속 대기 모드로 전환합니다.");
@@ -270,7 +271,7 @@ let rtcFn = {
     receive: {
         typing_status: (conn, data) => {
             if (currentRoom && currentRoom.id === data.roomId) {
-                const speakerName = RTC.dictionary[conn.peer] || '알 수 없는 사용자';
+                const speakerName = RTC.subConnectionArr.includes(conn) ? "다른기기" : RTC.dictionary[data.peer] || '알 수 없는 사용자';
                 if (data.isTyping) {
                     showTypingIndicator(speakerName);
                 } else {
@@ -326,8 +327,8 @@ let rtcFn = {
                     }
                     break;
                 case 'email':
-                    if (!data.isNarrator) RTC.anonymous.add(conn.peer);
-                    RTC.dictionary[conn.peer] = data.email;
+                    if (!data.isNarrator) RTC.anonymous.add(data.peer);
+                    RTC.dictionary[data.peer] = data.email;
                     break;
                 case 'subConnection':
                     RTC.subConnectionArr.push(conn);
