@@ -1185,14 +1185,14 @@ function toAllNarrators(fn, room = currentRoom) {
         (async () => {
             const targetPeerId = await generatePeerId(null, email);
             const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
-            if (targetConn) fn(targetConn, email), sended[targetPeerId] = true;
+            if (targetConn) fn(targetConn), sended[targetPeerId] = true;
         })();
     });
 
     RTC.anonymous.forEach(targetPeerId => {
         if (targetPeerId in sended) return;
         const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
-        if (targetConn) fn(targetConn, email), sended[targetPeerId] = true;
+        if (targetConn) fn(targetConn), sended[targetPeerId] = true;
         else RTC.anonymous.delete(targetPeerId);
     });
 }
