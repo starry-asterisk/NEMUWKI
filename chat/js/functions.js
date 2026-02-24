@@ -9,6 +9,16 @@ function renderChatList(rooms = chatRooms) {
     rooms.forEach(createChatItem);
 }
 
+function updateChatItemByMessage(messageData, room = currentRoom) {
+    room.lastMessage = messageData.text;
+    room.lastMessageTime = messageData.timestamp;
+    room.lastMessageBy = messageData.senderName;
+    if (room.id === currentRoom?.id) {
+        roomStatus.textContent = room.lastMessageBy ? `마지막 메시지: ${room.lastMessageBy}` : '채팅방';
+    }
+    createChatItem(room);
+}
+
 function createChatItem(room) {
     if (room.id === currentRoom?.id) {
         updateMessageInputState();
@@ -29,7 +39,7 @@ function createChatItem(room) {
         <div class="chat-info">
             <div class="chat-header-info">
                 <span class="chat-name">${room.title || '채팅방'}</span>
-                <span class="chat-time">${room.lastMessageTime ? formatTime(room.lastMessageTime.toDate?.() || room.lastMessageTime) : ''}</span>
+                <span class="chat-time">${room.lastMessageTime ? formatTime(room.lastMessageTime) : ''}</span>
             </div>
             <div class="chat-preview">
                 ${room.lastMessage || '새로운 채팅'}
@@ -143,8 +153,8 @@ function renderMessages(msgs = []) {
             const commands = JSON.parse(stored);
             commandHistory = commands;
             allMessages = [...allMessages, ...commands].sort((a, b) => {
-                const timeA = a.timestamp?.toDate?.() || new Date(a.timestamp);
-                const timeB = b.timestamp?.toDate?.() || new Date(b.timestamp);
+                const timeA = TimestampToDate(a.timestamp);
+                const timeB = TimestampToDate(b.timestamp);
                 return new Date(timeA) - new Date(timeB);
             });
         }
@@ -178,7 +188,7 @@ function createMessageDiv(msg) {
     const isOwn = isMe(msg.speaker);
     const speakerAvatars = currentRoom.speakerAvatars || {};
     const profileImage = speakerAvatars[msg.speaker] || '';
-    const time = formatTime(msg.timestamp?.toDate?.() || msg.timestamp);
+    const time = formatTime(msg.timestamp);
     const displayName = msg.speaker;
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isRightBool ? 'right' : 'other'} ${isCommand ? 'command' : ''} ${isOwn ? 'own' : ''}`;
@@ -287,6 +297,7 @@ async function sendMessage() {
                 currentRoom.messages = currentRoom.messages || [];
                 currentRoom.messages.push(messageData);
                 renderSingleMessage(messageData);
+                updateChatItemByMessage(messageData);
                 messages.scrollTop = messages.scrollHeight;
                 toAllNarrators(conn => rtcFn.send.messageOne(conn, messageData, currentRoom.id), currentRoom);
             } else await Notify.alert('채팅방 생성자 또는 서술자만 참여자 메시지를 작성할 수 있습니다');
@@ -762,7 +773,7 @@ function openRoomInfoModal() {
     infoRoomTitle.textContent = currentRoom.title || '-';
     infoRoomDescription.textContent = currentRoom.description || '-';
     infoCreatedDate.textContent = currentRoom.createdAt
-        ? new Date(currentRoom.createdAt.toDate?.() || currentRoom.createdAt).toLocaleDateString('ko-KR')
+        ? TimestampToDate(currentRoom.createdAt).toLocaleDateString('ko-KR')
         : '-';
     infoNarrators.textContent = (currentRoom.narrators || []).length + '명';
     infoSpeakers.textContent = (currentRoom.speakers || []).length + '명';
@@ -909,8 +920,7 @@ async function saveChatRoom() {
             backgroundPattern: editRoomBackgroundPatternInput.value
         });
 
-
-        roomTitle.textContent = currentRoom.title;
+        roomTitle.textContent = changedRoomData.title;
         toAllNarrators(conn => rtcFn.send.infoOne(conn, { type: 'roomUpdate', roomId: currentRoom.id, data: changedRoomData }), currentRoom);
         refreshRoom(currentRoom.id, changedRoomData);
         closeManageRoomModal();
@@ -937,6 +947,7 @@ async function refreshRoom(roomId, changedRoomData) {
     room.backgroundPattern = changedRoomData.backgroundPattern;
 
     if (currentRoom && currentRoom.id === room.id) {
+        roomTitle.textContent = room.title;
         applyRoomBackground();
     }
     createChatItem(room);

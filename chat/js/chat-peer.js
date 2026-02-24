@@ -271,7 +271,7 @@ let rtcFn = {
     receive: {
         typing_status: (conn, data) => {
             if (currentRoom && currentRoom.id === data.roomId) {
-                const speakerName = RTC.subConnectionArr.includes(conn) ? "다른기기" : RTC.dictionary[data.peer] || '알 수 없는 사용자';
+                const speakerName = RTC.subConnectionArr.find(conn => conn.peer === data.peer) ? "다른기기" : RTC.dictionary[data.peer] || '알 수 없는 사용자';
                 if (data.isTyping) {
                     showTypingIndicator(speakerName);
                 } else {
@@ -288,6 +288,7 @@ let rtcFn = {
                     renderSingleMessage(data.message);
                     messages.scrollTop = messages.scrollHeight;
                 }
+                updateChatItemByMessage(data.message, room);
             }
         },
         edit_message: (conn, data) => {
@@ -295,6 +296,7 @@ let rtcFn = {
             if (room) {
                 room.messages = (room.messages || []).map(msg => msg.id === data.message.id ? data.message : msg);
                 if (currentRoom && currentRoom.id === room.id) renderSingleMessage(data.message);
+                updateChatItemByMessage(data.message, room);
             }
         },
         delete_message: (conn, data) => {

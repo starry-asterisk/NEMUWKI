@@ -1,6 +1,6 @@
 function formatTime(date) {
     if (!date) return '';
-    if (date instanceof Date === false) date = new Date(date);
+    if (date instanceof Date === false) date = TimestampToDate(date);
 
     const now = new Date();
     const diff = now - date;
@@ -17,20 +17,29 @@ function formatTime(date) {
     return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
+function TimestampToDate(timestamp) {
+    if (typeof timestamp != 'string' && 'seconds' in timestamp) {
+        let time = timestamp.seconds * 1000;
+        if ('nanoseconds' in timestamp && !isNaN(timestamp.nanoseconds)) time += timestamp.nanoseconds / 1000000;
+        timestamp = time;
+    }
+    return new Date(timestamp);
+}
+
 const SALT = 'nemuwiki-chat-salt';
 async function generatePeerId(roomId, email) {
-  const input = `${roomId || SALT}:${email}`; // 고유 조합 생성
-  const msgBuffer = new TextEncoder().encode(input);
-  
-  // SHA-256 해시 생성
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  
-  // 바이너리 데이터를 16진수 문자열로 변환
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  // (선택 사항) UUID 형식(8-4-4-4-12)으로 자르기
-  return `${hashHex.substring(0, 8)}-${hashHex.substring(8, 12)}-${hashHex.substring(12, 16)}-${hashHex.substring(16, 20)}-${hashHex.substring(20, 32)}`;
+    const input = `${roomId || SALT}:${email}`; // 고유 조합 생성
+    const msgBuffer = new TextEncoder().encode(input);
+
+    // SHA-256 해시 생성
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+    // 바이너리 데이터를 16진수 문자열로 변환
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // (선택 사항) UUID 형식(8-4-4-4-12)으로 자르기
+    return `${hashHex.substring(0, 8)}-${hashHex.substring(8, 12)}-${hashHex.substring(12, 16)}-${hashHex.substring(16, 20)}-${hashHex.substring(20, 32)}`;
 }
 
 function getYoutubeId(url) {
