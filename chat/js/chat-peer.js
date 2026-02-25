@@ -199,11 +199,13 @@ function removeConnection(conn, originalPeer = peer) {
     }
 
     if (conn.peer == RTC.mainPeer)
-        Notify.confirm("네트워크 오류로 연결이 끊겼습니다. 페이지를 새로고침 하시겠습니까? 아닐 경우 메인 페이지로 돌아갑니다.")
-            .then(bool => {
-                if (bool) location.reload();
-                else location.href = '/';
-            });
+        Notify.banner("네트워크 연결이 끊겼습니다.", {
+            type: 'error',
+            button: {
+                label: '↻ 재연결',
+                onclick: () => RTC.start()
+            }
+        });
 
     try { if (conn.open) conn.close(); } catch (e) { }
 }

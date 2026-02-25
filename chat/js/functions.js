@@ -67,10 +67,8 @@ async function selectRoom(room) {
     updateMessageInputState();
     renderChatList();
     try {
-        window.chatFb.getMessages(room.id, (msgs) => {
-            renderMessages(msgs);
-            focusRandomRecievedMessage();
-        });
+        renderMessages(room.messages);
+        focusRandomRecievedMessage();
         setBackTrigger();
     } catch (error) {
         console.error("메시지 로드 실패:", error);
