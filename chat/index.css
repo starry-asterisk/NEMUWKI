@@ -544,6 +544,22 @@ body {
     resize: none;
 }
 
+.input-wrapper textarea:placeholder-shown {
+    overflow: hidden;
+}
+.input-wrapper textarea::placeholder {
+    white-space: nowrap;
+    position: absolute;
+    top: 0px;
+    left: 16px;
+    right: 16px;
+    bottom: 0px;
+    text-overflow: ellipsis;
+    justify-content: center;
+    align-content: center;
+    overflow: hidden;
+}
+
 .input-wrapper textarea:focus {
     border-color: #ccc;
 }
