@@ -1190,12 +1190,11 @@ function isRight(namespace, room = currentRoom) {
 
 function toAllNarrators(fn, room = currentRoom) {
     let sended = {};
-    room?.narrators?.forEach(email => {
-        (async () => {
-            const targetPeerId = await generatePeerId(null, email);
-            const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
-            if (targetConn) fn(targetConn), sended[targetPeerId] = true;
-        })();
+    room?.narrators?.forEach(async email => {
+        const targetPeerId = await generatePeerId(null, email);
+        if (targetPeerId in sended) return;
+        const targetConn = RTC.connections.find(c => c.peer === targetPeerId);
+        if (targetConn) fn(targetConn), sended[targetPeerId] = true;
     });
 
     RTC.anonymous.forEach(targetPeerId => {
@@ -1205,7 +1204,11 @@ function toAllNarrators(fn, room = currentRoom) {
         else RTC.anonymous.delete(targetPeerId);
     });
 
-    RTC.subConnectionArr.forEach(conn => conn.open && fn(conn));
+    RTC.subConnectionArr.forEach(conn => {
+        if (conn.peer in sended) return;
+        sended[conn.peer] = true;
+        conn.open && fn(conn)
+    });
 }
 
 function sendTypingStatus(isTyping) {
