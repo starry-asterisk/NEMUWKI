@@ -4,6 +4,7 @@ function preview() {
 
     let summuryList = [];
 
+    let max_title_length = 30;
     let index = 0;
     let depth = 1;
     let prefix = ''
@@ -176,7 +177,7 @@ async function submit() {
             }
         }
 
-        if (formData.title.length > 25) return Notify.alert('문서 명은 최대 25자 까지 가능합니다.');
+        if (formData.title.length > max_title_length) return Notify.alert(`문서 명은 ${max_title_length}자 이하로 작성해야 합니다.`);
         if (formData.title.length < 1) return Notify.alert('문서 명은 비워 둘 수 없습니다.');
 
         toggleSubmitMode();
