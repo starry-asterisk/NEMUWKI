@@ -4,7 +4,6 @@ function preview() {
 
     let summuryList = [];
 
-    let max_title_length = 30;
     let index = 0;
     let depth = 1;
     let prefix = ''
@@ -152,6 +151,7 @@ async function submit() {
 
         if (!Notify.confirm('작성한 내용을 업로드 하시겠습니까?')) return;
 
+        let max_title_length = 30;
         let { board, cate } = app_aside.components;
 
         let formData = {
