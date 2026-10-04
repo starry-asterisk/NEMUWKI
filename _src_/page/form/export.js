@@ -151,8 +151,8 @@ async function submit() {
 
         if (!Notify.confirm('작성한 내용을 업로드 하시겠습니까?')) return;
 
-        let max_title_length = 30;
         let { board, cate } = app_aside.components;
+        let max_title_length = 30;
 
         let formData = {
             board_name: board.dataset.value || '전체',
